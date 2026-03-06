@@ -16,7 +16,7 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            url: "https://github.com/ml-explore/mlx-swift-examples",
+            url: "https://github.com/ml-explore/mlx-swift-lm",
             branch: "main"
         )
     ],
@@ -24,11 +24,26 @@ let package = Package(
         .target(
             name: "MLXEdgeLLM",
             dependencies: [
-                .product(name: "MLXVLM", package: "mlx-swift-examples"),
-                .product(name: "MLXLLM", package: "mlx-swift-examples"),
-                .product(name: "MLXLMCommon", package: "mlx-swift-examples"),
+                .product(name: "MLXVLM", package: "mlx-swift-lm"),
+                .product(name: "MLXLLM", package: "mlx-swift-lm"),
+                .product(name: "MLXLMCommon", package: "mlx-swift-lm"),
             ],
             path: "Sources/MLXEdgeLLM"
+        ),
+        // MARK: - Example App
+        .executableTarget(
+            name: "MLXEdgeLLMExample",
+            dependencies: [
+                "MLXEdgeLLM"
+            ],
+            path: "Sources/MLXEdgeLLMExample"
+        ),
+        
+        // MARK: - Tests
+        .testTarget(
+            name: "MLXEdgeLLMTests",
+            dependencies: ["MLXEdgeLLM"],
+            path: "Tests/MLXEdgeLLMTests"
         )
     ]
 )
