@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "MLXEdgeLLM",
     platforms: [
-        .iOS(.v16),
+        .iOS(.v17),
         .macOS(.v14),
         .visionOS(.v1)
     ],
