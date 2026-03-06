@@ -6,8 +6,8 @@ Lightweight on-device LLM & VLM Swift package for iOS/macOS, powered by MLX. Run
 
 ## Requirements
 
-- iOS 16+ / macOS 14+
-- Xcode 15.3+
+- iOS 17+ / macOS 14+
+- Xcode 16+
 - `Increased Memory Limit` entitlement (required for models > 500 MB)
 
 ## Installation
