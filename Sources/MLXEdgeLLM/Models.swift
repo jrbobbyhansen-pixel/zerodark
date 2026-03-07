@@ -1,8 +1,30 @@
 import Foundation
+import MLX
+import MLXLLM
+import MLXLMCommon
+
+public protocol ModelList: CaseIterable, Sendable, RawRepresentable {}
+
+public extension ModelList where RawValue == String {
+    var isDownloaded: Bool {
+        guard let baseDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else {
+            return false
+        }
+        
+        let directory = baseDirectory
+            .appendingPathComponent("models")
+            .appendingPathComponent(rawValue)
+            .path
+        
+        var isDirectory: ObjCBool = false
+        let exists = FileManager.default.fileExists(atPath: directory, isDirectory: &isDirectory)
+        return exists && isDirectory.boolValue
+    }
+}
 
 // MARK: - TextModel
 
-public enum TextModel: String, CaseIterable, Sendable {
+public enum TextModel: String, ModelList {
     case qwen3_0_6b   = "mlx-community/Qwen3-0.6B-4bit"
     case qwen3_1_7b   = "mlx-community/Qwen3-1.7B-4bit"
     case qwen3_4b     = "mlx-community/Qwen3-4B-Instruct-2507-4bit"
@@ -37,11 +59,9 @@ public enum TextModel: String, CaseIterable, Sendable {
 
 // MARK: - VisionModel (general-purpose, MLXVLM backend)
 
-public enum VisionModel: String, CaseIterable, Sendable {
+public enum VisionModel: String, ModelList {
     case qwen35_0_8b  = "mlx-community/Qwen3.5-0.8B-MLX-4bit"
     case qwen35_2b    = "mlx-community/Qwen3.5-2B-4bit"
-    case qwen35_4b    = "mlx-community/Qwen3.5-4B-MLX-4bit"
-    case gemma3_4b    = "mlx-community/gemma-3-4b-it-4bit"
     case smolvlm_500m = "mlx-community/SmolVLM-500M-Instruct-bf16"
     case smolvlm_2b   = "mlx-community/SmolVLM-Instruct-4bit"
     
@@ -49,8 +69,6 @@ public enum VisionModel: String, CaseIterable, Sendable {
         switch self {
             case .qwen35_0_8b:  return "Qwen3.5 0.8B (default)"
             case .qwen35_2b:    return "Qwen3.5 2B"
-            case .qwen35_4b:    return "Qwen3.5 4B"
-            case .gemma3_4b:    return "Gemma 3 4B"
             case .smolvlm_500m: return "SmolVLM 500M"
             case .smolvlm_2b:   return "SmolVLM2 2B"
         }
@@ -59,8 +77,6 @@ public enum VisionModel: String, CaseIterable, Sendable {
         switch self {
             case .qwen35_0_8b: return 625;
             case .qwen35_2b: return 1_720
-            case .qwen35_4b: return 3_030;
-            case .gemma3_4b: return 3_400;
             case .smolvlm_500m: return 1_020
             case .smolvlm_2b: return 1_460
         }
@@ -76,7 +92,7 @@ public enum VisionModel: String, CaseIterable, Sendable {
 ///
 /// **Granite Docling 258M** — IBM Research. DocTags output preserving tables/equations.
 /// HF: `ibm-granite/granite-docling-258M-mlx` (~270 MB, Sep 2025)
-public enum SpecializedVisionModel: String, CaseIterable, Sendable {
+public enum SpecializedVisionModel: String, ModelList {
     case fastVLM_0_5b_fp16 = "mlx-community/FastVLM-0.5B-bf16"
     case fastVLM_1_5b_int8 = "InsightKeeper/FastVLM-1.5B-MLX-8bit"
     

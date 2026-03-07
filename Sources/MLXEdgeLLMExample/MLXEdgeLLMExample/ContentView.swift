@@ -46,7 +46,7 @@ struct ContentView: View {
                                     .pickerStyle(.segmented)
                                 }
                                 Spacer()
-                                btn("Run", .blue) {
+                                btn("Run", isDownloaded: selectedVisionModel.isDownloaded, .blue) {
                                     switch visionRunMode {
                                         case .standard:
                                             await vm.runVLM(model: selectedVisionModel, image: img)
@@ -64,13 +64,13 @@ struct ContentView: View {
                             HStack {
                                 Picker("Model", selection: $selectedSpecializedModel) {
                                     ForEach(SpecializedVisionModel.allCases, id: \.self) { model in
-                                        Text(specializedModelLabel(model)).tag(model)
+                                        Text(model.displayName).tag(model)
                                     }
                                 }
                                 
                                 Spacer()
                                 
-                                btn("Run OCR", .orange) {
+                                btn("Run OCR", isDownloaded: selectedSpecializedModel.isDownloaded, .orange) {
                                     await vm.runSpecialized(model: selectedSpecializedModel, image: img)
                                 }
                                 .frame(maxWidth: 120)
@@ -88,7 +88,7 @@ struct ContentView: View {
                     }
                     
                     // Text chat (no image needed)
-                    btn("💬 Text Chat(Qwen3 1.7B)", .green) { await vm.runTextChat() }
+                    btn("Use Text Chat(Qwen3 1.7B)", isDownloaded: TextModel.qwen3_1_7b.isDownloaded, .green) { await vm.runTextChat() }
                     
                     // Progress
                     if !vm.progress.isEmpty {
@@ -142,29 +142,33 @@ struct ContentView: View {
         }
     }
     
-    private func btn(_ title: String, _ color: Color, action: @escaping () async -> Void) -> some View {
+    private func btn(_ title: String, isDownloaded: Bool, _ color: Color, action: @escaping () async -> Void) -> some View {
         Button { Task { await action() } } label: {
-            Text(title)
-                .font(.subheadline.weight(.medium))
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, minHeight: 44)
-                .padding(.vertical, 6)
-                .background(color.opacity(0.12))
-                .foregroundStyle(color)
-                .cornerRadius(8)
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(color.opacity(0.3)))
+            VStack(alignment: .center, spacing: 4) {
+                HStack {
+                    if isDownloaded {
+                        Image(systemName: "square.and.arrow.down.badge.checkmark.fill")
+                        Text("Ready")
+                            .font(.subheadline.weight(.medium))
+                    } else {
+                        Image(systemName: "arrow.down.square")
+                        Text("Download")
+                            .font(.subheadline.weight(.medium))
+                    }
+                }
+                
+                Text(title)
+                    .font(.title3.weight(.medium))
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity, minHeight: 44)
+            .padding(.vertical, 6)
+            .background(color.opacity(0.12))
+            .foregroundStyle(color)
+            .cornerRadius(8)
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(color.opacity(0.3)))
         }
-    }
-    
-    private func specializedModelLabel(_ model: SpecializedVisionModel) -> String {
-        switch model {
-            case .fastVLM_0_5b_fp16:
-                return "⚡ FastVLM 0.5B"
-            case .graniteDocling_258m:
-                return "📄 Granite 258M"
-            default:
-                return String(describing: model)
-        }
+        .buttonStyle(.plain)
     }
     
     private enum VisionRunMode: String, CaseIterable, Identifiable {
