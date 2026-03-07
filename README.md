@@ -1,14 +1,16 @@
 # MLXEdgeLLM
 
-Lightweight on-device LLM & VLM Swift package for iOS/macOS, powered by MLX. Run Qwen3.5, SmolVLM and other vision-language models locally — no API keys, no binary dependencies.
+Lightweight on-device LLM & VLM Swift package for iOS/macOS, powered by MLX. Run Qwen3, Llama, Gemma, SmolVLM and other models locally — no API keys, no binary dependencies, fully private.
 
 ---
 
 ## Requirements
 
-- iOS 17+ / macOS 14+
+- iOS 17+ / macOS 14+ / visionOS 1+
 - Xcode 16+
 - `Increased Memory Limit` entitlement (required for models > 500 MB)
+
+---
 
 ## Installation
 
@@ -24,6 +26,22 @@ Or in `Package.swift`:
 .package(url: "https://github.com/iOSDevC/MLXEdgeLLM", branch: "main")
 ```
 
+### Modules
+
+| Module | Contents |
+|--------|----------|
+| `MLXEdgeLLM` | Core inference, models, conversation persistence |
+| `MLXEdgeLLMUI` | SwiftUI views and ViewModels for drop-in UI |
+
+```swift
+// Core only
+import MLXEdgeLLM
+
+// Core + prebuilt SwiftUI interface
+import MLXEdgeLLM
+import MLXEdgeLLMUI
+```
+
 ---
 
 ## Text Chat
@@ -34,21 +52,22 @@ import MLXEdgeLLM
 // One-liner
 let reply = try await MLXEdgeLLM.chat("¿Cuánto gasté esta semana?")
 
-// Instance (recommended for multiple calls — loads model once)
-let llm = try await MLXEdgeLLM(
-    model: .qwen3_1_7b,
-    onProgress: { print("Downloading: \(Int($0 * 100))%") }
-)
+// Reusable instance (loads model once — preferred for multiple calls)
+let llm = try await MLXEdgeLLM.text(.qwen3_1_7b) { progress in
+    print(progress) // "Downloading Qwen3 1.7B: 42%"
+}
 let reply = try await llm.chat("Summarize my expenses")
 
 // Streaming
-for try await token in await llm.stream("Explain this transaction") {
+for try await token in llm.stream("Explain this transaction") {
     print(token, terminator: "")
 }
 
 // With system prompt
-let options = MLXEdgeLLM.Options(systemPrompt: "You are a personal finance assistant.")
-let llm = try await MLXEdgeLLM(model: .qwen3_1_7b, options: options)
+let reply = try await llm.chat(
+    "What is the VAT rate in Mexico?",
+    systemPrompt: "You are a personal finance assistant."
+)
 ```
 
 ### Text Models
@@ -60,7 +79,7 @@ let llm = try await MLXEdgeLLM(model: .qwen3_1_7b, options: options)
 | `.qwen3_4b` | ~2.5 GB | Higher quality |
 | `.gemma3_1b` | ~700 MB | Google alternative |
 | `.phi3_5_mini` | ~2.2 GB | Microsoft alternative |
-| `.llama3_2_1b` | ~700 MB | Meta alternative |
+| `.llama3_2_1b` | ~700 MB | Meta, lightweight |
 | `.llama3_2_3b` | ~1.8 GB | Meta, higher quality |
 
 ---
@@ -69,46 +88,59 @@ let llm = try await MLXEdgeLLM(model: .qwen3_1_7b, options: options)
 
 ```swift
 import MLXEdgeLLM
-import UIKit
 
-// Receipt extraction (one-liner)
-let json = try await MLXEdgeLLMVision.extractReceipt(ticketUIImage)
-// → { "store": "OXXO", "date": "2026-03-06", "items": [...], "total": 125.50, "currency": "MXN" }
+// One-liner receipt extraction
+let json = try await MLXEdgeLLM.extractDocument(receiptImage)
+// → {"store":"OXXO","date":"2026-03-06","items":[...],"total":125.50,"currency":"MXN"}
+
+// Reusable instance
+let vlm = try await MLXEdgeLLM.vision(.qwen35_0_8b) { print($0) }
 
 // Free-form image analysis
-let description = try await MLXEdgeLLMVision.analyze(
-    "What items are on this receipt?",
-    image: receiptImage
-)
-
-// Instance (recommended for multiple calls)
-let vision = try await MLXEdgeLLMVision(
-    model: .qwen35_0_8b,
-    onProgress: { print("Downloading: \(Int($0 * 100))%") }
-)
-let json1 = try await vision.extractReceipt(ticket1)
-let json2 = try await vision.extractReceipt(ticket2)
+let description = try await vlm.analyze("What items are on this receipt?", image: photo)
 
 // Streaming with image
-for try await token in vision.stream("Describe this image", image: photo) {
+for try await token in vlm.streamVision("Describe this image", image: photo) {
     print(token, terminator: "")
 }
-
-// Text-only chat (no image)
-let answer = try await vision.chat("What is the average tax rate in Mexico?")
 ```
 
 ### Vision Models
 
 | Model | Size | Best for |
 |-------|------|----------|
-| `.qwen35_0_8b` ⭐ | ~1.0 GB | iPhone, receipt OCR (default) |
-| `.qwen35_2b` | ~1.8 GB | iPad, higher accuracy |
-| `.qwen35_4b` | ~3.2 GB | Mac / iPad Pro |
-| `.qwen25vl_2b` | ~1.4 GB | Stable alternative |
-| `.gemma3_4b` | ~2.5 GB | Google alternative |
-| `.smolvlm_500m` | ~500 MB | Minimum memory |
-| `.smolvlm_2b` | ~1.2 GB | SmolVLM, balanced |
+| `.qwen35_0_8b` ⭐ | ~625 MB | Default, iPhone |
+| `.qwen35_2b` | ~1.7 GB | iPad, higher accuracy |
+| `.smolvlm_500m` | ~1.0 GB | Minimum memory |
+| `.smolvlm_2b` | ~1.5 GB | SmolVLM, balanced |
+
+---
+
+## OCR & Document Extraction
+
+Specialized models optimized for receipts, invoices, and structured documents.
+
+```swift
+import MLXEdgeLLM
+
+// FastVLM — outputs structured JSON
+let ocr = try await MLXEdgeLLM.specialized(.fastVLM_0_5b_fp16) { print($0) }
+let json = try await ocr.extractDocument(receiptImage)
+
+// Granite Docling — outputs DocTags, converted to Markdown
+let docOCR = try await MLXEdgeLLM.specialized(.graniteDocling_258m)
+let raw = try await docOCR.extractDocument(documentImage)
+let markdown = MLXEdgeLLM.parseDocTags(raw)
+```
+
+### Specialized Models
+
+| Model | Size | Output |
+|-------|------|--------|
+| `.fastVLM_0_5b_fp16` ⭐ | ~1.25 GB | JSON (receipts) |
+| `.fastVLM_1_5b_int8` | ~800 MB | JSON (receipts) |
+| `.graniteDocling_258m` | ~631 MB | DocTags → Markdown |
+| `.graniteVision_3_3` | ~1.2 GB | Plain text |
 
 ---
 
@@ -116,7 +148,6 @@ let answer = try await vision.chat("What is the average tax rate in Mexico?")
 
 ```swift
 import MLXEdgeLLM
-import UIKit
 
 struct ReceiptData: Codable {
     let store: String
@@ -134,10 +165,116 @@ struct ReceiptData: Codable {
     }
 }
 
-func scanReceipt(_ image: UIImage) async throws -> ReceiptData {
-    let json = try await MLXEdgeLLMVision.extractReceipt(image)
+func scanReceipt(_ image: PlatformImage) async throws -> ReceiptData {
+    let json = try await MLXEdgeLLM.extractDocument(image)
     return try JSONDecoder().decode(ReceiptData.self, from: Data(json.utf8))
 }
+```
+
+---
+
+## Conversation Persistence
+
+`ConversationStore` provides a SQLite-backed store (no external dependencies) for persisting chat history. The LLM automatically loads a context window of the most recent turns that fit within the token budget.
+
+```swift
+import MLXEdgeLLM
+
+let store = ConversationStore.shared
+
+// Create a conversation
+let conv = try await store.createConversation(model: .qwen3_1_7b, title: "Finance assistant")
+
+// Chat with automatic history — context window managed automatically
+let llm = try await MLXEdgeLLM.text(.qwen3_1_7b)
+let reply = try await llm.chat("What is 2+2?", in: conv.id)
+let reply2 = try await llm.chat("Why?", in: conv.id) // includes previous exchange
+
+// Streaming with history
+for try await token in llm.stream("Tell me more", in: conv.id) {
+    print(token, terminator: "")
+}
+
+// One-liner (creates conversation automatically)
+let (reply, convID) = try await MLXEdgeLLM.chat("Hello", model: .qwen3_1_7b)
+
+// List all conversations
+let conversations = try await store.allConversations()
+
+// Full-text search across all messages
+let results = try await store.search("VAT Mexico")
+
+// Auto-title based on first message
+try await llm.autoTitle(conversationID: conv.id)
+
+// Prune and summarize long conversations
+try await llm.summarizeAndPrune(conversationID: conv.id)
+```
+
+### Context Window Management
+
+When a conversation exceeds the token budget, `summarizeAndPrune` uses the model itself to summarize older turns and replace them with a compact system-level summary — preserving semantic continuity without truncating abruptly.
+
+```swift
+// Automatically called during chat if conversation exceeds 4096 tokens
+try await llm.summarizeAndPrune(
+    conversationID: conv.id,
+    keepLastN: 10,        // always keep the 10 most recent turns
+    maxContextTokens: 4096
+)
+```
+
+---
+
+## Prebuilt SwiftUI Interface
+
+`MLXEdgeLLMUI` provides a ready-to-use tabbed interface with Text Chat, Vision, OCR, and a model browser.
+
+```swift
+import SwiftUI
+import MLXEdgeLLMUI
+
+@main
+struct MyApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView() // 4-tab interface, ready to use
+        }
+    }
+}
+```
+
+Tabs included:
+
+| Tab | Description |
+|-----|-------------|
+| **Text** | Persistent multi-conversation chat with streaming |
+| **Vision** | Image analysis with standard and streaming modes |
+| **OCR** | Document and receipt extraction |
+| **Models** | Browser showing all models and download status |
+
+---
+
+## Model Discovery
+
+```swift
+import MLXEdgeLLM
+
+// Filtered collections — downloaded models sorted first
+let textModels        = Model.textModels
+let visionModels      = Model.visionModels
+let specializedModels = Model.specializedModels
+
+// Check download status
+if Model.qwen3_1_7b.isDownloaded {
+    print("Ready at: \(Model.qwen3_1_7b.cacheDirectory.path)")
+}
+
+// Model metadata
+let model = Model.qwen3_1_7b
+print(model.displayName)       // "Qwen3 1.7B"
+print(model.approximateSizeMB) // 1000
+print(model.purpose)           // .text
 ```
 
 ---
@@ -156,17 +293,23 @@ Add to your `.entitlements` file for models larger than 500 MB:
 ## Architecture
 
 ```
-MLXEdgeLLM (text)         MLXEdgeLLMVision (image + text)
-       │                              │
-  TextEngine                    VisionEngine
-       │                              │
-  MLXLLM                         MLXVLM
-       └──────────────┬───────────────┘
-                mlx-swift-examples
-                (mlx-community / HuggingFace)
-```
+MLXEdgeLLM (public API)
+├── MLXEdgeLLM.text()        →  TextEngine  →  MLXLLM
+├── MLXEdgeLLM.vision()      →  VisionEngine  →  MLXVLM
+├── MLXEdgeLLM.specialized() →  VisionEngine  →  MLXVLM
+├── ConversationStore        →  SQLite (no external deps)
+└── MLXEdgeLLM+History       →  context window · auto-title · pruning
 
-Models download automatically on first use and are cached locally in `~/Library/Caches/`.
+MLXEdgeLLMUI (optional)
+├── ContentView  (TabView)
+├── TextChatTab  →  TextChatViewModel  →  ConversationStore
+├── VisionTab    →  VisionViewModel
+├── OCRTab       →  OCRViewModel
+└── ModelsTab
+
+All models download automatically on first use and are cached at:
+  ~/Library/Caches/models/<org>/<repo>/
+```
 
 ---
 
