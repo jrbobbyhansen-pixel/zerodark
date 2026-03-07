@@ -25,15 +25,3 @@ public extension SwiftUI.Image {
 #endif
     }
 }
-
-public extension SwiftUI.Color {
-    static var outputBackground: Color {
-#if canImport(UIKit)
-        return Color(.systemGroupedBackground)
-#elseif canImport(AppKit)
-        return Color(nsColor: .windowBackgroundColor)
-#else
-        return Color.secondary.opacity(0.1)
-#endif
-    }
-}

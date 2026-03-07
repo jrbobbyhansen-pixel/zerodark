@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FE825F152F5CC27D006C054A /* MLXEdgeLLMUI in Frameworks */ = {isa = PBXBuildFile; productRef = FE825F142F5CC27D006C054A /* MLXEdgeLLMUI */; };
 		FED51C942F5B7B0600D5040F /* MLXEdgeLLM in Frameworks */ = {isa = PBXBuildFile; productRef = FED51C932F5B7B0600D5040F /* MLXEdgeLLM */; };
 		FED51CA92F5B7BA500D5040F /* MLXEdgeLLM in Frameworks */ = {isa = PBXBuildFile; productRef = FED51CA82F5B7BA500D5040F /* MLXEdgeLLM */; };
 /* End PBXBuildFile section */
@@ -28,6 +29,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE825F152F5CC27D006C054A /* MLXEdgeLLMUI in Frameworks */,
 				FED51C942F5B7B0600D5040F /* MLXEdgeLLM in Frameworks */,
 				FED51CA92F5B7BA500D5040F /* MLXEdgeLLM in Frameworks */,
 			);
@@ -36,10 +38,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FE825F132F5CC27D006C054A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		FED51C562F5B7A7900D5040F = {
 			isa = PBXGroup;
 			children = (
 				FED51C612F5B7A7900D5040F /* MLXEdgeLLMExample */,
+				FE825F132F5CC27D006C054A /* Frameworks */,
 				FED51C602F5B7A7900D5040F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -74,6 +84,7 @@
 			packageProductDependencies = (
 				FED51C932F5B7B0600D5040F /* MLXEdgeLLM */,
 				FED51CA82F5B7BA500D5040F /* MLXEdgeLLM */,
+				FE825F142F5CC27D006C054A /* MLXEdgeLLMUI */,
 			);
 			productName = MLXEdgeLLMExample;
 			productReference = FED51C5F2F5B7A7900D5040F /* MLXEdgeLLMExample.app */;
@@ -376,6 +387,11 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		FE825F142F5CC27D006C054A /* MLXEdgeLLMUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FED51CA72F5B7BA500D5040F /* XCLocalSwiftPackageReference "../../../MLXEdgeLLM" */;
+			productName = MLXEdgeLLMUI;
+		};
 		FED51C932F5B7B0600D5040F /* MLXEdgeLLM */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = MLXEdgeLLM;

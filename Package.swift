@@ -13,6 +13,10 @@ let package = Package(
             name: "MLXEdgeLLM",
             targets: ["MLXEdgeLLM"]
         ),
+        .library(
+            name: "MLXEdgeLLMUI",
+            targets: ["MLXEdgeLLMUI"]
+        ),
     ],
     dependencies: [
         .package(
@@ -21,20 +25,32 @@ let package = Package(
         )
     ],
     targets: [
+        // MARK: - Core
         .target(
             name: "MLXEdgeLLM",
             dependencies: [
-                .product(name: "MLXVLM", package: "mlx-swift-lm"),
-                .product(name: "MLXLLM", package: "mlx-swift-lm"),
+                .product(name: "MLXVLM",      package: "mlx-swift-lm"),
+                .product(name: "MLXLLM",      package: "mlx-swift-lm"),
                 .product(name: "MLXLMCommon", package: "mlx-swift-lm"),
             ],
             path: "Sources/MLXEdgeLLM"
         ),
+        
+        // MARK: - UI
+        .target(
+            name: "MLXEdgeLLMUI",
+            dependencies: [
+                "MLXEdgeLLM"
+            ],
+            path: "Sources/MLXEdgeLLMUI"
+        ),
+        
         // MARK: - Example App
         .executableTarget(
             name: "MLXEdgeLLMExample",
             dependencies: [
-                "MLXEdgeLLM"
+                "MLXEdgeLLM",
+                "MLXEdgeLLMUI"
             ],
             path: "Sources/MLXEdgeLLMExample"
         ),

@@ -138,16 +138,22 @@ public enum Model: String, CaseIterable, Sendable {
 // MARK: - Convenience collections
 
 public extension Model {
-    /// All text-generation models.
+    /// All text-generation models, downloaded first.
     static var textModels: [Model] {
-        allCases.filter { if case .text = $0.purpose { true } else { false } }
+        allCases
+            .filter { if case .text = $0.purpose { true } else { false } }
+            .sorted { $0.isDownloaded && !$1.isDownloaded }
     }
-    /// All general-purpose vision models.
+    /// All general-purpose vision models, downloaded first.
     static var visionModels: [Model] {
-        allCases.filter { if case .vision = $0.purpose { true } else { false } }
+        allCases
+            .filter { if case .vision = $0.purpose { true } else { false } }
+            .sorted { $0.isDownloaded && !$1.isDownloaded }
     }
-    /// All OCR / document-specialized vision models.
+    /// All OCR / document-specialized vision models, downloaded first.
     static var specializedModels: [Model] {
-        allCases.filter { if case .visionSpecialized = $0.purpose { true } else { false } }
+        allCases
+            .filter { if case .visionSpecialized = $0.purpose { true } else { false } }
+            .sorted { $0.isDownloaded && !$1.isDownloaded }
     }
 }

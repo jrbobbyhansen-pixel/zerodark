@@ -15,7 +15,7 @@ import AppKit
 /// Unified internal engine that dispatches to LLMModelFactory or VLMModelFactory
 /// based on the model's purpose.
 @MainActor
-final class MLXEngine {
+public final class MLXEngine {
     
     // MARK: - State
     
@@ -25,7 +25,7 @@ final class MLXEngine {
     
     // MARK: - Init
     
-    init(model: Model, temperature: Float? = nil) {
+    public init(model: Model, temperature: Float? = nil) {
         self.model = model
         let defaultTemp: Float
         switch model.purpose {
