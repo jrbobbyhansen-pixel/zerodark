@@ -1,30 +1,10 @@
 import Foundation
-import MLX
-import MLXLLM
-import MLXLMCommon
 
-public protocol ModelList: CaseIterable, Sendable, RawRepresentable {}
+// MARK: - Model
 
-public extension ModelList where RawValue == String {
-    var isDownloaded: Bool {
-        guard let baseDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else {
-            return false
-        }
-        
-        let directory = baseDirectory
-            .appendingPathComponent("models")
-            .appendingPathComponent(rawValue)
-            .path
-        
-        var isDirectory: ObjCBool = false
-        let exists = FileManager.default.fileExists(atPath: directory, isDirectory: &isDirectory)
-        return exists && isDirectory.boolValue
-    }
-}
-
-// MARK: - TextModel
-
-public enum TextModel: String, ModelList {
+public enum Model: String, CaseIterable, Sendable {
+    
+    // MARK: Text
     case qwen3_0_6b   = "mlx-community/Qwen3-0.6B-4bit"
     case qwen3_1_7b   = "mlx-community/Qwen3-1.7B-4bit"
     case qwen3_4b     = "mlx-community/Qwen3-4B-Instruct-2507-4bit"
@@ -33,92 +13,90 @@ public enum TextModel: String, ModelList {
     case llama3_2_1b  = "mlx-community/Llama-3.2-1B-Instruct-4bit"
     case llama3_2_3b  = "mlx-community/Llama-3.2-3B-Instruct-4bit"
     
-    public var displayName: String {
-        switch self {
-            case .qwen3_0_6b:  return "Qwen3 0.6B"
-            case .qwen3_1_7b:  return "Qwen3 1.7B"
-            case .qwen3_4b:    return "Qwen3 4B"
-            case .gemma3_1b:   return "Gemma 3 1B"
-            case .phi3_5_mini: return "Phi-3.5 Mini"
-            case .llama3_2_1b: return "Llama 3.2 1B"
-            case .llama3_2_3b: return "Llama 3.2 3B"
-        }
-    }
-    public var approximateSizeMB: Int {
-        switch self {
-            case .qwen3_0_6b: return 400;
-            case .qwen3_1_7b: return 1_000
-            case .qwen3_4b: return 2_500;
-            case .gemma3_1b: return 700
-            case .phi3_5_mini: return 2_200;
-            case .llama3_2_1b: return 700
-            case .llama3_2_3b: return 1_800
-        }
-    }
-}
-
-// MARK: - VisionModel (general-purpose, MLXVLM backend)
-
-public enum VisionModel: String, ModelList {
+    // MARK: Vision
     case qwen35_0_8b  = "mlx-community/Qwen3.5-0.8B-MLX-4bit"
     case qwen35_2b    = "mlx-community/Qwen3.5-2B-4bit"
     case smolvlm_500m = "mlx-community/SmolVLM-500M-Instruct-bf16"
     case smolvlm_2b   = "mlx-community/SmolVLM-Instruct-4bit"
     
-    public var displayName: String {
+    // MARK: Vision · Specialized
+    case fastVLM_0_5b_fp16   = "mlx-community/FastVLM-0.5B-bf16"
+    case fastVLM_1_5b_int8   = "InsightKeeper/FastVLM-1.5B-MLX-8bit"
+    case graniteDocling_258m  = "ibm-granite/granite-docling-258M-mlx"
+    case graniteVision_3_3   = "mlx-community/granite-vision-3.2-2b-MLX"
+    
+    // MARK: - Purpose
+    
+    public enum Purpose {
+        case text
+        case vision
+        case visionSpecialized(docTags: Bool)
+    }
+    
+    public var purpose: Purpose {
         switch self {
-            case .qwen35_0_8b:  return "Qwen3.5 0.8B (default)"
-            case .qwen35_2b:    return "Qwen3.5 2B"
-            case .smolvlm_500m: return "SmolVLM 500M"
-            case .smolvlm_2b:   return "SmolVLM2 2B"
+            case .qwen3_0_6b, .qwen3_1_7b, .qwen3_4b,
+                    .gemma3_1b, .phi3_5_mini,
+                    .llama3_2_1b, .llama3_2_3b:
+                return .text
+                
+            case .qwen35_0_8b, .qwen35_2b,
+                    .smolvlm_500m, .smolvlm_2b:
+                return .vision
+                
+            case .fastVLM_0_5b_fp16, .fastVLM_1_5b_int8, .graniteVision_3_3:
+                return .visionSpecialized(docTags: false)
+                
+            case .graniteDocling_258m:
+                return .visionSpecialized(docTags: true)
         }
     }
-    public var approximateSizeMB: Int {
-        switch self {
-            case .qwen35_0_8b: return 625;
-            case .qwen35_2b: return 1_720
-            case .smolvlm_500m: return 1_020
-            case .smolvlm_2b: return 1_460
-        }
-    }
-}
-
-// MARK: - SpecializedVisionModel (OCR-optimized, MLXVLM backend)
-
-/// Ultra-lightweight models specialized for OCR and document parsing.
-///
-/// **FastVLM 0.5B** — Apple CVPR 2025. 85× faster TTFT than LLaVA-0.5B.
-/// HF: `apple/FastVLM-0.5B-fp16` (~420 MB, Sep 2025)
-///
-/// **Granite Docling 258M** — IBM Research. DocTags output preserving tables/equations.
-/// HF: `ibm-granite/granite-docling-258M-mlx` (~270 MB, Sep 2025)
-public enum SpecializedVisionModel: String, ModelList {
-    case fastVLM_0_5b_fp16 = "mlx-community/FastVLM-0.5B-bf16"
-    case fastVLM_1_5b_int8 = "InsightKeeper/FastVLM-1.5B-MLX-8bit"
     
-    // Estos se mantienen igual porque no presentan el problema
-    case graniteDocling_258m = "ibm-granite/granite-docling-258M-mlx"
-    case graniteVision_3_3  = "mlx-community/granite-vision-3.2-2b-MLX"  // ~1.2 GB
+    // MARK: - Metadata
     
     public var displayName: String {
         switch self {
-            case .fastVLM_0_5b_fp16: return "FastVLM 0.5B FP16 (Community)"
-            case .fastVLM_1_5b_int8: return "FastVLM 1.5B Int8 (Community)"
+            case .qwen3_0_6b:          return "Qwen3 0.6B"
+            case .qwen3_1_7b:          return "Qwen3 1.7B"
+            case .qwen3_4b:            return "Qwen3 4B"
+            case .gemma3_1b:           return "Gemma 3 1B"
+            case .phi3_5_mini:         return "Phi-3.5 Mini"
+            case .llama3_2_1b:         return "Llama 3.2 1B"
+            case .llama3_2_3b:         return "Llama 3.2 3B"
+            case .qwen35_0_8b:         return "Qwen3.5 0.8B (default)"
+            case .qwen35_2b:           return "Qwen3.5 2B"
+            case .smolvlm_500m:        return "SmolVLM 500M"
+            case .smolvlm_2b:          return "SmolVLM2 2B"
+            case .fastVLM_0_5b_fp16:   return "FastVLM 0.5B FP16"
+            case .fastVLM_1_5b_int8:   return "FastVLM 1.5B Int8"
             case .graniteDocling_258m: return "Granite Docling 258M (IBM)"
-            case .graniteVision_3_3: return "Granite Vision 3.2 2B"
+            case .graniteVision_3_3:   return "Granite Vision 3.2 2B"
         }
     }
     
     public var approximateSizeMB: Int {
         switch self {
-            case .fastVLM_0_5b_fp16: return 1_250
-            case .fastVLM_1_5b_int8: return 800
+            case .qwen3_0_6b:          return 400
+            case .qwen3_1_7b:          return 1_000
+            case .qwen3_4b:            return 2_500
+            case .gemma3_1b:           return 700
+            case .phi3_5_mini:         return 2_200
+            case .llama3_2_1b:         return 700
+            case .llama3_2_3b:         return 1_800
+            case .qwen35_0_8b:         return 625
+            case .qwen35_2b:           return 1_720
+            case .smolvlm_500m:        return 1_020
+            case .smolvlm_2b:          return 1_460
+            case .fastVLM_0_5b_fp16:   return 1_250
+            case .fastVLM_1_5b_int8:   return 800
             case .graniteDocling_258m: return 631
-            case .graniteVision_3_3: return 1_200
+            case .graniteVision_3_3:   return 1_200
         }
     }
-    /// Default prompt for `extractDocument(_:)`.
-    public var defaultDocumentPrompt: String {
+    
+    /// Default prompt for document/OCR extraction.
+    /// Returns `nil` for non-specialized models.
+    public var defaultDocumentPrompt: String? {
         switch self {
             case .fastVLM_0_5b_fp16, .fastVLM_1_5b_int8:
                 return """
@@ -131,10 +109,45 @@ public enum SpecializedVisionModel: String, ModelList {
                 return "Convert this page to docling."
             case .graniteVision_3_3:
                 return "Describe the image in detail."
+            default:
+                return nil
         }
     }
-    /// Granite Docling outputs DocTags — use `MLXEdgeLLMSpecialized.parseDocTags(_:)`.
-    public var outputsDocTags: Bool {
-        self == .graniteDocling_258m
+    
+    // MARK: - Storage
+    
+    /// Local cache directory where MLX downloads the model.
+    /// Mirrors the `<org>/<repo>` folder structure used by mlx-swift.
+    public var cacheDirectory: URL {
+        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("models")
+            .appendingPathComponent(rawValue)
+    }
+    
+    /// Returns `true` if the model directory exists on disk.
+    public var isDownloaded: Bool {
+        var isDir: ObjCBool = false
+        let exists = FileManager.default.fileExists(
+            atPath: cacheDirectory.path,
+            isDirectory: &isDir
+        )
+        return exists && isDir.boolValue
+    }
+}
+
+// MARK: - Convenience collections
+
+public extension Model {
+    /// All text-generation models.
+    static var textModels: [Model] {
+        allCases.filter { if case .text = $0.purpose { true } else { false } }
+    }
+    /// All general-purpose vision models.
+    static var visionModels: [Model] {
+        allCases.filter { if case .vision = $0.purpose { true } else { false } }
+    }
+    /// All OCR / document-specialized vision models.
+    static var specializedModels: [Model] {
+        allCases.filter { if case .visionSpecialized = $0.purpose { true } else { false } }
     }
 }

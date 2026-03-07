@@ -6,9 +6,9 @@ import MLXEdgeLLM
 struct ContentView: View {
     @StateObject private var vm = DemoViewModel()
     @State private var pickerItem: PhotosPickerItem?
-    @State private var selectedVisionModel: VisionModel = .qwen35_0_8b
-    @State private var visionRunMode: VisionRunMode = .standard
-    @State private var selectedSpecializedModel: SpecializedVisionModel = .fastVLM_0_5b_fp16
+    @State private var selectedVisionModel: Model = .qwen35_0_8b
+    @State private var visionRunMode: MLXEdgeLLM.VisionRunMode = .standard
+    @State private var selectedSpecializedModel: Model = .fastVLM_0_5b_fp16
     
     var body: some View {
         NavigationStack {
@@ -29,17 +29,17 @@ struct ContentView: View {
                     
                     if let img = vm.selectedImage {
                         // Standard VLMs
-                        GroupBox("TextModel VLMs") {
+                        GroupBox("Vision VLMs") {
                             HStack {
                                 VStack(spacing: 16) {
                                     Picker("Model", selection: $selectedVisionModel) {
-                                        ForEach(VisionModel.allCases, id: \.self) { model in
+                                        ForEach(Model.visionModels, id: \.self) { model in
                                             Text(model.displayName).tag(model)
                                         }
                                     }
                                     
                                     Picker("Mode", selection: $visionRunMode) {
-                                        ForEach(VisionRunMode.allCases) { mode in
+                                        ForEach(MLXEdgeLLM.VisionRunMode.allCases) { mode in
                                             Text(mode.rawValue).tag(mode)
                                         }
                                     }
@@ -63,13 +63,11 @@ struct ContentView: View {
                         GroupBox("Specialized OCR") {
                             HStack {
                                 Picker("Model", selection: $selectedSpecializedModel) {
-                                    ForEach(SpecializedVisionModel.allCases, id: \.self) { model in
+                                    ForEach(Model.specializedModels, id: \.self) { model in
                                         Text(model.displayName).tag(model)
                                     }
                                 }
-                                
                                 Spacer()
-                                
                                 btn("Run OCR", isDownloaded: selectedSpecializedModel.isDownloaded, .orange) {
                                     await vm.runSpecialized(model: selectedSpecializedModel, image: img)
                                 }
@@ -87,8 +85,10 @@ struct ContentView: View {
                             .padding()
                     }
                     
-                    // Text chat (no image needed)
-                    btn("Use Text Chat(Qwen3 1.7B)", isDownloaded: TextModel.qwen3_1_7b.isDownloaded, .green) { await vm.runTextChat() }
+                    // Text chat
+                    btn("Text Chat (Qwen3 1.7B)", isDownloaded: Model.qwen3_1_7b.isDownloaded, .green) {
+                        await vm.runTextChat()
+                    }
                     
                     // Progress
                     if !vm.progress.isEmpty {
@@ -114,6 +114,8 @@ struct ContentView: View {
             .overlay(loadingOverlay)
         }
     }
+    
+    // MARK: - Subviews
     
     @ViewBuilder
     private var imagePreview: some View {
@@ -142,21 +144,23 @@ struct ContentView: View {
         }
     }
     
-    private func btn(_ title: String, isDownloaded: Bool, _ color: Color, action: @escaping () async -> Void) -> some View {
+    private func btn(
+        _ title: String,
+        isDownloaded: Bool,
+        _ color: Color,
+        action: @escaping () async -> Void
+    ) -> some View {
         Button { Task { await action() } } label: {
             VStack(alignment: .center, spacing: 4) {
                 HStack {
                     if isDownloaded {
                         Image(systemName: "square.and.arrow.down.badge.checkmark.fill")
-                        Text("Ready")
-                            .font(.subheadline.weight(.medium))
+                        Text("Ready").font(.subheadline.weight(.medium))
                     } else {
                         Image(systemName: "arrow.down.square")
-                        Text("Download")
-                            .font(.subheadline.weight(.medium))
+                        Text("Download").font(.subheadline.weight(.medium))
                     }
                 }
-                
                 Text(title)
                     .font(.title3.weight(.medium))
                     .multilineTextAlignment(.center)
@@ -169,13 +173,6 @@ struct ContentView: View {
             .overlay(RoundedRectangle(cornerRadius: 8).stroke(color.opacity(0.3)))
         }
         .buttonStyle(.plain)
-    }
-    
-    private enum VisionRunMode: String, CaseIterable, Identifiable {
-        case standard = "Standard"
-        case stream = "Stream"
-        
-        var id: String { rawValue }
     }
 }
 
