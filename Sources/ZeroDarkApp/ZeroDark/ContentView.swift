@@ -54,12 +54,19 @@ struct ContentView: View {
                 }
                 .tag(5)
             
+            // 🎭 Identity Settings
+            IdentitySettingsTab()
+                .tabItem {
+                    Label("Identity", systemImage: "person.crop.circle")
+                }
+                .tag(6)
+            
             // 📦 Models
             ModelsTab()
                 .tabItem {
                     Label("Models", systemImage: "square.stack.3d.up")
                 }
-                .tag(6)
+                .tag(7)
         }
         .preferredColorScheme(.dark)
     }
