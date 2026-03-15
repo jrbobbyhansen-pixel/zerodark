@@ -146,20 +146,51 @@ extension View {
     }
 }
 
-// MARK: - Glow Effect
+// MARK: - Subtle Glow Effect
 
 struct GlowEffect: ViewModifier {
     var color: Color = Theme.accent
-    var radius: CGFloat = 20
+    var radius: CGFloat = 12
+    var intensity: CGFloat = 0.15
     
     func body(content: Content) -> some View {
         content
-            .shadow(color: color.opacity(0.3), radius: radius, x: 0, y: 0)
+            .shadow(color: color.opacity(intensity), radius: radius, x: 0, y: 0)
+            .shadow(color: color.opacity(intensity * 0.5), radius: radius * 2, x: 0, y: 0)
+    }
+}
+
+struct SubtleGlow: ViewModifier {
+    var color: Color = Theme.accent
+    
+    func body(content: Content) -> some View {
+        content
+            .shadow(color: color.opacity(0.08), radius: 8, x: 0, y: 0)
+            .shadow(color: color.opacity(0.04), radius: 16, x: 0, y: 0)
+    }
+}
+
+struct ActiveGlow: ViewModifier {
+    var color: Color = Theme.accent
+    var isActive: Bool = true
+    
+    func body(content: Content) -> some View {
+        content
+            .shadow(color: isActive ? color.opacity(0.2) : .clear, radius: 10, x: 0, y: 0)
+            .shadow(color: isActive ? color.opacity(0.1) : .clear, radius: 20, x: 0, y: 0)
     }
 }
 
 extension View {
-    func glow(color: Color = Theme.accent, radius: CGFloat = 20) -> some View {
-        modifier(GlowEffect(color: color, radius: radius))
+    func glow(color: Color = Theme.accent, radius: CGFloat = 12, intensity: CGFloat = 0.15) -> some View {
+        modifier(GlowEffect(color: color, radius: radius, intensity: intensity))
+    }
+    
+    func subtleGlow(color: Color = Theme.accent) -> some View {
+        modifier(SubtleGlow(color: color))
+    }
+    
+    func activeGlow(color: Color = Theme.accent, isActive: Bool = true) -> some View {
+        modifier(ActiveGlow(color: color, isActive: isActive))
     }
 }

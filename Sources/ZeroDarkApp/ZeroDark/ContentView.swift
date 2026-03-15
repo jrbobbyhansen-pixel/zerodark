@@ -108,6 +108,7 @@ struct ChatView: View {
                     Circle()
                         .fill(Theme.success)
                         .frame(width: 8, height: 8)
+                        .subtleGlow(color: Theme.success)
                     Text("On-Device • Private")
                         .font(.system(size: 13, weight: .medium))
                         .foregroundColor(Theme.textMuted)
@@ -142,6 +143,7 @@ struct ChatView: View {
                         Image(systemName: "arrow.up.circle.fill")
                             .font(.system(size: 28))
                             .foregroundColor(Theme.accent)
+                            .subtleGlow()
                     }
                     .padding(.trailing, Theme.spacingXS)
                 }
@@ -266,7 +268,7 @@ struct VoiceView: View {
                             Circle()
                                 .fill(isListening ? Theme.accent : Theme.surface)
                                 .frame(width: 120, height: 120)
-                                .glow(color: isListening ? Theme.accent : .clear, radius: 30)
+                                .activeGlow(color: Theme.accent, isActive: isListening)
                             
                             Image(systemName: isListening ? "waveform" : "mic.fill")
                                 .font(.system(size: 40, weight: .medium))
