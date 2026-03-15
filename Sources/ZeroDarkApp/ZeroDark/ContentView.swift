@@ -6,47 +6,45 @@ import MLXEdgeLLMVoice
 import MLXEdgeLLMDocs
 
 // MARK: - ContentView
-// SquadOps Design: Deep impact. Elegant. Minimal chrome.
+// Marble polished. Every detail matters.
 
 struct ContentView: View {
     @State private var selectedTab = 0
     
+    private let tabs = [
+        (icon: "message.fill", label: "Chat"),
+        (icon: "waveform", label: "Voice"),
+        (icon: "eye.fill", label: "Vision"),
+        (icon: "gearshape.fill", label: "Settings")
+    ]
+    
     var body: some View {
         ZStack {
-            // Deep black background
-            Theme.background
+            // Animated background
+            AnimatedGradientBackground()
                 .ignoresSafeArea()
             
-            TabView(selection: $selectedTab) {
-                // 💬 Chat - Primary experience
-                ChatView()
-                    .tabItem {
-                        Label("Chat", systemImage: "message.fill")
-                    }
-                    .tag(0)
+            VStack(spacing: 0) {
+                // Content
+                TabView(selection: $selectedTab) {
+                    ChatView()
+                        .tag(0)
+                    
+                    VoiceView()
+                        .tag(1)
+                    
+                    VisionView()
+                        .tag(2)
+                    
+                    SettingsView()
+                        .tag(3)
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: selectedTab)
                 
-                // 🎤 Voice
-                VoiceView()
-                    .tabItem {
-                        Label("Voice", systemImage: "waveform")
-                    }
-                    .tag(1)
-                
-                // 👁️ Vision
-                VisionView()
-                    .tabItem {
-                        Label("Vision", systemImage: "eye.fill")
-                    }
-                    .tag(2)
-                
-                // ⚙️ Settings
-                SettingsView()
-                    .tabItem {
-                        Label("Settings", systemImage: "gearshape.fill")
-                    }
-                    .tag(3)
+                // Custom tab bar
+                CustomTabBar(selectedTab: $selectedTab, tabs: tabs)
             }
-            .tint(Theme.accent)
         }
         .preferredColorScheme(.dark)
     }
@@ -58,35 +56,53 @@ struct ChatView: View {
     @State private var message = ""
     @State private var messages: [ChatMessage] = []
     @State private var isGenerating = false
+    @State private var showToast = false
+    @State private var toastMessage = ""
+    @FocusState private var isInputFocused: Bool
     
     var body: some View {
         ZStack {
-            Theme.background.ignoresSafeArea()
-            
             VStack(spacing: 0) {
                 // Header
                 header
+                    .animation(.spring(response: 0.3), value: isInputFocused)
                 
-                // Messages
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        LazyVStack(spacing: Theme.spacingMD) {
-                            ForEach(messages) { message in
-                                MessageBubble(message: message)
-                                    .id(message.id)
+                // Messages or Empty State
+                if messages.isEmpty && !isGenerating {
+                    Spacer()
+                    EmptyState(
+                        icon: "bubble.left.and.bubble.right.fill",
+                        title: "Start a Conversation",
+                        subtitle: "Your messages are processed entirely on-device. Private by design."
+                    )
+                    Spacer()
+                } else {
+                    // Messages
+                    ScrollViewReader { proxy in
+                        ScrollView {
+                            LazyVStack(spacing: Theme.spacingMD) {
+                                ForEach(messages) { msg in
+                                    MessageBubble(message: msg)
+                                        .id(msg.id)
+                                        .transition(.asymmetric(
+                                            insertion: .scale(scale: 0.95).combined(with: .opacity).combined(with: .offset(y: 10)),
+                                            removal: .opacity
+                                        ))
+                                }
+                                
+                                if isGenerating {
+                                    TypingIndicator()
+                                        .transition(.scale(scale: 0.9).combined(with: .opacity))
+                                }
                             }
-                            
-                            if isGenerating {
-                                TypingIndicator()
-                            }
+                            .padding(.horizontal, Theme.spacingMD)
+                            .padding(.top, Theme.spacingMD)
+                            .padding(.bottom, Theme.spacing2XL)
                         }
-                        .padding(.horizontal, Theme.spacingMD)
-                        .padding(.top, Theme.spacingMD)
-                        .padding(.bottom, Theme.spacing2XL)
-                    }
-                    .onChange(of: messages.count) { _ in
-                        withAnimation {
-                            proxy.scrollTo(messages.last?.id, anchor: .bottom)
+                        .onChange(of: messages.count) { _ in
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                proxy.scrollTo(messages.last?.id, anchor: .bottom)
+                            }
                         }
                     }
                 }
@@ -94,86 +110,129 @@ struct ChatView: View {
                 // Input
                 inputBar
             }
+            
+            // Toast
+            if showToast {
+                VStack {
+                    Toast(message: toastMessage, type: .success)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .padding(.top, 50)
+                    Spacer()
+                }
+                .animation(.spring(response: 0.4), value: showToast)
+            }
         }
     }
     
     private var header: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("ZeroDark")
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
-                    .foregroundColor(Theme.textPrimary)
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
+                    Text("ZeroDark")
+                        .font(.system(size: 26, weight: .bold, design: .rounded))
+                        .foregroundColor(Theme.textPrimary)
+                    
+                    // Model badge
+                    Text("8B")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundColor(Theme.accent)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Theme.accentMuted)
+                        .cornerRadius(4)
+                }
                 
                 HStack(spacing: 6) {
                     Circle()
                         .fill(Theme.success)
-                        .frame(width: 8, height: 8)
+                        .frame(width: 6, height: 6)
                         .subtleGlow(color: Theme.success)
-                    Text("On-Device • Private")
-                        .font(.system(size: 13, weight: .medium))
+                    Text("On-Device • Private • Uncensored")
+                        .font(.system(size: 12, weight: .medium))
                         .foregroundColor(Theme.textMuted)
                 }
             }
             
             Spacer()
             
-            Button(action: {}) {
-                Image(systemName: "square.stack.3d.up.fill")
+            // Model selector
+            AnimatedButton(action: {}) {
+                Image(systemName: "cpu.fill")
                     .font(.system(size: 18, weight: .medium))
                     .foregroundColor(Theme.textSecondary)
+                    .frame(width: 40, height: 40)
+                    .background(Theme.surface)
+                    .cornerRadius(Theme.radiusSM)
             }
         }
         .padding(.horizontal, Theme.spacingMD)
         .padding(.vertical, Theme.spacingSM)
-        .background(Theme.background)
     }
     
     private var inputBar: some View {
         HStack(spacing: Theme.spacingSM) {
+            // Attachment button
+            AnimatedButton(action: {}) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 26))
+                    .foregroundColor(Theme.textMuted)
+            }
+            
             // Text field
             HStack {
                 TextField("Message", text: $message)
                     .font(.system(size: 16))
                     .foregroundColor(Theme.textPrimary)
+                    .focused($isInputFocused)
                     .padding(.horizontal, Theme.spacingMD)
-                    .padding(.vertical, Theme.spacingSM)
+                    .padding(.vertical, 12)
+                    .submitLabel(.send)
+                    .onSubmit(sendMessage)
                 
                 if !message.isEmpty {
-                    Button(action: sendMessage) {
+                    AnimatedButton(action: sendMessage) {
                         Image(systemName: "arrow.up.circle.fill")
-                            .font(.system(size: 28))
+                            .font(.system(size: 30))
                             .foregroundColor(Theme.accent)
                             .subtleGlow()
                     }
-                    .padding(.trailing, Theme.spacingXS)
+                    .padding(.trailing, 4)
                 }
             }
             .background(Theme.surface)
-            .cornerRadius(Theme.radiusXL)
+            .cornerRadius(24)
             .overlay(
-                RoundedRectangle(cornerRadius: Theme.radiusXL)
-                    .stroke(Theme.surfaceElevated, lineWidth: 1)
+                RoundedRectangle(cornerRadius: 24)
+                    .stroke(isInputFocused ? Theme.accent.opacity(0.3) : Theme.surfaceElevated, lineWidth: 1)
             )
+            .animation(.easeInOut(duration: 0.2), value: isInputFocused)
         }
         .padding(.horizontal, Theme.spacingMD)
         .padding(.vertical, Theme.spacingSM)
-        .background(Theme.background)
+        .background(Theme.background.opacity(0.95))
     }
     
     private func sendMessage() {
-        guard !message.isEmpty else { return }
+        guard !message.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        
+        Haptics.light()
         
         let userMessage = ChatMessage(role: .user, content: message)
-        messages.append(userMessage)
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            messages.append(userMessage)
+        }
         message = ""
         
         isGenerating = true
         
         // Simulate response (replace with actual MLX inference)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            let response = ChatMessage(role: .assistant, content: "This is a placeholder response. Connect to ZeroDarkAI for real inference.")
-            messages.append(response)
-            isGenerating = false
+            Haptics.success()
+            let response = ChatMessage(role: .assistant, content: "I'm ZeroDark, running entirely on your device. No data leaves this phone. What would you like to explore?")
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                messages.append(response)
+                isGenerating = false
+            }
         }
     }
 }
@@ -182,23 +241,61 @@ struct ChatView: View {
 
 struct MessageBubble: View {
     let message: ChatMessage
+    @State private var appeared = false
     
     var body: some View {
         HStack {
-            if message.role == .user { Spacer(minLength: 60) }
+            if message.role == .user { Spacer(minLength: 50) }
             
             VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 4) {
                 Text(message.content)
                     .font(.system(size: 16))
                     .foregroundColor(message.role == .user ? Theme.background : Theme.textPrimary)
                     .padding(.horizontal, Theme.spacingMD)
-                    .padding(.vertical, Theme.spacingSM)
-                    .background(message.role == .user ? Theme.accent : Theme.surface)
-                    .cornerRadius(Theme.radiusLG)
+                    .padding(.vertical, 12)
+                    .background(
+                        Group {
+                            if message.role == .user {
+                                LinearGradient(
+                                    colors: [Theme.accent, Theme.accent.opacity(0.85)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            } else {
+                                Theme.surface
+                            }
+                        }
+                    )
+                    .cornerRadius(20)
+                    .cornerRadius(message.role == .user ? 20 : 20, corners: message.role == .user ? [.topLeft, .topRight, .bottomLeft] : [.topLeft, .topRight, .bottomRight])
             }
             
-            if message.role == .assistant { Spacer(minLength: 60) }
+            if message.role == .assistant { Spacer(minLength: 50) }
         }
+        .opacity(appeared ? 1 : 0)
+        .offset(y: appeared ? 0 : 10)
+        .onAppear {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                appeared = true
+            }
+        }
+    }
+}
+
+// Custom corner radius
+extension View {
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape(RoundedCorner(radius: radius, corners: corners))
+    }
+}
+
+struct RoundedCorner: Shape {
+    var radius: CGFloat = .infinity
+    var corners: UIRectCorner = .allCorners
+    
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+        return Path(path.cgPath)
     }
 }
 
@@ -209,24 +306,25 @@ struct TypingIndicator: View {
     
     var body: some View {
         HStack {
-            HStack(spacing: 4) {
+            HStack(spacing: 5) {
                 ForEach(0..<3) { index in
                     Circle()
-                        .fill(Theme.textMuted)
+                        .fill(Theme.accent)
                         .frame(width: 8, height: 8)
-                        .opacity(animating ? 0.3 : 1.0)
+                        .scaleEffect(animating ? 1.0 : 0.5)
+                        .opacity(animating ? 1.0 : 0.3)
                         .animation(
-                            .easeInOut(duration: 0.6)
+                            .easeInOut(duration: 0.5)
                             .repeatForever()
-                            .delay(Double(index) * 0.2),
+                            .delay(Double(index) * 0.15),
                             value: animating
                         )
                 }
             }
             .padding(.horizontal, Theme.spacingMD)
-            .padding(.vertical, Theme.spacingSM)
+            .padding(.vertical, 14)
             .background(Theme.surface)
-            .cornerRadius(Theme.radiusLG)
+            .cornerRadius(20)
             
             Spacer()
         }
@@ -239,58 +337,77 @@ struct TypingIndicator: View {
 struct VoiceView: View {
     @State private var isListening = false
     @State private var audioLevel: CGFloat = 0.3
+    @State private var pulseScale: CGFloat = 1.0
     
     var body: some View {
-        ZStack {
-            Theme.background.ignoresSafeArea()
+        VStack(spacing: Theme.spacingXL) {
+            Spacer()
             
-            VStack(spacing: Theme.spacingXL) {
-                Spacer()
+            // Visualizer
+            ZStack {
+                // Outer pulse rings
+                ForEach(0..<3) { index in
+                    Circle()
+                        .stroke(Theme.accent.opacity(0.1 - Double(index) * 0.03), lineWidth: 1)
+                        .frame(width: CGFloat(200 + index * 40), height: CGFloat(200 + index * 40))
+                        .scaleEffect(isListening ? 1.0 + CGFloat(index) * 0.05 : 1.0)
+                        .animation(
+                            .easeInOut(duration: 1.5)
+                            .repeatForever(autoreverses: true)
+                            .delay(Double(index) * 0.2),
+                            value: isListening
+                        )
+                }
                 
-                // Visualizer
-                ZStack {
-                    // Outer glow ring
-                    Circle()
-                        .stroke(Theme.accent.opacity(0.2), lineWidth: 2)
-                        .frame(width: 240, height: 240)
-                        .scaleEffect(isListening ? 1.1 : 1.0)
-                        .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: isListening)
-                    
-                    // Middle ring
-                    Circle()
-                        .stroke(Theme.accent.opacity(0.4), lineWidth: 3)
-                        .frame(width: 180, height: 180)
-                        .scaleEffect(isListening ? 1.0 + audioLevel * 0.2 : 1.0)
-                    
-                    // Core button
-                    Button(action: { isListening.toggle() }) {
-                        ZStack {
-                            Circle()
-                                .fill(isListening ? Theme.accent : Theme.surface)
-                                .frame(width: 120, height: 120)
-                                .activeGlow(color: Theme.accent, isActive: isListening)
-                            
-                            Image(systemName: isListening ? "waveform" : "mic.fill")
-                                .font(.system(size: 40, weight: .medium))
-                                .foregroundColor(isListening ? Theme.background : Theme.accent)
-                        }
+                // Glow ring
+                Circle()
+                    .stroke(Theme.accent.opacity(isListening ? 0.3 : 0.1), lineWidth: 2)
+                    .frame(width: 160, height: 160)
+                    .scaleEffect(isListening ? 1.0 + audioLevel * 0.15 : 1.0)
+                    .blur(radius: isListening ? 2 : 0)
+                    .animation(.easeOut(duration: 0.1), value: audioLevel)
+                
+                // Core button
+                AnimatedButton(action: { 
+                    isListening.toggle()
+                    if isListening { simulateAudioLevels() }
+                }) {
+                    ZStack {
+                        Circle()
+                            .fill(isListening ? Theme.accent : Theme.surface)
+                            .frame(width: 120, height: 120)
+                            .activeGlow(color: Theme.accent, isActive: isListening)
+                        
+                        Image(systemName: isListening ? "waveform" : "mic.fill")
+                            .font(.system(size: 40, weight: .medium))
+                            .foregroundColor(isListening ? Theme.background : Theme.accent)
+                            .symbolEffect(.variableColor, isActive: isListening)
                     }
                 }
-                
-                // Status
-                VStack(spacing: Theme.spacingSM) {
-                    Text(isListening ? "Listening..." : "Tap to Speak")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(Theme.textPrimary)
-                    
-                    Text("On-device voice recognition")
-                        .font(.system(size: 14))
-                        .foregroundColor(Theme.textMuted)
-                }
-                
-                Spacer()
-                Spacer()
             }
+            
+            // Status
+            VStack(spacing: Theme.spacingSM) {
+                Text(isListening ? "Listening..." : "Tap to Speak")
+                    .font(.system(size: 22, weight: .semibold, design: .rounded))
+                    .foregroundColor(Theme.textPrimary)
+                    .animation(.easeInOut, value: isListening)
+                
+                Text("On-device voice recognition")
+                    .font(.system(size: 14))
+                    .foregroundColor(Theme.textMuted)
+            }
+            
+            Spacer()
+            Spacer()
+        }
+    }
+    
+    private func simulateAudioLevels() {
+        guard isListening else { return }
+        audioLevel = CGFloat.random(in: 0.2...1.0)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            simulateAudioLevels()
         }
     }
 }
@@ -300,69 +417,82 @@ struct VoiceView: View {
 struct VisionView: View {
     @State private var showImagePicker = false
     @State private var selectedImage: UIImage?
+    @State private var isAnalyzing = false
     
     var body: some View {
-        ZStack {
-            Theme.background.ignoresSafeArea()
+        VStack(spacing: Theme.spacingLG) {
+            // Header
+            HStack {
+                Text("Vision")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundColor(Theme.textPrimary)
+                Spacer()
+            }
+            .padding(.horizontal, Theme.spacingMD)
             
-            VStack(spacing: Theme.spacingLG) {
-                // Header
-                HStack {
-                    Text("Vision")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
-                        .foregroundColor(Theme.textPrimary)
-                    Spacer()
-                }
-                .padding(.horizontal, Theme.spacingMD)
-                
-                if let image = selectedImage {
-                    // Show selected image
+            if let image = selectedImage {
+                // Show selected image
+                ZStack {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFit()
                         .cornerRadius(Theme.radiusLG)
-                        .padding(.horizontal, Theme.spacingMD)
                     
-                    Button("Analyze") {}
-                        .buttonStyle(AccentButtonStyle())
-                } else {
-                    // Empty state
-                    Spacer()
-                    
-                    VStack(spacing: Theme.spacingMD) {
-                        ZStack {
-                            Circle()
-                                .fill(Theme.surface)
-                                .frame(width: 100, height: 100)
-                            
-                            Image(systemName: "eye.fill")
-                                .font(.system(size: 40))
-                                .foregroundColor(Theme.accent)
+                    if isAnalyzing {
+                        RoundedRectangle(cornerRadius: Theme.radiusLG)
+                            .fill(Theme.background.opacity(0.7))
+                        
+                        VStack(spacing: Theme.spacingMD) {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: Theme.accent))
+                                .scaleEffect(1.5)
+                            Text("Analyzing...")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(Theme.textSecondary)
                         }
-                        
-                        Text("Analyze Images")
-                            .font(.system(size: 20, weight: .semibold))
-                            .foregroundColor(Theme.textPrimary)
-                        
-                        Text("Select an image to analyze with vision AI")
-                            .font(.system(size: 14))
-                            .foregroundColor(Theme.textMuted)
-                            .multilineTextAlignment(.center)
-                        
-                        Button("Select Image") {
-                            showImagePicker = true
-                        }
-                        .buttonStyle(GhostButtonStyle())
-                        .padding(.top, Theme.spacingSM)
                     }
-                    
-                    Spacer()
                 }
+                .padding(.horizontal, Theme.spacingMD)
+                
+                HStack(spacing: Theme.spacingMD) {
+                    Button(action: { selectedImage = nil }) {
+                        Text("Clear")
+                    }
+                    .buttonStyle(GhostButtonStyle())
+                    
+                    Button(action: analyze) {
+                        Text("Analyze")
+                    }
+                    .buttonStyle(AccentButtonStyle())
+                }
+            } else {
+                // Empty state
+                Spacer()
+                
+                EmptyState(
+                    icon: "eye.fill",
+                    title: "Analyze Images",
+                    subtitle: "Select an image to analyze with on-device vision AI",
+                    action: { showImagePicker = true },
+                    actionLabel: "Select Image"
+                )
+                
+                Spacer()
             }
-            .padding(.top, Theme.spacingMD)
         }
+        .padding(.top, Theme.spacingMD)
         .sheet(isPresented: $showImagePicker) {
             ImagePicker(image: $selectedImage)
+        }
+    }
+    
+    private func analyze() {
+        Haptics.medium()
+        isAnalyzing = true
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            isAnalyzing = false
+            Haptics.success()
         }
     }
 }
@@ -370,48 +500,50 @@ struct VisionView: View {
 // MARK: - Settings View
 
 struct SettingsView: View {
+    @State private var selectedModel = "Qwen3 8B"
+    
     var body: some View {
-        ZStack {
-            Theme.background.ignoresSafeArea()
-            
-            ScrollView {
-                VStack(spacing: Theme.spacingMD) {
-                    // Header
-                    HStack {
-                        Text("Settings")
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
-                            .foregroundColor(Theme.textPrimary)
-                        Spacer()
-                    }
-                    .padding(.horizontal, Theme.spacingMD)
-                    .padding(.top, Theme.spacingMD)
-                    
-                    // Model Selection
-                    SettingsSection(title: "Model") {
-                        SettingsRow(icon: "cpu.fill", title: "Active Model", value: "Qwen3 8B")
-                        SettingsRow(icon: "arrow.down.circle.fill", title: "Download Models", value: "")
-                    }
-                    
-                    // Voice
-                    SettingsSection(title: "Voice") {
-                        SettingsRow(icon: "waveform", title: "Voice Style", value: "Natural")
-                        SettingsRow(icon: "speaker.wave.3.fill", title: "Speed", value: "1.0x")
-                    }
-                    
-                    // Privacy
-                    SettingsSection(title: "Privacy") {
-                        SettingsRow(icon: "lock.shield.fill", title: "On-Device Only", value: "Enabled")
-                        SettingsRow(icon: "trash.fill", title: "Clear History", value: "")
-                    }
-                    
-                    // About
-                    SettingsSection(title: "About") {
-                        SettingsRow(icon: "info.circle.fill", title: "Version", value: "1.0.0")
-                        SettingsRow(icon: "star.fill", title: "Rate App", value: "")
-                    }
-                    
-                    Spacer(minLength: 100)
+        ScrollView {
+            VStack(spacing: Theme.spacingLG) {
+                // Header
+                HStack {
+                    Text("Settings")
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .foregroundColor(Theme.textPrimary)
+                    Spacer()
                 }
+                .padding(.horizontal, Theme.spacingMD)
+                .padding(.top, Theme.spacingMD)
+                
+                // Model Selection
+                SettingsSection(title: "Model") {
+                    SettingsRow(icon: "cpu.fill", title: "Active Model", value: selectedModel, accent: true)
+                    SettingsRow(icon: "arrow.down.circle.fill", title: "Download Models", value: "3 available")
+                    SettingsRow(icon: "memorychip.fill", title: "Memory Usage", value: "4.2 GB")
+                }
+                
+                // Voice
+                SettingsSection(title: "Voice") {
+                    SettingsRow(icon: "waveform", title: "Voice Style", value: "Natural")
+                    SettingsRow(icon: "speaker.wave.3.fill", title: "Speed", value: "1.0x")
+                    SettingsRow(icon: "person.wave.2.fill", title: "Wake Word", value: "Off")
+                }
+                
+                // Privacy
+                SettingsSection(title: "Privacy") {
+                    SettingsRow(icon: "lock.shield.fill", title: "On-Device Only", value: "Always", accent: true)
+                    SettingsRow(icon: "eye.slash.fill", title: "Incognito Mode", value: "Off")
+                    SettingsRow(icon: "trash.fill", title: "Clear All Data", value: "", destructive: true)
+                }
+                
+                // About
+                SettingsSection(title: "About") {
+                    SettingsRow(icon: "info.circle.fill", title: "Version", value: "1.0.0")
+                    SettingsRow(icon: "chevron.left.forwardslash.chevron.right", title: "Open Source", value: "GitHub")
+                    SettingsRow(icon: "heart.fill", title: "Built with MLX", value: "")
+                }
+                
+                Spacer(minLength: 100)
             }
         }
     }
@@ -424,11 +556,11 @@ struct SettingsSection<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Theme.spacingSM) {
             Text(title.uppercased())
-                .font(.system(size: 12, weight: .semibold))
+                .font(.system(size: 12, weight: .bold, design: .rounded))
                 .foregroundColor(Theme.textMuted)
                 .padding(.horizontal, Theme.spacingMD)
             
-            VStack(spacing: 1) {
+            VStack(spacing: 0) {
                 content
             }
             .background(Theme.surface)
@@ -442,39 +574,41 @@ struct SettingsRow: View {
     let icon: String
     let title: String
     let value: String
+    var accent: Bool = false
+    var destructive: Bool = false
     
     var body: some View {
         HStack {
             Image(systemName: icon)
-                .font(.system(size: 18))
-                .foregroundColor(Theme.accent)
+                .font(.system(size: 18, weight: .medium))
+                .foregroundColor(destructive ? Theme.error : (accent ? Theme.accent : Theme.textSecondary))
                 .frame(width: 28)
             
             Text(title)
                 .font(.system(size: 16))
-                .foregroundColor(Theme.textPrimary)
+                .foregroundColor(destructive ? Theme.error : Theme.textPrimary)
             
             Spacer()
             
             if !value.isEmpty {
                 Text(value)
                     .font(.system(size: 15))
-                    .foregroundColor(Theme.textSecondary)
+                    .foregroundColor(accent ? Theme.accent : Theme.textSecondary)
             }
             
             Image(systemName: "chevron.right")
-                .font(.system(size: 14, weight: .medium))
+                .font(.system(size: 13, weight: .semibold))
                 .foregroundColor(Theme.textMuted)
         }
         .padding(.horizontal, Theme.spacingMD)
-        .padding(.vertical, Theme.spacingSM + 4)
-        .background(Theme.surface)
+        .padding(.vertical, 14)
+        .contentShape(Rectangle())
     }
 }
 
 // MARK: - Supporting Types
 
-struct ChatMessage: Identifiable {
+struct ChatMessage: Identifiable, Equatable {
     let id = UUID()
     let role: MessageRole
     let content: String
