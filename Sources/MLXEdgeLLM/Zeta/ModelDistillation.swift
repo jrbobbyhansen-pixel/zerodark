@@ -98,7 +98,7 @@ public actor ModelDistillation {
             for text in batch {
                 // Generate teacher logits
                 // (simplified - real implementation would extract logits)
-                let _ = try await teacherEngine.generate(prompt: text, maxTokens: 1) { _ in }
+                let _ = try await teacherEngine.generate(prompt: text, onToken: { _ in })
                 teacherOutputs.append([0.1, 0.2, 0.7]) // Placeholder logits
             }
             

@@ -203,10 +203,10 @@ extension Model {
     var layerCount: Int {
         switch self {
         case .qwen3_0_6b, .gemma3_1b: return 16
-        case .qwen3_1_7b, .llama32_1b: return 22
-        case .llama32_3b, .phi35_mini: return 32
+        case .qwen3_1_7b, .llama3_2_1b: return 22
+        case .llama3_2_3b, .phi3_5_mini: return 32
         case .qwen3_4b: return 40
-        case .qwen3_8b, .llama31_8b, .qwen25_coder_7b: return 32
+        case .qwen3_8b, .llama3_1_8b, .qwen25_coder_7b: return 32
         case .qwen25_14b, .qwen3_14b: return 48
         default: return 32
         }

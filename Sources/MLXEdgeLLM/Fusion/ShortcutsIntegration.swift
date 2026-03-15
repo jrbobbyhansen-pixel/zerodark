@@ -1,6 +1,5 @@
 import Foundation
 import AppIntents
-import Intents
 
 // MARK: - Shortcuts Integration
 
@@ -32,16 +31,6 @@ public struct ZeroDarkShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Generate Code",
             systemImageName: "chevron.left.forwardslash.chevron.right"
-        )
-        
-        AppShortcut(
-            intent: TranslateIntent(),
-            phrases: [
-                "Translate with \(.applicationName)",
-                "Translate \(\.$text) to \(\.$language)"
-            ],
-            shortTitle: "Translate",
-            systemImageName: "globe"
         )
         
         AppShortcut(
@@ -77,28 +66,19 @@ public struct AskZeroDarkIntent: AppIntent {
     @Parameter(title: "Prompt")
     public var prompt: String
     
-    @Parameter(title: "Model", default: "auto")
-    public var model: String
-    
     public init() {}
     
-    public init(prompt: String, model: String = "auto") {
+    public init(prompt: String) {
         self.prompt = prompt
-        self.model = model
     }
     
+    @MainActor
     public func perform() async throws -> some IntentResult & ReturnsValue<String> {
-        let ai = await ZeroDarkAI.shared
-        
-        let selectedModel: Model
-        if model == "auto" {
-            selectedModel = .qwen3_8b
-        } else {
-            selectedModel = Model.allCases.first { $0.rawValue == model } ?? .qwen3_8b
-        }
-        
-        let response = try await ai.generate(prompt, model: selectedModel, stream: false)
-        
+        var response = ""
+        let _ = try await ZeroDarkAI.shared.process(
+            prompt: prompt,
+            onToken: { token in response = token }
+        )
         return .result(value: response)
     }
 }
@@ -118,48 +98,17 @@ public struct GenerateCodeIntent: AppIntent {
     
     public init() {}
     
+    @MainActor
     public func perform() async throws -> some IntentResult & ReturnsValue<String> {
         let prompt = "Write \(language) code that: \(description_text)\n\nProvide only the code, no explanation."
         
-        let ai = await ZeroDarkAI.shared
-        let response = try await ai.generate(prompt, model: .qwen25_coder_7b, stream: false)
-        
+        var response = ""
+        let _ = try await ZeroDarkAI.shared.process(
+            prompt: prompt,
+            forceModel: .qwen25_coder_7b,
+            onToken: { token in response = token }
+        )
         return .result(value: response)
-    }
-}
-
-// MARK: - Translate Intent
-
-@available(iOS 16.0, macOS 13.0, *)
-public struct TranslateIntent: AppIntent {
-    public static var title: LocalizedStringResource = "Translate"
-    public static var description = IntentDescription("Translate text with Zero Dark")
-    
-    @Parameter(title: "Text")
-    public var text: String
-    
-    @Parameter(title: "Target Language", default: "Spanish")
-    public var language: String
-    
-    public init() {}
-    
-    public func perform() async throws -> some IntentResult & ReturnsValue<String> {
-        let translation = LiveTranslation.shared
-        
-        let targetLang = LiveTranslation.Language.all.first { 
-            $0.name.lowercased() == language.lowercased() 
-        } ?? .spanish
-        
-        if #available(iOS 17.4, macOS 14.4, *) {
-            let translated = try await translation.translate(text, to: targetLang)
-            return .result(value: translated)
-        } else {
-            // Fallback to LLM translation
-            let prompt = "Translate to \(language): \(text)"
-            let ai = await ZeroDarkAI.shared
-            let response = try await ai.generate(prompt, stream: false)
-            return .result(value: response)
-        }
     }
 }
 
@@ -178,6 +127,7 @@ public struct SummarizeIntent: AppIntent {
     
     public init() {}
     
+    @MainActor
     public func perform() async throws -> some IntentResult & ReturnsValue<String> {
         let prompt: String
         switch style.lowercased() {
@@ -189,9 +139,11 @@ public struct SummarizeIntent: AppIntent {
             prompt = "Summarize in 2-3 sentences:\n\n\(text)"
         }
         
-        let ai = await ZeroDarkAI.shared
-        let response = try await ai.generate(prompt, stream: false)
-        
+        var response = ""
+        let _ = try await ZeroDarkAI.shared.process(
+            prompt: prompt,
+            onToken: { token in response = token }
+        )
         return .result(value: response)
     }
 }
@@ -225,45 +177,5 @@ public struct RunToolIntent: AppIntent {
         let result = await toolkit.execute(call)
         
         return .result(value: result.output)
-    }
-}
-
-// MARK: - Conversation Intent
-
-@available(iOS 16.0, macOS 13.0, *)
-public struct ContinueConversationIntent: AppIntent {
-    public static var title: LocalizedStringResource = "Continue Conversation"
-    public static var description = IntentDescription("Continue a Zero Dark conversation")
-    public static var openAppWhenRun: Bool = true
-    
-    @Parameter(title: "Message")
-    public var message: String
-    
-    @Parameter(title: "Conversation ID")
-    public var conversationId: String?
-    
-    public init() {}
-    
-    public func perform() async throws -> some IntentResult {
-        // Open app with conversation context
-        return .result()
-    }
-}
-
-// MARK: - Voice Shortcut
-
-@available(iOS 16.0, macOS 13.0, *)
-public struct VoiceConversationIntent: AppIntent {
-    public static var title: LocalizedStringResource = "Voice Conversation"
-    public static var description = IntentDescription("Start a voice conversation with Zero Dark")
-    public static var openAppWhenRun: Bool = true
-    
-    public init() {}
-    
-    public func perform() async throws -> some IntentResult {
-        // Start voice pipeline
-        let voice = await VoicePipeline.shared
-        try await voice.startListening()
-        return .result()
     }
 }

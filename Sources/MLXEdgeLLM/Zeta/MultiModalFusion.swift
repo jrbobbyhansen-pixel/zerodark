@@ -59,7 +59,7 @@ public actor MultiModalFusion {
         Response:
         """
         
-        return try await ai.generate(fullPrompt, stream: false)
+        return try await ai.process(prompt: fullPrompt, onToken: { _ in })
     }
     
     private func processInput(_ input: ModalInput) async throws -> String {
@@ -202,7 +202,7 @@ public actor MultiModalFusion {
         let ai = await ZeroDarkAI.shared
         let fullPrompt = context.joined(separator: "\n") + "\nUser: \(newMessage)\nAssistant:"
         
-        return try await ai.generate(fullPrompt, stream: false)
+        return try await ai.process(prompt: fullPrompt, onToken: { _ in })
     }
     
     // MARK: - Errors

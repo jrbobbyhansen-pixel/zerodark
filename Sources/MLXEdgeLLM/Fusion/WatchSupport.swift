@@ -231,7 +231,7 @@ public final class WatchRequestHandler: NSObject, WCSessionDelegate {
             Task {
                 let ai = await ZeroDarkAI.shared
                 do {
-                    let response = try await ai.generate(prompt, stream: false)
+                    let response = try await ai.process(prompt: prompt, stream: false)
                     replyHandler(["response": response])
                 } catch {
                     replyHandler(["error": error.localizedDescription])

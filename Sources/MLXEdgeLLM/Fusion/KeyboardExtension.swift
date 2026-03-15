@@ -73,7 +73,7 @@ public final class ZeroDarkKeyboardProcessor: KeyboardAIProcessor {
         }
         
         let ai = await ZeroDarkAI.shared
-        return try await ai.generate(prompt, stream: false)
+        return try await ai.process(prompt: prompt, stream: false)
     }
 }
 

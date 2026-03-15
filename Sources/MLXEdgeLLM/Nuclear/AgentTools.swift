@@ -1,6 +1,10 @@
 import Foundation
 import EventKit
 import Contacts
+import CryptoKit
+#if os(iOS)
+import UIKit
+#endif
 
 // MARK: - Agentic Tool System
 
@@ -598,8 +602,6 @@ public actor AgentToolkit {
         let data = Data(text.utf8)
         
         // Use CryptoKit for hashing
-        import CryptoKit
-        
         let hash: String
         switch algorithm {
         case "sha256":
@@ -704,7 +706,6 @@ public actor AgentToolkit {
     @MainActor
     private func executeClipboard(_ args: [String: String]) async -> ToolResult {
         #if os(iOS)
-        import UIKit
         let action = args["action"] ?? "read"
         
         switch action {
@@ -733,7 +734,6 @@ public actor AgentToolkit {
         switch info {
         case "device":
             #if os(iOS)
-            import UIKit
             let device = UIDevice.current
             let output = """
             Model: \(device.model)
@@ -747,7 +747,6 @@ public actor AgentToolkit {
             
         case "battery":
             #if os(iOS)
-            import UIKit
             UIDevice.current.isBatteryMonitoringEnabled = true
             let level = Int(UIDevice.current.batteryLevel * 100)
             let state: String

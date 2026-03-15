@@ -3,6 +3,7 @@ import EventKit
 import Contacts
 import CoreLocation
 import MapKit
+import AVFoundation
 import StoreKit
 import UserNotifications
 
@@ -559,7 +560,6 @@ extension AgentToolkit {
     }
     
     private func toggleFlashlight(on: Bool) -> ToolResult {
-        import AVFoundation
         
         guard let device = AVCaptureDevice.default(for: .video), device.hasTorch else {
             return ToolResult(success: false, output: "Flashlight not available", data: nil)

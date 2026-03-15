@@ -70,7 +70,7 @@ public final class NuclearMode: ObservableObject {
         capabilities.codeSandbox = true
         
         // Voice Pipeline
-        await voice.checkAvailability()
+        _ = voice.isAvailable
         capabilities.voicePipeline = voice.isAvailable
         
         // Screen Understanding (macOS only)
@@ -95,7 +95,7 @@ public final class NuclearMode: ObservableObject {
     public func requestAllPermissions() async {
         // Voice
         if capabilities.voicePipeline {
-            await voice.checkAvailability()
+            _ = voice.isAvailable
         }
         
         // Health
@@ -162,7 +162,6 @@ public final class NuclearMode: ObservableObject {
         if capabilities.smartHome && home.isAvailable {
             lines.append("### 🏠 Smart Home Control")
             lines.append("You can control HomeKit devices.")
-            lines.append(home.getDevicesSummary())
             lines.append("")
         }
         
@@ -261,17 +260,18 @@ public final class NuclearMode: ObservableObject {
 public extension NuclearMode {
     
     var capabilityIcons: [(name: String, icon: String, available: Bool)] {
-        [
+        var icons: [(name: String, icon: String, available: Bool)] = [
             ("Agent Tools", "wrench.and.screwdriver", capabilities.agentTools),
             ("Code Sandbox", "terminal", capabilities.codeSandbox),
             ("Voice Pipeline", "mic.fill", capabilities.voicePipeline),
-            #if os(macOS)
-            ("Screen Understanding", "eye", capabilities.screenUnderstanding),
-            #endif
             ("Health Integration", "heart.fill", capabilities.healthIntegration),
             ("Smart Home", "house.fill", capabilities.smartHome),
             ("Live Translation", "globe", capabilities.liveTranslation)
         ]
+        #if os(macOS)
+        icons.append(("Screen Understanding", "eye", capabilities.screenUnderstanding))
+        #endif
+        return icons
     }
 }
 

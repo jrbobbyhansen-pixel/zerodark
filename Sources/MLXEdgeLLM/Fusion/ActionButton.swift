@@ -49,7 +49,7 @@ public final class ActionButtonHandler {
             
             // Process with AI
             let ai = await ZeroDarkAI.shared
-            let response = try await ai.generate(transcription, stream: false)
+            let response = try await ai.process(prompt: transcription, stream: false)
             
             // Speak response
             await MainActor.run {
@@ -121,7 +121,7 @@ public enum QuickLaunchMode: String, CaseIterable {
         guard let text = await MainActor.run(body: { UIPasteboard.general.string }) else { return }
         
         let ai = await ZeroDarkAI.shared
-        let response = try? await ai.generate("Analyze this: \(text)", stream: false)
+        let response = try? await ai.process(prompt: "Analyze this: \(text)", stream: false)
         
         if let response = response {
             await MainActor.run {

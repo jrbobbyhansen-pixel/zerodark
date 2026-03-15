@@ -124,7 +124,7 @@ public extension QuantizedInference {
             (.qwen3_4b, .q4),      // 2.0GB - Best quality for 4GB
             (.qwen3_4b, .q3),      // 1.5GB - Faster
             (.qwen3_4b, .q2),      // 1.0GB - Fastest
-            (.llama32_3b, .q4),    // 1.5GB - Alternative
+            (.llama3_2_3b, .q4),    // 1.5GB - Alternative
             (.qwen3_1_7b, .q4),    // 0.9GB - Tiny but capable
         ]
     }

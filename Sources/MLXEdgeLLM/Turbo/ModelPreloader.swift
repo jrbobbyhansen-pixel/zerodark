@@ -205,7 +205,7 @@ public actor ModelPreloader {
         let loadedCount = preloadedEngines.count
         let loadingCount = loadingTasks.count
         let memory = preloadedEngines.values.reduce(0) { acc, engine in
-            acc + (engine.model?.approximateSizeMB ?? 0)
+            acc + engine.model.approximateSizeMB
         }
         return (loadedCount, loadingCount, memory)
     }
