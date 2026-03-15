@@ -124,14 +124,14 @@ Real-time conversation mode
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/bobbyhansenjr/zerodark.git", branch: "main")
+    .package(url: "https://github.com/jrbobbyhansen-pixel/zerodark.git", branch: "main")
 ]
 ```
 
 ### Build from Source
 
 ```bash
-git clone https://github.com/bobbyhansenjr/zerodark.git
+git clone https://github.com/jrbobbyhansen-pixel/zerodark.git
 cd zerodark
 open Package.swift
 # Build and run in Xcode
