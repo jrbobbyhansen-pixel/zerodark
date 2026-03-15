@@ -1,535 +1,172 @@
-# MLXEdgeLLM
+# Zero Dark 🌑
 
-Lightweight on-device LLM & VLM Swift package for iOS/macOS, powered by MLX. Run Qwen3, Llama, Gemma, SmolVLM and other models locally — no API keys, no binary dependencies, fully private.
+**The AI assistant Apple was too scared to build.**
+
+Zero Dark is a fully on-device AI operating system for iOS, iPadOS, macOS, and visionOS. No cloud. No telemetry. No censorship. Just raw intelligence running on Apple Silicon.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Swift](https://img.shields.io/badge/Swift-5.9+-orange.svg)](https://swift.org)
+[![Platform](https://img.shields.io/badge/Platform-iOS%2017%2B%20%7C%20macOS%2014%2B-blue.svg)](https://apple.com)
 
 ---
 
-## Requirements
+## Why Zero Dark?
 
-- iOS 17+ / macOS 14+ / visionOS 1+
-- Xcode 16+
-- `Increased Memory Limit` entitlement (required for models > 500 MB)
+| Siri | Zero Dark |
+|------|-----------|
+| Cloud-dependent | **100% on-device** |
+| "I found this on the web" | **Actually executes tasks** |
+| Can't reason | **14B parameter reasoning** |
+| No memory | **Remembers across sessions** |
+| Censored | **Uncensored option** |
+| One model | **17 models, auto-routed** |
+| No code execution | **Runs JS/Python locally** |
+| "I can't do that" | **Actually tries** |
+
+---
+
+## Features
+
+### 🧠 Intelligence Layer
+- **17 LLM models** from 0.6B to 14B parameters
+- **Smart routing** — auto-selects best model for each task
+- **5 ensemble modes** — parallel, cascade, consensus, speculative
+- **Long-term memory** — remembers across sessions
+- **Quality scoring** — learns from your feedback
+
+### 🔧 Agentic Tool Use (22 tools)
+Execute real actions, not just "here's what I found":
+
+```
+"What's on my calendar today?" → Reads EventKit, lists events
+"Remind me to call mom at 3pm" → Creates real Apple Reminder
+"Get directions to the airport" → MapKit search + turn-by-turn
+"What's 15% of $847?" → Calculator → $127.05
+"Turn on the living room lights" → HomeKit command
+"How did I sleep last night?" → HealthKit analysis
+```
+
+### 💻 Code Execution Sandbox
+Run code directly on device:
+```javascript
+// Model writes code, sandbox executes
+[5, 2, 8, 1, 9].sort((a, b) => a - b)
+// → [1, 2, 5, 8, 9]
+```
+
+### 🎤 Voice Pipeline
+Full hands-free assistant:
+```
+🎤 You speak → 🧠 LLM processes → 🔊 AI responds
+All on-device. All private.
+```
+
+### 🏠 Smart Home Control
+Natural language HomeKit:
+```
+"Turn off everything in the bedroom"
+"Set thermostat to 72"
+"Run movie night scene"
+```
+
+### ❤️ Health Integration
+Private health analysis:
+```
+"How active was I this week?"
+→ Steps, calories, exercise, sleep — all from HealthKit
+→ Never leaves your device
+```
+
+### 🌐 Live Translation
+On-device translation (iOS 17.4+):
+```
+12 languages, works offline
+Real-time conversation mode
+```
+
+---
+
+## Models
+
+### Standard Tier (Any iPhone)
+| Model | Size | Use Case |
+|-------|------|----------|
+| Qwen3 0.6B | 0.4GB | Ultra-fast responses |
+| Llama 3.2 1B | 0.7GB | Quick tasks |
+| Qwen3 4B | 2.5GB | Balanced |
+
+### Beast Tier (8GB RAM — iPhone 16 Pro)
+| Model | Size | Use Case |
+|-------|------|----------|
+| ⚡ Qwen3 8B | 4.5GB | Best general |
+| 🔓 Qwen3 8B Abliterated | 4.5GB | Uncensored |
+| 🧠 DeepSeek R1 8B | 4.5GB | Reasoning |
+| 💻 Qwen2.5 Coder 7B | 4.0GB | Code |
+| 👁️ Qwen3 VL 8B | 4.8GB | Vision |
+
+### PRO Tier (16GB RAM — iPad Pro M4 / Mac)
+| Model | Size | Use Case |
+|-------|------|----------|
+| 🚀 Qwen2.5 14B | 7.5GB | Desktop-class |
+| 🚀 DeepSeek R1 14B | 7.5GB | Deep reasoning |
+| 🚀 Qwen2.5 Coder 14B | 7.5GB | Professional code |
 
 ---
 
 ## Installation
 
-Add via Swift Package Manager:
+### Requirements
+- iOS 17+ / macOS 14+ / visionOS 1+
+- Xcode 15+
+- ~5GB free storage (per model)
 
-```
-https://github.com/iOSDevC/MLXEdgeLLM
-```
-
-Or in `Package.swift`:
-
-```swift
-.package(url: "https://github.com/iOSDevC/MLXEdgeLLM", branch: "main")
-```
-
-### Modules
-
-| Module | Contents |
-|--------|----------|
-| `MLXEdgeLLM` | Core inference, models, conversation persistence |
-| `MLXEdgeLLMUI` | SwiftUI views and ViewModels for drop-in UI |
-| `MLXEdgeLLMVoice` | Full-duplex voice interface (STT + TTS), 100% local |
-| `MLXEdgeLLMDocs` | RAG document library — PDF, DOCX, text, images |
+### Swift Package Manager
 
 ```swift
-// Core only
-import MLXEdgeLLM
+dependencies: [
+    .package(url: "https://github.com/bobbyhansenjr/zerodark.git", branch: "main")
+]
+```
 
-// Core + prebuilt SwiftUI interface
+### Build from Source
+
+```bash
+git clone https://github.com/bobbyhansenjr/zerodark.git
+cd zerodark
+open Package.swift
+# Build and run in Xcode
+```
+
+---
+
+## Quick Start
+
+```swift
 import MLXEdgeLLM
 import MLXEdgeLLMUI
 
-// Core + voice (STT → LLM → TTS pipeline)
-import MLXEdgeLLM
-import MLXEdgeLLMVoice
-
-// Core + document RAG
-import MLXEdgeLLM
-import MLXEdgeLLMDocs
-
-// Everything
-import MLXEdgeLLM
-import MLXEdgeLLMUI
-import MLXEdgeLLMVoice
-import MLXEdgeLLMDocs
-```
-
----
-
-## Text Chat
-
-```swift
-import MLXEdgeLLM
-
-// One-liner
-let reply = try await MLXEdgeLLM.chat("¿Cuánto gasté esta semana?")
-
-// Reusable instance (loads model once — preferred for multiple calls)
-let llm = try await MLXEdgeLLM.text(.qwen3_1_7b) { progress in
-    print(progress) // "Downloading Qwen3 1.7B: 42%"
-}
-let reply = try await llm.chat("Summarize my expenses")
-
-// Streaming
-for try await token in llm.stream("Explain this transaction") {
-    print(token, terminator: "")
-}
-
-// With system prompt
-let reply = try await llm.chat(
-    "What is the VAT rate in Mexico?",
-    systemPrompt: "You are a personal finance assistant."
-)
-```
-
-### Text Models
-
-| Model | Size | Best for |
-|-------|------|----------|
-| `.qwen3_0_6b` | ~400 MB | Ultra-fast responses |
-| `.qwen3_1_7b` ⭐ | ~1.0 GB | Balanced (default) |
-| `.qwen3_4b` | ~2.5 GB | Higher quality |
-| `.gemma3_1b` | ~700 MB | Google alternative |
-| `.phi3_5_mini` | ~2.2 GB | Microsoft alternative |
-| `.llama3_2_1b` | ~700 MB | Meta, lightweight |
-| `.llama3_2_3b` | ~1.8 GB | Meta, higher quality |
-
----
-
-## Vision / Image Analysis
-
-```swift
-import MLXEdgeLLM
-
-// One-liner receipt extraction
-let json = try await MLXEdgeLLM.extractDocument(receiptImage)
-// → {"store":"OXXO","date":"2026-03-06","items":[...],"total":125.50,"currency":"MXN"}
-
-// Reusable instance
-let vlm = try await MLXEdgeLLM.vision(.qwen35_0_8b) { print($0) }
-
-// Free-form image analysis
-let description = try await vlm.analyze("What items are on this receipt?", image: photo)
-
-// Streaming with image
-for try await token in vlm.streamVision("Describe this image", image: photo) {
-    print(token, terminator: "")
-}
-```
-
-### Vision Models
-
-| Model | Size | Best for |
-|-------|------|----------|
-| `.qwen35_0_8b` ⭐ | ~625 MB | Default, iPhone |
-| `.qwen35_2b` | ~1.7 GB | iPad, higher accuracy |
-| `.smolvlm_500m` | ~1.0 GB | Minimum memory |
-| `.smolvlm_2b` | ~1.5 GB | SmolVLM, balanced |
-
----
-
-## OCR & Document Extraction
-
-Specialized models optimized for receipts, invoices, and structured documents.
-
-```swift
-import MLXEdgeLLM
-
-// FastVLM — outputs structured JSON
-let ocr = try await MLXEdgeLLM.specialized(.fastVLM_0_5b_fp16) { print($0) }
-let json = try await ocr.extractDocument(receiptImage)
-
-// Granite Docling — outputs DocTags, converted to Markdown
-let docOCR = try await MLXEdgeLLM.specialized(.graniteDocling_258m)
-let raw = try await docOCR.extractDocument(documentImage)
-let markdown = MLXEdgeLLM.parseDocTags(raw)
-```
-
-### Specialized Models
-
-| Model | Size | Output |
-|-------|------|--------|
-| `.fastVLM_0_5b_fp16` ⭐ | ~1.25 GB | JSON (receipts) |
-| `.fastVLM_1_5b_int8` | ~800 MB | JSON (receipts) |
-| `.graniteDocling_258m` | ~631 MB | DocTags → Markdown |
-| `.graniteVision_3_3` | ~1.2 GB | Plain text |
-
----
-
-## Receipt Scanner Example
-
-```swift
-import MLXEdgeLLM
-
-struct ReceiptData: Codable {
-    let store: String
-    let date: String
-    let items: [Item]
-    let subtotal: Double
-    let tax: Double
-    let total: Double
-    let currency: String
-
-    struct Item: Codable {
-        let name: String
-        let quantity: Int
-        let price: Double
+// Basic chat
+struct ContentView: View {
+    var body: some View {
+        ZeroDarkView()
     }
 }
 
-func scanReceipt(_ image: PlatformImage) async throws -> ReceiptData {
-    let json = try await MLXEdgeLLM.extractDocument(image)
-    return try JSONDecoder().decode(ReceiptData.self, from: Data(json.utf8))
-}
-```
-
----
-
-## Conversation Persistence
-
-`ConversationStore` provides a SQLite-backed store (no external dependencies) for persisting chat history. The LLM automatically loads a context window of the most recent turns that fit within the token budget.
-
-```swift
-import MLXEdgeLLM
-
-let store = ConversationStore.shared
-
-// Create a conversation
-let conv = try await store.createConversation(model: .qwen3_1_7b, title: "Finance assistant")
-
-// Chat with automatic history — context window managed automatically
-let llm = try await MLXEdgeLLM.text(.qwen3_1_7b)
-let reply  = try await llm.chat("What is 2+2?", in: conv.id)
-let reply2 = try await llm.chat("Why?", in: conv.id) // includes previous exchange
-
-// Streaming with history
-for try await token in llm.stream("Tell me more", in: conv.id) {
-    print(token, terminator: "")
-}
-
-// One-liner (creates conversation automatically)
-let (reply, convID) = try await MLXEdgeLLM.chat("Hello", model: .qwen3_1_7b)
-
-// List all conversations
-let conversations = try await store.allConversations()
-
-// Full-text search across all messages
-let results = try await store.search("VAT Mexico")
-
-// Auto-title based on first message
-try await llm.autoTitle(conversationID: conv.id)
-
-// Prune and summarize long conversations
-try await llm.summarizeAndPrune(conversationID: conv.id)
-```
-
-### Context Window Management
-
-When a conversation exceeds the token budget, `summarizeAndPrune` uses the model itself to summarize older turns and replace them with a compact system-level summary — preserving semantic continuity without truncating abruptly.
-
-```swift
-// Called automatically during chat if conversation exceeds 4096 tokens
-try await llm.summarizeAndPrune(
-    conversationID: conv.id,
-    keepLastN: 10,         // always keep the 10 most recent turns
-    maxContextTokens: 4096
-)
-```
-
----
-
-## Voice Interface
-
-`MLXEdgeLLMVoice` provides a full-duplex voice pipeline using only Apple frameworks — no external dependencies, no network calls.
-
-```
-Microphone → SFSpeechRecognizer (on-device) → MLXEdgeLLM.stream() → AVSpeechSynthesizer
-```
-
-Sentences are streamed to TTS **while the LLM is still generating** — the assistant starts speaking after the first complete sentence, not after the full response.
-
-Language is detected automatically per utterance using `NLLanguageRecognizer` and mapped to the best available system voice with region (e.g. `"es"` → `"es-MX"`).
-
-### Drop-in button
-
-```swift
-import MLXEdgeLLMVoice
-
-// Minimal — manages its own VoiceSession internally
-VoiceButton(llm: llm)
-
-// With external session for full state control
-@StateObject var session = VoiceSession(llm: llm)
-
-VoiceButton(session: session)
-Text(session.transcript)  // live STT transcript
-Text(session.response)    // live LLM response
-```
-
-### Full voice chat view
-
-```swift
-import MLXEdgeLLMVoice
-
-// Complete UI: transcript bubble + response bubble + VoiceButton
-VoiceChatView(llm: llm)
-
-// With persistent conversation
-VoiceChatView(llm: llm, conversationID: conv.id)
-```
-
-### Manual pipeline control
-
-```swift
-import MLXEdgeLLMVoice
-
-let session = VoiceSession(llm: llm, conversationID: conv.id)
-
-// Request permissions once on launch
-let granted = await session.requestPermissions()
-
-// Start — silence detection triggers LLM automatically
-try await session.startListening()
-
-// Or stop manually
-await session.stopListening()
-
-// Interrupt TTS mid-sentence
-session.interrupt()
-
-// Cancel everything
-session.cancel()
-```
-
-### Configuration
-
-```swift
-var config = VoiceSession.Config()
-config.silenceThreshold     = 1.4    // seconds of silence before triggering LLM
-config.maxRecordingDuration = 30     // max recording time in seconds
-config.speakingRate         = 0.5    // TTS rate (0–1)
-config.maxTokens            = 512    // max LLM tokens per response
-config.systemPrompt         = "You are a helpful assistant. Be concise."
-
-let session = VoiceSession(llm: llm, config: config)
-```
-
-### VoiceSession States
-
-| State | Meaning |
-|-------|---------|
-| `.idle` | Ready, waiting for input |
-| `.listening` | Recording + live transcription |
-| `.thinking(partial:)` | LLM streaming, partial response available |
-| `.speaking(sentence:)` | TTS playing current sentence |
-| `.error(String)` | Something went wrong |
-
-### Required permissions
-
-Add to your `Info.plist`:
-
-```xml
-<key>NSSpeechRecognitionUsageDescription</key>
-<string>Used for voice input to the local AI assistant.</string>
-<key>NSMicrophoneUsageDescription</key>
-<string>Used to capture your voice for the AI assistant.</string>
-```
-
----
-
-## Document Library (RAG)
-
-`MLXEdgeLLMDocs` provides a fully local Retrieval-Augmented Generation (RAG) pipeline. Index documents once, then ask questions in natural language. No API keys, no cloud services.
-
-### Supported formats
-
-| Format | Parser |
-|--------|--------|
-| `.pdf` | PDFKit (text extraction per page) |
-| `.docx` | ZIP + XML (no external dependencies) |
-| `.txt`, `.md`, `.markdown` | Plain text |
-| `.png`, `.jpg`, `.jpeg`, `.heic`, `.tiff` | MLX VLM OCR |
-
-### Retrieval pipeline
-
-```
-query → TF-IDF embed → FTS5 top-20 candidates → cosine re-rank top-5 → LLM
-```
-
-Two-stage hybrid search: FTS5 for fast keyword recall, cosine similarity for semantic precision. All vectors stored as BLOBs in SQLite — no external vector database required.
-
-### Embedding backend
-
-`AutoEmbeddingProvider` uses TF-IDF sparse embeddings with IDF weights built from the indexed corpus — 100% local, zero downloads, works on device and simulator. Designed to upgrade transparently to dense MLX embeddings when `mlx-swift-lm` exposes that API.
-
-### Quick start
-
-```swift
-import MLXEdgeLLM
-import MLXEdgeLLMDocs
-
-// 1. Configure once (e.g. in app startup)
-let llm      = try await MLXEdgeLLM.text(.qwen3_1_7b)
-let embedder = AutoEmbeddingProvider()
-
-let library = DocumentLibrary.shared
-await library.configure(embeddingProvider: embedder, llm: llm)
-try await library.open()
-
-// 2. Index documents — progress delivered on @MainActor
-try await library.add(url: pdfURL) { progress in
-    print(progress) // "Embedding MyDoc: 42%"
-}
-try await library.add(url: docxURL)
-try await library.add(url: imageURL)   // OCR via VLM
-
-// Rebuild TF-IDF weights after indexing
-await library.refreshCorpus()
-
-// 3. Ask questions
-let answer = try await library.ask("What is the contract amount?")
-print(answer.text)
-
-// 4. Inspect sources
-for source in answer.sources {
-    print("[\(source.documentTitle) p.\(source.pageNumber)] score: \(source.score)")
-    print(source.excerpt)
-}
-```
-
-### Stateful document chat
-
-```swift
-import MLXEdgeLLMDocs
-
-// DocumentChat maintains conversation history and cites sources per message
-let chat = DocumentChat(library: library, llm: llm)
-
-let reply1 = try await chat.send("What is the payment schedule?")
-let reply2 = try await chat.send("And the penalties for late payment?") // context-aware
-
-for msg in chat.messages {
-    print(msg.role, msg.text)
-    print(msg.sources.map { $0.documentTitle }) // cited documents
-}
-```
-
-### Advanced options
-
-```swift
-// Custom chunk size and overlap
-let library = DocumentLibrary(
-    chunkTargetTokens:    512,   // target tokens per chunk
-    chunkOverlapFraction: 0.1    // 10% overlap between chunks
+// Programmatic use
+let ai = ZeroDarkAI.shared
+
+// Simple generation
+let response = try await ai.generate("Explain quantum computing")
+
+// With tool use
+let result = try await ai.generate(
+    "What's on my calendar tomorrow?",
+    enableTools: true
 )
 
-// Ask with more context
-let answer = try await library.ask(
-    "Summarize the key obligations",
-    topK:             8,      // retrieve 8 chunks (default 5)
-    maxContextTokens: 4096,   // context budget for LLM
-    systemPrompt:     "You are a legal assistant. Be precise and cite page numbers."
-)
-
-// Manage library
-let docs = try await library.allDocuments()
-try await library.removeDocument(id: doc.id)
-```
-
-### Progress stages
-
-`onProgress` is delivered on the `@MainActor` and reports four stages:
-
-| Stage | Example message | Approx. % |
-|-------|----------------|-----------|
-| Parsing | `"Parsing MyDoc.pdf…"` | 5% |
-| Chunking | `"Chunking MyDoc…"` | 15% |
-| Embedding | `"Embedding MyDoc: 42%"` | 15–100% |
-| Done | `"'MyDoc' indexed ✓ (253 chunks)"` | 100% |
-
-### Drop-in tab
-
-Add `DocsTab` to any existing `TabView`:
-
-```swift
-import MLXEdgeLLMDocs
-
-TabView {
-    // ... existing tabs
-    DocsTab()
-        .tabItem { Label("Docs", systemImage: "doc.text.magnifyingglass") }
-}
-```
-
-`DocsTab` includes a file picker (multi-select), per-document progress bar with percentage, swipe-to-delete, and a full chat sheet with expandable source citations.
-
----
-
-## Prebuilt SwiftUI Interface
-
-`MLXEdgeLLMUI` provides a ready-to-use tabbed interface. Add `MLXEdgeLLMVoice` to unlock the Voice tab.
-
-```swift
-import SwiftUI
-import MLXEdgeLLMUI
-import MLXEdgeLLMVoice  // enables Voice tab
-
-@main
-struct MyApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-    }
-}
-```
-
-| Tab | Module | Description |
-|-----|--------|-------------|
-| **Text** | `MLXEdgeLLMUI` | Persistent multi-conversation chat with streaming |
-| **Vision** | `MLXEdgeLLMUI` | Image analysis with standard and streaming modes |
-| **OCR** | `MLXEdgeLLMUI` | Document and receipt extraction |
-| **Models** | `MLXEdgeLLMUI` | Browser showing all models and download status |
-| **Voice** | `MLXEdgeLLMVoice` | Full-duplex voice chat with auto language detection |
-| **Docs** | `MLXEdgeLLMDocs` | Document library and RAG chat |
-
----
-
-## Model Discovery
-
-```swift
-import MLXEdgeLLM
-
-// Filtered collections — downloaded models sorted first
-let textModels        = Model.textModels
-let visionModels      = Model.visionModels
-let specializedModels = Model.specializedModels
-
-// Check download status
-if Model.qwen3_1_7b.isDownloaded {
-    print("Ready at: \(Model.qwen3_1_7b.cacheDirectory.path)")
-}
-
-// Model metadata
-let model = Model.qwen3_1_7b
-print(model.displayName)       // "Qwen3 1.7B"
-print(model.approximateSizeMB) // 1000
-print(model.purpose)           // .text
-```
-
----
-
-## Entitlements
-
-Add to your `.entitlements` file for models larger than 500 MB:
-
-```xml
-<key>com.apple.developer.kernel.increased-memory-limit</key>
-<true/>
+// Voice conversation
+let voice = VoicePipeline.shared
+try voice.startListening()
 ```
 
 ---
@@ -537,51 +174,93 @@ Add to your `.entitlements` file for models larger than 500 MB:
 ## Architecture
 
 ```
-MLXEdgeLLM (core)
-├── MLXEdgeLLM.text()        →  MLXEngine  →  MLXLLM
-├── MLXEdgeLLM.vision()      →  MLXEngine  →  MLXVLM
-├── MLXEdgeLLM.specialized() →  MLXEngine  →  MLXVLM
-├── ConversationStore        →  SQLite (no external deps)
-└── MLXEdgeLLM+History       →  context window · auto-title · pruning
-
-MLXEdgeLLMUI (optional)
-├── ContentView  (TabView)
-├── TextChatTab  →  TextChatViewModel  →  ConversationStore
-├── VisionTab    →  VisionViewModel
-├── OCRTab       →  OCRViewModel
-└── ModelsTab
-
-MLXEdgeLLMVoice (optional)
-├── VoiceSession             →  SFSpeechRecognizer (on-device STT)
-│                            →  MLXEdgeLLM.stream() + ConversationStore
-│                            →  AVSpeechSynthesizer (on-device TTS)
-├── VoiceButton              →  SwiftUI mic button with state animations
-├── VoiceChatView            →  Full voice chat UI
-└── VoiceTab                 →  Tab for MLXEdgeLLMUI ContentView
-
-MLXEdgeLLMDocs (optional)
-├── DocumentLibrary          →  add() · ask() · allDocuments() · refreshCorpus()
-├── DocumentParserDispatcher →  PDF (PDFKit) · DOCX (ZIP+XML) · TXT · Image (VLM OCR)
-├── DocumentChunker          →  sliding window · sentence boundaries · overlap
-├── AutoEmbeddingProvider    →  TF-IDF sparse (local, no download)
-│   └── TFIDFEmbeddingProvider  →  DJB2 hash buckets · IDF weights · cosine
-├── VectorStore              →  SQLite BLOB vectors · FTS5 pre-filter · cosine re-rank
-├── DocumentChat             →  stateful Q&A · source citations · ConversationStore
-└── DocsTab                  →  SwiftUI tab · file picker · progress bar · chat sheet
-
-Sources/
-├── MLXEdgeLLM/
-├── MLXEdgeLLMUI/
-├── MLXEdgeLLMVoice/
-├── MLXEdgeLLMDocs/
-└── MLXEdgeLLMExample/
-
-All models download automatically on first use and are cached at:
-  ~/Library/Caches/models/<org>/<repo>/
+┌─────────────────────────────────────────────────────────────┐
+│                      ZERO DARK                               │
+├─────────────────────────────────────────────────────────────┤
+│  User Input                                                  │
+│      ↓                                                       │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
+│  │ Model Router│→ │Ensemble Eng │→ │Quality Score│         │
+│  └─────────────┘  └─────────────┘  └─────────────┘         │
+│      ↓                                                       │
+│  ┌─────────────────────────────────────────────────┐        │
+│  │              NUCLEAR MODE                        │        │
+│  │  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐   │        │
+│  │  │ Tools  │ │  Code  │ │ Voice  │ │ Health │   │        │
+│  │  │ (22)   │ │Sandbox │ │Pipeline│ │  Kit   │   │        │
+│  │  └────────┘ └────────┘ └────────┘ └────────┘   │        │
+│  │  ┌────────┐ ┌────────┐ ┌────────┐              │        │
+│  │  │HomeKit │ │Translate│ │ Screen │              │        │
+│  │  │Control │ │  (12)  │ │  OCR   │              │        │
+│  │  └────────┘ └────────┘ └────────┘              │        │
+│  └─────────────────────────────────────────────────┘        │
+│      ↓                                                       │
+│  Response (text / speech / action)                          │
+└─────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Privacy
+
+**Zero Dark sends nothing to the cloud. Ever.**
+
+- All models run locally via MLX
+- All tools execute on-device
+- Conversations stored locally (SQLite)
+- No telemetry, no analytics, no tracking
+- Your data stays on your device
+
+---
+
+## Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Areas We Need Help
+- [ ] More model support
+- [ ] Additional tools
+- [ ] UI improvements
+- [ ] Documentation
+- [ ] Testing on different devices
+- [ ] Localization
+
+---
+
+## Roadmap
+
+- [ ] Apple Watch companion
+- [ ] CarPlay integration
+- [ ] Shortcuts automation
+- [ ] On-device fine-tuning (LoRA)
+- [ ] Offline knowledge packs
+- [ ] Widget support
+- [ ] iCloud encrypted sync
 
 ---
 
 ## License
 
-Apache 2.0
+MIT License. See [LICENSE](LICENSE) for details.
+
+---
+
+## Credits
+
+Built with:
+- [MLX](https://github.com/ml-explore/mlx) by Apple
+- [mlx-swift](https://github.com/ml-explore/mlx-swift)
+- [mlx-swift-examples](https://github.com/ml-explore/mlx-swift-examples)
+
+Models from:
+- [Qwen](https://github.com/QwenLM/Qwen)
+- [Meta Llama](https://llama.meta.com)
+- [DeepSeek](https://github.com/deepseek-ai/DeepSeek-R1)
+- [Mistral](https://mistral.ai)
+
+---
+
+<p align="center">
+  <b>The AI assistant Apple was too scared to build.</b><br>
+  <sub>Private. Powerful. Yours.</sub>
+</p>
