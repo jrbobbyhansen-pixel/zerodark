@@ -121,7 +121,7 @@
 			mainGroup = FED51C562F5B7A7900D5040F;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				FED51CA72F5B7BA500D5040F /* XCLocalSwiftPackageReference "../../../MLXEdgeLLM" */,
+				FED51CA72F5B7BA500D5040F /* XCLocalSwiftPackageReference "../.." */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FED51C602F5B7A7900D5040F /* Products */;
@@ -273,14 +273,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = DarkPhone/DarkPhone.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ZeroDark/DarkPhone.entitlements;
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = DarkPhone/Info.plist;
+				INFOPLIST_FILE = ZeroDark/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Scan tickets and other images";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Used to capture your voice for the AI assistant.";
@@ -323,14 +323,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = DarkPhone/DarkPhone.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ZeroDark/DarkPhone.entitlements;
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = DarkPhone/Info.plist;
+				INFOPLIST_FILE = ZeroDark/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Scan tickets and other images";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Used to capture your voice for the AI assistant.";
@@ -392,34 +392,36 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		FED51CA72F5B7BA500D5040F /* XCLocalSwiftPackageReference "../../../MLXEdgeLLM" */ = {
+		FED51CA72F5B7BA500D5040F /* XCLocalSwiftPackageReference "../.." */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../../MLXEdgeLLM;
+			relativePath = ../..;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		FE6C89002F5CE8740010027A /* MLXEdgeLLMDocs */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FED51CA72F5B7BA500D5040F /* XCLocalSwiftPackageReference "../../../MLXEdgeLLM" */;
+			package = FED51CA72F5B7BA500D5040F /* XCLocalSwiftPackageReference "../.." */;
 			productName = MLXEdgeLLMDocs;
 		};
 		FE825F142F5CC27D006C054A /* MLXEdgeLLMUI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FED51CA72F5B7BA500D5040F /* XCLocalSwiftPackageReference "../../../MLXEdgeLLM" */;
+			package = FED51CA72F5B7BA500D5040F /* XCLocalSwiftPackageReference "../.." */;
 			productName = MLXEdgeLLMUI;
 		};
 		FE825F772F5CDF96006C054A /* MLXEdgeLLMVoice */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FED51CA72F5B7BA500D5040F /* XCLocalSwiftPackageReference "../../../MLXEdgeLLM" */;
+			package = FED51CA72F5B7BA500D5040F /* XCLocalSwiftPackageReference "../.." */;
 			productName = MLXEdgeLLMVoice;
 		};
 		FED51C932F5B7B0600D5040F /* MLXEdgeLLM */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = FED51CA72F5B7BA500D5040F /* XCLocalSwiftPackageReference "../.." */;
 			productName = MLXEdgeLLM;
 		};
 		FED51CA82F5B7BA500D5040F /* MLXEdgeLLM */ = {
 			isa = XCSwiftPackageProductDependency;
+			package = FED51CA72F5B7BA500D5040F /* XCLocalSwiftPackageReference "../.." */;
 			productName = MLXEdgeLLM;
 		};
 /* End XCSwiftPackageProductDependency section */
