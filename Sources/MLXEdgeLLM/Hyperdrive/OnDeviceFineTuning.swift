@@ -36,6 +36,8 @@ public actor OnDeviceFineTuning {
         /// Save checkpoints
         public var saveCheckpoints: Bool = true
         
+        public init() {}
+        
         // Presets
         public static var small: LoRAConfig {
             var c = LoRAConfig()

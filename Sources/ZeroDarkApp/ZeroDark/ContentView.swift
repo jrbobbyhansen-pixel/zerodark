@@ -8,36 +8,74 @@ import MLXEdgeLLMDocs
 // MARK: - ContentView
 
 struct ContentView: View {
+    @State private var selectedTab = 0
+    
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
+            // ☢️ NUCLEAR DEMO - The main event
+            NuclearDemoTab()
+                .tabItem {
+                    Label("Nuclear", systemImage: "atom")
+                }
+                .tag(0)
+            
+            // 💬 Text Chat
             TextChatTab()
                 .tabItem {
-                    Label("Text", systemImage: "text.bubble")
+                    Label("Chat", systemImage: "text.bubble")
                 }
+                .tag(1)
             
+            // 🎤 Voice
             VoiceTab()
                 .tabItem {
                     Label("Voice", systemImage: "mic.fill")
                 }
-            // Agregar en el TabView existente:
-            DocsTab()
-                .tabItem { Label("Docs", systemImage: "doc.text.magnifyingglass") }
+                .tag(2)
             
+            // 👁️ Vision
             VisionTab()
                 .tabItem {
                     Label("Vision", systemImage: "eye")
                 }
+                .tag(3)
             
+            // 👁️ Screen Agent (macOS)
+            ScreenAgentTab()
+                .tabItem {
+                    Label("Screen", systemImage: "display")
+                }
+                .tag(4)
+            
+            // 🧠 Fine-Tuning
+            FineTuningTab()
+                .tabItem {
+                    Label("Train", systemImage: "brain.head.profile")
+                }
+                .tag(5)
+            
+            // 📄 Docs RAG
+            DocsTab()
+                .tabItem {
+                    Label("Docs", systemImage: "doc.text.magnifyingglass")
+                }
+                .tag(6)
+            
+            // 📷 OCR
             OCRTab()
                 .tabItem {
                     Label("OCR", systemImage: "doc.viewfinder")
                 }
+                .tag(7)
             
+            // 📦 Models
             ModelsTab()
                 .tabItem {
                     Label("Models", systemImage: "square.stack.3d.up")
                 }
+                .tag(8)
         }
+        .preferredColorScheme(.dark)
     }
 }
 
@@ -54,9 +92,9 @@ public struct ModelsTab: View {
                 ModelSection(title: "Specialized OCR", icon: "doc.viewfinder", color: .orange, models: Model.specializedModels)
             }
             .navigationTitle("Models")
+            .preferredColorScheme(.dark)
         }
     }
 }
-
 
 #Preview { ContentView() }

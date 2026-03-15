@@ -33,6 +33,11 @@ public actor AgentToolkit {
     public struct ToolCall: Codable, Sendable {
         public let tool: String
         public let arguments: [String: String]
+        
+        public init(tool: String, arguments: [String: String]) {
+            self.tool = tool
+            self.arguments = arguments
+        }
     }
     
     public struct ToolResult: Sendable {

@@ -2,13 +2,20 @@
 import PackageDescription
 
 let package = Package(
-    name: "MLXEdgeLLM",
+    name: "ZeroDark",
     platforms: [
         .iOS(.v17),
         .macOS(.v14),
         .visionOS(.v1)
     ],
     products: [
+        // MARK: - Libraries (for embedding in other apps)
+        .library(name: "ZeroDarkCore",    targets: ["MLXEdgeLLM"]),
+        .library(name: "ZeroDarkUI",      targets: ["MLXEdgeLLMUI"]),
+        .library(name: "ZeroDarkVoice",   targets: ["MLXEdgeLLMVoice"]),
+        .library(name: "ZeroDarkDocs",    targets: ["MLXEdgeLLMDocs"]),
+        
+        // Legacy names (backward compat)
         .library(name: "MLXEdgeLLM",      targets: ["MLXEdgeLLM"]),
         .library(name: "MLXEdgeLLMUI",    targets: ["MLXEdgeLLMUI"]),
         .library(name: "MLXEdgeLLMVoice", targets: ["MLXEdgeLLMVoice"]),
@@ -21,7 +28,9 @@ let package = Package(
         )
     ],
     targets: [
-        // MARK: - Core
+        // ═══════════════════════════════════════════════════════════════
+        // MARK: - Core Engine
+        // ═══════════════════════════════════════════════════════════════
         .target(
             name: "MLXEdgeLLM",
             dependencies: [
@@ -29,36 +38,59 @@ let package = Package(
                 .product(name: "MLXLLM",      package: "mlx-swift-lm"),
                 .product(name: "MLXLMCommon", package: "mlx-swift-lm"),
             ],
-            path: "Sources/MLXEdgeLLM"
+            path: "Sources/MLXEdgeLLM",
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency")
+            ]
         ),
         
-        // MARK: - UI
+        // ═══════════════════════════════════════════════════════════════
+        // MARK: - UI Components
+        // ═══════════════════════════════════════════════════════════════
         .target(
             name: "MLXEdgeLLMUI",
             dependencies: [
                 "MLXEdgeLLM",
-                "MLXEdgeLLMVoice",   // enables VoiceTab inside ContentView
+                "MLXEdgeLLMVoice",
             ],
             path: "Sources/MLXEdgeLLMUI"
         ),
         
-        // MARK: - Voice
-        // Uses only Apple frameworks (Speech, AVFoundation) — no extra deps.
-            .target(
-                name: "MLXEdgeLLMVoice",
-                dependencies: ["MLXEdgeLLM"],
-                path: "Sources/MLXEdgeLLMVoice"
-            ),
+        // ═══════════════════════════════════════════════════════════════
+        // MARK: - Voice Pipeline (STT + TTS)
+        // ═══════════════════════════════════════════════════════════════
+        .target(
+            name: "MLXEdgeLLMVoice",
+            dependencies: ["MLXEdgeLLM"],
+            path: "Sources/MLXEdgeLLMVoice"
+        ),
         
-        // MARK: - Docs (RAG)
-        // Uses only Apple frameworks (PDFKit) + network for embeddings API.
-            .target(
-                name: "MLXEdgeLLMDocs",
-                dependencies: ["MLXEdgeLLM"],
-                path: "Sources/MLXEdgeLLMDocs"
-            ),
+        // ═══════════════════════════════════════════════════════════════
+        // MARK: - Document RAG
+        // ═══════════════════════════════════════════════════════════════
+        .target(
+            name: "MLXEdgeLLMDocs",
+            dependencies: ["MLXEdgeLLM"],
+            path: "Sources/MLXEdgeLLMDocs"
+        ),
         
-        // MARK: - Example App
+        // ═══════════════════════════════════════════════════════════════
+        // MARK: - Demo App (for Package-based building)
+        // ═══════════════════════════════════════════════════════════════
+        .executableTarget(
+            name: "ZeroDarkApp",
+            dependencies: [
+                "MLXEdgeLLM",
+                "MLXEdgeLLMUI",
+                "MLXEdgeLLMVoice",
+                "MLXEdgeLLMDocs",
+            ],
+            path: "Sources/ZeroDarkApp"
+        ),
+        
+        // ═══════════════════════════════════════════════════════════════
+        // MARK: - Example (minimal)
+        // ═══════════════════════════════════════════════════════════════
         .target(
             name: "MLXEdgeLLMExample",
             dependencies: [
@@ -70,9 +102,11 @@ let package = Package(
             path: "Sources/MLXEdgeLLMExample"
         ),
         
+        // ═══════════════════════════════════════════════════════════════
         // MARK: - Tests
+        // ═══════════════════════════════════════════════════════════════
         .testTarget(
-            name: "MLXEdgeLLMTests",
+            name: "ZeroDarkTests",
             dependencies: ["MLXEdgeLLM"],
             path: "Tests/MLXEdgeLLMTests"
         )
