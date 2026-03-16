@@ -125,6 +125,104 @@ struct HealthCheckIntent: AppIntent {
     }
 }
 
+// MARK: - Set Timer Intent
+
+@available(iOS 16.0, *)
+struct SetTimerIntent: AppIntent {
+    static var title: LocalizedStringResource = "Set Timer"
+    static var description = IntentDescription("Set a timer with ZeroDark")
+    
+    @Parameter(title: "Minutes", default: 5)
+    var minutes: Int
+    
+    static var parameterSummary: some ParameterSummary {
+        Summary("Set timer for \(\.$minutes) minutes")
+    }
+    
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let toolkit = AgentToolkit.shared
+        let call = AgentToolkit.ToolCall(tool: "timer", arguments: ["duration": "\(minutes)"])
+        let result = await toolkit.execute(call)
+        return .result(dialog: IntentDialog(stringLiteral: result.output))
+    }
+}
+
+// MARK: - Open App Intent
+
+@available(iOS 16.0, *)
+struct OpenAppIntent: AppIntent {
+    static var title: LocalizedStringResource = "Open App"
+    static var description = IntentDescription("Open an app with ZeroDark")
+    
+    @Parameter(title: "App Name")
+    var appName: String
+    
+    static var parameterSummary: some ParameterSummary {
+        Summary("Open \(\.$appName)")
+    }
+    
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let toolkit = AgentToolkit.shared
+        let call = AgentToolkit.ToolCall(tool: "open_app", arguments: ["app": appName])
+        let result = await toolkit.execute(call)
+        return .result(dialog: IntentDialog(stringLiteral: result.output))
+    }
+}
+
+// MARK: - Convert Units Intent
+
+@available(iOS 16.0, *)
+struct ConvertIntent: AppIntent {
+    static var title: LocalizedStringResource = "Convert Units"
+    static var description = IntentDescription("Convert units with ZeroDark")
+    
+    @Parameter(title: "Value")
+    var value: String
+    
+    @Parameter(title: "From Unit")
+    var fromUnit: String
+    
+    @Parameter(title: "To Unit")
+    var toUnit: String
+    
+    static var parameterSummary: some ParameterSummary {
+        Summary("Convert \(\.$value) \(\.$fromUnit) to \(\.$toUnit)")
+    }
+    
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let toolkit = AgentToolkit.shared
+        let call = AgentToolkit.ToolCall(tool: "convert", arguments: ["value": value, "from": fromUnit, "to": toUnit])
+        let result = await toolkit.execute(call)
+        return .result(dialog: IntentDialog(stringLiteral: result.output))
+    }
+}
+
+// MARK: - Speak Text Intent
+
+@available(iOS 16.0, *)
+struct SpeakIntent: AppIntent {
+    static var title: LocalizedStringResource = "Speak Text"
+    static var description = IntentDescription("Have ZeroDark speak text aloud")
+    
+    @Parameter(title: "Text")
+    var text: String
+    
+    static var parameterSummary: some ParameterSummary {
+        Summary("Say \(\.$text)")
+    }
+    
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let toolkit = AgentToolkit.shared
+        let call = AgentToolkit.ToolCall(tool: "speak", arguments: ["text": text])
+        let result = await toolkit.execute(call)
+        return .result(dialog: IntentDialog(stringLiteral: result.output))
+    }
+}
+
 // MARK: - App Shortcuts Provider (Static Phrases Only)
 
 @available(iOS 16.0, *)
@@ -179,6 +277,46 @@ struct ZeroDarkShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Health Check",
             systemImageName: "heart"
+        )
+        
+        AppShortcut(
+            intent: SetTimerIntent(),
+            phrases: [
+                "\(.applicationName) timer",
+                "Set timer with \(.applicationName)",
+            ],
+            shortTitle: "Set Timer",
+            systemImageName: "timer"
+        )
+        
+        AppShortcut(
+            intent: OpenAppIntent(),
+            phrases: [
+                "Open app with \(.applicationName)",
+                "\(.applicationName) open app",
+            ],
+            shortTitle: "Open App",
+            systemImageName: "app"
+        )
+        
+        AppShortcut(
+            intent: ConvertIntent(),
+            phrases: [
+                "Convert with \(.applicationName)",
+                "\(.applicationName) convert",
+            ],
+            shortTitle: "Convert",
+            systemImageName: "arrow.left.arrow.right"
+        )
+        
+        AppShortcut(
+            intent: SpeakIntent(),
+            phrases: [
+                "\(.applicationName) say",
+                "Speak with \(.applicationName)",
+            ],
+            shortTitle: "Speak",
+            systemImageName: "speaker.wave.2"
         )
     }
 }
