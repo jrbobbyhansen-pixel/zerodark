@@ -20,14 +20,12 @@ class AppState: ObservableObject {
 
 enum AppTab: String, CaseIterable {
     case chat = "Chat"
-    case zeta = "Zeta³"
     case memory = "Memory"
     case more = "More"
     
     var icon: String {
         switch self {
         case .chat: return "bubble.left.and.bubble.right.fill"
-        case .zeta: return "sparkles"
         case .memory: return "brain.head.profile"
         case .more: return "gearshape.fill"
         }
@@ -46,12 +44,6 @@ struct CoreContentView: View {
                     Label(AppTab.chat.label, systemImage: AppTab.chat.icon)
                 }
                 .tag(AppTab.chat)
-            
-            TakeoverTab()
-                .tabItem {
-                    Label(AppTab.zeta.label, systemImage: AppTab.zeta.icon)
-                }
-                .tag(AppTab.zeta)
             
             MemoryView()
                 .tabItem {
@@ -368,10 +360,22 @@ class MainChatViewModel: ObservableObject {
     
     private let toolkit = AgentToolkit.shared
     private let engine = ZeroDarkEngine.shared
+    private let memory = PersistentMemory.shared
+    private var currentConversationId: String?
+    
+    init() {
+        // Create or resume conversation
+        currentConversationId = memory.createConversation()
+    }
     
     func sendMessage(_ text: String) {
         let userMessage = ChatMessage(content: text, isUser: true)
         messages.append(userMessage)
+        
+        // Save to persistent memory
+        if let convId = currentConversationId {
+            memory.saveMessage(conversationId: convId, role: "user", content: text)
+        }
         
         isProcessing = true
         
@@ -407,8 +411,20 @@ class MainChatViewModel: ObservableObject {
             
             let aiMessage = ChatMessage(content: response, isUser: false, toolUsed: toolUsed)
             messages.append(aiMessage)
+            
+            // Save to persistent memory
+            if let convId = currentConversationId {
+                memory.saveMessage(conversationId: convId, role: "assistant", content: response, toolUsed: toolUsed)
+            }
+            
             isProcessing = false
         }
+    }
+    
+    func newConversation() {
+        messages.removeAll()
+        recentTools.removeAll()
+        currentConversationId = memory.createConversation()
     }
     
     private func executeToolIfNeeded(_ text: String) async -> ToolExecution? {
@@ -535,112 +551,314 @@ struct SuggestionButton: View {
 // MARK: ═══════════════════════════════════════════════════════════════════
 
 struct MemoryView: View {
-    @StateObject private var memory = InfiniteMemorySystem.shared
+    @StateObject private var memory = PersistentMemory.shared
     @State private var searchText = ""
+    @State private var selectedTab = 0
+    @State private var searchResults: [MemoryMessage] = []
+    @State private var factResults: [MemoryFact] = []
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Search
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.gray)
-                        TextField("Search memories...", text: $searchText)
-                            .textFieldStyle(.plain)
-                            .foregroundColor(.white)
+            VStack(spacing: 0) {
+                // Search
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.gray)
+                    TextField("Search memories...", text: $searchText)
+                        .textFieldStyle(.plain)
+                        .foregroundColor(.white)
+                        .onSubmit {
+                            searchResults = memory.searchMessages(query: searchText)
+                            factResults = memory.searchFacts(query: searchText)
+                        }
+                    if !searchText.isEmpty {
+                        Button { 
+                            searchText = ""
+                            searchResults = []
+                            factResults = []
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
+                        }
                     }
-                    .padding(12)
-                    .background(Color.white.opacity(0.1))
-                    .cornerRadius(12)
-                    
-                    // Memory Stats
-                    HStack(spacing: 16) {
-                        MemoryStatCard(
-                            icon: "lightbulb.fill",
-                            title: "Facts",
-                            value: memory.semanticCount,
-                            color: .yellow
-                        )
-                        MemoryStatCard(
-                            icon: "clock.fill",
-                            title: "Episodes",
-                            value: memory.episodicCount,
-                            color: .blue
-                        )
-                        MemoryStatCard(
-                            icon: "gearshape.fill",
-                            title: "Rules",
-                            value: memory.proceduralCount,
-                            color: .green
-                        )
+                }
+                .padding(12)
+                .background(Color.white.opacity(0.1))
+                .cornerRadius(12)
+                .padding()
+                
+                // Tab selector
+                Picker("View", selection: $selectedTab) {
+                    Text("Overview").tag(0)
+                    Text("Conversations").tag(1)
+                    Text("Facts").tag(2)
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                
+                ScrollView {
+                    switch selectedTab {
+                    case 0:
+                        overviewSection
+                    case 1:
+                        conversationsSection
+                    case 2:
+                        factsSection
+                    default:
+                        overviewSection
                     }
+                }
+            }
+            .background(Color.black)
+            .navigationTitle("Memory")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        Button("Export Data", systemImage: "square.and.arrow.up") {
+                            // Export functionality
+                        }
+                        Button("Clear All", systemImage: "trash", role: .destructive) {
+                            memory.clearAllData()
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                            .foregroundColor(.cyan)
+                    }
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+    
+    // MARK: - Overview Section
+    
+    private var overviewSection: some View {
+        VStack(spacing: 24) {
+            // Memory Stats
+            HStack(spacing: 16) {
+                MemoryStatCard(
+                    icon: "bubble.left.and.bubble.right.fill",
+                    title: "Messages",
+                    value: memory.messageCount,
+                    color: .blue
+                )
+                MemoryStatCard(
+                    icon: "lightbulb.fill",
+                    title: "Facts",
+                    value: memory.factCount,
+                    color: .yellow
+                )
+                MemoryStatCard(
+                    icon: "text.bubble.fill",
+                    title: "Chats",
+                    value: memory.conversationCount,
+                    color: .green
+                )
+            }
+            
+            // What I Know
+            if !memory.getFacts(limit: 5).isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("What I Know About You")
+                        .font(.headline)
+                        .foregroundColor(.white)
                     
-                    // Efficiency
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Efficiency")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                        
+                    ForEach(memory.getFacts(limit: 5)) { fact in
                         HStack {
-                            VStack(alignment: .leading) {
-                                Text("\(memory.totalTokensSaved)")
-                                    .font(.title)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.green)
-                                Text("tokens saved")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                            }
+                            Image(systemName: "lightbulb.fill")
+                                .foregroundColor(.yellow)
+                                .frame(width: 20)
+                            Text("\(fact.subject.capitalized) \(fact.predicate): \(fact.object)")
+                                .font(.subheadline)
+                                .foregroundColor(.white)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+                .padding()
+                .background(Color.white.opacity(0.05))
+                .cornerRadius(16)
+            }
+            
+            // How it works
+            VStack(alignment: .leading, spacing: 8) {
+                Text("How It Works")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                
+                Text("ZeroDark learns from your conversations. Facts, preferences, and patterns are stored locally in a SQLite database. Nothing ever leaves your device. You can export or delete your data anytime.")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
+            .padding()
+            .background(Color.white.opacity(0.05))
+            .cornerRadius(16)
+        }
+        .padding()
+    }
+    
+    // MARK: - Conversations Section
+    
+    private var conversationsSection: some View {
+        VStack(spacing: 16) {
+            if !searchText.isEmpty && !searchResults.isEmpty {
+                // Search results
+                ForEach(searchResults) { message in
+                    MessageRow(message: message)
+                }
+            } else {
+                // Recent conversations
+                let conversations = memory.getConversations(limit: 20)
+                if conversations.isEmpty {
+                    EmptyStateView(
+                        icon: "bubble.left.and.bubble.right",
+                        title: "No Conversations Yet",
+                        subtitle: "Start chatting and your conversations will be saved here."
+                    )
+                } else {
+                    ForEach(conversations) { conv in
+                        ConversationRow(conversation: conv)
+                    }
+                }
+            }
+        }
+        .padding()
+    }
+    
+    // MARK: - Facts Section
+    
+    private var factsSection: some View {
+        VStack(spacing: 16) {
+            if !searchText.isEmpty && !factResults.isEmpty {
+                ForEach(factResults) { fact in
+                    FactRow(fact: fact)
+                }
+            } else {
+                let facts = memory.getFacts(limit: 50)
+                if facts.isEmpty {
+                    EmptyStateView(
+                        icon: "lightbulb",
+                        title: "No Facts Yet",
+                        subtitle: "Tell me about yourself and I'll remember. Try: 'My name is...' or 'I like...'"
+                    )
+                } else {
+                    // Group by category
+                    let grouped = Dictionary(grouping: facts, by: { $0.category })
+                    ForEach(Array(grouped.keys.sorted()), id: \.self) { category in
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(category.capitalized)
+                                .font(.headline)
+                                .foregroundColor(.cyan)
                             
-                            Spacer()
-                            
-                            VStack(alignment: .trailing) {
-                                Text(String(format: "%.1fx", memory.compressionRatio))
-                                    .font(.title)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.cyan)
-                                Text("compression")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
+                            ForEach(grouped[category]!) { fact in
+                                FactRow(fact: fact)
                             }
                         }
                         .padding()
                         .background(Color.white.opacity(0.05))
                         .cornerRadius(16)
                     }
-                    
-                    // Viking Memory Tiers
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Memory Architecture")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                        
-                        MemoryTierRow(tier: "L0 (Hot)", description: "Always loaded, ~100 tokens", color: .red)
-                        MemoryTierRow(tier: "L1 (Warm)", description: "Loaded when relevant, ~500 tokens", color: .orange)
-                        MemoryTierRow(tier: "L2 (Cold)", description: "Full content, loaded on demand", color: .blue)
-                    }
-                    
-                    // How it works
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("How It Works")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                        
-                        Text("ZeroDark learns from your conversations. Facts, preferences, and patterns are stored locally on your device. Nothing ever leaves.")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                    }
-                    .padding()
-                    .background(Color.white.opacity(0.05))
-                    .cornerRadius(16)
                 }
-                .padding()
             }
-            .background(Color.black)
-            .navigationTitle("Memory")
         }
-        .preferredColorScheme(.dark)
+        .padding()
+    }
+}
+
+// MARK: - Memory Supporting Views
+
+struct MessageRow: View {
+    let message: MemoryMessage
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: message.role == "user" ? "person.fill" : "brain")
+                .foregroundColor(message.role == "user" ? .cyan : .purple)
+                .frame(width: 24)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(message.content)
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                    .lineLimit(3)
+                
+                Text(message.createdAt, style: .relative)
+                    .font(.caption2)
+                    .foregroundColor(.gray)
+            }
+        }
+        .padding()
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(12)
+    }
+}
+
+struct ConversationRow: View {
+    let conversation: MemoryConversation
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(conversation.title)
+                    .font(.headline)
+                    .foregroundColor(.white)
+                
+                Text(conversation.updatedAt, style: .relative)
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+            
+            Spacer()
+            
+            Image(systemName: "chevron.right")
+                .foregroundColor(.gray)
+        }
+        .padding()
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(12)
+    }
+}
+
+struct FactRow: View {
+    let fact: MemoryFact
+    
+    var body: some View {
+        HStack {
+            Image(systemName: "lightbulb.fill")
+                .foregroundColor(.yellow)
+                .frame(width: 20)
+            
+            Text("\(fact.subject.capitalized) \(fact.predicate) \(fact.object)")
+                .font(.subheadline)
+                .foregroundColor(.white)
+            
+            Spacer()
+        }
+        .padding(.vertical, 8)
+    }
+}
+
+struct EmptyStateView: View {
+    let icon: String
+    let title: String
+    let subtitle: String
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: icon)
+                .font(.system(size: 40))
+                .foregroundColor(.gray)
+            
+            Text(title)
+                .font(.headline)
+                .foregroundColor(.white)
+            
+            Text(subtitle)
+                .font(.subheadline)
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+        }
+        .padding(40)
     }
 }
 
@@ -728,6 +946,12 @@ struct MoreView: View {
                 }
                 
                 Section("Labs") {
+                    NavigationLink {
+                        TakeoverTab()
+                    } label: {
+                        SettingsRow(icon: "sparkles", title: "Zeta³", subtitle: "Device swarm, agent, Siri", color: .purple)
+                    }
+                    
                     NavigationLink {
                         ScreenAgentTab()
                     } label: {
