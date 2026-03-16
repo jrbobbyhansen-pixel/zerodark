@@ -185,10 +185,14 @@ public actor MetalBufferPool {
     
     private let device: MTLDevice
     private var availableBuffers: [Int: [MTLBuffer]] = [:]
-    private var inUseBuffers: [ObjectIdentifier: Bool] = [:]
+    private var inUseBuffers: Set<UInt> = []
     
     init() {
         self.device = MTLCreateSystemDefaultDevice()!
+    }
+    
+    private func bufferId(_ buffer: MTLBuffer) -> UInt {
+        return UInt(bitPattern: Unmanaged.passUnretained(buffer).toOpaque())
     }
     
     /// Get buffer of at least given size
@@ -200,22 +204,22 @@ public actor MetalBufferPool {
         if var buffers = availableBuffers[size], !buffers.isEmpty {
             let buffer = buffers.removeLast()
             availableBuffers[size] = buffers
-            inUseBuffers[ObjectIdentifier(buffer)] = true
+            inUseBuffers.insert(bufferId(buffer))
             return buffer
         }
         
         // Create new
         let buffer = device.makeBuffer(length: size, options: .storageModeShared)!
-        inUseBuffers[ObjectIdentifier(buffer)] = true
+        inUseBuffers.insert(bufferId(buffer))
         return buffer
     }
     
     /// Return buffer to pool
     public func release(_ buffer: MTLBuffer) {
-        let id = ObjectIdentifier(buffer)
-        guard inUseBuffers[id] != nil else { return }
+        let id = bufferId(buffer)
+        guard inUseBuffers.contains(id) else { return }
         
-        inUseBuffers.removeValue(forKey: id)
+        inUseBuffers.remove(id)
         
         let size = buffer.length
         if availableBuffers[size] == nil {
