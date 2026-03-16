@@ -161,7 +161,7 @@ public struct NuclearDemoTab: View {
                     .padding(.vertical, 40)
             } else {
                 ForEach(demo.messages) { message in
-                    MessageRow(message: message)
+                    DemoMessageRow(message: message)
                 }
             }
             
@@ -571,7 +571,7 @@ struct SectionHeader: View {
     }
 }
 
-struct MessageRow: View {
+struct DemoMessageRow: View {
     let message: DemoMessage
     
     var body: some View {

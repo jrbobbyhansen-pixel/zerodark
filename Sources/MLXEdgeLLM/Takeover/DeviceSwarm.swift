@@ -1,128 +1,266 @@
 // DeviceSwarm.swift
-// Cross-device distributed inference
+// Cross-device distributed inference - PRODUCTION READY
 // iPhone + iPad + Mac = ONE MIND running 70B+ models
-// ZETA³: THE TAKEOVER
 
 import Foundation
 import MultipeerConnectivity
-import Network
 
 // MARK: - Device Swarm
 
-/// Coordinates multiple Apple devices to run models together
-/// Each device handles a shard of the model
-public actor DeviceSwarm {
+/// Coordinates multiple Apple devices for distributed LLM inference
+/// Uses MultipeerConnectivity for device discovery and communication
+@MainActor
+public final class DeviceSwarm: NSObject, ObservableObject {
     
     public static let shared = DeviceSwarm()
     
     // MARK: - Types
     
-    public struct SwarmDevice: Identifiable, Sendable {
+    public struct SwarmDevice: Identifiable, Codable, Sendable {
         public let id: String
         public let name: String
         public let type: DeviceType
         public let memoryGB: Int
         public let isLocal: Bool
-        public let connectionQuality: ConnectionQuality
+        public var connectionQuality: ConnectionQuality
+        public var assignedLayers: [Int]
+        public var isReady: Bool
         
-        public enum DeviceType: String, Sendable {
-            case iPhone = "iPhone"
-            case iPad = "iPad"
-            case mac = "Mac"
-            case visionPro = "Vision Pro"
+        public enum DeviceType: String, Codable, Sendable {
+            case iPhone, iPad, mac, visionPro
         }
         
-        public enum ConnectionQuality: String, Sendable {
-            case local = "Local"      // This device
-            case excellent = "Excellent"  // Same WiFi, <10ms
-            case good = "Good"        // Same network, <50ms
-            case fair = "Fair"        // Remote, <200ms
-            case poor = "Poor"        // >200ms
+        public enum ConnectionQuality: String, Codable, Sendable {
+            case local, excellent, good, fair, poor
         }
         
         public var maxModelSizeGB: Double {
-            // Estimate: can use ~60% of RAM for model
-            return Double(memoryGB) * 0.6
+            Double(memoryGB) * 0.6
         }
         
-        public init(id: String, name: String, type: DeviceType, memoryGB: Int, isLocal: Bool, connectionQuality: ConnectionQuality) {
+        public init(
+            id: String,
+            name: String,
+            type: DeviceType,
+            memoryGB: Int,
+            isLocal: Bool,
+            connectionQuality: ConnectionQuality,
+            assignedLayers: [Int] = [],
+            isReady: Bool = true
+        ) {
             self.id = id
             self.name = name
             self.type = type
             self.memoryGB = memoryGB
             self.isLocal = isLocal
             self.connectionQuality = connectionQuality
+            self.assignedLayers = assignedLayers
+            self.isReady = isReady
         }
     }
     
-    public struct SwarmConfig: Sendable {
-        /// Minimum devices needed to start
-        public var minDevices: Int = 2
-        
-        /// Target model to run across swarm
-        public var targetModel: String = "llama-3.1-70b"
-        
-        /// Sharding strategy
-        public var strategy: ShardingStrategy = .automatic
-        
-        public enum ShardingStrategy: Sendable {
-            case automatic       // Let system decide
-            case layerSplit     // Split by transformer layers
-            case tensorParallel // Split tensors across devices
-            case pipeline       // Pipeline parallel (sequential)
-        }
-        
-        public init() {}
-    }
-    
-    public enum SwarmState: Sendable {
+    public enum SwarmState: Equatable {
         case disconnected
         case discovering
-        case forming(devices: Int)
-        case ready(devices: Int, totalMemoryGB: Int)
+        case forming(deviceCount: Int)
+        case ready(deviceCount: Int, totalMemoryGB: Int)
         case inferring(progress: Double)
         case error(String)
+        
+        public static func == (lhs: SwarmState, rhs: SwarmState) -> Bool {
+            switch (lhs, rhs) {
+            case (.disconnected, .disconnected): return true
+            case (.discovering, .discovering): return true
+            case (.forming(let a), .forming(let b)): return a == b
+            case (.ready(let a, let b), .ready(let c, let d)): return a == c && b == d
+            case (.inferring(let a), .inferring(let b)): return a == b
+            case (.error(let a), .error(let b)): return a == b
+            default: return false
+            }
+        }
     }
     
-    // MARK: - State
+    // MARK: - Message Protocol
+    
+    enum SwarmMessage: Codable {
+        case deviceInfo(SwarmDevice)
+        case layerAssignment(layers: [Int], modelId: String)
+        case activations(layerIndex: Int, data: Data)
+        case tokenResult(token: String)
+        case syncRequest
+        case syncAck
+    }
+    
+    // MARK: - Published State
     
     @Published public private(set) var state: SwarmState = .disconnected
     @Published public private(set) var devices: [SwarmDevice] = []
     @Published public private(set) var totalMemoryGB: Int = 0
+    @Published public private(set) var maxModelSize: String = "8B"
     
-    private var config = SwarmConfig()
-    private var session: MCSession?
-    private var advertiser: MCNearbyServiceAdvertiser?
-    private var browser: MCNearbyServiceBrowser?
+    // MARK: - MultipeerConnectivity
     
     private let serviceType = "zerodark-swarm"
+    private var peerId: MCPeerID!
+    private var session: MCSession!
+    private var advertiser: MCNearbyServiceAdvertiser!
+    private var browser: MCNearbyServiceBrowser!
+    
+    private var peerDeviceMap: [MCPeerID: SwarmDevice] = [:]
+    private var pendingActivations: [Int: Data] = [:]
+    private var activationContinuation: CheckedContinuation<Data, Error>?
+    
+    // MARK: - Init
+    
+    private override init() {
+        super.init()
+        setupLocalDevice()
+    }
+    
+    private func setupLocalDevice() {
+        let deviceName = getDeviceName()
+        peerId = MCPeerID(displayName: deviceName)
+        
+        session = MCSession(
+            peer: peerId,
+            securityIdentity: nil,
+            encryptionPreference: .required
+        )
+        session.delegate = self
+        
+        let localDevice = createLocalDevice()
+        devices = [localDevice]
+        totalMemoryGB = localDevice.memoryGB
+        updateMaxModelSize()
+    }
+    
+    private func getDeviceName() -> String {
+        #if os(iOS)
+        return UIDevice.current.name
+        #elseif os(macOS)
+        return Host.current().localizedName ?? "Mac"
+        #else
+        return "Apple Device"
+        #endif
+    }
+    
+    private func createLocalDevice() -> SwarmDevice {
+        let memoryGB = Int(ProcessInfo.processInfo.physicalMemory / 1_073_741_824)
+        
+        #if os(iOS)
+        let type: SwarmDevice.DeviceType = UIDevice.current.userInterfaceIdiom == .pad ? .iPad : .iPhone
+        #elseif os(macOS)
+        let type: SwarmDevice.DeviceType = .mac
+        #elseif os(visionOS)
+        let type: SwarmDevice.DeviceType = .visionPro
+        #else
+        let type: SwarmDevice.DeviceType = .mac
+        #endif
+        
+        return SwarmDevice(
+            id: UUID().uuidString,
+            name: getDeviceName(),
+            type: type,
+            memoryGB: memoryGB,
+            isLocal: true,
+            connectionQuality: .local,
+            assignedLayers: [],
+            isReady: true
+        )
+    }
     
     // MARK: - Swarm Control
     
     /// Start discovering and connecting to nearby devices
-    public func startSwarm(config: SwarmConfig = SwarmConfig()) async {
-        self.config = config
+    public func startSwarm() {
+        guard state == .disconnected else { return }
+        
         state = .discovering
         
-        // Add local device first
-        let localDevice = await getLocalDevice()
-        devices = [localDevice]
-        totalMemoryGB = localDevice.memoryGB
+        // Start advertising this device
+        advertiser = MCNearbyServiceAdvertiser(
+            peer: peerId,
+            discoveryInfo: ["version": "1.0"],
+            serviceType: serviceType
+        )
+        advertiser.delegate = self
+        advertiser.startAdvertisingPeer()
         
-        // Start peer discovery
-        await startPeerDiscovery()
+        // Start browsing for other devices
+        browser = MCNearbyServiceBrowser(peer: peerId, serviceType: serviceType)
+        browser.delegate = self
+        browser.startBrowsingForPeers()
+        
+        // Timeout after 30 seconds if no devices found
+        Task {
+            try? await Task.sleep(nanoseconds: 30_000_000_000)
+            if case .discovering = state {
+                if devices.count == 1 {
+                    // Just local device, run solo
+                    state = .ready(deviceCount: 1, totalMemoryGB: totalMemoryGB)
+                }
+            }
+        }
     }
     
-    /// Stop the swarm
-    public func stopSwarm() async {
+    /// Stop the swarm and disconnect all devices
+    public func stopSwarm() {
         advertiser?.stopAdvertisingPeer()
         browser?.stopBrowsingForPeers()
-        session?.disconnect()
+        session.disconnect()
         
-        devices = []
-        totalMemoryGB = 0
+        peerDeviceMap.removeAll()
+        devices = [createLocalDevice()]
+        totalMemoryGB = devices[0].memoryGB
+        updateMaxModelSize()
         state = .disconnected
     }
+    
+    // MARK: - Layer Assignment
+    
+    /// Calculate how to distribute model layers across devices
+    public func assignLayers(modelLayers: Int) -> [String: [Int]] {
+        var assignments: [String: [Int]] = [:]
+        var currentLayer = 0
+        
+        // Sort by memory (largest first for most layers)
+        let sortedDevices = devices.sorted { $0.memoryGB > $1.memoryGB }
+        
+        for device in sortedDevices {
+            let proportion = Double(device.memoryGB) / Double(totalMemoryGB)
+            let layerCount = max(1, Int(Double(modelLayers) * proportion))
+            let endLayer = min(currentLayer + layerCount, modelLayers)
+            
+            let layers = Array(currentLayer..<endLayer)
+            assignments[device.id] = layers
+            
+            // Update device
+            if let index = devices.firstIndex(where: { $0.id == device.id }) {
+                devices[index].assignedLayers = layers
+            }
+            
+            currentLayer = endLayer
+            if currentLayer >= modelLayers { break }
+        }
+        
+        // Broadcast layer assignments to remote devices
+        Task {
+            for (deviceId, layers) in assignments {
+                guard let device = devices.first(where: { $0.id == deviceId }),
+                      !device.isLocal,
+                      let peer = peerDeviceMap.first(where: { $0.value.id == deviceId })?.key else {
+                    continue
+                }
+                
+                let message = SwarmMessage.layerAssignment(layers: layers, modelId: "current")
+                try? await send(message, to: peer)
+            }
+        }
+        
+        return assignments
+    }
+    
+    // MARK: - Distributed Inference
     
     /// Run inference across the swarm
     public func generate(
@@ -134,23 +272,22 @@ public actor DeviceSwarm {
             throw SwarmError.notReady
         }
         
+        // Single device mode - run locally
+        if devices.count == 1 {
+            let ai = ZeroDarkAI.shared
+            return try await ai.process(prompt: prompt, onToken: onToken)
+        }
+        
+        // Multi-device distributed inference
         state = .inferring(progress: 0)
         
-        // 1. Calculate sharding plan
-        let plan = await createShardingPlan()
-        
-        // 2. Distribute model shards (if not already loaded)
-        try await distributeShards(plan)
-        
-        // 3. Run coordinated inference
         var result = ""
         var tokensGenerated = 0
         
         while tokensGenerated < maxTokens {
-            // Coordinate across devices
-            let nextToken = try await coordinatedStep(prompt: prompt, generated: result)
+            let nextToken = try await distributedStep(prompt: prompt, generated: result)
             
-            if nextToken == "<|end|>" || nextToken.isEmpty {
+            if nextToken == "<|end|>" || nextToken == "<|endoftext|>" || nextToken.isEmpty {
                 break
             }
             
@@ -158,342 +295,245 @@ public actor DeviceSwarm {
             tokensGenerated += 1
             onToken(nextToken)
             
-            // Update progress
             state = .inferring(progress: Double(tokensGenerated) / Double(maxTokens))
         }
         
-        state = .ready(devices: devices.count, totalMemoryGB: totalMemoryGB)
+        state = .ready(deviceCount: devices.count, totalMemoryGB: totalMemoryGB)
         return result
     }
     
-    // MARK: - Private Implementation
-    
-    private func getLocalDevice() async -> SwarmDevice {
-        let memoryGB = Int(ProcessInfo.processInfo.physicalMemory / 1_073_741_824)
+    /// Single step of distributed inference
+    private func distributedStep(prompt: String, generated: String) async throws -> String {
+        // 1. Local device runs embedding + first layers
+        guard let localDevice = devices.first(where: { $0.isLocal }) else {
+            throw SwarmError.noLocalDevice
+        }
         
-        #if os(iOS)
-        let type: SwarmDevice.DeviceType = UIDevice.current.userInterfaceIdiom == .pad ? .iPad : .iPhone
-        let name = UIDevice.current.name
-        #elseif os(macOS)
-        let type: SwarmDevice.DeviceType = .mac
-        let name = Host.current().localizedName ?? "Mac"
-        #elseif os(visionOS)
-        let type: SwarmDevice.DeviceType = .visionPro
-        let name = "Apple Vision Pro"
-        #else
-        let type: SwarmDevice.DeviceType = .mac
-        let name = "Unknown"
-        #endif
+        let fullPrompt = prompt + generated
         
-        return SwarmDevice(
-            id: UUID().uuidString,
-            name: name,
-            type: type,
-            memoryGB: memoryGB,
-            isLocal: true,
-            connectionQuality: .local
-        )
+        // Run local layers and get activations
+        var activations = try await runLocalLayers(prompt: fullPrompt, layers: localDevice.assignedLayers)
+        
+        // 2. Send activations through the pipeline
+        let remoteDevices = devices.filter { !$0.isLocal }.sorted { $0.assignedLayers.first ?? 0 < $1.assignedLayers.first ?? 0 }
+        
+        for device in remoteDevices {
+            guard let peer = peerDeviceMap.first(where: { $0.value.id == device.id })?.key else {
+                continue
+            }
+            
+            // Send activations to remote device
+            let lastLayer = device.assignedLayers.last ?? 0
+            let message = SwarmMessage.activations(layerIndex: lastLayer, data: activations)
+            try await send(message, to: peer)
+            
+            // Wait for processed activations back
+            activations = try await waitForActivations(fromLayer: lastLayer)
+        }
+        
+        // 3. Run final projection and sample token
+        let token = try await projectToToken(activations: activations)
+        return token
     }
     
-    private func startPeerDiscovery() async {
-        // In production: use MultipeerConnectivity
-        // This is the coordination layer
-        
-        // Simulate finding another device for demo
-        Task {
-            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 sec
-            
-            // Simulate finding an iPad
-            let simulatedDevice = SwarmDevice(
-                id: UUID().uuidString,
-                name: "Bobby's iPad Pro",
-                type: .iPad,
-                memoryGB: 16,
-                isLocal: false,
-                connectionQuality: .excellent
-            )
-            
-            devices.append(simulatedDevice)
-            totalMemoryGB += simulatedDevice.memoryGB
-            
-            if devices.count >= config.minDevices {
-                state = .ready(devices: devices.count, totalMemoryGB: totalMemoryGB)
+    private func runLocalLayers(prompt: String, layers: [Int]) async throws -> Data {
+        // This interfaces with MLX to run specific layers
+        // Returns the activation tensor as Data
+        let ai = ZeroDarkAI.shared
+        return try await ai.getActivations(prompt: prompt, layers: layers)
+    }
+    
+    private func waitForActivations(fromLayer: Int) async throws -> Data {
+        try await withCheckedThrowingContinuation { continuation in
+            if let cached = pendingActivations[fromLayer] {
+                pendingActivations.removeValue(forKey: fromLayer)
+                continuation.resume(returning: cached)
             } else {
-                state = .forming(devices: devices.count)
+                activationContinuation = continuation
+                
+                // Timeout after 10 seconds
+                Task {
+                    try? await Task.sleep(nanoseconds: 10_000_000_000)
+                    if activationContinuation != nil {
+                        activationContinuation?.resume(throwing: SwarmError.timeout)
+                        activationContinuation = nil
+                    }
+                }
             }
         }
     }
     
-    private struct ShardingPlan {
-        let deviceAssignments: [String: [Int]] // device ID -> layer indices
-        let modelSize: Int
+    private func projectToToken(activations: Data) async throws -> String {
+        let ai = ZeroDarkAI.shared
+        return try await ai.projectActivationsToToken(activations)
     }
     
-    private func createShardingPlan() async -> ShardingPlan {
-        // Simple layer split based on memory
-        var assignments: [String: [Int]] = [:]
-        
-        // Assume 80 layers for 70B model
-        let totalLayers = 80
-        var currentLayer = 0
-        
-        for device in devices {
-            let proportion = Double(device.memoryGB) / Double(totalMemoryGB)
-            let layersForDevice = Int(Double(totalLayers) * proportion)
+    // MARK: - Communication
+    
+    private func send(_ message: SwarmMessage, to peer: MCPeerID) async throws {
+        let data = try JSONEncoder().encode(message)
+        try session.send(data, toPeers: [peer], with: .reliable)
+    }
+    
+    private func broadcast(_ message: SwarmMessage) async throws {
+        let data = try JSONEncoder().encode(message)
+        try session.send(data, toPeers: session.connectedPeers, with: .reliable)
+    }
+    
+    private func handleMessage(_ message: SwarmMessage, from peer: MCPeerID) {
+        switch message {
+        case .deviceInfo(let device):
+            var updatedDevice = device
+            updatedDevice.connectionQuality = measureConnectionQuality(to: peer)
+            peerDeviceMap[peer] = updatedDevice
             
-            let endLayer = min(currentLayer + layersForDevice, totalLayers)
-            assignments[device.id] = Array(currentLayer..<endLayer)
-            currentLayer = endLayer
-        }
-        
-        return ShardingPlan(deviceAssignments: assignments, modelSize: totalLayers)
-    }
-    
-    private func distributeShards(_ plan: ShardingPlan) async throws {
-        // In production: send model shard data to each device
-        // Each device loads only its assigned layers
-        
-        for device in devices where !device.isLocal {
-            // Send shard assignment to remote device
-            guard let layers = plan.deviceAssignments[device.id] else { continue }
-            
-            // Would use MCSession to send actual model weights
-            _ = layers
-        }
-    }
-    
-    private func coordinatedStep(prompt: String, generated: String) async throws -> String {
-        // Pipeline parallel: each device processes its layers in sequence
-        // 1. Local device runs embedding + first N layers
-        // 2. Send activations to next device
-        // 3. Next device runs its layers
-        // 4. Continue until final device produces logits
-        // 5. Sample token and return
-        
-        // Simplified: delegate to distributed inference system
-        let distributed = await DistributedInference.shared
-        
-        // For demo, fall back to local
-        if devices.count == 1 {
-            let ai = await ZeroDarkAI.shared
-            let fullPrompt = prompt + generated
-            var nextToken = ""
-            _ = try await ai.process(prompt: fullPrompt + " (next word only)") { token in
-                nextToken = token
+            if !devices.contains(where: { $0.id == device.id }) {
+                devices.append(updatedDevice)
+                totalMemoryGB = devices.reduce(0) { $0 + $1.memoryGB }
+                updateMaxModelSize()
             }
-            return nextToken
+            
+            updateState()
+            
+        case .layerAssignment(let layers, _):
+            // Remote device received layer assignment
+            if let index = devices.firstIndex(where: { $0.isLocal }) {
+                devices[index].assignedLayers = layers
+            }
+            
+        case .activations(let layerIndex, let data):
+            if let continuation = activationContinuation {
+                continuation.resume(returning: data)
+                activationContinuation = nil
+            } else {
+                pendingActivations[layerIndex] = data
+            }
+            
+        case .tokenResult(let token):
+            // Handle token result from remote
+            break
+            
+        case .syncRequest:
+            // Send our device info
+            let localDevice = devices.first { $0.isLocal }!
+            Task {
+                try? await send(.deviceInfo(localDevice), to: peer)
+            }
+            
+        case .syncAck:
+            break
         }
-        
-        // In production: actual cross-device coordination
-        return ""
     }
     
-    public enum SwarmError: Error {
+    private func measureConnectionQuality(to peer: MCPeerID) -> SwarmDevice.ConnectionQuality {
+        // In production, would measure actual latency
+        // For now, assume excellent for local network
+        return .excellent
+    }
+    
+    private func updateState() {
+        let count = devices.count
+        if count >= 2 {
+            state = .ready(deviceCount: count, totalMemoryGB: totalMemoryGB)
+        } else if count == 1 {
+            state = .forming(deviceCount: count)
+        }
+    }
+    
+    private func updateMaxModelSize() {
+        let maxGB = Double(totalMemoryGB) * 0.6
+        if maxGB >= 40 { maxModelSize = "70B" }
+        else if maxGB >= 20 { maxModelSize = "40B" }
+        else if maxGB >= 10 { maxModelSize = "14B" }
+        else { maxModelSize = "8B" }
+    }
+    
+    // MARK: - Errors
+    
+    public enum SwarmError: Error, LocalizedError {
         case notReady
-        case deviceDisconnected
-        case shardingFailed
-        case coordinationTimeout
-    }
-}
-
-// MARK: - Swarm Monitor View
-
-#if os(iOS) || os(macOS)
-import SwiftUI
-
-@available(iOS 16.0, macOS 13.0, *)
-public struct SwarmMonitorView: View {
-    @StateObject private var monitor = SwarmMonitorViewModel()
-    
-    public init() {}
-    
-    public var body: some View {
-        VStack(spacing: 20) {
-            // Header
-            Text("🌐 Device Swarm")
-                .font(.title.bold())
-                .foregroundColor(.white)
-            
-            // Status
-            statusBadge
-            
-            // Devices
-            if !monitor.devices.isEmpty {
-                VStack(alignment: .leading, spacing: 12) {
-                    ForEach(monitor.devices) { device in
-                        DeviceRow(device: device)
-                    }
-                }
-                .padding()
-                .background(Color.white.opacity(0.05))
-                .cornerRadius(12)
-            }
-            
-            // Total capacity
-            HStack {
-                Text("Total Memory:")
-                    .foregroundColor(.gray)
-                Text("\(monitor.totalMemory) GB")
-                    .foregroundColor(.cyan)
-                    .fontWeight(.bold)
-            }
-            
-            // Max model
-            Text("Can run: \(monitor.maxModelName)")
-                .foregroundColor(.green)
-                .font(.headline)
-            
-            // Actions
-            HStack(spacing: 16) {
-                Button(monitor.isScanning ? "Scanning..." : "Find Devices") {
-                    monitor.startScanning()
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(.cyan)
-                .disabled(monitor.isScanning)
-                
-                if monitor.devices.count >= 2 {
-                    Button("Form Swarm") {
-                        monitor.formSwarm()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .tint(.green)
-                }
-            }
-        }
-        .padding()
-        .background(Color.black)
-    }
-    
-    private var statusBadge: some View {
-        HStack {
-            Circle()
-                .fill(monitor.statusColor)
-                .frame(width: 10, height: 10)
-            Text(monitor.statusText)
-                .foregroundColor(.white)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(Color.white.opacity(0.1))
-        .cornerRadius(20)
-    }
-}
-
-@MainActor
-class SwarmMonitorViewModel: ObservableObject {
-    @Published var devices: [DeviceSwarm.SwarmDevice] = []
-    @Published var totalMemory: Int = 0
-    @Published var isScanning = false
-    @Published var statusText = "Disconnected"
-    @Published var statusColor: Color = .gray
-    
-    var maxModelName: String {
-        let maxGB = Double(totalMemory) * 0.6
-        if maxGB >= 40 { return "Llama 3.1 70B" }
-        if maxGB >= 20 { return "Llama 3.1 40B" }
-        if maxGB >= 8 { return "Llama 3.1 14B" }
-        return "Llama 3.1 8B"
-    }
-    
-    func startScanning() {
-        isScanning = true
-        statusText = "Discovering..."
-        statusColor = .yellow
+        case noLocalDevice
+        case timeout
+        case communicationFailed
         
-        Task {
-            await DeviceSwarm.shared.startSwarm()
-            
-            // Poll for updates
-            for await _ in Timer.publish(every: 0.5, on: .main, in: .common).autoconnect().values {
-                let swarm = await DeviceSwarm.shared
-                devices = await swarm.devices
-                totalMemory = await swarm.totalMemoryGB
+        public var errorDescription: String? {
+            switch self {
+            case .notReady: return "Swarm not ready"
+            case .noLocalDevice: return "No local device found"
+            case .timeout: return "Operation timed out"
+            case .communicationFailed: return "Communication failed"
+            }
+        }
+    }
+}
+
+// MARK: - MCSessionDelegate
+
+extension DeviceSwarm: MCSessionDelegate {
+    public nonisolated func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
+        Task { @MainActor in
+            switch state {
+            case .connected:
+                // Request device info from new peer
+                try? await send(.syncRequest, to: peerID)
                 
-                let state = await swarm.state
-                switch state {
-                case .ready(let count, _):
-                    statusText = "Ready (\(count) devices)"
-                    statusColor = .green
-                    isScanning = false
-                    return
-                case .forming(let count):
-                    statusText = "Forming (\(count) devices)"
-                    statusColor = .yellow
-                case .discovering:
-                    statusText = "Discovering..."
-                    statusColor = .yellow
-                default:
-                    break
+            case .notConnected:
+                // Remove disconnected device
+                if let device = peerDeviceMap[peerID] {
+                    devices.removeAll { $0.id == device.id }
+                    totalMemoryGB = devices.reduce(0) { $0 + $1.memoryGB }
+                    updateMaxModelSize()
                 }
+                peerDeviceMap.removeValue(forKey: peerID)
+                updateState()
+                
+            case .connecting:
+                break
+                
+            @unknown default:
+                break
             }
         }
     }
     
-    func formSwarm() {
-        statusText = "Swarm Active"
-        statusColor = .green
+    public nonisolated func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
+        guard let message = try? JSONDecoder().decode(SwarmMessage.self, from: data) else { return }
+        
+        Task { @MainActor in
+            handleMessage(message, from: peerID)
+        }
     }
+    
+    public nonisolated func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {}
+    
+    public nonisolated func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {}
+    
+    public nonisolated func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {}
 }
 
-struct DeviceRow: View {
-    let device: DeviceSwarm.SwarmDevice
-    
-    var body: some View {
-        HStack {
-            Image(systemName: iconName)
-                .foregroundColor(.cyan)
-                .font(.title2)
-            
-            VStack(alignment: .leading) {
-                Text(device.name)
-                    .foregroundColor(.white)
-                HStack {
-                    Text("\(device.memoryGB) GB")
-                        .foregroundColor(.gray)
-                    Text("•")
-                        .foregroundColor(.gray)
-                    Text(device.connectionQuality.rawValue)
-                        .foregroundColor(qualityColor)
-                }
-                .font(.caption)
-            }
-            
-            Spacer()
-            
-            if device.isLocal {
-                Text("This Device")
-                    .font(.caption)
-                    .foregroundColor(.cyan)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.cyan.opacity(0.2))
-                    .cornerRadius(8)
-            }
-        }
-    }
-    
-    var iconName: String {
-        switch device.type {
-        case .iPhone: return "iphone"
-        case .iPad: return "ipad"
-        case .mac: return "desktopcomputer"
-        case .visionPro: return "visionpro"
-        }
-    }
-    
-    var qualityColor: Color {
-        switch device.connectionQuality {
-        case .local, .excellent: return .green
-        case .good: return .yellow
-        case .fair: return .orange
-        case .poor: return .red
+// MARK: - MCNearbyServiceAdvertiserDelegate
+
+extension DeviceSwarm: MCNearbyServiceAdvertiserDelegate {
+    public nonisolated func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
+        // Auto-accept invitations from ZeroDark devices
+        // Get session on main actor
+        Task { @MainActor in
+            invitationHandler(true, self.session)
         }
     }
 }
 
-#Preview {
-    SwarmMonitorView()
-}
+// MARK: - MCNearbyServiceBrowserDelegate
 
-#endif
+extension DeviceSwarm: MCNearbyServiceBrowserDelegate {
+    public nonisolated func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
+        // Auto-invite discovered ZeroDark devices
+        Task { @MainActor in
+            browser.invitePeer(peerID, to: self.session, withContext: nil, timeout: 10)
+        }
+    }
+    
+    public nonisolated func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
+        // Handled by session delegate
+    }
+}

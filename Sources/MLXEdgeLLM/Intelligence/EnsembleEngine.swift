@@ -310,6 +310,18 @@ public final class EnsembleEngine: ObservableObject {
         return engine
     }
     
+    // MARK: - Model State
+    
+    /// Check if any models are loaded
+    public var hasLoadedModels: Bool {
+        !engines.isEmpty
+    }
+    
+    /// Preload a specific model without running inference
+    public func preloadModel(_ model: Model) async throws {
+        _ = try await getEngine(for: model)
+    }
+    
     public func unloadAll() {
         for (_, engine) in engines {
             engine.unload()

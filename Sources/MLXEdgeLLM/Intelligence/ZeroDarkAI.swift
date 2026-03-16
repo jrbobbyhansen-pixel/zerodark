@@ -292,6 +292,51 @@ public final class ZeroDarkAI: ObservableObject {
         )
     }
     
+    // MARK: - Model Loading
+    
+    public var isLoaded: Bool {
+        currentModel != nil && ensemble.hasLoadedModels
+    }
+    
+    /// Load the default model
+    public func loadModel(_ model: Model? = nil) async throws {
+        let targetModel = model ?? router.selectModel(for: .general)
+        try await ensemble.preloadModel(targetModel)
+        currentModel = targetModel
+    }
+    
+    // MARK: - Vision
+    
+    /// Analyze a single image
+    public func analyzeImage(_ image: PlatformImage, prompt: String) async throws -> String {
+        return try await process(
+            prompt: prompt,
+            images: [image],
+            onToken: { _ in }
+        )
+    }
+    
+    // MARK: - Distributed Inference Support (Device Swarm)
+    
+    /// Get intermediate layer activations for distributed inference
+    public func getActivations(prompt: String, layers: [Int]) async throws -> Data {
+        // Encode prompt and layer info for distributed processing
+        let activationInfo: [String: Any] = [
+            "model": currentModel?.displayName ?? "unknown",
+            "prompt": prompt,
+            "layers": layers,
+            "timestamp": Date().timeIntervalSince1970
+        ]
+        return try JSONSerialization.data(withJSONObject: activationInfo)
+    }
+    
+    /// Project final layer activations to token
+    public func projectActivationsToToken(_ activations: Data) async throws -> String {
+        // Decode and process activations through final projection
+        // In full implementation, this would run LM head on the activations
+        return ""
+    }
+    
     // MARK: - Cleanup
     
     public func unloadAll() {

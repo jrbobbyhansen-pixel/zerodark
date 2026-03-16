@@ -4,6 +4,9 @@
 
 import SwiftUI
 import MLXEdgeLLM
+#if canImport(UIKit)
+import UIKit
+#endif
 
 public struct TakeoverTab: View {
     @StateObject private var vm = TakeoverViewModel()
@@ -398,16 +401,11 @@ class TakeoverViewModel: ObservableObject {
             
             // Get actual result
             do {
-                let result = try await agent.executeTask(taskInput)
+                let result = try await agent.startTask(description: taskInput)
                 executionResult = """
                 ✓ Task Complete
                 
-                Summary: \(result.summary)
-                
-                Steps:
-                \(result.steps.map { "• \($0.action): \($0.result)" }.joined(separator: "\n"))
-                
-                Time: \(String(format: "%.1f", result.totalTime))s
+                \(result)
                 """
             } catch {
                 executionResult = "Error: \(error.localizedDescription)"

@@ -145,6 +145,9 @@ struct GhostButton: ButtonStyle {
 
 // MARK: - Haptics (Subtle)
 
+#if os(iOS)
+import UIKit
+
 enum Haptic {
     static func tap() {
         UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.5)
@@ -158,3 +161,11 @@ enum Haptic {
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 }
+#else
+// macOS - no haptics
+enum Haptic {
+    static func tap() {}
+    static func select() {}
+    static func success() {}
+}
+#endif

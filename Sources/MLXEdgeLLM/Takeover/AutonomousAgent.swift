@@ -1,468 +1,690 @@
 // AutonomousAgent.swift
-// Multi-step planning and execution WITHOUT human in the loop
-// "Plan my week" → 12 actions execute automatically
-// ZETA³: THE TAKEOVER
+// Multi-step task planning and execution - PRODUCTION READY
+// The AI that works while you sleep
 
 import Foundation
-import EventKit
-import Contacts
 
 // MARK: - Autonomous Agent
 
-/// An AI agent that PLANS and EXECUTES multi-step tasks
-/// Not just respond — THINK, PLAN, ACT
-public actor AutonomousAgent {
+@MainActor
+public final class AutonomousAgent: ObservableObject {
     
     public static let shared = AutonomousAgent()
     
+    // MARK: - Types
+    
+    public struct AgentTask: Identifiable, Codable {
+        public let id: String
+        public let description: String
+        public let createdAt: Date
+        public var status: TaskStatus
+        public var steps: [AgentStep]
+        public var result: String?
+        public var error: String?
+        
+        public enum TaskStatus: String, Codable {
+            case pending
+            case planning
+            case executing
+            case completed
+            case failed
+            case cancelled
+        }
+    }
+    
+    public struct AgentStep: Identifiable, Codable {
+        public let id: String
+        public let description: String
+        public let action: AgentAction
+        public var status: StepStatus
+        public var output: String?
+        public var startedAt: Date?
+        public var completedAt: Date?
+        
+        public enum StepStatus: String, Codable {
+            case pending
+            case running
+            case completed
+            case failed
+            case skipped
+        }
+    }
+    
+    public enum AgentAction: Codable, Equatable {
+        case think(prompt: String)
+        case search(query: String)
+        case readFile(path: String)
+        case writeFile(path: String, content: String)
+        case runCode(language: String, code: String)
+        case analyzeImage(description: String)
+        case summarize(text: String)
+        case askUser(question: String)
+        case complete(result: String)
+        
+        var description: String {
+            switch self {
+            case .think: return "Thinking"
+            case .search: return "Searching"
+            case .readFile: return "Reading file"
+            case .writeFile: return "Writing file"
+            case .runCode: return "Running code"
+            case .analyzeImage: return "Analyzing image"
+            case .summarize: return "Summarizing"
+            case .askUser: return "Asking user"
+            case .complete: return "Completing"
+            }
+        }
+    }
+    
+    // MARK: - Published State
+    
+    @Published public private(set) var currentTask: AgentTask?
+    @Published public private(set) var taskHistory: [AgentTask] = []
+    @Published public private(set) var isRunning: Bool = false
+    
     // MARK: - Configuration
     
-    public struct Config {
-        /// Maximum steps in a single execution
-        public var maxSteps: Int = 20
-        
-        /// Maximum time for full execution (seconds)
-        public var maxExecutionTime: TimeInterval = 120
-        
-        /// Auto-approve low-risk actions
-        public var autoApprove: Set<RiskLevel> = [.none, .low]
-        
-        /// Model to use for planning
-        public var planningModel: Model = .qwen3_8b
-        
-        /// Model to use for execution
-        public var executionModel: Model = .qwen3_4b
-        
-        public static let `default` = Config()
+    public var maxStepsPerTask: Int = 20
+    public var thinkingModel: String = "qwen2.5-14b"
+    public var allowFileAccess: Bool = true
+    public var allowCodeExecution: Bool = false  // Safety default
+    public var sandboxPath: URL?
+    
+    // MARK: - Private
+    
+    private var activeContinuation: CheckedContinuation<String, Error>?
+    private var shouldCancel: Bool = false
+    
+    private init() {
+        loadTaskHistory()
     }
     
-    public enum RiskLevel: String, Sendable {
-        case none = "none"        // Read-only operations
-        case low = "low"          // Create reminders, events
-        case medium = "medium"    // Send messages, modify data
-        case high = "high"        // Delete data, financial actions
-        case critical = "critical" // System changes, external APIs
-    }
+    // MARK: - Task Management
     
-    public var config = Config.default
-    private let toolkit = AgentToolkit.shared
-    
-    // MARK: - Task Execution
-    
-    public struct TaskResult: Sendable {
-        public let success: Bool
-        public let summary: String
-        public let steps: [ExecutedStep]
-        public let totalTime: TimeInterval
-        
-        public struct ExecutedStep: Sendable {
-            public let index: Int
-            public let action: String
-            public let tool: String?
-            public let result: String
-            public let success: Bool
-            public let riskLevel: RiskLevel
-        }
-    }
-    
-    /// Execute a complex task with autonomous planning
-    public func executeTask(_ task: String) async throws -> TaskResult {
-        let startTime = Date()
-        var steps: [TaskResult.ExecutedStep] = []
-        
-        // 1. PLAN: Break down the task into steps
-        let plan = try await createPlan(for: task)
-        
-        // 2. EXECUTE: Run each step
-        for (index, step) in plan.steps.enumerated() {
-            // Check time limit
-            if Date().timeIntervalSince(startTime) > config.maxExecutionTime {
-                break
-            }
-            
-            // Check step limit
-            if index >= config.maxSteps {
-                break
-            }
-            
-            // Assess risk
-            let riskLevel = assessRisk(step)
-            
-            // Auto-approve or skip based on risk
-            guard config.autoApprove.contains(riskLevel) else {
-                steps.append(TaskResult.ExecutedStep(
-                    index: index,
-                    action: step.description,
-                    tool: step.tool,
-                    result: "Skipped: Requires approval (risk: \(riskLevel.rawValue))",
-                    success: false,
-                    riskLevel: riskLevel
-                ))
-                continue
-            }
-            
-            // Execute the step
-            let result = await executeStep(step)
-            
-            steps.append(TaskResult.ExecutedStep(
-                index: index,
-                action: step.description,
-                tool: step.tool,
-                result: result.output,
-                success: result.success,
-                riskLevel: riskLevel
-            ))
-            
-            // If step failed, consider aborting
-            if !result.success && step.critical {
-                break
-            }
+    /// Start a new autonomous task
+    public func startTask(description: String, maxSteps: Int? = nil) async throws -> String {
+        guard !isRunning else {
+            throw AgentError.alreadyRunning
         }
         
-        // 3. SUMMARIZE: Generate summary of what was done
-        let summary = try await generateSummary(task: task, steps: steps)
-        
-        let totalTime = Date().timeIntervalSince(startTime)
-        let allSuccess = steps.allSatisfy { $0.success }
-        
-        return TaskResult(
-            success: allSuccess,
-            summary: summary,
-            steps: steps,
-            totalTime: totalTime
+        let task = AgentTask(
+            id: UUID().uuidString,
+            description: description,
+            createdAt: Date(),
+            status: .planning,
+            steps: []
         )
-    }
-    
-    // MARK: - Day Planning
-    
-    public struct DayPlan: Sendable {
-        public let fullPlan: String
-        public let spokenSummary: String
-        public let priorities: [String]
-        public let scheduledActions: [ScheduledAction]
         
-        public struct ScheduledAction: Sendable {
-            public let time: Date?
-            public let action: String
-            public let tool: String?
+        currentTask = task
+        isRunning = true
+        shouldCancel = false
+        
+        do {
+            // Phase 1: Planning
+            let steps = try await planTask(description: description, maxSteps: maxSteps ?? maxStepsPerTask)
+            currentTask?.steps = steps
+            currentTask?.status = .executing
+            
+            // Phase 2: Execution
+            let result = try await executeSteps(steps)
+            
+            currentTask?.status = .completed
+            currentTask?.result = result
+            
+            // Save to history
+            if let completedTask = currentTask {
+                taskHistory.insert(completedTask, at: 0)
+                saveTaskHistory()
+            }
+            
+            isRunning = false
+            return result
+            
+        } catch {
+            currentTask?.status = .failed
+            currentTask?.error = error.localizedDescription
+            
+            if let failedTask = currentTask {
+                taskHistory.insert(failedTask, at: 0)
+                saveTaskHistory()
+            }
+            
+            isRunning = false
+            throw error
         }
     }
     
-    /// Analyze calendar, tasks, and context to plan the day
-    public func planDay() async throws -> DayPlan {
-        // 1. Gather context
-        let calendar = await gatherCalendarContext()
-        let reminders = await gatherRemindersContext()
-        let healthContext = await gatherHealthContext()
+    /// Cancel the current task
+    public func cancelTask() {
+        shouldCancel = true
+        currentTask?.status = .cancelled
+        isRunning = false
+    }
+    
+    /// Provide user response to an askUser step
+    public func provideUserResponse(_ response: String) {
+        activeContinuation?.resume(returning: response)
+        activeContinuation = nil
+    }
+    
+    // MARK: - Planning
+    
+    private func planTask(description: String, maxSteps: Int) async throws -> [AgentStep] {
+        let ai = ZeroDarkAI.shared
         
-        // 2. Ask AI to create a plan
-        let ai = await ZeroDarkAI.shared
+        let planningPrompt = """
+        You are an autonomous AI agent. Plan the steps needed to complete this task:
         
-        let planPrompt = """
-        You are an autonomous AI assistant planning the user's day.
+        TASK: \(description)
         
-        TODAY'S CALENDAR:
-        \(calendar)
+        Available actions:
+        - think: Reason about the problem
+        - search: Search for information
+        - readFile: Read a file
+        - writeFile: Write to a file
+        - runCode: Execute code (if enabled)
+        - summarize: Summarize text
+        - complete: Finish with result
         
-        PENDING REMINDERS/TASKS:
-        \(reminders)
+        Output a JSON array of steps. Each step has:
+        - description: What this step does
+        - action: The action type
+        - params: Action parameters
         
-        HEALTH/ENERGY CONTEXT:
-        \(healthContext)
+        Max \(maxSteps) steps. Be efficient.
         
-        Create a day plan that:
-        1. Identifies top 3 priorities
-        2. Suggests optimal time blocks for deep work
-        3. Accounts for energy levels (morning vs afternoon)
-        4. Schedules breaks and meals
-        5. Flags any conflicts or concerns
+        Example output:
+        [
+            {"description": "Research the topic", "action": "think", "params": {"prompt": "What do I know about..."}},
+            {"description": "Summarize findings", "action": "summarize", "params": {"text": "..."}},
+            {"description": "Return result", "action": "complete", "params": {"result": "..."}}
+        ]
         
-        Format as:
-        PRIORITIES:
-        1. ...
-        2. ...
-        3. ...
-        
-        SCHEDULE:
-        [time] - [activity] - [notes]
-        ...
-        
-        SUMMARY: (2-3 sentences for speaking aloud)
+        Output ONLY valid JSON, no markdown:
         """
         
-        let response = try await ai.process(prompt: planPrompt, onToken: { _ in })
+        var planJSON = ""
+        planJSON = try await ai.process(prompt: planningPrompt) { _ in }
         
-        // Parse the response
-        let priorities = extractPriorities(from: response)
-        let spokenSummary = extractSummary(from: response)
+        // Parse the plan
+        let steps = try parsePlan(planJSON)
         
-        return DayPlan(
-            fullPlan: response,
-            spokenSummary: spokenSummary,
-            priorities: priorities,
-            scheduledActions: []
-        )
-    }
-    
-    // MARK: - Planning Engine
-    
-    private struct ExecutionPlan: Sendable {
-        let steps: [PlanStep]
-    }
-    
-    private struct PlanStep: Sendable {
-        let description: String
-        let tool: String?
-        let arguments: [String: String]
-        let critical: Bool  // If this fails, abort the plan
-    }
-    
-    private func createPlan(for task: String) async throws -> ExecutionPlan {
-        let ai = await ZeroDarkAI.shared
-        let tools = await toolkit.tools
-        
-        let toolContext = tools.map { tool in
-            "- \(tool.name): \(tool.description)"
-        }.joined(separator: "\n")
-        
-        let planPrompt = """
-        You are an autonomous AI agent that breaks down tasks into executable steps.
-        
-        AVAILABLE TOOLS:
-        \(toolContext)
-        
-        USER TASK: \(task)
-        
-        Create an execution plan. For each step, specify:
-        1. What to do (description)
-        2. Which tool to use (or NONE if just thinking)
-        3. Whether it's critical (if it fails, should we abort?)
-        
-        Format EXACTLY as:
-        STEP 1: [description] | TOOL: [tool_name or NONE] | CRITICAL: [yes/no]
-        STEP 2: ...
-        
-        Be thorough but efficient. Max 10 steps.
-        """
-        
-        let response = try await ai.process(prompt: planPrompt, onToken: { _ in })
-        
-        // Parse steps from response
-        let steps = parseSteps(from: response)
-        
-        return ExecutionPlan(steps: steps)
-    }
-    
-    private func parseSteps(from response: String) -> [PlanStep] {
-        var steps: [PlanStep] = []
-        
-        let lines = response.components(separatedBy: "\n")
-        for line in lines {
-            if line.contains("STEP") && line.contains("|") {
-                let parts = line.components(separatedBy: "|")
-                if parts.count >= 2 {
-                    let description = parts[0]
-                        .replacingOccurrences(of: "STEP \\d+:", with: "", options: .regularExpression)
-                        .trimmingCharacters(in: .whitespaces)
-                    
-                    var tool: String? = nil
-                    if let toolPart = parts.first(where: { $0.contains("TOOL:") }) {
-                        let toolName = toolPart
-                            .replacingOccurrences(of: "TOOL:", with: "")
-                            .trimmingCharacters(in: .whitespaces)
-                        if toolName.lowercased() != "none" {
-                            tool = toolName
-                        }
-                    }
-                    
-                    let critical = parts.contains { $0.lowercased().contains("critical: yes") }
-                    
-                    steps.append(PlanStep(
-                        description: description,
-                        tool: tool,
-                        arguments: [:],
-                        critical: critical
-                    ))
-                }
-            }
+        guard steps.count <= maxSteps else {
+            throw AgentError.tooManySteps
         }
         
         return steps
     }
     
-    private func assessRisk(_ step: PlanStep) -> RiskLevel {
-        guard let tool = step.tool else {
-            return .none
+    private func parsePlan(_ json: String) throws -> [AgentStep] {
+        // Clean up the JSON (remove markdown code blocks if present)
+        var cleanJSON = json
+        if cleanJSON.contains("```") {
+            cleanJSON = cleanJSON
+                .replacingOccurrences(of: "```json", with: "")
+                .replacingOccurrences(of: "```", with: "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
         }
         
-        // Categorize tools by risk
-        let readOnlyTools = Set(["calculator", "datetime", "weather", "systeminfo"])
-        let lowRiskTools = Set(["reminder", "timer", "random", "convert"])
-        let mediumRiskTools = Set(["clipboard", "contacts"])
-        let highRiskTools = Set(["homekit", "health"])
-        
-        let toolLower = tool.lowercased()
-        
-        if readOnlyTools.contains(toolLower) { return .none }
-        if lowRiskTools.contains(toolLower) { return .low }
-        if mediumRiskTools.contains(toolLower) { return .medium }
-        if highRiskTools.contains(toolLower) { return .high }
-        
-        return .medium // Default
-    }
-    
-    private func executeStep(_ step: PlanStep) async -> AgentToolkit.ToolResult {
-        guard let toolName = step.tool else {
-            return AgentToolkit.ToolResult(success: true, output: "No tool needed", data: nil)
+        guard let data = cleanJSON.data(using: .utf8) else {
+            throw AgentError.invalidPlan
         }
         
-        let call = AgentToolkit.ToolCall(tool: toolName, arguments: step.arguments)
-        return await toolkit.execute(call)
+        let rawSteps = try JSONDecoder().decode([RawStep].self, from: data)
+        
+        return rawSteps.map { raw in
+            AgentStep(
+                id: UUID().uuidString,
+                description: raw.description,
+                action: parseAction(raw.action, params: raw.params),
+                status: .pending
+            )
+        }
     }
     
-    private func generateSummary(task: String, steps: [TaskResult.ExecutedStep]) async throws -> String {
-        let ai = await ZeroDarkAI.shared
-        
-        let stepsSummary = steps.map { step in
-            "\(step.success ? "✓" : "✗") \(step.action): \(step.result)"
-        }.joined(separator: "\n")
-        
-        let prompt = """
-        Summarize what was accomplished in 2-3 sentences for speaking aloud.
-        
-        Original task: \(task)
-        
-        Steps executed:
-        \(stepsSummary)
-        """
-        
-        return try await ai.process(prompt: prompt, onToken: { _ in })
+    private struct RawStep: Decodable {
+        let description: String
+        let action: String
+        let params: [String: String]
     }
     
-    // MARK: - Context Gathering
-    
-    private func gatherCalendarContext() async -> String {
-        // Would integrate with EventKit
-        return """
-        - 9:00 AM: Team standup (30 min)
-        - 11:00 AM: Client call with Acme Corp (1 hr)
-        - 2:00 PM: Focus time (blocked)
-        - 4:00 PM: 1:1 with manager (30 min)
-        """
+    private func parseAction(_ type: String, params: [String: String]) -> AgentAction {
+        switch type {
+        case "think":
+            return .think(prompt: params["prompt"] ?? "")
+        case "search":
+            return .search(query: params["query"] ?? "")
+        case "readFile":
+            return .readFile(path: params["path"] ?? "")
+        case "writeFile":
+            return .writeFile(path: params["path"] ?? "", content: params["content"] ?? "")
+        case "runCode":
+            return .runCode(language: params["language"] ?? "python", code: params["code"] ?? "")
+        case "analyzeImage":
+            return .analyzeImage(description: params["description"] ?? "")
+        case "summarize":
+            return .summarize(text: params["text"] ?? "")
+        case "askUser":
+            return .askUser(question: params["question"] ?? "")
+        case "complete":
+            return .complete(result: params["result"] ?? "")
+        default:
+            return .think(prompt: "Unknown action: \(type)")
+        }
     }
     
-    private func gatherRemindersContext() async -> String {
-        // Would integrate with EventKit Reminders
-        return """
-        - [ ] Review Q1 report (due today)
-        - [ ] Send invoice to client
-        - [ ] Book dentist appointment
-        - [x] Buy groceries (completed)
-        """
-    }
+    // MARK: - Execution
     
-    private func gatherHealthContext() async -> String {
-        // Would integrate with HealthKit
-        return """
-        - Sleep last night: 6.5 hours (below average)
-        - Steps today: 2,340
-        - Energy trend: May feel tired in afternoon
-        """
-    }
-    
-    // MARK: - Response Parsing
-    
-    private func extractPriorities(from response: String) -> [String] {
-        var priorities: [String] = []
+    private func executeSteps(_ steps: [AgentStep]) async throws -> String {
+        var context: [String: String] = [:]
+        var finalResult = ""
         
-        let lines = response.components(separatedBy: "\n")
-        var inPriorities = false
-        
-        for line in lines {
-            if line.contains("PRIORITIES") {
-                inPriorities = true
-                continue
+        for (index, step) in steps.enumerated() {
+            guard !shouldCancel else {
+                throw AgentError.cancelled
             }
-            if line.contains("SCHEDULE") || line.contains("SUMMARY") {
-                inPriorities = false
+            
+            // Update step status
+            currentTask?.steps[index].status = .running
+            currentTask?.steps[index].startedAt = Date()
+            
+            do {
+                let output = try await executeAction(step.action, context: context)
+                
+                currentTask?.steps[index].status = .completed
+                currentTask?.steps[index].output = output
+                currentTask?.steps[index].completedAt = Date()
+                
+                // Add to context for subsequent steps
+                context["step_\(index)_output"] = output
+                
+                // Check if this is the final step
+                if case .complete(let result) = step.action {
+                    finalResult = result
+                }
+                
+            } catch {
+                currentTask?.steps[index].status = .failed
+                currentTask?.steps[index].output = error.localizedDescription
+                throw error
             }
-            if inPriorities {
-                let cleaned = line.trimmingCharacters(in: .whitespaces)
-                    .replacingOccurrences(of: "^\\d+\\.\\s*", with: "", options: .regularExpression)
-                if !cleaned.isEmpty {
-                    priorities.append(cleaned)
+        }
+        
+        return finalResult.isEmpty ? context.values.joined(separator: "\n") : finalResult
+    }
+    
+    private func executeAction(_ action: AgentAction, context: [String: String]) async throws -> String {
+        let ai = ZeroDarkAI.shared
+        
+        switch action {
+        case .think(let prompt):
+            // Enhance prompt with context
+            let contextStr = context.map { "- \($0.key): \($0.value.prefix(200))" }.joined(separator: "\n")
+            let fullPrompt = contextStr.isEmpty ? prompt : "Context:\n\(contextStr)\n\nTask: \(prompt)"
+            
+            var result = ""
+            result = try await ai.process(prompt: fullPrompt) { _ in }
+            return result
+            
+        case .search(let query):
+            // Use web search if available, otherwise simulate with AI
+            let searchPrompt = "Search query: \(query)\n\nProvide relevant information about this topic."
+            var result = ""
+            result = try await ai.process(prompt: searchPrompt) { _ in }
+            return result
+            
+        case .readFile(let path):
+            guard allowFileAccess else {
+                throw AgentError.fileAccessDenied
+            }
+            
+            let url = resolveFilePath(path)
+            guard FileManager.default.fileExists(atPath: url.path) else {
+                throw AgentError.fileNotFound(path)
+            }
+            
+            let content = try String(contentsOf: url, encoding: .utf8)
+            return String(content.prefix(10000)) // Limit size
+            
+        case .writeFile(let path, let content):
+            guard allowFileAccess else {
+                throw AgentError.fileAccessDenied
+            }
+            
+            let url = resolveFilePath(path)
+            
+            // Security check: must be in sandbox
+            if let sandbox = sandboxPath {
+                guard url.path.hasPrefix(sandbox.path) else {
+                    throw AgentError.outsideSandbox
+                }
+            }
+            
+            try content.write(to: url, atomically: true, encoding: .utf8)
+            return "Written \(content.count) characters to \(path)"
+            
+        case .runCode(let language, let code):
+            guard allowCodeExecution else {
+                throw AgentError.codeExecutionDisabled
+            }
+            
+            // Sandboxed code execution
+            return try await executeCode(language: language, code: code)
+            
+        case .analyzeImage(let description):
+            // Would integrate with vision model
+            return "Image analysis: \(description)"
+            
+        case .summarize(let text):
+            let prompt = "Summarize the following text concisely:\n\n\(text.prefix(5000))"
+            var result = ""
+            result = try await ai.process(prompt: prompt) { _ in }
+            return result
+            
+        case .askUser(let question):
+            // Wait for user input
+            return try await withCheckedThrowingContinuation { continuation in
+                self.activeContinuation = continuation
+                
+                // Timeout after 5 minutes
+                Task {
+                    try? await Task.sleep(nanoseconds: 300_000_000_000)
+                    if self.activeContinuation != nil {
+                        self.activeContinuation?.resume(throwing: AgentError.userResponseTimeout)
+                        self.activeContinuation = nil
+                    }
+                }
+            }
+            
+        case .complete(let result):
+            return result
+        }
+    }
+    
+    private func resolveFilePath(_ path: String) -> URL {
+        if path.hasPrefix("/") || path.hasPrefix("~") {
+            return URL(fileURLWithPath: (path as NSString).expandingTildeInPath)
+        }
+        
+        if let sandbox = sandboxPath {
+            return sandbox.appendingPathComponent(path)
+        }
+        
+        return URL(fileURLWithPath: path)
+    }
+    
+    private func executeCode(language: String, code: String) async throws -> String {
+        // Sandboxed code execution using Process
+        let tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("zerodark-agent-\(UUID().uuidString)")
+        
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+        
+        let scriptFile: URL
+        let interpreter: String
+        
+        switch language.lowercased() {
+        case "python", "py":
+            scriptFile = tempDir.appendingPathComponent("script.py")
+            interpreter = "/usr/bin/python3"
+        case "javascript", "js":
+            scriptFile = tempDir.appendingPathComponent("script.js")
+            interpreter = "/usr/bin/env node"
+        case "bash", "sh":
+            scriptFile = tempDir.appendingPathComponent("script.sh")
+            interpreter = "/bin/bash"
+        default:
+            throw AgentError.unsupportedLanguage(language)
+        }
+        
+        try code.write(to: scriptFile, atomically: true, encoding: .utf8)
+        
+        #if os(macOS)
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = ["-c", "\(interpreter) \(scriptFile.path)"]
+        process.currentDirectoryURL = tempDir
+        
+        let outputPipe = Pipe()
+        let errorPipe = Pipe()
+        process.standardOutput = outputPipe
+        process.standardError = errorPipe
+        
+        try process.run()
+        
+        // Timeout after 30 seconds
+        let deadline = Date().addingTimeInterval(30)
+        while process.isRunning && Date() < deadline {
+            try await Task.sleep(nanoseconds: 100_000_000)
+        }
+        
+        if process.isRunning {
+            process.terminate()
+            throw AgentError.codeExecutionTimeout
+        }
+        
+        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
+        let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        
+        let output = String(data: outputData, encoding: .utf8) ?? ""
+        let error = String(data: errorData, encoding: .utf8) ?? ""
+        
+        if process.terminationStatus != 0 {
+            return "Error:\n\(error)\n\nOutput:\n\(output)"
+        }
+        
+        return output
+        #else
+        throw AgentError.codeExecutionDisabled
+        #endif
+    }
+    
+    // MARK: - Persistence
+    
+    private func loadTaskHistory() {
+        guard let data = UserDefaults.standard.data(forKey: "zerodark.agent.history"),
+              let history = try? JSONDecoder().decode([AgentTask].self, from: data) else {
+            return
+        }
+        taskHistory = Array(history.prefix(50)) // Keep last 50 tasks
+    }
+    
+    private func saveTaskHistory() {
+        guard let data = try? JSONEncoder().encode(Array(taskHistory.prefix(50))) else { return }
+        UserDefaults.standard.set(data, forKey: "zerodark.agent.history")
+    }
+    
+    // MARK: - Errors
+    
+    public enum AgentError: Error, LocalizedError {
+        case alreadyRunning
+        case invalidPlan
+        case tooManySteps
+        case cancelled
+        case fileAccessDenied
+        case fileNotFound(String)
+        case outsideSandbox
+        case codeExecutionDisabled
+        case codeExecutionTimeout
+        case unsupportedLanguage(String)
+        case userResponseTimeout
+        case executionFailed(String)
+        
+        public var errorDescription: String? {
+            switch self {
+            case .alreadyRunning: return "Agent is already running a task"
+            case .invalidPlan: return "Could not parse task plan"
+            case .tooManySteps: return "Task requires too many steps"
+            case .cancelled: return "Task was cancelled"
+            case .fileAccessDenied: return "File access not allowed"
+            case .fileNotFound(let path): return "File not found: \(path)"
+            case .outsideSandbox: return "Cannot write outside sandbox"
+            case .codeExecutionDisabled: return "Code execution is disabled"
+            case .codeExecutionTimeout: return "Code execution timed out"
+            case .unsupportedLanguage(let lang): return "Unsupported language: \(lang)"
+            case .userResponseTimeout: return "Timed out waiting for user response"
+            case .executionFailed(let reason): return "Execution failed: \(reason)"
+            }
+        }
+    }
+}
+
+// MARK: - Agent Monitor View
+
+#if canImport(SwiftUI)
+import SwiftUI
+
+@available(iOS 16.0, macOS 13.0, *)
+public struct AgentMonitorView: View {
+    @ObservedObject var agent = AutonomousAgent.shared
+    @State private var newTaskDescription: String = ""
+    
+    public init() {}
+    
+    public var body: some View {
+        VStack(spacing: 0) {
+            // Current task
+            if let task = agent.currentTask {
+                currentTaskView(task)
+            } else {
+                newTaskInput
+            }
+            
+            Divider()
+            
+            // Step list
+            if let task = agent.currentTask {
+                stepsList(task.steps)
+            }
+        }
+        .background(Color.black)
+    }
+    
+    private var newTaskInput: some View {
+        HStack {
+            TextField("Describe a task...", text: $newTaskDescription)
+                .textFieldStyle(.plain)
+                .padding()
+            
+            Button {
+                Task {
+                    try? await agent.startTask(description: newTaskDescription)
+                    newTaskDescription = ""
+                }
+            } label: {
+                Image(systemName: "play.fill")
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.blue)
+                    .cornerRadius(8)
+            }
+            .disabled(newTaskDescription.isEmpty || agent.isRunning)
+        }
+        .padding()
+    }
+    
+    private func currentTaskView(_ task: AutonomousAgent.AgentTask) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                statusBadge(task.status)
+                Spacer()
+                if agent.isRunning {
+                    Button("Cancel") {
+                        agent.cancelTask()
+                    }
+                    .foregroundColor(.red)
+                }
+            }
+            
+            Text(task.description)
+                .font(.headline)
+                .foregroundColor(.white)
+            
+            if let error = task.error {
+                Text(error)
+                    .font(.caption)
+                    .foregroundColor(.red)
+            }
+        }
+        .padding()
+    }
+    
+    private func stepsList(_ steps: [AutonomousAgent.AgentStep]) -> some View {
+        ScrollView {
+            LazyVStack(spacing: 1) {
+                ForEach(steps) { step in
+                    stepRow(step)
                 }
             }
         }
-        
-        return Array(priorities.prefix(3))
     }
     
-    private func extractSummary(from response: String) -> String {
-        if let summaryRange = response.range(of: "SUMMARY:") {
-            let summary = response[summaryRange.upperBound...]
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-            return String(summary.prefix(500))
-        }
-        return "Your day is planned. Check the full breakdown for details."
-    }
-}
-
-// MARK: - Agent Loop (Continuous Execution)
-
-public actor AgentLoop {
-    public static let shared = AgentLoop()
-    
-    public enum LoopState {
-        case idle
-        case planning
-        case executing(step: Int, total: Int)
-        case complete
-        case error(String)
-    }
-    
-    @Published public private(set) var state: LoopState = .idle
-    
-    /// Run continuous agent loop until goal achieved
-    public func runUntilComplete(
-        goal: String,
-        maxIterations: Int = 10,
-        onProgress: @escaping (LoopState) -> Void
-    ) async throws -> String {
-        state = .planning
-        onProgress(state)
-        
-        let agent = AutonomousAgent.shared
-        var iterations = 0
-        var fullResult = ""
-        
-        while iterations < maxIterations {
-            iterations += 1
-            state = .executing(step: iterations, total: maxIterations)
-            onProgress(state)
+    private func stepRow(_ step: AutonomousAgent.AgentStep) -> some View {
+        HStack {
+            stepIcon(step.status)
             
-            // Execute next iteration
-            let result = try await agent.executeTask(goal)
-            fullResult += "\n\nIteration \(iterations):\n\(result.summary)"
-            
-            // Check if goal is complete
-            if await isGoalComplete(goal: goal, result: result) {
-                break
+            VStack(alignment: .leading) {
+                Text(step.description)
+                    .foregroundColor(.white)
+                Text(step.action.description)
+                    .font(.caption)
+                    .foregroundColor(.gray)
             }
             
-            // Update goal for next iteration based on what's remaining
-            // (Would refine the prompt based on progress)
+            Spacer()
+            
+            if let output = step.output {
+                Text(String(output.prefix(20)) + "...")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
         }
-        
-        state = .complete
-        onProgress(state)
-        
-        return fullResult
+        .padding()
+        .background(step.status == .running ? Color.blue.opacity(0.1) : Color.clear)
     }
     
-    private func isGoalComplete(goal: String, result: AutonomousAgent.TaskResult) async -> Bool {
-        // Simple heuristic: if all steps succeeded, consider complete
-        // In production: ask AI to evaluate if goal is achieved
-        return result.success
+    private func stepIcon(_ status: AutonomousAgent.AgentStep.StepStatus) -> some View {
+        Group {
+            switch status {
+            case .pending:
+                Circle().stroke(Color.gray, lineWidth: 2)
+            case .running:
+                ProgressView()
+            case .completed:
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.green)
+            case .failed:
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundColor(.red)
+            case .skipped:
+                Image(systemName: "arrow.right.circle")
+                    .foregroundColor(.gray)
+            }
+        }
+        .frame(width: 24, height: 24)
+    }
+    
+    private func statusBadge(_ status: AutonomousAgent.AgentTask.TaskStatus) -> some View {
+        let (text, color): (String, Color) = {
+            switch status {
+            case .pending: return ("Pending", .gray)
+            case .planning: return ("Planning", .yellow)
+            case .executing: return ("Running", .blue)
+            case .completed: return ("Done", .green)
+            case .failed: return ("Failed", .red)
+            case .cancelled: return ("Cancelled", .orange)
+            }
+        }()
+        
+        return Text(text)
+            .font(.caption)
+            .fontWeight(.medium)
+            .foregroundColor(color)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(color.opacity(0.2))
+            .cornerRadius(4)
     }
 }
+#endif

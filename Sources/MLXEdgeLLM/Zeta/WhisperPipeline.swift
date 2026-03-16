@@ -63,6 +63,12 @@ public actor WhisperPipeline {
         }
     }
     
+    /// Transcribe audio file with language hint (for Siri integration)
+    public func transcribe(audioURL: URL, language: String = "en") async throws -> String {
+        let result = try await transcribe(file: audioURL)
+        return result.text
+    }
+    
     public func startRealtimeTranscription(
         onSegment: @escaping (String) -> Void
     ) async throws {
@@ -95,13 +101,40 @@ public actor WhisperPipeline {
 
 #else
 
-// macOS stub
+// macOS stub - uses SFSpeechRecognizer when available
 public actor WhisperPipeline {
     public static let shared = WhisperPipeline()
     public var model: WhisperModel = .small
     
     public func transcribe(file: URL) async throws -> TranscriptionResult {
+        // macOS 10.15+ has Speech framework
+        #if canImport(Speech)
+        let recognizer = SFSpeechRecognizer()
+        let request = SFSpeechURLRecognitionRequest(url: file)
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            recognizer?.recognitionTask(with: request) { result, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                guard let result = result, result.isFinal else { return }
+                continuation.resume(returning: TranscriptionResult(
+                    text: result.bestTranscription.formattedString,
+                    language: "en",
+                    confidence: 0.9,
+                    durationSeconds: 0
+                ))
+            }
+        }
+        #else
         throw WhisperError.notAvailable
+        #endif
+    }
+    
+    public func transcribe(audioURL: URL, language: String = "en") async throws -> String {
+        let result = try await transcribe(file: audioURL)
+        return result.text
     }
     
     public func startRealtimeTranscription(onSegment: @escaping (String) -> Void) async throws {

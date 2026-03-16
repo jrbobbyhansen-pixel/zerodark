@@ -4,6 +4,9 @@ import MLXEdgeLLM
 import MLXEdgeLLMUI
 import MLXEdgeLLMVoice
 import MLXEdgeLLMDocs
+#if canImport(UIKit)
+import UIKit
+#endif
 
 // MARK: - Root View
 
@@ -274,51 +277,9 @@ struct ThinkingIndicator: View {
     }
 }
 
-// MARK: - Voice
+// MARK: - Vision (VoiceTab is in VoiceTab.swift)
 
-struct VoiceTab: View {
-    @State private var isListening = false
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
-            
-            // Just a circle. Nothing fancy.
-            Button(action: {
-                Haptic.tap()
-                isListening.toggle()
-            }) {
-                ZStack {
-                    Circle()
-                        .fill(isListening ? Theme.accent : Theme.surface)
-                        .frame(width: 120, height: 120)
-                        .overlay(
-                            Circle()
-                                .stroke(isListening ? Theme.accent : Theme.border, lineWidth: 1)
-                        )
-                    
-                    Image(systemName: "waveform")
-                        .font(.system(size: 32, weight: .medium))
-                        .foregroundColor(isListening ? .white : Theme.textSecondary)
-                }
-            }
-            .scaleEffect(isListening ? 1.05 : 1.0)
-            .animation(.easeInOut(duration: 0.2), value: isListening)
-            
-            Text(isListening ? "Listening..." : "Tap to speak")
-                .font(Theme.captionFont)
-                .foregroundColor(Theme.textTertiary)
-                .padding(.top, Theme.space6)
-            
-            Spacer()
-            Spacer()
-        }
-        .padding(.bottom, 100)
-    }
-}
-
-// MARK: - Vision
-
+#if os(iOS)
 struct VisionTab: View {
     @State private var showPicker = false
     @State private var image: UIImage?
@@ -377,6 +338,71 @@ struct VisionTab: View {
         }
     }
 }
+#else
+struct VisionTab: View {
+    @State private var selectedItem: PhotosPickerItem?
+    @State private var imageData: Data?
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text("Vision")
+                    .font(Theme.titleFont)
+                    .foregroundColor(Theme.text)
+                Spacer()
+            }
+            .padding(.horizontal, Theme.space5)
+            .padding(.top, Theme.space6)
+            
+            Spacer()
+            
+            if let data = imageData, let nsImage = NSImage(data: data) {
+                Image(nsImage: nsImage)
+                    .resizable()
+                    .scaledToFit()
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.radius2, style: .continuous))
+                    .padding(.horizontal, Theme.space5)
+                
+                HStack(spacing: Theme.space3) {
+                    Button("Clear") { imageData = nil }
+                        .buttonStyle(SecondaryButton())
+                    
+                    Button("Analyze") { }
+                        .buttonStyle(PrimaryButton())
+                }
+                .padding(.top, Theme.space5)
+            } else {
+                VStack(spacing: Theme.space4) {
+                    Image(systemName: "photo")
+                        .font(.system(size: 40, weight: .light))
+                        .foregroundColor(Theme.textTertiary)
+                    
+                    Text("Select an image to analyze")
+                        .font(Theme.bodyFont)
+                        .foregroundColor(Theme.textTertiary)
+                    
+                    PhotosPicker(selection: $selectedItem, matching: .images) {
+                        Text("Choose Image")
+                    }
+                    .buttonStyle(SecondaryButton())
+                    .padding(.top, Theme.space2)
+                }
+            }
+            
+            Spacer()
+            Spacer()
+        }
+        .padding(.bottom, 100)
+        .onChange(of: selectedItem) { item in
+            Task {
+                if let data = try? await item?.loadTransferable(type: Data.self) {
+                    imageData = data
+                }
+            }
+        }
+    }
+}
+#endif
 
 // MARK: - Settings
 
@@ -463,8 +489,9 @@ struct SettingsRow: View {
     }
 }
 
-// MARK: - Image Picker
+// MARK: - Image Picker (iOS only)
 
+#if os(iOS)
 struct ImagePicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
     @Environment(\.dismiss) private var dismiss
@@ -489,5 +516,6 @@ struct ImagePicker: UIViewControllerRepresentable {
         }
     }
 }
+#endif
 
 #Preview { ContentView() }
