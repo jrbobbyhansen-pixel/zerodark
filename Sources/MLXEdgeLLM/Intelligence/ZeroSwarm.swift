@@ -13,7 +13,7 @@ import Foundation
 
 @MainActor
 class ZeroSwarmEngine: ObservableObject {
-    static let shared = SwarmDebateEngine()
+    static let shared = ZeroSwarmEngine()
     
     @Published var isDebating = false
     @Published var currentRound = 0
@@ -179,7 +179,7 @@ class ZeroSwarmEngine: ObservableObject {
     /// Run a full swarm debate
     func debate(
         question: String,
-        swarm: [AgentPersona] = SwarmDebateEngine.defaultSwarm,
+        swarm: [AgentPersona] = ZeroSwarmEngine.defaultSwarm,
         rounds: Int = 3,
         model: String = "qwen3-8b"
     ) async -> SwarmResult {
