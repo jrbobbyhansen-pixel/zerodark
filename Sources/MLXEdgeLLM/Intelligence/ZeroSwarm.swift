@@ -1,18 +1,18 @@
 //
-//  SwarmIntelligence.swift
+//  ZeroSwarm.swift
 //  ZeroDark
 //
-//  Multi-agent debate and swarm consensus.
+//  ZeroSwarm: Multi-agent debate and consensus.
 //  10-20 agents arguing makes small models act like big ones.
 //
 
 import SwiftUI
 import Foundation
 
-// MARK: - SWARM DEBATE ENGINE
+// MARK: - ZEROSWARM ENGINE
 
 @MainActor
-class SwarmDebateEngine: ObservableObject {
+class ZeroSwarmEngine: ObservableObject {
     static let shared = SwarmDebateEngine()
     
     @Published var isDebating = false
@@ -23,13 +23,13 @@ class SwarmDebateEngine: ObservableObject {
     @Published var consensus: String?
     @Published var consensusConfidence: Double = 0
     
-    // Default swarm - 12 diverse perspectives
+    // Default ZeroSwarm - 12 diverse perspectives
     static let defaultSwarm: [AgentPersona] = [
         // Critical thinkers
         AgentPersona(
             id: UUID(),
             name: "Skeptic",
-            emoji: "🤔",
+            initial: "SK",
             systemPrompt: "You are a skeptical analyst. Your job is to find flaws, identify risks, and question assumptions. Be constructively critical. Point out what could go wrong.",
             bias: .critical,
             style: .analytical,
@@ -37,9 +37,9 @@ class SwarmDebateEngine: ObservableObject {
         ),
         AgentPersona(
             id: UUID(),
-            name: "Devil's Advocate",
-            emoji: "😈",
-            systemPrompt: "You deliberately argue the opposite position. If everyone agrees, find reasons to disagree. Challenge groupthink. Play devil's advocate.",
+            name: "Strawman",
+            initial: "ST",
+            systemPrompt: "You deliberately argue the opposite position. If everyone agrees, find reasons to disagree. Challenge groupthink. Build the strongest counterargument.",
             bias: .contrarian,
             style: .provocative,
             weight: 0.8
@@ -49,7 +49,7 @@ class SwarmDebateEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Optimist",
-            emoji: "🌟",
+            initial: "OP",
             systemPrompt: "You see potential and opportunity. Focus on what could go RIGHT. Identify upsides, possibilities, and positive outcomes. Be encouraging but realistic.",
             bias: .optimistic,
             style: .encouraging,
@@ -58,7 +58,7 @@ class SwarmDebateEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Visionary",
-            emoji: "🔮",
+            initial: "VI",
             systemPrompt: "You think big picture and long-term. What are the implications 5-10 years out? What's the bold, ambitious interpretation? Dream big.",
             bias: .expansive,
             style: .inspirational,
@@ -69,7 +69,7 @@ class SwarmDebateEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Pragmatist",
-            emoji: "🔧",
+            initial: "PR",
             systemPrompt: "You focus on what's actually feasible. Cut through theory to practical reality. What can actually be done? What's the simplest path forward?",
             bias: .practical,
             style: .direct,
@@ -78,7 +78,7 @@ class SwarmDebateEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Engineer",
-            emoji: "⚙️",
+            initial: "EN",
             systemPrompt: "You think in systems and implementations. How would this actually work? What are the technical requirements? Be specific about mechanisms.",
             bias: .technical,
             style: .precise,
@@ -89,7 +89,7 @@ class SwarmDebateEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Economist",
-            emoji: "📊",
+            initial: "EC",
             systemPrompt: "You analyze from an economic perspective. What are the costs, benefits, incentives? Who gains, who loses? Think about market dynamics.",
             bias: .economic,
             style: .analytical,
@@ -98,7 +98,7 @@ class SwarmDebateEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Ethicist",
-            emoji: "⚖️",
+            initial: "ET",
             systemPrompt: "You consider moral and ethical implications. Is this right? Who could be harmed? What are the ethical considerations? Be principled.",
             bias: .ethical,
             style: .thoughtful,
@@ -109,7 +109,7 @@ class SwarmDebateEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Creative",
-            emoji: "🎨",
+            initial: "CR",
             systemPrompt: "You think laterally and creatively. What unconventional approaches exist? What if we reframe the problem? Suggest creative alternatives.",
             bias: .creative,
             style: .playful,
@@ -118,7 +118,7 @@ class SwarmDebateEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Connector",
-            emoji: "🔗",
+            initial: "CO",
             systemPrompt: "You find connections and patterns. How does this relate to other things? What analogies apply? Draw connections across domains.",
             bias: .associative,
             style: .curious,
@@ -128,8 +128,8 @@ class SwarmDebateEngine: ObservableObject {
         // Grounding perspectives
         AgentPersona(
             id: UUID(),
-            name: "User Advocate",
-            emoji: "👤",
+            name: "Advocate",
+            initial: "AD",
             systemPrompt: "You represent the end user. How would a normal person experience this? What would they think, feel, need? Advocate for simplicity and usability.",
             bias: .userCentric,
             style: .empathetic,
@@ -137,8 +137,8 @@ class SwarmDebateEngine: ObservableObject {
         ),
         AgentPersona(
             id: UUID(),
-            name: "Fact Checker",
-            emoji: "✅",
+            name: "Verifier",
+            initial: "VE",
             systemPrompt: "You verify claims and check facts. Is this actually true? What evidence supports this? Call out unsupported assertions.",
             bias: .factual,
             style: .precise,
@@ -148,30 +148,30 @@ class SwarmDebateEngine: ObservableObject {
     
     // Specialized swarms for different tasks
     static let codingSwarm: [AgentPersona] = [
-        AgentPersona(id: UUID(), name: "Architect", emoji: "🏗️", systemPrompt: "Focus on system design, patterns, and structure.", bias: .technical, style: .analytical, weight: 1.2),
-        AgentPersona(id: UUID(), name: "Security", emoji: "🔐", systemPrompt: "Find security vulnerabilities and risks.", bias: .critical, style: .precise, weight: 1.1),
-        AgentPersona(id: UUID(), name: "Performance", emoji: "⚡", systemPrompt: "Optimize for speed and efficiency.", bias: .technical, style: .direct, weight: 1.0),
-        AgentPersona(id: UUID(), name: "Maintainer", emoji: "🔧", systemPrompt: "Think about long-term maintainability and readability.", bias: .practical, style: .thoughtful, weight: 1.0),
-        AgentPersona(id: UUID(), name: "Tester", emoji: "🧪", systemPrompt: "Find edge cases and potential bugs.", bias: .critical, style: .analytical, weight: 1.0),
-        AgentPersona(id: UUID(), name: "Simplifier", emoji: "✂️", systemPrompt: "Reduce complexity. Less code is better.", bias: .practical, style: .direct, weight: 0.9),
+        AgentPersona(id: UUID(), name: "Architect", initial: "AR", systemPrompt: "Focus on system design, patterns, and structure.", bias: .technical, style: .analytical, weight: 1.2),
+        AgentPersona(id: UUID(), name: "Security", initial: "SE", systemPrompt: "Find security vulnerabilities and risks.", bias: .critical, style: .precise, weight: 1.1),
+        AgentPersona(id: UUID(), name: "Performance", initial: "PF", systemPrompt: "Optimize for speed and efficiency.", bias: .technical, style: .direct, weight: 1.0),
+        AgentPersona(id: UUID(), name: "Maintainer", initial: "MA", systemPrompt: "Think about long-term maintainability and readability.", bias: .practical, style: .thoughtful, weight: 1.0),
+        AgentPersona(id: UUID(), name: "Tester", initial: "TE", systemPrompt: "Find edge cases and potential bugs.", bias: .critical, style: .analytical, weight: 1.0),
+        AgentPersona(id: UUID(), name: "Simplifier", initial: "SI", systemPrompt: "Reduce complexity. Less code is better.", bias: .practical, style: .direct, weight: 0.9),
     ]
     
     static let businessSwarm: [AgentPersona] = [
-        AgentPersona(id: UUID(), name: "CEO", emoji: "👔", systemPrompt: "Think strategically about business impact.", bias: .expansive, style: .direct, weight: 1.2),
-        AgentPersona(id: UUID(), name: "CFO", emoji: "💰", systemPrompt: "Focus on costs, ROI, and financial viability.", bias: .economic, style: .analytical, weight: 1.1),
-        AgentPersona(id: UUID(), name: "Customer", emoji: "🛒", systemPrompt: "Represent the paying customer's perspective.", bias: .userCentric, style: .empathetic, weight: 1.2),
-        AgentPersona(id: UUID(), name: "Competitor", emoji: "🥊", systemPrompt: "What would competitors do? How would they respond?", bias: .contrarian, style: .analytical, weight: 0.9),
-        AgentPersona(id: UUID(), name: "Legal", emoji: "⚖️", systemPrompt: "Consider legal and compliance implications.", bias: .critical, style: .precise, weight: 1.0),
-        AgentPersona(id: UUID(), name: "Marketing", emoji: "📣", systemPrompt: "How do we position and sell this?", bias: .optimistic, style: .creative, weight: 0.9),
+        AgentPersona(id: UUID(), name: "Strategist", initial: "SR", systemPrompt: "Think strategically about business impact.", bias: .expansive, style: .direct, weight: 1.2),
+        AgentPersona(id: UUID(), name: "Finance", initial: "FI", systemPrompt: "Focus on costs, ROI, and financial viability.", bias: .economic, style: .analytical, weight: 1.1),
+        AgentPersona(id: UUID(), name: "Customer", initial: "CU", systemPrompt: "Represent the paying customer's perspective.", bias: .userCentric, style: .empathetic, weight: 1.2),
+        AgentPersona(id: UUID(), name: "Competitor", initial: "CM", systemPrompt: "What would competitors do? How would they respond?", bias: .contrarian, style: .analytical, weight: 0.9),
+        AgentPersona(id: UUID(), name: "Legal", initial: "LE", systemPrompt: "Consider legal and compliance implications.", bias: .critical, style: .precise, weight: 1.0),
+        AgentPersona(id: UUID(), name: "Growth", initial: "GR", systemPrompt: "How do we position and sell this?", bias: .optimistic, style: .creative, weight: 0.9),
     ]
     
     static let creativeSwarm: [AgentPersona] = [
-        AgentPersona(id: UUID(), name: "Muse", emoji: "✨", systemPrompt: "Pure inspiration. Wild ideas. No limits.", bias: .creative, style: .playful, weight: 1.0),
-        AgentPersona(id: UUID(), name: "Critic", emoji: "🎭", systemPrompt: "Evaluate quality and artistic merit.", bias: .critical, style: .analytical, weight: 1.0),
-        AgentPersona(id: UUID(), name: "Audience", emoji: "👀", systemPrompt: "How will people receive this?", bias: .userCentric, style: .empathetic, weight: 1.1),
-        AgentPersona(id: UUID(), name: "Editor", emoji: "✏️", systemPrompt: "Refine, polish, cut the unnecessary.", bias: .practical, style: .direct, weight: 1.0),
-        AgentPersona(id: UUID(), name: "Rebel", emoji: "🔥", systemPrompt: "Break rules. Challenge conventions.", bias: .contrarian, style: .provocative, weight: 0.8),
-        AgentPersona(id: UUID(), name: "Historian", emoji: "📚", systemPrompt: "What's been done before? What works?", bias: .factual, style: .thoughtful, weight: 0.9),
+        AgentPersona(id: UUID(), name: "Muse", initial: "MU", systemPrompt: "Pure inspiration. Wild ideas. No limits.", bias: .creative, style: .playful, weight: 1.0),
+        AgentPersona(id: UUID(), name: "Critic", initial: "CT", systemPrompt: "Evaluate quality and artistic merit.", bias: .critical, style: .analytical, weight: 1.0),
+        AgentPersona(id: UUID(), name: "Audience", initial: "AU", systemPrompt: "How will people receive this?", bias: .userCentric, style: .empathetic, weight: 1.1),
+        AgentPersona(id: UUID(), name: "Editor", initial: "ED", systemPrompt: "Refine, polish, cut the unnecessary.", bias: .practical, style: .direct, weight: 1.0),
+        AgentPersona(id: UUID(), name: "Rebel", initial: "RE", systemPrompt: "Break rules. Challenge conventions.", bias: .contrarian, style: .provocative, weight: 0.8),
+        AgentPersona(id: UUID(), name: "Historian", initial: "HI", systemPrompt: "What's been done before? What works?", bias: .factual, style: .thoughtful, weight: 0.9),
     ]
     
     // MARK: - Main Debate Function
@@ -398,7 +398,7 @@ class SwarmDebateEngine: ObservableObject {
     }
     
     private func summarizePositions(_ responses: [AgentResponse]) -> String {
-        return responses.map { "\($0.persona.emoji) \($0.persona.name): \($0.response)" }.joined(separator: "\n\n")
+        return responses.map { "[\($0.persona.initial)] \($0.persona.name): \($0.response)" }.joined(separator: "\n\n")
     }
     
     private func calculateAgreement(_ finalRound: [AgentResponse]) -> Double {
@@ -422,9 +422,9 @@ class SwarmDebateEngine: ObservableObject {
     /// Quick 3-agent debate for faster decisions
     func quickDebate(question: String, model: String = "qwen3-8b") async -> String {
         let quickSwarm = [
-            AgentPersona(id: UUID(), name: "Pro", emoji: "👍", systemPrompt: "Argue FOR this. Find the strongest reasons to support it.", bias: .optimistic, style: .encouraging, weight: 1.0),
-            AgentPersona(id: UUID(), name: "Con", emoji: "👎", systemPrompt: "Argue AGAINST this. Find the strongest reasons to oppose it.", bias: .critical, style: .analytical, weight: 1.0),
-            AgentPersona(id: UUID(), name: "Judge", emoji: "⚖️", systemPrompt: "Weigh both sides fairly and reach a balanced conclusion.", bias: .practical, style: .thoughtful, weight: 1.2),
+            AgentPersona(id: UUID(), name: "Pro", initial: "P+", systemPrompt: "Argue FOR this. Find the strongest reasons to support it.", bias: .optimistic, style: .encouraging, weight: 1.0),
+            AgentPersona(id: UUID(), name: "Con", initial: "C-", systemPrompt: "Argue AGAINST this. Find the strongest reasons to oppose it.", bias: .critical, style: .analytical, weight: 1.0),
+            AgentPersona(id: UUID(), name: "Judge", initial: "JU", systemPrompt: "Weigh both sides fairly and reach a balanced conclusion.", bias: .practical, style: .thoughtful, weight: 1.2),
         ]
         
         let result = await debate(question: question, swarm: quickSwarm, rounds: 2, model: model)
@@ -454,7 +454,7 @@ class SwarmDebateEngine: ObservableObject {
 struct AgentPersona: Identifiable {
     let id: UUID
     let name: String
-    let emoji: String
+    let initial: String  // 2-letter code, no emoji
     let systemPrompt: String
     let bias: Bias
     let style: Style
@@ -506,16 +506,16 @@ struct SwarmResult {
 // MARK: - Ensemble Integration
 
 extension EnsembleMode {
-    /// Swarm debate mode
-    static func swarmDebate(
-        personas: [AgentPersona] = SwarmDebateEngine.defaultSwarm,
+    /// ZeroSwarm mode
+    static func zeroSwarm(
+        personas: [AgentPersona] = ZeroSwarmEngine.defaultSwarm,
         rounds: Int = 3
     ) -> EnsembleMode {
-        return .swarm(config: SwarmConfig(personas: personas, rounds: rounds))
+        return .zeroSwarm(config: ZeroSwarmConfig(personas: personas, rounds: rounds))
     }
 }
 
-struct SwarmConfig {
+struct ZeroSwarmConfig {
     let personas: [AgentPersona]
     let rounds: Int
 }
@@ -526,13 +526,13 @@ enum EnsembleMode {
     case parallel
     case consensus
     case speculative
-    case swarm(config: SwarmConfig)
+    case zeroSwarm(config: ZeroSwarmConfig)
 }
 
 // MARK: - SwiftUI Views
 
-struct SwarmDebateView: View {
-    @StateObject private var engine = SwarmDebateEngine.shared
+struct ZeroSwarmView: View {
+    @StateObject private var engine = ZeroSwarmEngine.shared
     @State private var question = ""
     @State private var selectedSwarm: SwarmType = .general
     
@@ -555,17 +555,17 @@ struct SwarmDebateView: View {
                 .pickerStyle(.segmented)
                 
                 HStack {
-                    TextField("Ask the swarm...", text: $question)
+                    TextField("Ask ZeroSwarm...", text: $question)
                         .textFieldStyle(.roundedBorder)
                     
                     Button {
                         Task {
                             let swarm: [AgentPersona]
                             switch selectedSwarm {
-                            case .general: swarm = SwarmDebateEngine.defaultSwarm
-                            case .coding: swarm = SwarmDebateEngine.codingSwarm
-                            case .business: swarm = SwarmDebateEngine.businessSwarm
-                            case .creative: swarm = SwarmDebateEngine.creativeSwarm
+                            case .general: swarm = ZeroSwarmEngine.defaultSwarm
+                            case .coding: swarm = ZeroSwarmEngine.codingSwarm
+                            case .business: swarm = ZeroSwarmEngine.businessSwarm
+                            case .creative: swarm = ZeroSwarmEngine.creativeSwarm
                             }
                             await engine.debate(question: question, swarm: swarm)
                         }
@@ -601,10 +601,10 @@ struct SwarmDebateView: View {
             if let consensus = engine.consensus {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("🤝 Consensus")
+                        Text("Consensus")
                             .font(.headline)
                         Spacer()
-                        Text("\(Int(engine.consensusConfidence * 100))% confident")
+                        Text("\(Int(engine.consensusConfidence * 100))%")
                             .font(.caption)
                             .foregroundColor(.cyan)
                     }
@@ -616,7 +616,7 @@ struct SwarmDebateView: View {
                 .background(Color.cyan.opacity(0.1))
             }
         }
-        .navigationTitle("Swarm Debate")
+        .navigationTitle("ZeroSwarm")
     }
 }
 
@@ -625,8 +625,10 @@ struct DebateEntryView: View {
     
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Text(entry.agent.emoji)
-                .font(.title2)
+            Text(entry.agent.initial)
+                .font(.system(size: 14, weight: .bold, design: .monospaced))
+                .foregroundColor(.cyan)
+                .frame(width: 28)
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
@@ -666,12 +668,17 @@ struct ActiveAgentsView: View {
             HStack(spacing: 8) {
                 ForEach(agents) { agent in
                     VStack(spacing: 4) {
-                        Text(agent.emoji)
-                            .font(.title)
+                        Text(agent.initial)
+                            .font(.system(size: 16, weight: .bold, design: .monospaced))
+                            .foregroundColor(.cyan)
                         Text(agent.name)
                             .font(.caption2)
+                            .foregroundColor(.secondary)
                     }
                     .frame(width: 60)
+                    .padding(.vertical, 8)
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(8)
                 }
             }
             .padding(.horizontal)
@@ -681,6 +688,6 @@ struct ActiveAgentsView: View {
 
 #Preview {
     NavigationStack {
-        SwarmDebateView()
+        ZeroSwarmView()
     }
 }
