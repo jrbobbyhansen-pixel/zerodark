@@ -2,28 +2,10 @@
 //  AppNavigation.swift
 //  ZeroDark
 //
-//  Task-centric navigation. Users don't think in "memory" or "models" — 
-//  they think in "what can I do?"
+//  Clean. Four tabs. Everything works.
 //
 
 import SwiftUI
-
-// MARK: - ═══════════════════════════════════════════════════════════════════
-// MARK: MAIN APP STRUCTURE
-// MARK: ═══════════════════════════════════════════════════════════════════
-
-// @main  -- moved to App target
-struct ZeroDarkApp: App {
-    @StateObject private var appState = AppState.shared
-    
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .environmentObject(appState)
-                .preferredColorScheme(.dark)
-        }
-    }
-}
 
 // MARK: - App State
 
@@ -32,71 +14,50 @@ class AppState: ObservableObject {
     static let shared = AppState()
     
     @Published var selectedTab: AppTab = .chat
-    @Published var isOnboarded = false
-    @Published var hasActiveConversation = false
-    @Published var unreadRecallCount = 0
-    
-    // Quick access to engines
-    let engine = ZeroDarkEngine.shared
-    let memory = InfiniteMemorySystem.shared
 }
 
 // MARK: - Tab Definition
 
 enum AppTab: String, CaseIterable {
-    case home = "Home"
     case chat = "Chat"
-    case recall = "Recall"
-    case library = "Library"
+    case zeta = "Zeta³"
+    case memory = "Memory"
     case more = "More"
     
     var icon: String {
         switch self {
-        case .home: return "house.fill"
         case .chat: return "bubble.left.and.bubble.right.fill"
-        case .recall: return "magnifyingglass"
-        case .library: return "books.vertical.fill"
-        case .more: return "ellipsis.circle.fill"
+        case .zeta: return "sparkles"
+        case .memory: return "brain.head.profile"
+        case .more: return "gearshape.fill"
         }
-    }
-    
-    var label: String {
-        rawValue
     }
 }
 
-// MARK: - ═══════════════════════════════════════════════════════════════════
-// MARK: CONTENT VIEW (Main Container)
-// MARK: ═══════════════════════════════════════════════════════════════════
+// MARK: - Main App Container
 
-struct ContentView: View {
+struct CoreContentView: View {
     @EnvironmentObject var appState: AppState
     
     var body: some View {
         TabView(selection: $appState.selectedTab) {
-            HomeView()
-                .tabItem {
-                    Label(AppTab.home.label, systemImage: AppTab.home.icon)
-                }
-                .tag(AppTab.home)
-            
-            ChatView()
+            MainChatView()
                 .tabItem {
                     Label(AppTab.chat.label, systemImage: AppTab.chat.icon)
                 }
                 .tag(AppTab.chat)
             
-            RecallView()
+            TakeoverTab()
                 .tabItem {
-                    Label(AppTab.recall.label, systemImage: AppTab.recall.icon)
+                    Label(AppTab.zeta.label, systemImage: AppTab.zeta.icon)
                 }
-                .tag(AppTab.recall)
+                .tag(AppTab.zeta)
             
-            LibraryView()
+            MemoryView()
                 .tabItem {
-                    Label(AppTab.library.label, systemImage: AppTab.library.icon)
+                    Label(AppTab.memory.label, systemImage: AppTab.memory.icon)
                 }
-                .tag(AppTab.library)
+                .tag(AppTab.memory)
             
             MoreView()
                 .tabItem {
@@ -108,1028 +69,675 @@ struct ContentView: View {
     }
 }
 
-// MARK: - ═══════════════════════════════════════════════════════════════════
-// MARK: 1. HOME TAB
-// MARK: ═══════════════════════════════════════════════════════════════════
-
-/// First thing you see. Quick actions, status, recent activity.
-struct HomeView: View {
-    @EnvironmentObject var appState: AppState
-    @State private var showingQuickAction = false
-    
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Hero: AI Status
-                    AIStatusCard()
-                    
-                    // Quick Actions
-                    QuickActionsGrid()
-                    
-                    // Recent Conversations
-                    RecentConversationsSection()
-                    
-                    // Memory Insights
-                    MemoryInsightsCard()
-                    
-                    // Learning Progress
-                    LearningProgressCard()
-                }
-                .padding()
-            }
-            .background(Color.black)
-            .navigationTitle("ZeroDark")
-            .toolbar {
-                ToolbarItem(placement: .automatic) {
-                    Button {
-                        appState.selectedTab = .chat
-                    } label: {
-                        Image(systemName: "plus.bubble.fill")
-                            .foregroundColor(.cyan)
-                    }
-                }
-            }
-        }
-    }
-}
-
-struct AIStatusCard: View {
-    @StateObject private var engine = ZeroDarkEngine.shared
-    
-    var body: some View {
-        VStack(spacing: 16) {
-            // Morphing blob placeholder
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [.cyan.opacity(0.6), .cyan.opacity(0.1)],
-                        center: .center,
-                        startRadius: 20,
-                        endRadius: 60
-                    )
-                )
-                .frame(width: 120, height: 120)
-                .overlay(
-                    Image(systemName: "brain.head.profile")
-                        .font(.system(size: 40))
-                        .foregroundColor(.white)
-                )
-            
-            Text(engine.isProcessing ? "Thinking..." : "Ready")
-                .font(.headline)
-                .foregroundColor(.white)
-            
-            HStack(spacing: 20) {
-                StatusPill(label: "Mode", value: engine.currentMode.rawValue)
-                StatusPill(label: "Power", value: engine.equivalentModelSize)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(24)
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(20)
-    }
-}
-
-struct StatusPill: View {
-    let label: String
-    let value: String
-    
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(label)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            Text(value)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundColor(.cyan)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(Color.gray.opacity(0.15))
-        .cornerRadius(12)
-    }
-}
-
-struct QuickActionsGrid: View {
-    @EnvironmentObject var appState: AppState
-    
-    let actions: [(icon: String, title: String, color: Color)] = [
-        ("mic.fill", "Voice", .cyan),
-        ("camera.fill", "Vision", .cyan),
-        ("doc.text.magnifyingglass", "Analyze", .cyan),
-        ("wand.and.stars", "Create", .cyan)
-    ]
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Quick Actions")
-                .font(.headline)
-                .foregroundColor(.white)
-            
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: 12) {
-                ForEach(actions, id: \.title) { action in
-                    QuickActionButton(
-                        icon: action.icon,
-                        title: action.title,
-                        color: action.color
-                    ) {
-                        appState.selectedTab = .chat
-                    }
-                }
-            }
-        }
-    }
-}
-
-struct QuickActionButton: View {
-    let icon: String
-    let title: String
-    let color: Color
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundColor(color)
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(12)
-        }
-    }
-}
-
-struct RecentConversationsSection: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Recent")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                Spacer()
-                Button("See All") {}
-                    .font(.caption)
-                    .foregroundColor(.cyan)
-            }
-            
-            VStack(spacing: 8) {
-                RecentConversationRow(
-                    title: "ZeroDark Architecture",
-                    preview: "Let me explain the module structure...",
-                    time: "2m ago"
-                )
-                RecentConversationRow(
-                    title: "App Navigation",
-                    preview: "Task-centric tabs are better...",
-                    time: "15m ago"
-                )
-                RecentConversationRow(
-                    title: "Infinite Memory",
-                    preview: "95% token savings achieved...",
-                    time: "1h ago"
-                )
-            }
-        }
-    }
-}
-
-struct RecentConversationRow: View {
-    let title: String
-    let preview: String
-    let time: String
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            Circle()
-                .fill(Color.cyan.opacity(0.2))
-                .frame(width: 44, height: 44)
-                .overlay(
-                    Image(systemName: "bubble.left.fill")
-                        .foregroundColor(.cyan)
-                )
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundColor(.white)
-                Text(preview)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
-            }
-            
-            Spacer()
-            
-            Text(time)
-                .font(.caption2)
-                .foregroundColor(.secondary)
-        }
-        .padding(12)
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(12)
-    }
-}
-
-struct MemoryInsightsCard: View {
-    @StateObject private var memory = InfiniteMemorySystem.shared
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "brain")
-                    .foregroundColor(.cyan)
-                Text("Memory")
-                    .font(.headline)
-                    .foregroundColor(.white)
-            }
-            
-            HStack(spacing: 16) {
-                MemoryStat(label: "Facts", value: "\(memory.semanticCount)")
-                MemoryStat(label: "Episodes", value: "\(memory.episodicCount)")
-                MemoryStat(label: "Rules", value: "\(memory.proceduralCount)")
-            }
-            
-            HStack {
-                Image(systemName: "arrow.down.circle.fill")
-                    .foregroundColor(.green)
-                Text("\(memory.totalTokensSaved) tokens saved")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(16)
-    }
-}
-
-struct MemoryStat: View {
-    let label: String
-    let value: String
-    
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(value)
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundColor(.cyan)
-            Text(label)
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-    }
-}
-
-struct LearningProgressCard: View {
-    @StateObject private var learning = SelfRewardingEngine.shared
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(systemName: "chart.line.uptrend.xyaxis")
-                    .foregroundColor(.green)
-                Text("Learning")
-                    .font(.headline)
-                    .foregroundColor(.white)
-            }
-            
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Quality Score")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text("\(learning.avgScore, specifier: "%.1f")/1.0")
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                }
-                
-                Spacer()
-                
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text("LoRA Version")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text("v\(learning.loraVersion)")
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.cyan)
-                }
-            }
-            
-            ProgressView(value: learning.avgScore, total: 1.0)
-                .tint(.green)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(16)
-    }
+extension AppTab {
+    var label: String { rawValue }
 }
 
 // MARK: - ═══════════════════════════════════════════════════════════════════
-// MARK: 2. CHAT TAB
+// MARK: 1. CHAT TAB (Main AI Interface)
 // MARK: ═══════════════════════════════════════════════════════════════════
 
-/// Main conversation interface. Memory auto-injected.
-struct ChatView: View {
-    @StateObject private var viewModel = ChatViewModel()
+struct MainChatView: View {
+    @StateObject private var viewModel = MainChatViewModel()
+    @StateObject private var modelManager = MLXModelManager.shared
+    @State private var inputText = ""
     @FocusState private var isInputFocused: Bool
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
+                // Model status bar
+                if !modelManager.isReady {
+                    modelStatusBar
+                }
+                
+                // Power mode selector
+                powerModeBar
+                
                 // Messages
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(spacing: 16) {
-                            ForEach(viewModel.messages) { message in
-                                MessageBubble(message: message)
-                                    .id(message.id)
+                            if viewModel.messages.isEmpty {
+                                emptyState
                             }
-                            
-                            if viewModel.isGenerating {
-                                ThinkingIndicator()
+                            ForEach(viewModel.messages) { message in
+                                ChatBubble(message: message)
+                                    .id(message.id)
                             }
                         }
                         .padding()
                     }
                     .onChange(of: viewModel.messages.count) { _, _ in
-                        if let lastMessage = viewModel.messages.last {
-                            withAnimation {
-                                proxy.scrollTo(lastMessage.id, anchor: .bottom)
-                            }
+                        if let last = viewModel.messages.last {
+                            withAnimation { proxy.scrollTo(last.id, anchor: .bottom) }
                         }
                     }
                 }
                 
-                // Input
-                ChatInputBar(
-                    text: $viewModel.inputText,
-                    isLoading: viewModel.isGenerating,
-                    onSend: viewModel.send
-                )
-                .focused($isInputFocused)
+                // Tools bar (when tools executed)
+                if !viewModel.recentTools.isEmpty {
+                    toolsBar
+                }
+                
+                // Input bar
+                inputBar
             }
             .background(Color.black)
-            .navigationTitle("Chat")
-            
+            .navigationTitle("ZeroDark")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .automatic) {
-                    ModeSelector(selectedMode: $viewModel.inferenceMode)
+                ToolbarItem(placement: .principal) {
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(modelManager.isReady ? Color.green : Color.orange)
+                            .frame(width: 8, height: 8)
+                        Text("ZeroDark")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                    }
                 }
-                ToolbarItem(placement: .automatic) {
+                ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        Button("New Chat", systemImage: "plus") {
-                            viewModel.newChat()
-                        }
-                        Button("Save Chat", systemImage: "square.and.arrow.down") {
-                            viewModel.saveChat()
+                        Button("Clear Chat", systemImage: "trash") {
+                            viewModel.clearChat()
                         }
                         Divider()
-                        Button("Voice Input", systemImage: "mic") {}
-                        Button("Attach Image", systemImage: "photo") {}
+                        ForEach(ZeroDarkEngine.InferenceMode.allCases, id: \.self) { mode in
+                            Button {
+                                viewModel.currentMode = mode
+                            } label: {
+                                HStack {
+                                    Text(mode.rawValue)
+                                    if viewModel.currentMode == mode {
+                                        Image(systemName: "checkmark")
+                                    }
+                                }
+                            }
+                        }
                     } label: {
                         Image(systemName: "ellipsis.circle")
+                            .foregroundColor(.cyan)
+                    }
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
+        .onAppear {
+            // Auto-load model
+            if !modelManager.isReady && !modelManager.isLoading {
+                Task {
+                    if let recommended = modelManager.availableModels.first(where: { $0.recommended }) {
+                        try? await modelManager.loadModel(recommended.id)
                     }
                 }
             }
         }
     }
-}
-
-@MainActor
-class ChatViewModel: ObservableObject {
-    @Published var messages: [ChatMessage] = []
-    @Published var inputText = ""
-    @Published var isGenerating = false
-    @Published var inferenceMode: ZeroDarkEngine.InferenceMode = .standard
     
-    private let engine = ZeroDarkEngine.shared
+    // MARK: - Model Status
     
-    func send() {
-        guard !inputText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-        
-        let userMessage = ChatMessage(role: .user, content: inputText)
-        messages.append(userMessage)
-        
-        let prompt = inputText
-        inputText = ""
-        isGenerating = true
-        
-        Task {
-            let result = await engine.generateWithMemory(prompt: prompt, mode: inferenceMode)
-            
-            let assistantMessage = ChatMessage(
-                role: .assistant,
-                content: result.response,
-                metadata: .init(
-                    mode: result.mode,
-                    techniques: result.techniquesUsed,
-                    confidence: result.confidence
-                )
-            )
-            messages.append(assistantMessage)
-            isGenerating = false
+    private var modelStatusBar: some View {
+        HStack {
+            if modelManager.isLoading {
+                ProgressView(value: modelManager.loadProgress)
+                    .tint(.cyan)
+                Text("\(Int(modelManager.loadProgress * 100))%")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            } else {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundColor(.orange)
+                Text("No model loaded")
+                    .font(.caption)
+                    .foregroundColor(.orange)
+                Spacer()
+                Button("Load") {
+                    Task {
+                        if let m = modelManager.availableModels.first(where: { $0.recommended }) {
+                            try? await modelManager.loadModel(m.id)
+                        }
+                    }
+                }
+                .font(.caption)
+                .foregroundColor(.cyan)
+            }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color.orange.opacity(0.1))
+    }
+    
+    // MARK: - Power Mode
+    
+    private var powerModeBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(ZeroDarkEngine.InferenceMode.allCases, id: \.self) { mode in
+                    Button {
+                        viewModel.currentMode = mode
+                    } label: {
+                        VStack(spacing: 2) {
+                            Text(mode.rawValue)
+                                .font(.caption2)
+                                .fontWeight(viewModel.currentMode == mode ? .bold : .regular)
+                            Text(modeDescription(mode))
+                                .font(.system(size: 9))
+                                .foregroundColor(.gray)
+                        }
+                        .foregroundColor(viewModel.currentMode == mode ? .cyan : .gray)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(viewModel.currentMode == mode ? Color.cyan.opacity(0.15) : Color.clear)
+                        .cornerRadius(12)
+                    }
+                }
+                
+                Spacer()
+                
+                // Equivalent size indicator
+                Text("≈\(viewModel.equivalentSize)")
+                    .font(.caption2)
+                    .foregroundColor(.cyan)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.cyan.opacity(0.1))
+                    .cornerRadius(8)
+            }
+            .padding(.horizontal)
+        }
+        .frame(height: 44)
+        .background(Color.white.opacity(0.02))
+    }
+    
+    private func modeDescription(_ mode: ZeroDarkEngine.InferenceMode) -> String {
+        switch mode {
+        case .quick: return "~8B"
+        case .standard: return "~50B"
+        case .deep: return "~150B"
+        case .maximum: return "~300B+"
+        case .adaptive: return "Auto"
         }
     }
     
-    func newChat() {
-        messages.removeAll()
+    // MARK: - Empty State
+    
+    private var emptyState: some View {
+        VStack(spacing: 20) {
+            Spacer().frame(height: 60)
+            
+            Image(systemName: "sparkles")
+                .font(.system(size: 50))
+                .foregroundColor(.cyan.opacity(0.5))
+            
+            Text("What can I help with?")
+                .font(.title2)
+                .fontWeight(.medium)
+                .foregroundColor(.white)
+            
+            Text("I can search the web, check weather, manage reminders, analyze images, and more.")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+            
+            // Quick suggestions
+            VStack(spacing: 8) {
+                SuggestionButton(text: "What's the weather?") {
+                    sendMessage("What's the weather in San Antonio?")
+                }
+                SuggestionButton(text: "Set a reminder") {
+                    sendMessage("Remind me to check email at 5pm")
+                }
+                SuggestionButton(text: "What's on my calendar?") {
+                    sendMessage("What's on my calendar today?")
+                }
+            }
+            .padding(.top, 20)
+        }
     }
     
-    func saveChat() {
-        // Would save to library
+    // MARK: - Tools Bar
+    
+    private var toolsBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(viewModel.recentTools) { tool in
+                    HStack(spacing: 4) {
+                        Image(systemName: tool.success ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            .foregroundColor(tool.success ? .green : .red)
+                            .font(.caption2)
+                        Text(tool.tool)
+                            .font(.caption2)
+                            .foregroundColor(.white)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(12)
+                }
+            }
+            .padding(.horizontal)
+        }
+        .frame(height: 36)
+    }
+    
+    // MARK: - Input Bar
+    
+    private var inputBar: some View {
+        HStack(spacing: 12) {
+            TextField("Message", text: $inputText, axis: .vertical)
+                .textFieldStyle(.plain)
+                .padding(12)
+                .background(Color.white.opacity(0.1))
+                .cornerRadius(20)
+                .foregroundColor(.white)
+                .focused($isInputFocused)
+                .lineLimit(1...4)
+                .onSubmit { sendMessage(inputText) }
+            
+            Button {
+                sendMessage(inputText)
+            } label: {
+                Image(systemName: viewModel.isProcessing ? "stop.fill" : "arrow.up.circle.fill")
+                    .font(.title)
+                    .foregroundColor(.cyan)
+            }
+            .disabled(inputText.isEmpty && !viewModel.isProcessing)
+        }
+        .padding()
+        .background(Color.black)
+    }
+    
+    private func sendMessage(_ text: String) {
+        guard !text.isEmpty else { return }
+        inputText = ""
+        viewModel.sendMessage(text)
     }
 }
+
+// MARK: - Chat View Model
+
+@MainActor
+class MainChatViewModel: ObservableObject {
+    @Published var messages: [ChatMessage] = []
+    @Published var recentTools: [ToolExecution] = []
+    @Published var isProcessing = false
+    @Published var currentMode: ZeroDarkEngine.InferenceMode = .standard
+    @Published var equivalentSize: String = "8B"
+    
+    private let toolkit = AgentToolkit.shared
+    private let engine = ZeroDarkEngine.shared
+    
+    func sendMessage(_ text: String) {
+        let userMessage = ChatMessage(content: text, isUser: true)
+        messages.append(userMessage)
+        
+        isProcessing = true
+        
+        Task {
+            // Check if this needs a tool
+            let toolResult = await executeToolIfNeeded(text)
+            
+            var response: String
+            var toolUsed: String?
+            
+            if let result = toolResult {
+                toolUsed = result.tool
+                recentTools.insert(result, at: 0)
+                if recentTools.count > 5 { recentTools.removeLast() }
+                
+                let prompt = """
+                User asked: \(text)
+                
+                Tool "\(result.tool)" returned: \(result.result)
+                
+                Respond naturally, incorporating this information.
+                """
+                let zdResult = await engine.generate(prompt: prompt, mode: currentMode)
+                response = zdResult.response
+                equivalentSize = zdResult.equivalentSize
+                
+                if response.isEmpty { response = result.result }
+            } else {
+                let zdResult = await engine.generate(prompt: text, mode: currentMode)
+                response = zdResult.response
+                equivalentSize = zdResult.equivalentSize
+            }
+            
+            let aiMessage = ChatMessage(content: response, isUser: false, toolUsed: toolUsed)
+            messages.append(aiMessage)
+            isProcessing = false
+        }
+    }
+    
+    private func executeToolIfNeeded(_ text: String) async -> ToolExecution? {
+        let lower = text.lowercased()
+        
+        if lower.contains("weather") || lower.contains("temperature") || lower.contains("forecast") {
+            let location = extractLocation(from: text) ?? "San Antonio"
+            let call = AgentToolkit.ToolCall(tool: "weather", arguments: ["location": location])
+            let result = await toolkit.execute(call)
+            return ToolExecution(tool: "weather", input: text, result: result.output, success: result.success)
+        }
+        
+        if lower.contains("calendar") || lower.contains("schedule") || lower.contains("events") || lower.contains("meeting") {
+            let call = AgentToolkit.ToolCall(tool: "calendar", arguments: [:])
+            let result = await toolkit.execute(call)
+            return ToolExecution(tool: "calendar", input: text, result: result.output, success: result.success)
+        }
+        
+        if lower.contains("remind") || lower.contains("reminder") {
+            let title = extractReminderText(from: text)
+            let call = AgentToolkit.ToolCall(tool: "reminder", arguments: ["title": title])
+            let result = await toolkit.execute(call)
+            return ToolExecution(tool: "reminder", input: text, result: result.output, success: result.success)
+        }
+        
+        if lower.contains("time") || lower.contains("date") || lower.contains("today") || lower.contains("what day") {
+            let call = AgentToolkit.ToolCall(tool: "time", arguments: [:])
+            let result = await toolkit.execute(call)
+            return ToolExecution(tool: "time", input: text, result: result.output, success: result.success)
+        }
+        
+        return nil
+    }
+    
+    private func extractLocation(from text: String) -> String? {
+        let cities = ["san antonio", "austin", "houston", "dallas", "new york", "los angeles"]
+        let lower = text.lowercased()
+        for city in cities { if lower.contains(city) { return city.capitalized } }
+        return nil
+    }
+    
+    private func extractReminderText(from text: String) -> String {
+        var cleaned = text.lowercased()
+        for prefix in ["remind me to", "remind me", "set a reminder to", "set reminder"] {
+            if cleaned.hasPrefix(prefix) { cleaned = String(cleaned.dropFirst(prefix.count)) }
+        }
+        return cleaned.trimmingCharacters(in: .whitespaces).capitalized
+    }
+    
+    func clearChat() {
+        messages.removeAll()
+        recentTools.removeAll()
+    }
+}
+
+// MARK: - Chat Message
 
 struct ChatMessage: Identifiable {
     let id = UUID()
-    let role: Role
     let content: String
+    let isUser: Bool
+    var toolUsed: String?
     let timestamp = Date()
-    var metadata: Metadata?
-    
-    enum Role {
-        case user, assistant, system
-    }
-    
-    struct Metadata {
-        let mode: ZeroDarkEngine.InferenceMode
-        let techniques: [String]
-        let confidence: Double
-    }
 }
 
-struct MessageBubble: View {
+// MARK: - Chat Bubble
+
+struct ChatBubble: View {
     let message: ChatMessage
     
     var body: some View {
         HStack {
-            if message.role == .user { Spacer(minLength: 60) }
+            if message.isUser { Spacer(minLength: 60) }
             
-            VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 4) {
+            VStack(alignment: message.isUser ? .trailing : .leading, spacing: 4) {
                 Text(message.content)
-                    .padding(12)
-                    .background(message.role == .user ? Color.cyan : Color.gray.opacity(0.2))
+                    .font(.body)
                     .foregroundColor(.white)
-                    .cornerRadius(16)
+                    .padding(14)
+                    .background(
+                        message.isUser
+                            ? LinearGradient(colors: [.cyan.opacity(0.4), .cyan.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            : LinearGradient(colors: [Color.white.opacity(0.12), Color.white.opacity(0.08)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    )
+                    .cornerRadius(20)
                 
-                if let metadata = message.metadata {
-                    HStack(spacing: 8) {
-                        Text(metadata.mode.rawValue)
-                        Text("•")
-                        Text("\(Int(metadata.confidence * 100))%")
+                if let tool = message.toolUsed {
+                    HStack(spacing: 4) {
+                        Image(systemName: "wrench.fill")
+                            .font(.caption2)
+                        Text(tool)
+                            .font(.caption2)
                     }
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.gray)
                 }
             }
             
-            if message.role == .assistant { Spacer(minLength: 60) }
+            if !message.isUser { Spacer(minLength: 60) }
         }
     }
 }
 
-struct ThinkingIndicator: View {
-    @State private var dotCount = 0
-    
-    var body: some View {
-        HStack {
-            HStack(spacing: 4) {
-                ForEach(0..<3) { index in
-                    Circle()
-                        .fill(Color.cyan)
-                        .frame(width: 8, height: 8)
-                        .opacity(dotCount > index ? 1 : 0.3)
-                }
-            }
-            .padding(12)
-            .background(Color.gray.opacity(0.2))
-            .cornerRadius(16)
-            
-            Spacer()
-        }
-        .onAppear {
-            Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { _ in
-                dotCount = (dotCount + 1) % 4
-            }
-        }
-    }
-}
+// MARK: - Suggestion Button
 
-struct ChatInputBar: View {
-    @Binding var text: String
-    let isLoading: Bool
-    let onSend: () -> Void
+struct SuggestionButton: View {
+    let text: String
+    let action: () -> Void
     
     var body: some View {
-        HStack(spacing: 12) {
-            TextField("Message", text: $text, axis: .vertical)
-                .textFieldStyle(.plain)
-                .padding(12)
-                .background(Color.gray.opacity(0.15))
+        Button(action: action) {
+            Text(text)
+                .font(.subheadline)
+                .foregroundColor(.cyan)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(Color.cyan.opacity(0.1))
                 .cornerRadius(20)
-                .lineLimit(1...5)
-            
-            Button(action: onSend) {
-                Image(systemName: isLoading ? "stop.fill" : "arrow.up.circle.fill")
-                    .font(.title2)
-                    .foregroundColor(text.isEmpty && !isLoading ? .gray : .cyan)
-            }
-            .disabled(text.isEmpty && !isLoading)
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
-        .background(Color.black)
-    }
-}
-
-struct ModeSelector: View {
-    @Binding var selectedMode: ZeroDarkEngine.InferenceMode
-    
-    var body: some View {
-        Menu {
-            ForEach(ZeroDarkEngine.InferenceMode.allCases, id: \.self) { mode in
-                Button {
-                    selectedMode = mode
-                } label: {
-                    HStack {
-                        Text(mode.rawValue)
-                        if selectedMode == mode {
-                            Image(systemName: "checkmark")
-                        }
-                    }
-                }
-            }
-        } label: {
-            HStack(spacing: 4) {
-                Image(systemName: "bolt.fill")
-                Text(selectedMode.rawValue)
-            }
-            .font(.caption)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(Color.cyan.opacity(0.2))
-            .cornerRadius(12)
         }
     }
 }
 
 // MARK: - ═══════════════════════════════════════════════════════════════════
-// MARK: 3. RECALL TAB
+// MARK: 2. MEMORY TAB (What I Know About You)
 // MARK: ═══════════════════════════════════════════════════════════════════
 
-/// Search everything you've ever discussed. Your second brain.
-struct RecallView: View {
+struct MemoryView: View {
+    @StateObject private var memory = InfiniteMemorySystem.shared
     @State private var searchText = ""
-    @State private var searchResults: [RecallResult] = []
-    @State private var isSearching = false
-    @State private var selectedFilter: RecallFilter = .all
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                // Search bar
-                HStack(spacing: 12) {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.secondary)
-                    
-                    TextField("Search your memory...", text: $searchText)
-                        .textFieldStyle(.plain)
-                        .onSubmit { search() }
-                    
-                    if !searchText.isEmpty {
-                        Button {
-                            searchText = ""
-                            searchResults = []
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.secondary)
-                        }
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Search
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.gray)
+                        TextField("Search memories...", text: $searchText)
+                            .textFieldStyle(.plain)
+                            .foregroundColor(.white)
                     }
-                }
-                .padding(12)
-                .background(Color.gray.opacity(0.15))
-                .cornerRadius(12)
-                .padding()
-                
-                // Filters
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(RecallFilter.allCases, id: \.self) { filter in
-                            FilterChip(
-                                title: filter.rawValue,
-                                isSelected: selectedFilter == filter
-                            ) {
-                                selectedFilter = filter
-                                if !searchText.isEmpty { search() }
+                    .padding(12)
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(12)
+                    
+                    // Memory Stats
+                    HStack(spacing: 16) {
+                        MemoryStatCard(
+                            icon: "lightbulb.fill",
+                            title: "Facts",
+                            value: memory.semanticCount,
+                            color: .yellow
+                        )
+                        MemoryStatCard(
+                            icon: "clock.fill",
+                            title: "Episodes",
+                            value: memory.episodicCount,
+                            color: .blue
+                        )
+                        MemoryStatCard(
+                            icon: "gearshape.fill",
+                            title: "Rules",
+                            value: memory.proceduralCount,
+                            color: .green
+                        )
+                    }
+                    
+                    // Efficiency
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Efficiency")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text("\(memory.totalTokensSaved)")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.green)
+                                Text("tokens saved")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                            
+                            Spacer()
+                            
+                            VStack(alignment: .trailing) {
+                                Text(String(format: "%.1fx", memory.compressionRatio))
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.cyan)
+                                Text("compression")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
                             }
                         }
+                        .padding()
+                        .background(Color.white.opacity(0.05))
+                        .cornerRadius(16)
                     }
-                    .padding(.horizontal)
-                }
-                
-                // Results
-                if isSearching {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if searchResults.isEmpty && !searchText.isEmpty {
-                    ContentUnavailableView(
-                        "No Results",
-                        systemImage: "magnifyingglass",
-                        description: Text("Try different keywords")
-                    )
-                } else if searchResults.isEmpty {
-                    // Suggestions when empty
-                    VStack(spacing: 24) {
-                        Text("Try searching for...")
+                    
+                    // Viking Memory Tiers
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Memory Architecture")
                             .font(.headline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white)
                         
-                        VStack(spacing: 12) {
-                            SuggestionRow(text: "What did we decide about...")
-                            SuggestionRow(text: "Last week's conversation about...")
-                            SuggestionRow(text: "The project where we...")
-                        }
+                        MemoryTierRow(tier: "L0 (Hot)", description: "Always loaded, ~100 tokens", color: .red)
+                        MemoryTierRow(tier: "L1 (Warm)", description: "Loaded when relevant, ~500 tokens", color: .orange)
+                        MemoryTierRow(tier: "L2 (Cold)", description: "Full content, loaded on demand", color: .blue)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    
+                    // How it works
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("How It Works")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        
+                        Text("ZeroDark learns from your conversations. Facts, preferences, and patterns are stored locally on your device. Nothing ever leaves.")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
                     .padding()
-                } else {
-                    List(searchResults) { result in
-                        RecallResultRow(result: result)
-                    }
-                    .listStyle(.plain)
+                    .background(Color.white.opacity(0.05))
+                    .cornerRadius(16)
                 }
+                .padding()
             }
             .background(Color.black)
-            .navigationTitle("Recall")
+            .navigationTitle("Memory")
         }
-    }
-    
-    func search() {
-        guard !searchText.isEmpty else { return }
-        isSearching = true
-        
-        Task {
-            let memory = InfiniteMemorySystem.shared
-            let context = await memory.retrieveContext(for: searchText, limit: 20)
-            
-            var results: [RecallResult] = []
-            
-            // Add facts
-            for fact in context.facts {
-                results.append(RecallResult(
-                    type: .fact,
-                    title: fact.category.capitalized,
-                    content: fact.fact,
-                    confidence: Double(fact.confidence),
-                    date: fact.createdAt
-                ))
-            }
-            
-            // Add episodes
-            for episode in context.episodes {
-                results.append(RecallResult(
-                    type: .episode,
-                    title: episode.topics.first ?? "Conversation",
-                    content: episode.summary,
-                    confidence: Double(episode.importance),
-                    date: episode.timestamp
-                ))
-            }
-            
-            // Add rules
-            for rule in context.rules {
-                results.append(RecallResult(
-                    type: .rule,
-                    title: "Rule",
-                    content: "IF \(rule.trigger) THEN \(rule.action)",
-                    confidence: Double(rule.successCount) / Double(max(1, rule.successCount + rule.failureCount)),
-                    date: rule.createdAt
-                ))
-            }
-            
-            // Filter
-            if selectedFilter != .all {
-                results = results.filter { $0.type.rawValue == selectedFilter.rawValue }
-            }
-            
-            searchResults = results.sorted { $0.confidence > $1.confidence }
-            isSearching = false
-        }
+        .preferredColorScheme(.dark)
     }
 }
 
-enum RecallFilter: String, CaseIterable {
-    case all = "All"
-    case fact = "Facts"
-    case episode = "Conversations"
-    case rule = "Rules"
-}
-
-struct RecallResult: Identifiable {
-    let id = UUID()
-    let type: ResultType
+struct MemoryStatCard: View {
+    let icon: String
     let title: String
-    let content: String
-    let confidence: Double
-    let date: Date
-    
-    enum ResultType: String {
-        case fact, episode, rule
-        
-        var icon: String {
-            switch self {
-            case .fact: return "lightbulb.fill"
-            case .episode: return "bubble.left.and.bubble.right.fill"
-            case .rule: return "arrow.triangle.branch"
-            }
-        }
-        
-        var color: Color {
-            switch self {
-            case .fact: return .yellow
-            case .episode: return .cyan
-            case .rule: return .purple
-            }
-        }
-    }
-}
-
-struct RecallResultRow: View {
-    let result: RecallResult
+    let value: Int
+    let color: Color
     
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: result.type.icon)
-                .foregroundColor(result.type.color)
-                .frame(width: 24)
+        VStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(color)
             
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(result.title)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                    Spacer()
-                    Text(result.date, style: .relative)
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                }
-                
-                Text(result.content)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .lineLimit(3)
-                
-                HStack {
-                    Text("\(Int(result.confidence * 100))% confidence")
-                        .font(.caption2)
-                        .foregroundColor(result.type.color)
-                }
-            }
-        }
-        .padding(.vertical, 4)
-    }
-}
-
-struct FilterChip: View {
-    let title: String
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
+            Text("\(value)")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
             Text(title)
                 .font(.caption)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(isSelected ? Color.cyan : Color.gray.opacity(0.2))
-                .foregroundColor(isSelected ? .black : .white)
-                .cornerRadius(16)
+                .foregroundColor(.gray)
         }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(16)
     }
 }
 
-struct SuggestionRow: View {
-    let text: String
+struct MemoryTierRow: View {
+    let tier: String
+    let description: String
+    let color: Color
     
     var body: some View {
         HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.secondary)
-            Text(text)
-                .foregroundColor(.secondary)
+            Circle()
+                .fill(color)
+                .frame(width: 12, height: 12)
+            Text(tier)
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundColor(.white)
             Spacer()
+            Text(description)
+                .font(.caption)
+                .foregroundColor(.gray)
         }
         .padding()
-        .background(Color.gray.opacity(0.1))
+        .background(Color.white.opacity(0.05))
         .cornerRadius(12)
     }
 }
 
 // MARK: - ═══════════════════════════════════════════════════════════════════
-// MARK: 4. LIBRARY TAB
+// MARK: 3. MORE TAB (Settings)
 // MARK: ═══════════════════════════════════════════════════════════════════
 
-/// Your stuff: saved chats, exports, documents, knowledge base.
-struct LibraryView: View {
-    @State private var selectedSection: LibrarySection = .chats
-    
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                // Section picker
-                Picker("Section", selection: $selectedSection) {
-                    ForEach(LibrarySection.allCases, id: \.self) { section in
-                        Text(section.rawValue).tag(section)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .padding()
-                
-                // Content
-                switch selectedSection {
-                case .chats:
-                    SavedChatsView()
-                case .documents:
-                    DocumentsView()
-                case .knowledge:
-                    KnowledgeBaseView()
-                }
-            }
-            .background(Color.black)
-            .navigationTitle("Library")
-            .toolbar {
-                ToolbarItem(placement: .automatic) {
-                    Button {
-                        // Import document
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                }
-            }
-        }
-    }
-}
-
-enum LibrarySection: String, CaseIterable {
-    case chats = "Chats"
-    case documents = "Documents"
-    case knowledge = "Knowledge"
-}
-
-struct SavedChatsView: View {
-    var body: some View {
-        List {
-            ForEach(0..<5) { index in
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text("Chat \(index + 1)")
-                            .font(.headline)
-                        Text("Last message preview...")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    Spacer()
-                    Text("Yesterday")
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                }
-            }
-        }
-        .listStyle(.plain)
-    }
-}
-
-struct DocumentsView: View {
-    var body: some View {
-        List {
-            ForEach(0..<3) { index in
-                HStack {
-                    Image(systemName: "doc.fill")
-                        .foregroundColor(.cyan)
-                    VStack(alignment: .leading) {
-                        Text("Document \(index + 1).pdf")
-                            .font(.subheadline)
-                        Text("Added to knowledge base")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
-        }
-        .listStyle(.plain)
-    }
-}
-
-struct KnowledgeBaseView: View {
-    @StateObject private var rag = LocalRAGEngine.shared
-    
-    var body: some View {
-        List {
-            Section {
-                HStack {
-                    Text("Documents")
-                    Spacer()
-                    Text("\(rag.documentCount)")
-                        .foregroundColor(.cyan)
-                }
-                HStack {
-                    Text("Chunks")
-                    Spacer()
-                    Text("\(rag.chunkCount)")
-                        .foregroundColor(.cyan)
-                }
-            }
-            
-            Section("Recent Queries") {
-                ForEach(rag.lastQueryResults) { result in
-                    VStack(alignment: .leading) {
-                        Text(result.title)
-                            .font(.subheadline)
-                        Text(result.content)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .lineLimit(2)
-                    }
-                }
-            }
-        }
-        .listStyle(.plain)
-    }
-}
-
-// MARK: - ═══════════════════════════════════════════════════════════════════
-// MARK: 5. MORE TAB
-// MARK: ═══════════════════════════════════════════════════════════════════
-
-/// Settings, models, tools, privacy — everything else.
 struct MoreView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section {
+                Section("AI Engine") {
                     NavigationLink {
                         ModelsSettingsView()
                     } label: {
-                        SettingsRow(icon: "cpu", title: "Models", color: .cyan)
+                        SettingsRow(icon: "cpu", title: "Models", subtitle: "Download and manage", color: .cyan)
                     }
                     
                     NavigationLink {
-                        ToolsSettingsView()
+                        EngineSettingsView()
                     } label: {
-                        SettingsRow(icon: "wrench.and.screwdriver", title: "Tools & Capabilities", color: .orange)
-                    }
-                    
-                    NavigationLink {
-                        ZeroDarkSettingsView()
-                    } label: {
-                        SettingsRow(icon: "bolt.fill", title: "Inference Engine", color: .yellow)
+                        SettingsRow(icon: "bolt.fill", title: "Inference", subtitle: "Power modes & techniques", color: .yellow)
                     }
                 }
                 
-                Section {
+                Section("Personalization") {
                     NavigationLink {
-                        LearnFromEverythingView()
+                        IdentitySettingsTab()
                     } label: {
-                        SettingsRow(icon: "brain", title: "Learning Sources", color: .purple)
-                    }
-                    
-                    NavigationLink {
-                        MemoryDashboardView()
-                    } label: {
-                        SettingsRow(icon: "memorychip", title: "Memory", color: .green)
+                        SettingsRow(icon: "person.fill", title: "Identity", subtitle: "Name, personality, voice", color: .purple)
                     }
                 }
                 
-                Section {
+                Section("Labs") {
                     NavigationLink {
-                        PrivacySettingsView()
+                        ScreenAgentTab()
                     } label: {
-                        SettingsRow(icon: "lock.shield", title: "Privacy", color: .blue)
+                        SettingsRow(icon: "rectangle.inset.filled.and.cursorarrow", title: "Parchi Mode", subtitle: "Computer use (macOS)", color: .mint)
                     }
                     
                     NavigationLink {
-                        AppearanceSettingsView()
+                        FineTuningTab()
                     } label: {
-                        SettingsRow(icon: "paintbrush", title: "Appearance", color: .pink)
+                        SettingsRow(icon: "brain.head.profile", title: "Fine-Tuning", subtitle: "On-device LoRA training", color: .indigo)
                     }
                 }
                 
@@ -1137,91 +745,251 @@ struct MoreView: View {
                     NavigationLink {
                         AboutView()
                     } label: {
-                        SettingsRow(icon: "info.circle", title: "About ZeroDark", color: .gray)
+                        SettingsRow(icon: "info.circle", title: "About", subtitle: "Version 1.0", color: .gray)
                     }
                 }
             }
-            .listStyle(.plain)
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(Color.black)
             .navigationTitle("More")
         }
+        .preferredColorScheme(.dark)
     }
 }
 
 struct SettingsRow: View {
     let icon: String
     let title: String
+    var subtitle: String = ""
     let color: Color
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 14) {
             Image(systemName: icon)
+                .font(.title3)
                 .foregroundColor(color)
-                .frame(width: 24)
-            Text(title)
+                .frame(width: 32)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.body)
+                    .foregroundColor(.white)
+                if !subtitle.isEmpty {
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+            }
         }
     }
 }
 
-// Placeholder views
+// MARK: - Models Settings
+
 struct ModelsSettingsView: View {
+    @StateObject private var modelManager = MLXModelManager.shared
+    
     var body: some View {
-        Text("Models Settings")
-            .navigationTitle("Models")
+        List {
+            Section("Current Model") {
+                if modelManager.isReady, let current = modelManager.currentModelId {
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text(current.components(separatedBy: "/").last ?? current)
+                        Spacer()
+                        Text("Loaded")
+                            .font(.caption)
+                            .foregroundColor(.green)
+                    }
+                } else if modelManager.isLoading {
+                    HStack {
+                        ProgressView(value: modelManager.loadProgress)
+                        Text("\(Int(modelManager.loadProgress * 100))%")
+                            .font(.caption)
+                    }
+                } else {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.orange)
+                        Text("No model loaded")
+                            .foregroundColor(.orange)
+                    }
+                }
+            }
+            
+            Section("Available Models") {
+                ForEach(modelManager.availableModels) { model in
+                    Button {
+                        Task { try? await modelManager.loadModel(model.id) }
+                    } label: {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Text(model.name)
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                    if model.recommended {
+                                        Text("Recommended")
+                                            .font(.caption2)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 2)
+                                            .background(Color.cyan.opacity(0.3))
+                                            .foregroundColor(.cyan)
+                                            .cornerRadius(4)
+                                    }
+                                }
+                                Text(model.size)
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                            Spacer()
+                            if modelManager.currentModelId == model.id {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                            } else {
+                                Image(systemName: "arrow.down.circle")
+                                    .foregroundColor(.cyan)
+                            }
+                        }
+                    }
+                    .disabled(modelManager.isLoading)
+                }
+            }
+            
+            Section {
+                Text("Models are downloaded from Hugging Face. First load may take a few minutes depending on your connection.")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+        }
+        .navigationTitle("Models")
     }
 }
 
-struct ToolsSettingsView: View {
+// MARK: - Inference Settings
+
+struct EngineSettingsView: View {
+    @StateObject private var engine = ZeroDarkEngine.shared
+    
     var body: some View {
-        Text("Tools Settings")
-            .navigationTitle("Tools")
+        List {
+            Section("Power Mode") {
+                ForEach(ZeroDarkEngine.InferenceMode.allCases, id: \.self) { mode in
+                    Button {
+                        engine.currentMode = mode
+                    } label: {
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(mode.rawValue)
+                                    .foregroundColor(.white)
+                                Text(modeDescription(mode))
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                            Spacer()
+                            if engine.currentMode == mode {
+                                Image(systemName: "checkmark")
+                                    .foregroundColor(.cyan)
+                            }
+                        }
+                    }
+                }
+            }
+            
+            Section("Statistics") {
+                LabeledContent("Total Queries", value: "\(engine.totalQueries)")
+                LabeledContent("Avg Latency", value: String(format: "%.1fs", engine.avgLatency))
+                LabeledContent("Equivalent Size", value: engine.equivalentModelSize)
+            }
+            
+            Section("Active Techniques") {
+                FeatureRow(name: "Speculative Decoding", enabled: true)
+                FeatureRow(name: "Self-Rewarding", enabled: true)
+                FeatureRow(name: "Tree of Thoughts", enabled: true)
+                FeatureRow(name: "ZeroSwarm (12 agents)", enabled: true)
+                FeatureRow(name: "RAG Engine", enabled: true)
+            }
+        }
+        .navigationTitle("Inference")
+    }
+    
+    private func modeDescription(_ mode: ZeroDarkEngine.InferenceMode) -> String {
+        switch mode {
+        case .quick: return "Fast responses, ~8B equivalent"
+        case .standard: return "Balanced, ~50B equivalent"
+        case .deep: return "Thorough reasoning, ~150B equivalent"
+        case .maximum: return "Multi-agent, ~300B+ equivalent"
+        case .adaptive: return "Auto-selects based on query"
+        }
     }
 }
 
-struct PrivacySettingsView: View {
+struct FeatureRow: View {
+    let name: String
+    let enabled: Bool
+    
     var body: some View {
-        Text("Privacy Settings")
-            .navigationTitle("Privacy")
+        HStack {
+            Text(name)
+            Spacer()
+            Image(systemName: enabled ? "checkmark.circle.fill" : "circle")
+                .foregroundColor(enabled ? .green : .gray)
+        }
     }
 }
 
-struct AppearanceSettingsView: View {
-    var body: some View {
-        Text("Appearance Settings")
-            .navigationTitle("Appearance")
-    }
-}
+// MARK: - About
 
 struct AboutView: View {
     var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "brain.head.profile")
-                .font(.system(size: 60))
-                .foregroundColor(.cyan)
+        List {
+            Section {
+                VStack(spacing: 16) {
+                    Text("☢️")
+                        .font(.system(size: 60))
+                    Text("ZeroDark")
+                        .font(.title)
+                        .fontWeight(.bold)
+                    Text("Zero cloud. Zero tracking.\nDark mode by default.")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical)
+            }
             
-            Text("ZeroDark")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+            Section("Capabilities") {
+                AboutRow(icon: "brain", text: "25+ LLM models")
+                AboutRow(icon: "waveform", text: "On-device inference")
+                AboutRow(icon: "network", text: "Device swarm")
+                AboutRow(icon: "person.fill", text: "Voice cloning")
+                AboutRow(icon: "memorychip", text: "Infinite memory")
+                AboutRow(icon: "lock.shield", text: "100% private")
+            }
             
-            Text("Version 1.0.0")
-                .foregroundColor(.secondary)
-            
-            Text("Zero cloud. Zero tracking.\nDark mode by default.")
-                .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
-            
-            Spacer()
-            
-            Text("MIT License • Open Source")
-                .font(.caption)
-                .foregroundColor(.secondary)
+            Section {
+                Text("Built with MLX Swift. All processing happens on your device. Your data never leaves.")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
         }
-        .padding()
         .navigationTitle("About")
     }
 }
 
-#Preview {
-    ContentView()
-        .environmentObject(AppState.shared)
-        .preferredColorScheme(.dark)
+struct AboutRow: View {
+    let icon: String
+    let text: String
+    
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .foregroundColor(.cyan)
+                .frame(width: 30)
+            Text(text)
+        }
+    }
 }

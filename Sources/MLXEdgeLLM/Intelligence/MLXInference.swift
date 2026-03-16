@@ -197,8 +197,18 @@ public class UnifiedInferenceEngine: ObservableObject {
         maxTokens: Int = 512,
         temperature: Float = 0.7
     ) async -> String {
+        // Auto-load model if not ready
+        if !modelManager.isReady && !modelManager.isLoading {
+            if let recommended = modelManager.availableModels.first(where: { $0.recommended }) {
+                try? await modelManager.loadModel(recommended.id)
+            }
+        }
+        
         guard modelManager.isReady else {
-            return "[No model loaded. Please load a model first.]"
+            if modelManager.isLoading {
+                return "[Loading model... \(Int(modelManager.loadProgress * 100))%]"
+            }
+            return "[No model loaded. Go to More → Models to download one.]"
         }
         
         isGenerating = true

@@ -747,9 +747,32 @@ struct SwarmDevice: Identifiable {
     let ramGB: Int
     var assignedLayers: Range<Int>?
     var status: DeviceStatus = .idle
+    var deviceType: DeviceType = .iPhone
+    var networkStatus: NetworkStatus = .local
+    var lat: Double = 0
+    var lon: Double = 0
     
     enum DeviceStatus {
         case idle, processing, error
+    }
+    
+    enum DeviceType: String {
+        case iPhone, iPad, mac, vision
+    }
+    
+    enum NetworkStatus {
+        case local, nearby, remote, excellent, good, fair
+    }
+    
+    public init(id: String, name: String, deviceType: DeviceType = .iPhone, model: String = "Unknown", ramGB: Int = 8, networkStatus: NetworkStatus = .local, lat: Double = 0, lon: Double = 0) {
+        self.id = id
+        self.name = name
+        self.model = model
+        self.ramGB = ramGB
+        self.deviceType = deviceType
+        self.networkStatus = networkStatus
+        self.lat = lat
+        self.lon = lon
     }
 }
 
@@ -961,5 +984,60 @@ struct SwarmDashboardView: View {
 #Preview {
     NavigationStack {
         HardcoreDashboardView()
+    }
+}
+
+// MARK: - Autonomous Agent (for TakeoverDemo)
+
+@MainActor
+public class AutonomousAgent: ObservableObject {
+    public static let shared = AutonomousAgent()
+    
+    @Published public var isRunning = false
+    @Published public var currentGoal: String?
+    @Published public var currentStep: String?
+    @Published public var progress: Double = 0
+    @Published public var completedSteps: [String] = []
+    @Published public var status: AgentStatus = .idle
+    
+    public enum AgentStatus: String {
+        case idle = "Idle"
+        case planning = "Planning"
+        case executing = "Executing"
+        case waiting = "Waiting"
+        case completed = "Completed"
+        case failed = "Failed"
+    }
+    
+    public func start(goal: String) async {
+        isRunning = true
+        currentGoal = goal
+        status = .planning
+        progress = 0
+        completedSteps = []
+        
+        // Simulate planning
+        currentStep = "Breaking down goal into steps..."
+        try? await Task.sleep(nanoseconds: 500_000_000)
+        
+        status = .executing
+        let steps = ["Analyzing request", "Gathering context", "Generating plan", "Executing actions", "Verifying results"]
+        
+        for (index, step) in steps.enumerated() {
+            guard isRunning else { break }
+            currentStep = step
+            completedSteps.append(step)
+            progress = Double(index + 1) / Double(steps.count)
+            try? await Task.sleep(nanoseconds: 300_000_000)
+        }
+        
+        status = .completed
+        isRunning = false
+    }
+    
+    public func stop() {
+        isRunning = false
+        status = .idle
+        currentStep = nil
     }
 }

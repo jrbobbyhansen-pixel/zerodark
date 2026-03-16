@@ -936,3 +936,39 @@ struct SourceRowSF: View {
         LearnFromEverythingView()
     }
 }
+
+// MARK: - OnDeviceFineTuning (Stub for UI)
+
+public enum OnDeviceFineTuning {
+    public struct LoRAConfig {
+        public var rank: Int = 8
+        public var alpha: Float = 16
+        public var dropout: Float = 0.05
+        public var targetModules: [String] = ["q_proj", "v_proj"]
+        public var learningRate: Float = 1e-4
+        public var epochs: Int = 3
+        public var batchSize: Int = 4
+        public var maxSteps: Int = 100
+        
+        public init() {}
+        
+        public static var small: LoRAConfig {
+            var config = LoRAConfig()
+            config.rank = 4
+            config.epochs = 2
+            return config
+        }
+        
+        public static var standard: LoRAConfig {
+            return LoRAConfig()
+        }
+        
+        public static var large: LoRAConfig {
+            var config = LoRAConfig()
+            config.rank = 16
+            config.alpha = 32
+            config.epochs = 5
+            return config
+        }
+    }
+}
