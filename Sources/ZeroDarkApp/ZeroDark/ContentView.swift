@@ -6,10 +6,11 @@ import MLXEdgeLLMVoice
 import MLXEdgeLLMDocs
 
 // MARK: - ContentView
-// Marble polished. Every detail matters.
+// 12/10 Delight. Beyond polish. Magic.
 
 struct ContentView: View {
     @State private var selectedTab = 0
+    @State private var previousTab = 0
     
     private let tabs = [
         (icon: "message.fill", label: "Chat"),
@@ -20,12 +21,15 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-            // Animated background
+            // Deep background with floating particles
+            Theme.background.ignoresSafeArea()
+            FloatingParticles()
+                .ignoresSafeArea()
             AnimatedGradientBackground()
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Content
+                // Content with gesture-driven transitions
                 TabView(selection: $selectedTab) {
                     ChatView()
                         .tag(0)
@@ -40,7 +44,13 @@ struct ContentView: View {
                         .tag(3)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: selectedTab)
+                .animation(.spring(response: 0.35, dampingFraction: 0.85), value: selectedTab)
+                .onChange(of: selectedTab) { newTab in
+                    if newTab != previousTab {
+                        HapticsEngine.shared.softTap()
+                        previousTab = newTab
+                    }
+                }
                 
                 // Custom tab bar
                 CustomTabBar(selectedTab: $selectedTab, tabs: tabs)
@@ -58,6 +68,8 @@ struct ChatView: View {
     @State private var isGenerating = false
     @State private var showToast = false
     @State private var toastMessage = ""
+    @State private var showSendParticles = false
+    @State private var showSuccess = false
     @FocusState private var isInputFocused: Bool
     
     var body: some View {
@@ -190,11 +202,15 @@ struct ChatView: View {
                     .onSubmit(sendMessage)
                 
                 if !message.isEmpty {
-                    AnimatedButton(action: sendMessage) {
-                        Image(systemName: "arrow.up.circle.fill")
-                            .font(.system(size: 30))
-                            .foregroundColor(Theme.accent)
-                            .subtleGlow()
+                    ZStack {
+                        ParticleEmitter(color: Theme.accent, particleCount: 12, isEmitting: $showSendParticles)
+                        
+                        ElasticButton(action: sendMessage) {
+                            Image(systemName: "arrow.up.circle.fill")
+                                .font(.system(size: 30))
+                                .foregroundColor(Theme.accent)
+                                .breathingGlow()
+                        }
                     }
                     .padding(.trailing, 4)
                 }
@@ -215,10 +231,12 @@ struct ChatView: View {
     private func sendMessage() {
         guard !message.trimmingCharacters(in: .whitespaces).isEmpty else { return }
         
-        Haptics.light()
+        // Advanced haptic pattern for send
+        HapticsEngine.shared.messageSent()
+        showSendParticles = true
         
         let userMessage = ChatMessage(role: .user, content: message)
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
             messages.append(userMessage)
         }
         message = ""
@@ -226,8 +244,9 @@ struct ChatView: View {
         isGenerating = true
         
         // Simulate response (replace with actual MLX inference)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            Haptics.success()
+        let delay = Double.random(in: 1.2...2.0) // Realistic typing delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            HapticsEngine.shared.responseReceived()
             let response = ChatMessage(role: .assistant, content: "I'm ZeroDark, running entirely on your device. No data leaves this phone. What would you like to explore?")
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                 messages.append(response)
@@ -367,16 +386,25 @@ struct VoiceView: View {
                     .blur(radius: isListening ? 2 : 0)
                     .animation(.easeOut(duration: 0.1), value: audioLevel)
                 
-                // Core button
-                AnimatedButton(action: { 
+                // Core button - morphing blob when active
+                ElasticButton(action: { 
                     isListening.toggle()
-                    if isListening { simulateAudioLevels() }
+                    if isListening {
+                        HapticsEngine.shared.voiceActivated()
+                        simulateAudioLevels()
+                    }
                 }) {
                     ZStack {
+                        if isListening {
+                            MorphingBlob(color: Theme.accent.opacity(0.3))
+                                .frame(width: 140, height: 140)
+                                .blur(radius: 10)
+                        }
+                        
                         Circle()
                             .fill(isListening ? Theme.accent : Theme.surface)
                             .frame(width: 120, height: 120)
-                            .activeGlow(color: Theme.accent, isActive: isListening)
+                            .breathingGlow(color: isListening ? Theme.accent : .clear)
                         
                         Image(systemName: isListening ? "waveform" : "mic.fill")
                             .font(.system(size: 40, weight: .medium))
