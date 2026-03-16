@@ -8,6 +8,9 @@
 
 import SwiftUI
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#endif
 import Metal
 import MetalPerformanceShaders
 import Accelerate
@@ -632,7 +635,11 @@ class DeviceSwarmEngine: NSObject, ObservableObject {
     
     override init() {
         super.init()
+        #if os(iOS)
+        myPeerID = MCPeerID(displayName: UIDevice.current.name)
+        #else
         myPeerID = MCPeerID(displayName: Host.current().localizedName ?? "ZeroDark")
+        #endif
         session = MCSession(peer: myPeerID, securityIdentity: nil, encryptionPreference: .required)
         session?.delegate = self
     }
