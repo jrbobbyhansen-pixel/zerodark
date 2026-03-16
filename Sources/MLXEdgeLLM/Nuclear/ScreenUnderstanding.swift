@@ -1,5 +1,7 @@
 import Foundation
+#if os(macOS)
 import ScreenCaptureKit
+#endif
 import Vision
 import CoreGraphics
 

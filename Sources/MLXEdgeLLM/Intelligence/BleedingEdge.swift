@@ -10,7 +10,9 @@ import SwiftUI
 import Foundation
 import Metal
 import Accelerate
+#if os(macOS)
 import CreateML
+#endif
 import TabularData
 import NaturalLanguage
 

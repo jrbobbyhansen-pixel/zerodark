@@ -10,7 +10,9 @@
 import SwiftUI
 import CoreGraphics
 import Vision
+#if os(macOS)
 import AppKit
+#endif
 import Accessibility
 
 // MARK: - Parchi Core Engine

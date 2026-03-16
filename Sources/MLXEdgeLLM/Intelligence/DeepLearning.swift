@@ -10,7 +10,9 @@ import SwiftUI
 import Foundation
 import Accelerate
 import CoreML
+#if os(macOS)
 import CreateML
+#endif
 
 // MARK: - LEARNING ENGINE
 

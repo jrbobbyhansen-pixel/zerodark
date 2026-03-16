@@ -3,7 +3,9 @@ import Foundation
 #if canImport(UIKit)
 import UIKit
 #elseif canImport(AppKit)
+#if os(macOS)
 import AppKit
+#endif
 #endif
 
 // MARK: - MLXEdgeLLM
