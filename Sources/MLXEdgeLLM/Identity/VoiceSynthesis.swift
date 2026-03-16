@@ -14,7 +14,7 @@ import UIKit
 // MARK: - Voice Synthesis Engine
 
 @MainActor
-public final class VoiceSynthesisEngine: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
+public final class VoiceSynthesisEngine: NSObject, ObservableObject, @preconcurrency AVSpeechSynthesizerDelegate {
     
     public static let shared = VoiceSynthesisEngine()
     
