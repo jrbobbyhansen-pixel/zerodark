@@ -35,8 +35,7 @@ let package = Package(
             ],
             path: "Sources/MLXEdgeLLM",
             swiftSettings: [
-                .enableExperimentalFeature("StrictConcurrency", .when(configuration: .debug)),
-                .swiftLanguageMode(.v5)
+                .unsafeFlags(["-Xfrontend", "-strict-concurrency=minimal"])
             ]
         ),
     ]
