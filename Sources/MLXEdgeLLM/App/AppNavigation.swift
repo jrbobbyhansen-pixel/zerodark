@@ -218,9 +218,9 @@ struct QuickActionsGrid: View {
     
     let actions: [(icon: String, title: String, color: Color)] = [
         ("mic.fill", "Voice", .cyan),
-        ("camera.fill", "Vision", .purple),
-        ("doc.text.magnifyingglass", "Analyze", .orange),
-        ("wand.and.stars", "Create", .pink)
+        ("camera.fill", "Vision", .cyan),
+        ("doc.text.magnifyingglass", "Analyze", .cyan),
+        ("wand.and.stars", "Create", .cyan)
     ]
     
     var body: some View {

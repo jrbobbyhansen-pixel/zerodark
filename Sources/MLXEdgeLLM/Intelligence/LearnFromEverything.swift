@@ -57,19 +57,19 @@ class UniversalLearningEngine: ObservableObject {
     }
     
     enum LearningType: String {
-        case file = "📄"
-        case web = "🌐"
-        case calendar = "📅"
-        case contact = "👤"
-        case photo = "📸"
-        case health = "❤️"
-        case location = "📍"
-        case screen = "🖥️"
-        case clipboard = "📋"
-        case app = "📱"
-        case voice = "🎤"
-        case music = "🎵"
-        case chat = "💬"
+        case file = "doc.fill"
+        case web = "globe"
+        case calendar = "calendar"
+        case contact = "person.fill"
+        case photo = "photo.fill"
+        case health = "heart.fill"
+        case location = "location.fill"
+        case screen = "display"
+        case clipboard = "doc.on.clipboard"
+        case app = "app.fill"
+        case voice = "mic.fill"
+        case music = "music.note"
+        case chat = "bubble.left.fill"
     }
     
     /// Learn from all sources
@@ -835,18 +835,18 @@ struct LearnFromEverythingView: View {
     var body: some View {
         List {
             Section("Learning Sources") {
-                SourceRow(icon: "📄", name: "Files", count: engine.fileLearner.filesLearned)
-                SourceRow(icon: "🌐", name: "Web", count: engine.webLearner.pagesLearned)
-                SourceRow(icon: "📅", name: "Calendar", count: engine.calendarLearner.eventsLearned)
-                SourceRow(icon: "👤", name: "Contacts", count: engine.contactsLearner.contactsLearned)
-                SourceRow(icon: "📸", name: "Photos", count: engine.photoLearner.photosLearned)
-                SourceRow(icon: "❤️", name: "Health", count: engine.healthLearner.patternsLearned)
-                SourceRow(icon: "📍", name: "Location", count: engine.locationLearner.placesLearned)
-                SourceRow(icon: "🖥️", name: "Screen", count: engine.screenLearner.screensLearned)
-                SourceRow(icon: "📋", name: "Clipboard", count: engine.clipboardLearner.clipsLearned)
-                SourceRow(icon: "📱", name: "Apps", count: engine.appUsageLearner.appsLearned)
-                SourceRow(icon: "🎤", name: "Voice", count: engine.voiceLearner.notesLearned)
-                SourceRow(icon: "🎵", name: "Music", count: engine.musicLearner.songsLearned)
+                SourceRowSF(icon: "doc.fill", name: "Files", count: engine.fileLearner.filesLearned)
+                SourceRowSF(icon: "globe", name: "Web", count: engine.webLearner.pagesLearned)
+                SourceRowSF(icon: "calendar", name: "Calendar", count: engine.calendarLearner.eventsLearned)
+                SourceRowSF(icon: "person.fill", name: "Contacts", count: engine.contactsLearner.contactsLearned)
+                SourceRowSF(icon: "photo.fill", name: "Photos", count: engine.photoLearner.photosLearned)
+                SourceRowSF(icon: "heart.fill", name: "Health", count: engine.healthLearner.patternsLearned)
+                SourceRowSF(icon: "location.fill", name: "Location", count: engine.locationLearner.placesLearned)
+                SourceRowSF(icon: "display", name: "Screen", count: engine.screenLearner.screensLearned)
+                SourceRowSF(icon: "doc.on.clipboard", name: "Clipboard", count: engine.clipboardLearner.clipsLearned)
+                SourceRowSF(icon: "app.fill", name: "Apps", count: engine.appUsageLearner.appsLearned)
+                SourceRowSF(icon: "mic.fill", name: "Voice", count: engine.voiceLearner.notesLearned)
+                SourceRowSF(icon: "music.note", name: "Music", count: engine.musicLearner.songsLearned)
             }
             
             Section("Actions") {
@@ -893,6 +893,25 @@ struct SourceRow: View {
             Spacer()
             Text("\(count)")
                 .foregroundColor(.cyan)
+                .fontWeight(.medium)
+        }
+    }
+}
+
+struct SourceRowSF: View {
+    let icon: String
+    let name: String
+    let count: Int
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .foregroundColor(.cyan)
+                .frame(width: 20)
+            Text(name)
+            Spacer()
+            Text("\(count)")
+                .foregroundColor(.secondary)
                 .fontWeight(.medium)
         }
     }
