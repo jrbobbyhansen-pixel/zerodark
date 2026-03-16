@@ -33,7 +33,11 @@ let package = Package(
                 .product(name: "MLXLMCommon", package: "mlx-swift-lm"),
                 .product(name: "MLXVLM", package: "mlx-swift-lm"),
             ],
-            path: "Sources/MLXEdgeLLM"
+            path: "Sources/MLXEdgeLLM",
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency", .when(configuration: .debug)),
+                .swiftLanguageMode(.v5)
+            ]
         ),
     ]
 )
