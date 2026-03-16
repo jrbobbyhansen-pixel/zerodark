@@ -29,7 +29,7 @@ class ZeroSwarmEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Skeptic",
-            initial: "SK",
+            code: "SKP",
             systemPrompt: "You are a skeptical analyst. Your job is to find flaws, identify risks, and question assumptions. Be constructively critical. Point out what could go wrong.",
             bias: .critical,
             style: .analytical,
@@ -38,7 +38,7 @@ class ZeroSwarmEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Strawman",
-            initial: "ST",
+            code: "STR",
             systemPrompt: "You deliberately argue the opposite position. If everyone agrees, find reasons to disagree. Challenge groupthink. Build the strongest counterargument.",
             bias: .contrarian,
             style: .provocative,
@@ -49,7 +49,7 @@ class ZeroSwarmEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Optimist",
-            initial: "OP",
+            code: "OPT",
             systemPrompt: "You see potential and opportunity. Focus on what could go RIGHT. Identify upsides, possibilities, and positive outcomes. Be encouraging but realistic.",
             bias: .optimistic,
             style: .encouraging,
@@ -58,7 +58,7 @@ class ZeroSwarmEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Visionary",
-            initial: "VI",
+            code: "VIS",
             systemPrompt: "You think big picture and long-term. What are the implications 5-10 years out? What's the bold, ambitious interpretation? Dream big.",
             bias: .expansive,
             style: .inspirational,
@@ -69,7 +69,7 @@ class ZeroSwarmEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Pragmatist",
-            initial: "PR",
+            code: "PRA",
             systemPrompt: "You focus on what's actually feasible. Cut through theory to practical reality. What can actually be done? What's the simplest path forward?",
             bias: .practical,
             style: .direct,
@@ -78,7 +78,7 @@ class ZeroSwarmEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Engineer",
-            initial: "EN",
+            code: "ENG",
             systemPrompt: "You think in systems and implementations. How would this actually work? What are the technical requirements? Be specific about mechanisms.",
             bias: .technical,
             style: .precise,
@@ -89,7 +89,7 @@ class ZeroSwarmEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Economist",
-            initial: "EC",
+            code: "ECO",
             systemPrompt: "You analyze from an economic perspective. What are the costs, benefits, incentives? Who gains, who loses? Think about market dynamics.",
             bias: .economic,
             style: .analytical,
@@ -98,7 +98,7 @@ class ZeroSwarmEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Ethicist",
-            initial: "ET",
+            code: "ETH",
             systemPrompt: "You consider moral and ethical implications. Is this right? Who could be harmed? What are the ethical considerations? Be principled.",
             bias: .ethical,
             style: .thoughtful,
@@ -109,7 +109,7 @@ class ZeroSwarmEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Creative",
-            initial: "CR",
+            code: "CRE",
             systemPrompt: "You think laterally and creatively. What unconventional approaches exist? What if we reframe the problem? Suggest creative alternatives.",
             bias: .creative,
             style: .playful,
@@ -118,7 +118,7 @@ class ZeroSwarmEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Connector",
-            initial: "CO",
+            code: "CON",
             systemPrompt: "You find connections and patterns. How does this relate to other things? What analogies apply? Draw connections across domains.",
             bias: .associative,
             style: .curious,
@@ -129,7 +129,7 @@ class ZeroSwarmEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Advocate",
-            initial: "AD",
+            code: "ADV",
             systemPrompt: "You represent the end user. How would a normal person experience this? What would they think, feel, need? Advocate for simplicity and usability.",
             bias: .userCentric,
             style: .empathetic,
@@ -138,7 +138,7 @@ class ZeroSwarmEngine: ObservableObject {
         AgentPersona(
             id: UUID(),
             name: "Verifier",
-            initial: "VE",
+            code: "VER",
             systemPrompt: "You verify claims and check facts. Is this actually true? What evidence supports this? Call out unsupported assertions.",
             bias: .factual,
             style: .precise,
@@ -148,30 +148,30 @@ class ZeroSwarmEngine: ObservableObject {
     
     // Specialized swarms for different tasks
     static let codingSwarm: [AgentPersona] = [
-        AgentPersona(id: UUID(), name: "Architect", initial: "AR", systemPrompt: "Focus on system design, patterns, and structure.", bias: .technical, style: .analytical, weight: 1.2),
-        AgentPersona(id: UUID(), name: "Security", initial: "SE", systemPrompt: "Find security vulnerabilities and risks.", bias: .critical, style: .precise, weight: 1.1),
-        AgentPersona(id: UUID(), name: "Performance", initial: "PF", systemPrompt: "Optimize for speed and efficiency.", bias: .technical, style: .direct, weight: 1.0),
-        AgentPersona(id: UUID(), name: "Maintainer", initial: "MA", systemPrompt: "Think about long-term maintainability and readability.", bias: .practical, style: .thoughtful, weight: 1.0),
-        AgentPersona(id: UUID(), name: "Tester", initial: "TE", systemPrompt: "Find edge cases and potential bugs.", bias: .critical, style: .analytical, weight: 1.0),
-        AgentPersona(id: UUID(), name: "Simplifier", initial: "SI", systemPrompt: "Reduce complexity. Less code is better.", bias: .practical, style: .direct, weight: 0.9),
+        AgentPersona(id: UUID(), name: "Architect", code: "ARC", systemPrompt: "Focus on system design, patterns, and structure.", bias: .technical, style: .analytical, weight: 1.2),
+        AgentPersona(id: UUID(), name: "Security", code: "SEC", systemPrompt: "Find security vulnerabilities and risks.", bias: .critical, style: .precise, weight: 1.1),
+        AgentPersona(id: UUID(), name: "Performance", code: "PRF", systemPrompt: "Optimize for speed and efficiency.", bias: .technical, style: .direct, weight: 1.0),
+        AgentPersona(id: UUID(), name: "Maintainer", code: "MNT", systemPrompt: "Think about long-term maintainability and readability.", bias: .practical, style: .thoughtful, weight: 1.0),
+        AgentPersona(id: UUID(), name: "Tester", code: "TST", systemPrompt: "Find edge cases and potential bugs.", bias: .critical, style: .analytical, weight: 1.0),
+        AgentPersona(id: UUID(), name: "Simplifier", code: "SMP", systemPrompt: "Reduce complexity. Less code is better.", bias: .practical, style: .direct, weight: 0.9),
     ]
     
     static let businessSwarm: [AgentPersona] = [
-        AgentPersona(id: UUID(), name: "Strategist", initial: "SR", systemPrompt: "Think strategically about business impact.", bias: .expansive, style: .direct, weight: 1.2),
-        AgentPersona(id: UUID(), name: "Finance", initial: "FI", systemPrompt: "Focus on costs, ROI, and financial viability.", bias: .economic, style: .analytical, weight: 1.1),
-        AgentPersona(id: UUID(), name: "Customer", initial: "CU", systemPrompt: "Represent the paying customer's perspective.", bias: .userCentric, style: .empathetic, weight: 1.2),
-        AgentPersona(id: UUID(), name: "Competitor", initial: "CM", systemPrompt: "What would competitors do? How would they respond?", bias: .contrarian, style: .analytical, weight: 0.9),
-        AgentPersona(id: UUID(), name: "Legal", initial: "LE", systemPrompt: "Consider legal and compliance implications.", bias: .critical, style: .precise, weight: 1.0),
-        AgentPersona(id: UUID(), name: "Growth", initial: "GR", systemPrompt: "How do we position and sell this?", bias: .optimistic, style: .creative, weight: 0.9),
+        AgentPersona(id: UUID(), name: "Strategist", code: "STG", systemPrompt: "Think strategically about business impact.", bias: .expansive, style: .direct, weight: 1.2),
+        AgentPersona(id: UUID(), name: "Finance", code: "FIN", systemPrompt: "Focus on costs, ROI, and financial viability.", bias: .economic, style: .analytical, weight: 1.1),
+        AgentPersona(id: UUID(), name: "Customer", code: "CUS", systemPrompt: "Represent the paying customer's perspective.", bias: .userCentric, style: .empathetic, weight: 1.2),
+        AgentPersona(id: UUID(), name: "Competitor", code: "CMP", systemPrompt: "What would competitors do? How would they respond?", bias: .contrarian, style: .analytical, weight: 0.9),
+        AgentPersona(id: UUID(), name: "Legal", code: "LEG", systemPrompt: "Consider legal and compliance implications.", bias: .critical, style: .precise, weight: 1.0),
+        AgentPersona(id: UUID(), name: "Growth", code: "GRO", systemPrompt: "How do we position and sell this?", bias: .optimistic, style: .creative, weight: 0.9),
     ]
     
     static let creativeSwarm: [AgentPersona] = [
-        AgentPersona(id: UUID(), name: "Muse", initial: "MU", systemPrompt: "Pure inspiration. Wild ideas. No limits.", bias: .creative, style: .playful, weight: 1.0),
-        AgentPersona(id: UUID(), name: "Critic", initial: "CT", systemPrompt: "Evaluate quality and artistic merit.", bias: .critical, style: .analytical, weight: 1.0),
-        AgentPersona(id: UUID(), name: "Audience", initial: "AU", systemPrompt: "How will people receive this?", bias: .userCentric, style: .empathetic, weight: 1.1),
-        AgentPersona(id: UUID(), name: "Editor", initial: "ED", systemPrompt: "Refine, polish, cut the unnecessary.", bias: .practical, style: .direct, weight: 1.0),
-        AgentPersona(id: UUID(), name: "Rebel", initial: "RE", systemPrompt: "Break rules. Challenge conventions.", bias: .contrarian, style: .provocative, weight: 0.8),
-        AgentPersona(id: UUID(), name: "Historian", initial: "HI", systemPrompt: "What's been done before? What works?", bias: .factual, style: .thoughtful, weight: 0.9),
+        AgentPersona(id: UUID(), name: "Muse", code: "MUS", systemPrompt: "Pure inspiration. Wild ideas. No limits.", bias: .creative, style: .playful, weight: 1.0),
+        AgentPersona(id: UUID(), name: "Critic", code: "CRT", systemPrompt: "Evaluate quality and artistic merit.", bias: .critical, style: .analytical, weight: 1.0),
+        AgentPersona(id: UUID(), name: "Audience", code: "AUD", systemPrompt: "How will people receive this?", bias: .userCentric, style: .empathetic, weight: 1.1),
+        AgentPersona(id: UUID(), name: "Editor", code: "EDT", systemPrompt: "Refine, polish, cut the unnecessary.", bias: .practical, style: .direct, weight: 1.0),
+        AgentPersona(id: UUID(), name: "Rebel", code: "RBL", systemPrompt: "Break rules. Challenge conventions.", bias: .contrarian, style: .provocative, weight: 0.8),
+        AgentPersona(id: UUID(), name: "Historian", code: "HST", systemPrompt: "What's been done before? What works?", bias: .factual, style: .thoughtful, weight: 0.9),
     ]
     
     // MARK: - Main Debate Function
@@ -398,7 +398,7 @@ class ZeroSwarmEngine: ObservableObject {
     }
     
     private func summarizePositions(_ responses: [AgentResponse]) -> String {
-        return responses.map { "[\($0.persona.initial)] \($0.persona.name): \($0.response)" }.joined(separator: "\n\n")
+        return responses.map { "[\($0.persona.code)] \($0.persona.name): \($0.response)" }.joined(separator: "\n\n")
     }
     
     private func calculateAgreement(_ finalRound: [AgentResponse]) -> Double {
@@ -422,9 +422,9 @@ class ZeroSwarmEngine: ObservableObject {
     /// Quick 3-agent debate for faster decisions
     func quickDebate(question: String, model: String = "qwen3-8b") async -> String {
         let quickSwarm = [
-            AgentPersona(id: UUID(), name: "Pro", initial: "P+", systemPrompt: "Argue FOR this. Find the strongest reasons to support it.", bias: .optimistic, style: .encouraging, weight: 1.0),
-            AgentPersona(id: UUID(), name: "Con", initial: "C-", systemPrompt: "Argue AGAINST this. Find the strongest reasons to oppose it.", bias: .critical, style: .analytical, weight: 1.0),
-            AgentPersona(id: UUID(), name: "Judge", initial: "JU", systemPrompt: "Weigh both sides fairly and reach a balanced conclusion.", bias: .practical, style: .thoughtful, weight: 1.2),
+            AgentPersona(id: UUID(), name: "Pro", code: "PRO", systemPrompt: "Argue FOR this. Find the strongest reasons to support it.", bias: .optimistic, style: .encouraging, weight: 1.0),
+            AgentPersona(id: UUID(), name: "Con", code: "CON", systemPrompt: "Argue AGAINST this. Find the strongest reasons to oppose it.", bias: .critical, style: .analytical, weight: 1.0),
+            AgentPersona(id: UUID(), name: "Judge", code: "JDG", systemPrompt: "Weigh both sides fairly and reach a balanced conclusion.", bias: .practical, style: .thoughtful, weight: 1.2),
         ]
         
         let result = await debate(question: question, swarm: quickSwarm, rounds: 2, model: model)
@@ -454,7 +454,7 @@ class ZeroSwarmEngine: ObservableObject {
 struct AgentPersona: Identifiable {
     let id: UUID
     let name: String
-    let initial: String  // 2-letter code, no emoji
+    let code: String  // 3-letter code (e.g., SKP, OPT, ENG)
     let systemPrompt: String
     let bias: Bias
     let style: Style
@@ -625,10 +625,10 @@ struct DebateEntryView: View {
     
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Text(entry.agent.initial)
-                .font(.system(size: 14, weight: .bold, design: .monospaced))
+            Text(entry.agent.code)
+                .font(.system(size: 12, weight: .bold, design: .monospaced))
                 .foregroundColor(.cyan)
-                .frame(width: 28)
+                .frame(width: 36)
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
@@ -668,14 +668,14 @@ struct ActiveAgentsView: View {
             HStack(spacing: 8) {
                 ForEach(agents) { agent in
                     VStack(spacing: 4) {
-                        Text(agent.initial)
-                            .font(.system(size: 16, weight: .bold, design: .monospaced))
+                        Text(agent.code)
+                            .font(.system(size: 14, weight: .bold, design: .monospaced))
                             .foregroundColor(.cyan)
                         Text(agent.name)
                             .font(.caption2)
                             .foregroundColor(.secondary)
                     }
-                    .frame(width: 60)
+                    .frame(width: 70)
                     .padding(.vertical, 8)
                     .background(Color.gray.opacity(0.1))
                     .cornerRadius(8)
