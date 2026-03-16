@@ -545,7 +545,8 @@ class WorkflowEngine: ObservableObject {
         
         // Check conditions
         for condition in workflow.conditions {
-            if !await evaluateCondition(condition) {
+            let conditionMet = await evaluateCondition(condition)
+            if !conditionMet {
                 return WorkflowResult(success: false, outputs: [], error: "Condition not met: \(condition.description)")
             }
         }
