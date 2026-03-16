@@ -24,7 +24,7 @@ class ZeroSwarmEngine: ObservableObject {
     @Published var consensusConfidence: Double = 0
     
     // Default ZeroSwarm - 12 diverse perspectives
-    static let defaultSwarm: [AgentPersona] = [
+    nonisolated static let defaultSwarm: [AgentPersona] = [
         // Critical thinkers
         AgentPersona(
             id: UUID(),

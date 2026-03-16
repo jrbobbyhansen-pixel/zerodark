@@ -104,6 +104,7 @@ class UniversalLearningEngine: ObservableObject {
 // MARK: ═══════════════════════════════════════════════════════════════════
 
 /// Learns from files you create, open, edit
+@MainActor
 class FileLearner: ObservableObject {
     @Published var filesLearned = 0
     @Published var lastFile: String?
@@ -230,6 +231,7 @@ class FileLearner: ObservableObject {
 // MARK: ═══════════════════════════════════════════════════════════════════
 
 /// Learns from websites you visit, articles you read
+@MainActor
 class WebLearner: ObservableObject {
     @Published var pagesLearned = 0
     @Published var lastURL: String?
@@ -289,6 +291,7 @@ class WebLearner: ObservableObject {
 // MARK: ═══════════════════════════════════════════════════════════════════
 
 /// Learns from calendar events, meetings, schedules
+@MainActor
 class CalendarLearner: ObservableObject {
     @Published var eventsLearned = 0
     
@@ -369,6 +372,7 @@ class CalendarLearner: ObservableObject {
 // MARK: ═══════════════════════════════════════════════════════════════════
 
 /// Learns from contacts — who you know, relationships
+@MainActor
 class ContactsLearner: ObservableObject {
     @Published var contactsLearned = 0
     
@@ -517,6 +521,7 @@ class PhotoLearner: ObservableObject {
 // MARK: ═══════════════════════════════════════════════════════════════════
 
 /// Learns from health data — patterns, energy, sleep
+@MainActor
 class HealthLearner: ObservableObject {
     @Published var patternsLearned = 0
     
@@ -572,6 +577,7 @@ class HealthLearner: ObservableObject {
 // MARK: ═══════════════════════════════════════════════════════════════════
 
 /// Learns from locations — home, work, frequent places
+@MainActor
 class LocationLearner: ObservableObject {
     @Published var placesLearned = 0
     
@@ -623,6 +629,7 @@ class LocationLearner: ObservableObject {
 // MARK: ═══════════════════════════════════════════════════════════════════
 
 /// Learns from screen activity — workflows, habits
+@MainActor
 class ScreenLearner: ObservableObject {
     @Published var screensLearned = 0
     
@@ -657,6 +664,7 @@ class ScreenLearner: ObservableObject {
 // MARK: ═══════════════════════════════════════════════════════════════════
 
 /// Learns from clipboard — what you copy
+@MainActor
 class ClipboardLearner: ObservableObject {
     @Published var clipsLearned = 0
     
@@ -722,6 +730,7 @@ class ClipboardLearner: ObservableObject {
 // MARK: ═══════════════════════════════════════════════════════════════════
 
 /// Learns from app usage patterns
+@MainActor
 class AppUsageLearner: ObservableObject {
     @Published var appsLearned = 0
     
@@ -761,6 +770,7 @@ class AppUsageLearner: ObservableObject {
 // MARK: ═══════════════════════════════════════════════════════════════════
 
 /// Learns from voice notes, transcriptions
+@MainActor
 class VoiceLearner: ObservableObject {
     @Published var notesLearned = 0
     
@@ -793,6 +803,7 @@ class VoiceLearner: ObservableObject {
 // MARK: ═══════════════════════════════════════════════════════════════════
 
 /// Learns from music — mood, preferences
+@MainActor
 class MusicLearner: ObservableObject {
     @Published var songsLearned = 0
     
