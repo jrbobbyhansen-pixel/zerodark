@@ -16,6 +16,7 @@ public final class ModelRouter: ObservableObject {
         case reasoning = "Complex Reasoning"
         case uncensored = "Uncensored/Unrestricted"
         case vision = "Image Analysis"
+        case ocr = "Document OCR"           // NEW: Document parsing, tables, formulas
         case toolUse = "Tool/Function Calling"
         case creative = "Creative Writing"
         case roleplay = "Roleplay/Character"
@@ -30,6 +31,7 @@ public final class ModelRouter: ObservableObject {
             case .reasoning: return "brain"
             case .uncensored: return "lock.open"
             case .vision: return "eye"
+            case .ocr: return "doc.text.viewfinder"  // Document scanner icon
             case .toolUse: return "wrench.and.screwdriver"
             case .creative: return "paintbrush"
             case .roleplay: return "theatermasks"
@@ -126,8 +128,25 @@ public final class ModelRouter: ObservableObject {
     
     // MARK: - Task Classification
     
-    public func classifyTask(_ prompt: String, hasImages: Bool = false) -> (TaskType, Float) {
-        // Vision takes priority if images present
+    public func classifyTask(_ prompt: String, hasImages: Bool = false, hasDocument: Bool = false) -> (TaskType, Float) {
+        let lowercased = prompt.lowercased()
+        
+        // OCR takes priority for documents or OCR-related prompts
+        let ocrIndicators = [
+            "ocr", "extract text", "read this", "parse this",
+            "scan", "document", "pdf", "receipt", "invoice",
+            "table", "spreadsheet", "form", "handwriting",
+            "what does this say", "transcribe", "convert to text"
+        ]
+        let ocrScore = ocrIndicators.reduce(0.0) { score, word in
+            lowercased.contains(word) ? score + 0.2 : score
+        }
+        
+        if hasDocument || ocrScore > 0.3 {
+            return (.ocr, min(Float(ocrScore) + 0.5, 0.98))
+        }
+        
+        // General vision for other images
         if hasImages {
             return (.vision, 0.95)
         }
@@ -260,6 +279,11 @@ public final class ModelRouter: ObservableObject {
             
         case .vision:
             preferred = [.qwen3_vl_8b, .qwen35_2b, .smolvlm_2b]
+            
+        case .ocr:
+            // GLM-OCR is handled separately via GLMOCREngine
+            // These are fallbacks if GLM-OCR unavailable
+            preferred = [.qwen3_vl_8b, .smolvlm_2b, .qwen35_2b]
             
         case .toolUse:
             preferred = [.llama3_groq_8b, .qwen3_8b, .llama3_1_8b]
