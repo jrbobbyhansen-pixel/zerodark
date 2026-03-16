@@ -361,7 +361,10 @@ class MainChatViewModel: ObservableObject {
     private let toolkit = AgentToolkit.shared
     private let engine = ZeroDarkEngine.shared
     private let memory = PersistentMemory.shared
+    private let intelligence = DeepIntelligence.shared
     private var currentConversationId: String?
+    private var lastQuery: String = ""
+    private var lastResponse: String = ""
     
     init() {
         // Create or resume conversation
@@ -372,14 +375,34 @@ class MainChatViewModel: ObservableObject {
         let userMessage = ChatMessage(content: text, isUser: true)
         messages.append(userMessage)
         
+        // Check for correction of previous response
+        let lowerText = text.lowercased()
+        if !lastQuery.isEmpty && (lowerText.contains("no,") || lowerText.contains("actually") || lowerText.contains("i meant") || lowerText.contains("that's wrong")) {
+            intelligence.logCorrection(
+                originalQuery: lastQuery,
+                originalResponse: lastResponse,
+                correctedResponse: text,
+                correctionType: "explicit"
+            )
+        }
+        
         // Save to persistent memory
         if let convId = currentConversationId {
             memory.saveMessage(conversationId: convId, role: "user", content: text)
         }
         
+        // Track interaction pattern
+        let category = detectCategory(text)
+        intelligence.trackInteraction(action: "asked about \(category)", category: category)
+        intelligence.trackPattern("query_category", value: category)
+        
         isProcessing = true
+        lastQuery = text
         
         Task {
+            // Build context from deep intelligence
+            let contextEnhancement = intelligence.buildContextFor(query: text)
+            
             // Check if this needs a tool
             let toolResult = await executeToolIfNeeded(text)
             
@@ -391,23 +414,36 @@ class MainChatViewModel: ObservableObject {
                 recentTools.insert(result, at: 0)
                 if recentTools.count > 5 { recentTools.removeLast() }
                 
-                let prompt = """
+                var prompt = ""
+                if !contextEnhancement.isEmpty {
+                    prompt += "Context from memory:\n\(contextEnhancement)\n\n"
+                }
+                prompt += """
                 User asked: \(text)
                 
                 Tool "\(result.tool)" returned: \(result.result)
                 
-                Respond naturally, incorporating this information.
+                Respond naturally, incorporating this information and any relevant context.
                 """
                 let zdResult = await engine.generate(prompt: prompt, mode: currentMode)
                 response = zdResult.response
                 equivalentSize = zdResult.equivalentSize
                 
                 if response.isEmpty { response = result.result }
+                
+                // Track tool usage
+                intelligence.trackPattern("tool_used", value: result.tool)
             } else {
-                let zdResult = await engine.generate(prompt: text, mode: currentMode)
+                var prompt = text
+                if !contextEnhancement.isEmpty {
+                    prompt = "Context from memory:\n\(contextEnhancement)\n\nUser: \(text)"
+                }
+                let zdResult = await engine.generate(prompt: prompt, mode: currentMode)
                 response = zdResult.response
                 equivalentSize = zdResult.equivalentSize
             }
+            
+            lastResponse = response
             
             let aiMessage = ChatMessage(content: response, isUser: false, toolUsed: toolUsed)
             messages.append(aiMessage)
@@ -425,6 +461,27 @@ class MainChatViewModel: ObservableObject {
         messages.removeAll()
         recentTools.removeAll()
         currentConversationId = memory.createConversation()
+        lastQuery = ""
+        lastResponse = ""
+    }
+    
+    private func detectCategory(_ text: String) -> String {
+        let lower = text.lowercased()
+        
+        if lower.contains("weather") || lower.contains("temperature") { return "weather" }
+        if lower.contains("remind") || lower.contains("reminder") { return "reminders" }
+        if lower.contains("calendar") || lower.contains("schedule") || lower.contains("meeting") { return "calendar" }
+        if lower.contains("timer") || lower.contains("alarm") { return "timers" }
+        if lower.contains("note") || lower.contains("write") { return "notes" }
+        if lower.contains("calculate") || lower.contains("math") || lower.contains("+") || lower.contains("*") { return "math" }
+        if lower.contains("news") || lower.contains("headlines") { return "news" }
+        if lower.contains("who") || lower.contains("what") || lower.contains("why") || lower.contains("how") { return "questions" }
+        if lower.contains("health") || lower.contains("steps") || lower.contains("sleep") { return "health" }
+        if lower.contains("home") || lower.contains("lights") || lower.contains("thermostat") { return "home" }
+        if lower.contains("message") || lower.contains("text") || lower.contains("call") { return "communication" }
+        if lower.contains("direction") || lower.contains("navigate") || lower.contains("map") { return "navigation" }
+        
+        return "general"
     }
     
     private func executeToolIfNeeded(_ text: String) async -> ToolExecution? {
@@ -552,6 +609,7 @@ struct SuggestionButton: View {
 
 struct MemoryView: View {
     @StateObject private var memory = PersistentMemory.shared
+    @StateObject private var intelligence = DeepIntelligence.shared
     @State private var searchText = ""
     @State private var selectedTab = 0
     @State private var searchResults: [MemoryMessage] = []
@@ -655,6 +713,49 @@ struct MemoryView: View {
                     color: .green
                 )
             }
+            
+            // Deep Intelligence Stats
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Deep Intelligence")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                
+                HStack(spacing: 16) {
+                    IntelligenceStatCard(
+                        icon: "clock.arrow.circlepath",
+                        title: "Habits",
+                        value: intelligence.habitCount,
+                        color: .purple
+                    )
+                    IntelligenceStatCard(
+                        icon: "arrow.triangle.branch",
+                        title: "Links",
+                        value: intelligence.getStats().contextLinks,
+                        color: .orange
+                    )
+                    IntelligenceStatCard(
+                        icon: "checkmark.circle",
+                        title: "Learned",
+                        value: intelligence.correctionCount,
+                        color: .mint
+                    )
+                }
+                
+                // Proactive suggestion if available
+                if let suggestion = intelligence.proactiveSuggestion {
+                    HStack {
+                        Image(systemName: "sparkles")
+                            .foregroundColor(.yellow)
+                        Text(suggestion)
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.top, 8)
+                }
+            }
+            .padding()
+            .background(Color.white.opacity(0.05))
+            .cornerRadius(16)
             
             // What I Know
             if !memory.getFacts(limit: 5).isEmpty {
@@ -887,6 +988,34 @@ struct MemoryStatCard: View {
         .padding()
         .background(Color.white.opacity(0.05))
         .cornerRadius(16)
+    }
+}
+
+struct IntelligenceStatCard: View {
+    let icon: String
+    let title: String
+    let value: Int
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.subheadline)
+                .foregroundColor(color)
+            
+            Text("\(value)")
+                .font(.headline)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            Text(title)
+                .font(.caption2)
+                .foregroundColor(.gray)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(8)
+        .background(Color.white.opacity(0.03))
+        .cornerRadius(12)
     }
 }
 

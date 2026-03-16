@@ -22,6 +22,7 @@
 		3F66450376AF232A8BE2816B /* MLXInference.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4B3DC8B0CF6BF4E2E599844 /* MLXInference.swift */; };
 		422314F932947AAFCDA7571A /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175F3AE21D3981C5AA570B9A /* Errors.swift */; };
 		476BB619846A9C0A8BBB8175 /* Supercharged.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6FB7CCA92A83CE9E8DC3F14 /* Supercharged.swift */; };
+		53AD36E709C0CF5C8C98A4B0 /* DeepIntelligence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59A0B3B3AC809AFC192E9C1C /* DeepIntelligence.swift */; };
 		53B7672AD95B67B05AB4320B /* Platform.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3668A1EA0A3AEDD1E740C88 /* Platform.swift */; };
 		647E94DA333763543BA18234 /* MLXRandom in Frameworks */ = {isa = PBXBuildFile; productRef = CCCD37F6351B5B5467FE8447 /* MLXRandom */; };
 		68770549538B9294ECD014BF /* ZeroDarkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A30C780ED86315A8054FF0 /* ZeroDarkApp.swift */; };
@@ -64,6 +65,7 @@
 		3FD20E6F0EDD16690BBAC8EA /* NuclearDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NuclearDemo.swift; sourceTree = "<group>"; };
 		4348F669E425B72D193825B3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		43DD6FFFF9CF1A7CBE973536 /* AdvancedToolkit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedToolkit.swift; sourceTree = "<group>"; };
+		59A0B3B3AC809AFC192E9C1C /* DeepIntelligence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepIntelligence.swift; sourceTree = "<group>"; };
 		5FD1101E648A908AF5E6FB8A /* PersistentMemory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentMemory.swift; sourceTree = "<group>"; };
 		60C876D3C57B06E83C7E04D3 /* DeepInference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepInference.swift; sourceTree = "<group>"; };
 		6BFCD0B64B3511B7DCF0C8D1 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
@@ -173,6 +175,7 @@
 				6E47F1EF243AF9A3D78D2718 /* ConversationMemory.swift */,
 				F826E08A5FB80E38FF750D26 /* DeepHardcore.swift */,
 				60C876D3C57B06E83C7E04D3 /* DeepInference.swift */,
+				59A0B3B3AC809AFC192E9C1C /* DeepIntelligence.swift */,
 				91304B5BE56559E8B26AF9DC /* InfiniteMemory.swift */,
 				382912C2C1CAFC13A3368A6C /* LearnFromEverything.swift */,
 				A4B3DC8B0CF6BF4E2E599844 /* MLXInference.swift */,
@@ -278,6 +281,7 @@
 				33864D2154A75A53C995CCD7 /* ConversationStore.swift in Sources */,
 				30CFF80598CCF721B6FE8129 /* DeepHardcore.swift in Sources */,
 				AE582529E2D291BEB4985F50 /* DeepInference.swift in Sources */,
+				53AD36E709C0CF5C8C98A4B0 /* DeepIntelligence.swift in Sources */,
 				422314F932947AAFCDA7571A /* Errors.swift in Sources */,
 				06AF1CE54976BE24B076E3B3 /* FineTuningDemo.swift in Sources */,
 				850090827DFA6F08E668CAF0 /* IdentitySettings.swift in Sources */,
