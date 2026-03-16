@@ -275,12 +275,18 @@ public class UnifiedInferenceEngine: ObservableObject {
         maxTokens: Int = 512,
         temperature: Float = 0.7
     ) async -> String {
-        // Auto-load model if not ready
+        // DON'T auto-load on iPad - wait for explicit user action
+        // This prevents memory crashes on low-memory devices
         if !modelManager.isReady && !modelManager.isLoading {
-            // Use device-appropriate model
-            let model = modelManager.recommendedModel
-            print("📱 Auto-loading model for device: \(model.name) (Memory: \(Int(modelManager.deviceMemoryGB))GB, iPad: \(modelManager.isIPad))")
-            try? await modelManager.loadModel(model.id)
+            if modelManager.isLowMemoryDevice {
+                // On iPad: return placeholder, let user manually load
+                return "[Model not loaded. Tap 'Load Model' in More → Models to start.]"
+            } else {
+                // On Mac: auto-load
+                let model = modelManager.recommendedModel
+                print("📱 Auto-loading model for device: \(model.name) (Memory: \(Int(modelManager.deviceMemoryGB))GB)")
+                try? await modelManager.loadModel(model.id)
+            }
         }
         
         guard modelManager.isReady else {

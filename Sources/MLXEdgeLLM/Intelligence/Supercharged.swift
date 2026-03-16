@@ -667,12 +667,43 @@ class ZeroDarkEngine: ObservableObject {
     static let shared = ZeroDarkEngine()
     
     // Sub-engines
-    let speculative = SpeculativeEngine.shared
-    let selfRewarding = SelfRewardingEngine.shared
-    let rag = LocalRAGEngine.shared
-    let inference = DeepInferenceEngine.shared
-    // let learning = DeepLearningEngine.shared (disabled)
-    let swarm = ZeroSwarmEngine.shared
+    // LAZY initialization - don't load until actually used
+    private var _speculative: SpeculativeEngine?
+    private var _selfRewarding: SelfRewardingEngine?
+    private var _rag: LocalRAGEngine?
+    private var _inference: DeepInferenceEngine?
+    private var _swarm: ZeroSwarmEngine?
+    
+    // Only init engines when accessed (saves memory on iPad)
+    var speculative: SpeculativeEngine { 
+        if _speculative == nil { _speculative = SpeculativeEngine.shared }
+        return _speculative!
+    }
+    var selfRewarding: SelfRewardingEngine {
+        if _selfRewarding == nil { _selfRewarding = SelfRewardingEngine.shared }
+        return _selfRewarding!
+    }
+    var rag: LocalRAGEngine {
+        if _rag == nil { _rag = LocalRAGEngine.shared }
+        return _rag!
+    }
+    var inference: DeepInferenceEngine {
+        if _inference == nil { _inference = DeepInferenceEngine.shared }
+        return _inference!
+    }
+    var swarm: ZeroSwarmEngine {
+        if _swarm == nil { _swarm = ZeroSwarmEngine.shared }
+        return _swarm!
+    }
+    
+    // Device detection
+    var isLiteMode: Bool {
+        #if os(iOS)
+        return UIDevice.current.userInterfaceIdiom == .pad || ProcessInfo.processInfo.physicalMemory < 10_737_418_240
+        #else
+        return false
+        #endif
+    }
     // let rocketFuel = RocketFuelEngine.shared (disabled)
     // let cognitive = CognitiveCore.shared (disabled)
     
@@ -702,8 +733,28 @@ class ZeroDarkEngine: ObservableObject {
         defer { isProcessing = false }
         
         let startTime = Date()
-        let activeMode = mode ?? currentMode
         totalQueries += 1
+        
+        // LITE MODE for iPad - skip heavy engines, just use basic inference
+        if isLiteMode {
+            let response = await UnifiedInferenceEngine.shared.generate(prompt: prompt)
+            let latency = Date().timeIntervalSince(startTime)
+            avgLatency = (avgLatency * Double(totalQueries - 1) + latency) / Double(totalQueries)
+            equivalentModelSize = "360M"
+            let result = ZeroDarkResult(
+                response: response,
+                mode: .quick,
+                techniquesUsed: ["lite"],
+                latency: latency,
+                equivalentSize: "360M",
+                speedup: 1.0,
+                confidence: 0.8
+            )
+            lastResult = result
+            return result
+        }
+        
+        let activeMode = mode ?? currentMode
         
         // Adaptive mode selection
         let finalMode: InferenceMode
@@ -733,7 +784,7 @@ class ZeroDarkEngine: ObservableObject {
         avgLatency = (avgLatency * Double(totalQueries - 1) + latency) / Double(totalQueries)
         equivalentModelSize = result.equivalentSize
         
-        // Self-rewarding: Judge and potentially train
+        // Self-rewarding: Judge and potentially train (only on Mac)
         Task {
             let _ = await selfRewarding.generate(prompt: prompt)
         }
