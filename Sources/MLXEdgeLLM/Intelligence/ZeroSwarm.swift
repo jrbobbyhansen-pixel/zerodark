@@ -392,9 +392,7 @@ class ZeroSwarmEngine: ObservableObject {
     // MARK: - Helper Functions
     
     private func generateResponse(prompt: String, model: String) async -> String {
-        // Would call actual MLX model
-        try? await Task.sleep(nanoseconds: 100_000_000)
-        return "Generated response for: \(prompt.prefix(50))..."
+        return await UnifiedInferenceEngine.shared.generate(prompt: prompt)
     }
     
     private func summarizePositions(_ responses: [AgentResponse]) -> String {

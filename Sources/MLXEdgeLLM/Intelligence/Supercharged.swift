@@ -342,9 +342,7 @@ class SelfRewardingEngine: ObservableObject {
     }
     
     private func callModel(_ prompt: String) async -> String {
-        // Would call actual model
-        try? await Task.sleep(nanoseconds: 100_000_000)
-        return "Response to: \(prompt.prefix(50))..."
+        return await UnifiedInferenceEngine.shared.generate(prompt: prompt, maxTokens: 256)
     }
     
     private func simulateTraining(data: [(prompt: String, response: String, score: Double)], config: LoRATrainingConfig) async {
@@ -641,8 +639,7 @@ class LocalRAGEngine: ObservableObject {
     }
     
     private func generateResponse(_ prompt: String) async -> String {
-        // Would call model
-        return "Response based on RAG context: \(prompt.prefix(50))..."
+        return await UnifiedInferenceEngine.shared.generate(prompt: prompt)
     }
     
     struct RAGResult: Identifiable {

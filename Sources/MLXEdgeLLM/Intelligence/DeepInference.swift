@@ -559,9 +559,11 @@ class DeepInferenceEngine: ObservableObject {
         temperature: Float,
         seed: UInt64? = nil
     ) async throws -> String {
-        // Would call actual MLX inference
-        try await Task.sleep(nanoseconds: 100_000_000)
-        return "Generated response for: \(prompt.prefix(50))..."
+        return await UnifiedInferenceEngine.shared.generate(
+            prompt: prompt,
+            maxTokens: maxTokens,
+            temperature: temperature
+        )
     }
 }
 

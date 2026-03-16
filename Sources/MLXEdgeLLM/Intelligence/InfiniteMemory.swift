@@ -865,8 +865,7 @@ class InfiniteMemorySystem: ObservableObject {
     }
     
     private func callModel(_ prompt: String) async -> String {
-        try? await Task.sleep(nanoseconds: 50_000_000)
-        return "Model response for: \(prompt.prefix(30))..."
+        return await UnifiedInferenceEngine.shared.generate(prompt: prompt, maxTokens: 256)
     }
     
     struct ExtractedFact {
