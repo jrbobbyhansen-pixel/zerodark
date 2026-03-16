@@ -29,6 +29,7 @@
 		81E163D5914F99BEB771B696 /* MLXVLM in Frameworks */ = {isa = PBXBuildFile; productRef = 046213D0BE5B052726141D0C /* MLXVLM */; };
 		850090827DFA6F08E668CAF0 /* IdentitySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29154E384742ADC5086D39A7 /* IdentitySettings.swift */; };
 		8E3A1E2D3523ED0C5E0F19BE /* MLXLMCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 20FF628C6794688C49F134AA /* MLXLMCommon */; };
+		9198566C0E583F738C7315C1 /* SiriIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAF93B1BB313E8E9E98E960 /* SiriIntents.swift */; };
 		9BF5B3FB7BDFFACD8478A7CB /* ZeroSwarm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F4BE2325A0D2575889427E7 /* ZeroSwarm.swift */; };
 		9FFCC343D51FDA044A644D03 /* InfiniteMemory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91304B5BE56559E8B26AF9DC /* InfiniteMemory.swift */; };
 		A749133B7839E12100BBD650 /* MLXNN in Frameworks */ = {isa = PBXBuildFile; productRef = A03CBFEA930ADC987F194389 /* MLXNN */; };
@@ -71,6 +72,7 @@
 		A4B3DC8B0CF6BF4E2E599844 /* MLXInference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLXInference.swift; sourceTree = "<group>"; };
 		B5A30C780ED86315A8054FF0 /* ZeroDarkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZeroDarkApp.swift; sourceTree = "<group>"; };
 		D5302A8E66B293BD4923E0E5 /* VikingMemoryDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VikingMemoryDemo.swift; sourceTree = "<group>"; };
+		EDAF93B1BB313E8E9E98E960 /* SiriIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiriIntents.swift; sourceTree = "<group>"; };
 		F6FB7CCA92A83CE9E8DC3F14 /* Supercharged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Supercharged.swift; sourceTree = "<group>"; };
 		F826E08A5FB80E38FF750D26 /* DeepHardcore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepHardcore.swift; sourceTree = "<group>"; };
 		FBA832EABDB726B00BE6D386 /* RocketFuel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RocketFuel.swift; sourceTree = "<group>"; };
@@ -103,6 +105,7 @@
 				29154E384742ADC5086D39A7 /* IdentitySettings.swift */,
 				3FD20E6F0EDD16690BBAC8EA /* NuclearDemo.swift */,
 				2274E534BB019167407D2268 /* ScreenAgentDemo.swift */,
+				EDAF93B1BB313E8E9E98E960 /* SiriIntents.swift */,
 				05452E74B7B3F20982456EF0 /* TakeoverDemo.swift */,
 			);
 			path = App;
@@ -279,6 +282,7 @@
 				53B7672AD95B67B05AB4320B /* Platform.swift in Sources */,
 				FBB2438FB4DF7D72E5FD2F9E /* RocketFuel.swift in Sources */,
 				232B7F5320D76107461D48D9 /* ScreenAgentDemo.swift in Sources */,
+				9198566C0E583F738C7315C1 /* SiriIntents.swift in Sources */,
 				476BB619846A9C0A8BBB8175 /* Supercharged.swift in Sources */,
 				3BC47EEF384BDE545D225C8D /* TakeoverDemo.swift in Sources */,
 				FA5388B0138A6ACC1687E6E1 /* TieredMemory.swift in Sources */,

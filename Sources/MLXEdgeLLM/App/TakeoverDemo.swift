@@ -335,46 +335,115 @@ struct ToolRow: View {
 // MARK: - Siri Section
 
 struct SiriSection: View {
+    @State private var testPhrase = ""
+    @State private var testResult = ""
+    
     var body: some View {
         VStack(spacing: 20) {
-            // Coming soon
-            VStack(spacing: 16) {
+            // Header
+            VStack(spacing: 12) {
                 Image(systemName: "waveform.circle.fill")
-                    .font(.system(size: 60))
-                    .foregroundColor(.purple.opacity(0.5))
+                    .font(.system(size: 50))
+                    .foregroundColor(.purple)
                 
                 Text("Siri Integration")
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                 
-                Text("Coming Soon")
-                    .font(.headline)
-                    .foregroundColor(.purple)
-                
-                Text("Say \"Hey Siri, ask ZeroDark\" to invoke on-device AI from anywhere.")
+                Text("Voice-activated AI, fully on-device")
                     .font(.subheadline)
                     .foregroundColor(.gray)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
             }
-            .padding(40)
             
-            // Requirements
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Requirements")
+            // Siri Commands
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Say These Phrases")
                     .font(.headline)
                     .foregroundColor(.white)
                 
-                InfoRow(icon: "checkmark.circle", text: "iOS 17+ with App Intents")
-                InfoRow(icon: "checkmark.circle", text: "Siri enabled")
-                InfoRow(icon: "checkmark.circle", text: "ZeroDark model loaded")
+                SiriPhraseRow(phrase: "Hey Siri, ask ZeroDark [anything]", icon: "brain")
+                SiriPhraseRow(phrase: "Hey Siri, ZeroDark weather in Austin", icon: "cloud.sun")
+                SiriPhraseRow(phrase: "Hey Siri, remind me to call mom with ZeroDark", icon: "bell")
+                SiriPhraseRow(phrase: "Hey Siri, calculate 15% of 847 with ZeroDark", icon: "function")
+                SiriPhraseRow(phrase: "Hey Siri, how many steps today ZeroDark", icon: "heart")
             }
             .padding()
             .background(Color.white.opacity(0.05))
             .cornerRadius(16)
+            
+            // Setup
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Setup")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    SetupRow(step: 1, text: "Make sure Siri is enabled in Settings")
+                    SetupRow(step: 2, text: "Say \"Hey Siri, ZeroDark\" once to register")
+                    SetupRow(step: 3, text: "Siri learns your phrases over time")
+                }
+            }
+            .padding()
+            .background(Color.white.opacity(0.05))
+            .cornerRadius(16)
+            
+            // Add to Siri button
+            if #available(iOS 16.0, *) {
+                Button {
+                    // Opens Shortcuts app
+                    if let url = URL(string: "shortcuts://") {
+                        #if canImport(UIKit)
+                        UIApplication.shared.open(url)
+                        #endif
+                    }
+                } label: {
+                    Label("Add to Shortcuts", systemImage: "plus.circle")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(ZetaButtonStyle(color: .purple))
+            }
         }
         .padding()
+    }
+}
+
+struct SiriPhraseRow: View {
+    let phrase: String
+    let icon: String
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .foregroundColor(.purple)
+                .frame(width: 24)
+            
+            Text(phrase)
+                .font(.subheadline)
+                .foregroundColor(.white)
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+struct SetupRow: View {
+    let step: Int
+    let text: String
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Text("\(step)")
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundColor(.black)
+                .frame(width: 20, height: 20)
+                .background(Color.purple)
+                .clipShape(Circle())
+            
+            Text(text)
+                .font(.subheadline)
+                .foregroundColor(.gray)
+        }
     }
 }
 
