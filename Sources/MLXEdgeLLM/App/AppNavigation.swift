@@ -156,7 +156,12 @@ struct MainChatView: View {
         }
         .preferredColorScheme(.dark)
         .onAppear {
-            // Auto-load model
+            // DISABLED AUTO-LOAD: On iPad, auto-loading crashes the app
+            // User must manually tap "Load Model" in More → Models
+            // This gives the user control and prevents memory crashes
+            
+            // Only auto-load on macOS where we have plenty of memory
+            #if os(macOS)
             if !modelManager.isReady && !modelManager.isLoading {
                 Task {
                     if let recommended = modelManager.availableModels.first(where: { $0.recommended }) {
@@ -164,6 +169,7 @@ struct MainChatView: View {
                     }
                 }
             }
+            #endif
         }
     }
     

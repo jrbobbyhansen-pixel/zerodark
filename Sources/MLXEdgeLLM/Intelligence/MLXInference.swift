@@ -131,6 +131,10 @@ public class MLXModelManager: ObservableObject {
         defer { isLoading = false }
         
         do {
+            // CRITICAL: Set memory cache limit BEFORE loading (Apple's pattern)
+            // This prevents iOS from crashing on low-memory devices
+            Memory.cacheLimit = 20 * 1024 * 1024  // 20MB buffer cache limit
+            
             // Get configuration from registry or create default
             let config = ModelConfiguration(id: modelId)
             
