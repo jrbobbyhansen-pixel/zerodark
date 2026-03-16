@@ -15,18 +15,18 @@ import MLXRandom
 // MARK: - MLX Model Manager
 
 @MainActor
-class MLXModelManager: ObservableObject {
-    static let shared = MLXModelManager()
+public class MLXModelManager: ObservableObject {
+    public static let shared = MLXModelManager()
     
-    @Published var isLoading = false
-    @Published var loadProgress: Double = 0
-    @Published var currentModelId: String?
-    @Published var isReady = false
-    @Published var error: String?
-    @Published var tokensPerSecond: Double = 0
+    @Published public var isLoading = false
+    @Published public var loadProgress: Double = 0
+    @Published public var currentModelId: String?
+    @Published public var isReady = false
+    @Published public var error: String?
+    @Published public var tokensPerSecond: Double = 0
     
     // Available models
-    let availableModels: [ModelInfo] = [
+    public let availableModels: [ModelInfo] = [
         ModelInfo(id: "mlx-community/Qwen2.5-3B-Instruct-4bit", name: "Qwen 3B", size: "1.8 GB", recommended: true),
         ModelInfo(id: "mlx-community/Llama-3.2-3B-Instruct-4bit", name: "Llama 3B", size: "1.8 GB", recommended: false),
         ModelInfo(id: "mlx-community/gemma-2-2b-it-4bit", name: "Gemma 2B", size: "1.4 GB", recommended: false),
@@ -36,16 +36,16 @@ class MLXModelManager: ObservableObject {
     // Loaded model container
     private var modelContainer: ModelContainer?
     
-    struct ModelInfo: Identifiable {
-        let id: String
-        let name: String
-        let size: String
-        let recommended: Bool
+    public struct ModelInfo: Identifiable {
+        public let id: String
+        public let name: String
+        public let size: String
+        public let recommended: Bool
     }
     
     // MARK: - Load Model
     
-    func loadModel(_ modelId: String) async throws {
+    public func loadModel(_ modelId: String) async throws {
         isLoading = true
         loadProgress = 0
         error = nil
@@ -77,7 +77,7 @@ class MLXModelManager: ObservableObject {
     
     // MARK: - Generate
     
-    func generate(
+    public func generate(
         prompt: String,
         maxTokens: Int = 512,
         temperature: Float = 0.7
@@ -124,7 +124,7 @@ class MLXModelManager: ObservableObject {
     
     // MARK: - Stream Generate
     
-    func streamGenerate(
+    public func streamGenerate(
         prompt: String,
         maxTokens: Int = 512,
         temperature: Float = 0.7,
@@ -183,15 +183,15 @@ class MLXModelManager: ObservableObject {
 // MARK: - Unified Inference Engine
 
 @MainActor
-class UnifiedInferenceEngine: ObservableObject {
-    static let shared = UnifiedInferenceEngine()
+public class UnifiedInferenceEngine: ObservableObject {
+    public static let shared = UnifiedInferenceEngine()
     
     private let modelManager = MLXModelManager.shared
     
-    @Published var isGenerating = false
+    @Published public var isGenerating = false
     
     /// Main generate function - used by all systems
-    func generate(
+    public func generate(
         prompt: String,
         systemPrompt: String? = nil,
         maxTokens: Int = 512,
@@ -221,7 +221,7 @@ class UnifiedInferenceEngine: ObservableObject {
     }
     
     /// Stream generate with callback
-    func streamGenerate(
+    public func streamGenerate(
         prompt: String,
         maxTokens: Int = 512,
         temperature: Float = 0.7,

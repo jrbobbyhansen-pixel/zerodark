@@ -12,7 +12,7 @@ import SwiftUI
 // MARK: MAIN APP STRUCTURE
 // MARK: ═══════════════════════════════════════════════════════════════════
 
-@main
+// @main  -- moved to App target
 struct ZeroDarkApp: App {
     @StateObject private var appState = AppState.shared
     

@@ -9,21 +9,16 @@ let package = Package(
         .macOS(.v14)
     ],
     products: [
-        .library(
-            name: "ZeroDark",
-            targets: ["ZeroDark"]
-        ),
+        .library(name: "MLXEdgeLLM", targets: ["MLXEdgeLLM"]),
+        .executable(name: "ZeroDarkApp", targets: ["ZeroDarkApp"]),
     ],
     dependencies: [
-        // MLX - Apple Silicon ML framework
         .package(url: "https://github.com/ml-explore/mlx-swift", from: "0.18.0"),
-        
-        // MLX LM - LLM implementations
         .package(url: "https://github.com/ml-explore/mlx-swift-lm", branch: "main"),
     ],
     targets: [
         .target(
-            name: "ZeroDark",
+            name: "MLXEdgeLLM",
             dependencies: [
                 .product(name: "MLX", package: "mlx-swift"),
                 .product(name: "MLXRandom", package: "mlx-swift"),
@@ -34,6 +29,14 @@ let package = Package(
                 .product(name: "MLXVLM", package: "mlx-swift-lm"),
             ],
             path: "Sources/MLXEdgeLLM",
+            swiftSettings: [
+                .unsafeFlags(["-Xfrontend", "-strict-concurrency=minimal"])
+            ]
+        ),
+        .executableTarget(
+            name: "ZeroDarkApp",
+            dependencies: ["MLXEdgeLLM"],
+            path: "App",
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-strict-concurrency=minimal"])
             ]
