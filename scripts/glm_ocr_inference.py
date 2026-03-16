@@ -26,7 +26,7 @@ except ImportError:
     sys.exit(1)
 
 
-MODEL_ID = "mlx-community/GLM-OCR-4bit"
+MODEL_ID = "mlx-community/GLM-OCR-bf16"
 CACHE_DIR = Path.home() / ".cache" / "zerodark" / "models"
 
 

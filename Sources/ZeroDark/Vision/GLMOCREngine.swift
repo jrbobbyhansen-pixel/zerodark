@@ -52,8 +52,8 @@ public class GLMOCREngine: ObservableObject {
     private var model: Any? // MLX model reference
     
     // Model specs
-    public static let modelName = "GLM-OCR-4bit"
-    public static let modelSize = "0.5GB"
+    public static let modelName = "GLM-OCR-bf16"
+    public static let modelSize = "1.8GB"
     public static let parameters = "0.9B"
     
     public init() {
@@ -256,9 +256,9 @@ extension GLMOCREngine {
 // MARK: - Model Download Helper
 
 public struct GLMOCRModelInfo {
-    public static let huggingFaceRepo = "mlx-community/GLM-OCR-4bit"
-    public static let downloadSize = "500MB"
-    public static let requiredRAM = "1.5GB"
+    public static let huggingFaceRepo = "mlx-community/GLM-OCR-bf16"
+    public static let downloadSize = "1.8GB"
+    public static let requiredRAM = "2GB"
     
     public static let capabilities = [
         "Plain text extraction",
