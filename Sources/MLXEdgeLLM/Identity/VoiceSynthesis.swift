@@ -6,7 +6,9 @@ import Foundation
 import AVFoundation
 
 #if os(iOS)
+#if canImport(UIKit)
 import UIKit
+#endif
 #endif
 
 // MARK: - Voice Synthesis Engine

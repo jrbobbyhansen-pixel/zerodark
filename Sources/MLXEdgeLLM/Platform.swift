@@ -1,10 +1,14 @@
 import SwiftUI
 
 #if canImport(UIKit)
+#if canImport(UIKit)
 import UIKit
+#endif
 #elseif canImport(AppKit)
 #if os(macOS)
+#if os(macOS)
 import AppKit
+#endif
 #endif
 #endif
 
