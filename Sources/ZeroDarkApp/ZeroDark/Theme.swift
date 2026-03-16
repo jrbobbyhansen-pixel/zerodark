@@ -1,62 +1,56 @@
 import SwiftUI
 
-// MARK: - SquadOps Design System
-// Deep impact. Elegant. Minimal chrome.
+// MARK: - Design System
+// Inspired by: Linear, Vercel, Arc, Apple Notes
+// Rule: If it looks "designed", it's wrong.
 
 enum Theme {
     // MARK: - Colors
-    static let background = Color(hex: "09090f")
-    static let surface = Color(hex: "111118")
-    static let surfaceElevated = Color(hex: "18181f")
-    static let accent = Color(hex: "22d3ee")
-    static let accentMuted = Color(hex: "22d3ee").opacity(0.15)
+    // Near-black with subtle warmth, not pure #000
+    static let background = Color(hex: "0a0a0b")
+    static let surface = Color(hex: "141415")
+    static let surfaceHover = Color(hex: "1a1a1c")
+    static let border = Color(hex: "232326")
     
-    static let textPrimary = Color.white
-    static let textSecondary = Color(hex: "71717a")
-    static let textMuted = Color(hex: "52525b")
+    // Accent: Use SPARINGLY. One element per screen max.
+    static let accent = Color(hex: "3b82f6") // Blue, not cyan
+    static let accentSubtle = Color(hex: "3b82f6").opacity(0.08)
     
-    static let success = Color(hex: "22c55e")
-    static let warning = Color(hex: "f59e0b")
-    static let error = Color(hex: "ef4444")
+    // Text hierarchy
+    static let text = Color(hex: "fafafa")
+    static let textSecondary = Color(hex: "a1a1aa")
+    static let textTertiary = Color(hex: "52525b")
     
-    // MARK: - Spacing
-    static let spacingXS: CGFloat = 4
-    static let spacingSM: CGFloat = 8
-    static let spacingMD: CGFloat = 16
-    static let spacingLG: CGFloat = 24
-    static let spacingXL: CGFloat = 32
-    static let spacing2XL: CGFloat = 48
-    
-    // MARK: - Corner Radius
-    static let radiusSM: CGFloat = 8
-    static let radiusMD: CGFloat = 12
-    static let radiusLG: CGFloat = 16
-    static let radiusXL: CGFloat = 24
+    // Semantic
+    static let success = Color(hex: "10b981")
+    static let destructive = Color(hex: "ef4444")
     
     // MARK: - Typography
-    static func title(_ text: String) -> some View {
-        Text(text)
-            .font(.system(size: 28, weight: .bold, design: .rounded))
-            .foregroundColor(textPrimary)
-    }
+    // SF Pro is already perfect. Don't fight it.
     
-    static func headline(_ text: String) -> some View {
-        Text(text)
-            .font(.system(size: 20, weight: .semibold, design: .rounded))
-            .foregroundColor(textPrimary)
-    }
+    static let titleFont = Font.system(size: 32, weight: .semibold, design: .default)
+    static let headlineFont = Font.system(size: 17, weight: .semibold)
+    static let bodyFont = Font.system(size: 15, weight: .regular)
+    static let captionFont = Font.system(size: 13, weight: .medium)
+    static let monoFont = Font.system(size: 14, weight: .regular, design: .monospaced)
     
-    static func body(_ text: String) -> some View {
-        Text(text)
-            .font(.system(size: 16, weight: .regular))
-            .foregroundColor(textSecondary)
-    }
+    // MARK: - Spacing
+    // 4px base grid
+    static let space1: CGFloat = 4
+    static let space2: CGFloat = 8
+    static let space3: CGFloat = 12
+    static let space4: CGFloat = 16
+    static let space5: CGFloat = 20
+    static let space6: CGFloat = 24
+    static let space8: CGFloat = 32
+    static let space10: CGFloat = 40
+    static let space12: CGFloat = 48
     
-    static func caption(_ text: String) -> some View {
-        Text(text)
-            .font(.system(size: 13, weight: .medium))
-            .foregroundColor(textMuted)
-    }
+    // MARK: - Radius
+    // Subtle, not bubbly
+    static let radius1: CGFloat = 4
+    static let radius2: CGFloat = 8
+    static let radius3: CGFloat = 12
 }
 
 // MARK: - Color Extension
@@ -87,110 +81,80 @@ extension Color {
     }
 }
 
-// MARK: - View Modifiers
+// MARK: - Minimal Modifiers
+// Less is more. Stop adding shadows to everything.
 
-struct CardStyle: ViewModifier {
-    var elevated: Bool = false
-    
-    func body(content: Content) -> some View {
-        content
-            .padding(Theme.spacingMD)
-            .background(elevated ? Theme.surfaceElevated : Theme.surface)
-            .cornerRadius(Theme.radiusMD)
-    }
-}
-
-struct AccentButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 16, weight: .semibold))
-            .foregroundColor(Theme.background)
-            .padding(.horizontal, Theme.spacingLG)
-            .padding(.vertical, Theme.spacingMD)
-            .background(Theme.accent)
-            .cornerRadius(Theme.radiusMD)
-            .opacity(configuration.isPressed ? 0.8 : 1.0)
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
-    }
-}
-
-struct GhostButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 16, weight: .medium))
-            .foregroundColor(Theme.accent)
-            .padding(.horizontal, Theme.spacingLG)
-            .padding(.vertical, Theme.spacingMD)
-            .background(Theme.accentMuted)
-            .cornerRadius(Theme.radiusMD)
-            .opacity(configuration.isPressed ? 0.7 : 1.0)
-    }
-}
-
-struct IconButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 20, weight: .medium))
-            .foregroundColor(Theme.textSecondary)
-            .frame(width: 44, height: 44)
+extension View {
+    func surfaceStyle() -> some View {
+        self
             .background(Theme.surface)
-            .cornerRadius(Theme.radiusSM)
-            .opacity(configuration.isPressed ? 0.7 : 1.0)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.radius2, style: .continuous))
+    }
+    
+    func borderStyle() -> some View {
+        self
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.radius2, style: .continuous)
+                    .stroke(Theme.border, lineWidth: 1)
+            )
     }
 }
 
-extension View {
-    func card(elevated: Bool = false) -> some View {
-        modifier(CardStyle(elevated: elevated))
+// MARK: - Button Styles
+
+struct PrimaryButton: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(Theme.captionFont)
+            .foregroundColor(.white)
+            .padding(.horizontal, Theme.space4)
+            .padding(.vertical, Theme.space2 + 2)
+            .background(Theme.accent)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.radius1 + 2, style: .continuous))
+            .opacity(configuration.isPressed ? 0.85 : 1)
     }
 }
 
-// MARK: - Subtle Glow Effect
-
-struct GlowEffect: ViewModifier {
-    var color: Color = Theme.accent
-    var radius: CGFloat = 12
-    var intensity: CGFloat = 0.15
-    
-    func body(content: Content) -> some View {
-        content
-            .shadow(color: color.opacity(intensity), radius: radius, x: 0, y: 0)
-            .shadow(color: color.opacity(intensity * 0.5), radius: radius * 2, x: 0, y: 0)
+struct SecondaryButton: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(Theme.captionFont)
+            .foregroundColor(Theme.text)
+            .padding(.horizontal, Theme.space4)
+            .padding(.vertical, Theme.space2 + 2)
+            .background(Theme.surface)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.radius1 + 2, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.radius1 + 2, style: .continuous)
+                    .stroke(Theme.border, lineWidth: 1)
+            )
+            .opacity(configuration.isPressed ? 0.7 : 1)
     }
 }
 
-struct SubtleGlow: ViewModifier {
-    var color: Color = Theme.accent
-    
-    func body(content: Content) -> some View {
-        content
-            .shadow(color: color.opacity(0.08), radius: 8, x: 0, y: 0)
-            .shadow(color: color.opacity(0.04), radius: 16, x: 0, y: 0)
+struct GhostButton: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(Theme.captionFont)
+            .foregroundColor(Theme.textSecondary)
+            .padding(.horizontal, Theme.space3)
+            .padding(.vertical, Theme.space2)
+            .opacity(configuration.isPressed ? 0.5 : 1)
     }
 }
 
-struct ActiveGlow: ViewModifier {
-    var color: Color = Theme.accent
-    var isActive: Bool = true
-    
-    func body(content: Content) -> some View {
-        content
-            .shadow(color: isActive ? color.opacity(0.2) : .clear, radius: 10, x: 0, y: 0)
-            .shadow(color: isActive ? color.opacity(0.1) : .clear, radius: 20, x: 0, y: 0)
-    }
-}
+// MARK: - Haptics (Subtle)
 
-extension View {
-    func glow(color: Color = Theme.accent, radius: CGFloat = 12, intensity: CGFloat = 0.15) -> some View {
-        modifier(GlowEffect(color: color, radius: radius, intensity: intensity))
+enum Haptic {
+    static func tap() {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.5)
     }
     
-    func subtleGlow(color: Color = Theme.accent) -> some View {
-        modifier(SubtleGlow(color: color))
+    static func select() {
+        UISelectionFeedbackGenerator().selectionChanged()
     }
     
-    func activeGlow(color: Color = Theme.accent, isActive: Bool = true) -> some View {
-        modifier(ActiveGlow(color: color, isActive: isActive))
+    static func success() {
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 }
