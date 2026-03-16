@@ -285,6 +285,20 @@ public class AgentToolkit: ObservableObject {
         case "random", "dice", "coin":
             return randomNumber(min: call.arguments["min"] ?? "1", max: call.arguments["max"] ?? "100")
             
+        // Advanced tools (delegate to AdvancedToolkit)
+        case "ocr", "scan_text", "detect_objects", "face_detect", "read_barcode",
+             "listen", "transcribe", "shazam", "identify_song",
+             "motion", "pedometer", "altitude", "authenticate", "biometric",
+             "news", "headlines", "crypto", "bitcoin", "ethereum", "stocks",
+             "nasa", "apod", "space", "quote", "inspiration", "joke", "tell_joke",
+             "fact", "random_fact", "trivia", "wiki", "wikipedia",
+             "air_quality", "aqi", "sunrise", "sunset", "holiday", "holidays",
+             "bible", "verse", "hackernews", "hn", "tech_news",
+             "dog", "random_dog", "cat", "random_cat", "ip", "my_ip",
+             "network", "wifi", "disk", "storage", "memory", "ram_usage", "cpu":
+            let result = await AdvancedToolkit.shared.execute(call.tool, arguments: call.arguments)
+            return ToolResult(success: true, output: result)
+            
         default:
             return ToolResult(success: false, output: "Unknown tool: \(call.tool). Available: \(availableTools.map(\.name).joined(separator: ", "))")
         }

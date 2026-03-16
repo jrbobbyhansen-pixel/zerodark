@@ -27,6 +27,7 @@
 		6F861DECC674A47A9BB0EFBA /* ConversationMemory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E47F1EF243AF9A3D78D2718 /* ConversationMemory.swift */; };
 		7DE066E462D0021A24897B46 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BFCD0B64B3511B7DCF0C8D1 /* Models.swift */; };
 		81E163D5914F99BEB771B696 /* MLXVLM in Frameworks */ = {isa = PBXBuildFile; productRef = 046213D0BE5B052726141D0C /* MLXVLM */; };
+		84F0FEA5972B1244195F6A1F /* AdvancedToolkit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43DD6FFFF9CF1A7CBE973536 /* AdvancedToolkit.swift */; };
 		850090827DFA6F08E668CAF0 /* IdentitySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29154E384742ADC5086D39A7 /* IdentitySettings.swift */; };
 		8E3A1E2D3523ED0C5E0F19BE /* MLXLMCommon in Frameworks */ = {isa = PBXBuildFile; productRef = 20FF628C6794688C49F134AA /* MLXLMCommon */; };
 		9198566C0E583F738C7315C1 /* SiriIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDAF93B1BB313E8E9E98E960 /* SiriIntents.swift */; };
@@ -61,6 +62,7 @@
 		382912C2C1CAFC13A3368A6C /* LearnFromEverything.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearnFromEverything.swift; sourceTree = "<group>"; };
 		3FD20E6F0EDD16690BBAC8EA /* NuclearDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NuclearDemo.swift; sourceTree = "<group>"; };
 		4348F669E425B72D193825B3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		43DD6FFFF9CF1A7CBE973536 /* AdvancedToolkit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedToolkit.swift; sourceTree = "<group>"; };
 		60C876D3C57B06E83C7E04D3 /* DeepInference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepInference.swift; sourceTree = "<group>"; };
 		6BFCD0B64B3511B7DCF0C8D1 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		6E47F1EF243AF9A3D78D2718 /* ConversationMemory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationMemory.swift; sourceTree = "<group>"; };
@@ -164,6 +166,7 @@
 		CF06FED3D090FA6E8052E333 /* Intelligence */ = {
 			isa = PBXGroup;
 			children = (
+				43DD6FFFF9CF1A7CBE973536 /* AdvancedToolkit.swift */,
 				816781D034F9CD5BFE6B111B /* AgentToolkit.swift */,
 				6E47F1EF243AF9A3D78D2718 /* ConversationMemory.swift */,
 				F826E08A5FB80E38FF750D26 /* DeepHardcore.swift */,
@@ -263,6 +266,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84F0FEA5972B1244195F6A1F /* AdvancedToolkit.swift in Sources */,
 				BE2F07912C7BDF8369329755 /* AgentIdentity.swift in Sources */,
 				1AE730BA27590FD31A3EACED /* AgentToolkit.swift in Sources */,
 				2ABE45A6BB8B5206E021C7FB /* AppNavigation.swift in Sources */,
