@@ -25,13 +25,65 @@ public class MLXModelManager: ObservableObject {
     @Published public var error: String?
     @Published public var tokensPerSecond: Double = 0
     
-    // Available models
-    public let availableModels: [ModelInfo] = [
-        ModelInfo(id: "mlx-community/Qwen2.5-3B-Instruct-4bit", name: "Qwen 3B", size: "1.8 GB", recommended: true),
-        ModelInfo(id: "mlx-community/Llama-3.2-3B-Instruct-4bit", name: "Llama 3B", size: "1.8 GB", recommended: false),
-        ModelInfo(id: "mlx-community/gemma-2-2b-it-4bit", name: "Gemma 2B", size: "1.4 GB", recommended: false),
-        ModelInfo(id: "mlx-community/SmolLM-135M-Instruct-4bit", name: "SmolLM 135M", size: "100 MB", recommended: false),
-    ]
+    // Device detection
+    public var isIPad: Bool {
+        #if os(iOS)
+        return UIDevice.current.userInterfaceIdiom == .pad
+        #else
+        return false
+        #endif
+    }
+    
+    public var deviceMemoryGB: Double {
+        Double(ProcessInfo.processInfo.physicalMemory) / 1_073_741_824
+    }
+    
+    public var isLowMemoryDevice: Bool {
+        // iPad Mini M2 = 8GB, but system uses ~4GB, so we have ~4GB for app
+        // iPhone = typically 4-6GB total
+        // Conservative: if <10GB total, consider low memory
+        return deviceMemoryGB < 10
+    }
+    
+    // Available models - ordered by size (smallest first for low memory devices)
+    public var availableModels: [ModelInfo] {
+        [
+            ModelInfo(id: "mlx-community/SmolLM-360M-Instruct-4bit", name: "SmolLM 360M", size: "200 MB", 
+                     recommended: isLowMemoryDevice, memoryRequired: 0.5),
+            ModelInfo(id: "mlx-community/SmolLM-135M-Instruct-4bit", name: "SmolLM 135M", size: "100 MB", 
+                     recommended: false, memoryRequired: 0.3),
+            ModelInfo(id: "mlx-community/gemma-2-2b-it-4bit", name: "Gemma 2B", size: "1.4 GB", 
+                     recommended: false, memoryRequired: 2.5),
+            ModelInfo(id: "mlx-community/Qwen2.5-3B-Instruct-4bit", name: "Qwen 3B", size: "1.8 GB", 
+                     recommended: !isLowMemoryDevice, memoryRequired: 3.5),
+            ModelInfo(id: "mlx-community/Llama-3.2-3B-Instruct-4bit", name: "Llama 3B", size: "1.8 GB", 
+                     recommended: false, memoryRequired: 3.5),
+        ]
+    }
+    
+    // Get recommended model for this device
+    public var recommendedModel: ModelInfo {
+        // For low memory devices (iPad), use SmolLM 360M
+        if isLowMemoryDevice {
+            return availableModels.first { $0.name.contains("360M") } ?? availableModels[0]
+        }
+        // For Mac/high memory, use Qwen 3B
+        return availableModels.first { $0.name.contains("Qwen") } ?? availableModels[0]
+    }
+    
+    private init() {
+        // Listen for memory warnings
+        #if os(iOS)
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didReceiveMemoryWarningNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            print("⚠️ Memory warning received - unloading model")
+            self?.unloadModel()
+        }
+        #endif
+    }
     
     // Loaded model container
     private var modelContainer: ModelContainer?
@@ -41,6 +93,32 @@ public class MLXModelManager: ObservableObject {
         public let name: String
         public let size: String
         public let recommended: Bool
+        public let memoryRequired: Double  // GB required for inference
+        
+        public init(id: String, name: String, size: String, recommended: Bool, memoryRequired: Double = 2.0) {
+            self.id = id
+            self.name = name
+            self.size = size
+            self.recommended = recommended
+            self.memoryRequired = memoryRequired
+        }
+    }
+    
+    // Check if device can handle a model
+    public func canLoad(_ model: ModelInfo) -> Bool {
+        // Leave at least 2GB for system + app
+        let availableMemory = deviceMemoryGB - 2.0
+        return model.memoryRequired < availableMemory
+    }
+    
+    // Unload model to free memory
+    public func unloadModel() {
+        modelContainer = nil
+        currentModelId = nil
+        isReady = false
+        
+        // Force garbage collection
+        // Note: MLX manages memory automatically, just nil the container
     }
     
     // MARK: - Load Model
@@ -199,9 +277,10 @@ public class UnifiedInferenceEngine: ObservableObject {
     ) async -> String {
         // Auto-load model if not ready
         if !modelManager.isReady && !modelManager.isLoading {
-            if let recommended = modelManager.availableModels.first(where: { $0.recommended }) {
-                try? await modelManager.loadModel(recommended.id)
-            }
+            // Use device-appropriate model
+            let model = modelManager.recommendedModel
+            print("📱 Auto-loading model for device: \(model.name) (Memory: \(Int(modelManager.deviceMemoryGB))GB, iPad: \(modelManager.isIPad))")
+            try? await modelManager.loadModel(model.id)
         }
         
         guard modelManager.isReady else {
