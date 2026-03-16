@@ -12,8 +12,12 @@ import Photos
 import EventKit
 import Contacts
 import CoreLocation
+#if canImport(HealthKit)
 import HealthKit
+#endif
+#if canImport(MediaPlayer)
 import MediaPlayer
+#endif
 import CoreSpotlight
 import UniformTypeIdentifiers
 

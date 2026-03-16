@@ -9,8 +9,8 @@ import SwiftUI
 import Foundation
 import MLX
 import MLXLLM
+import MLXLMCommon
 import MLXRandom
-import Tokenizers
 
 // MARK: - ═══════════════════════════════════════════════════════════════════
 // MARK: MLX MODEL MANAGER

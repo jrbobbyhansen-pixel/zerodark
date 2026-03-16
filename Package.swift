@@ -18,11 +18,8 @@ let package = Package(
         // MLX - Apple Silicon ML framework
         .package(url: "https://github.com/ml-explore/mlx-swift", from: "0.18.0"),
         
-        // MLX Examples - LLM, Whisper, etc.
-        .package(url: "https://github.com/ml-explore/mlx-swift-examples", branch: "main"),
-        
-        // HuggingFace Tokenizers
-        .package(url: "https://github.com/huggingface/swift-transformers", from: "0.1.7"),
+        // MLX LM - LLM implementations
+        .package(url: "https://github.com/ml-explore/mlx-swift-lm", branch: "main"),
     ],
     targets: [
         .target(
@@ -32,8 +29,8 @@ let package = Package(
                 .product(name: "MLXRandom", package: "mlx-swift"),
                 .product(name: "MLXNN", package: "mlx-swift"),
                 .product(name: "MLXOptimizers", package: "mlx-swift"),
-                .product(name: "MLXLLM", package: "mlx-swift-examples"),
-                .product(name: "Tokenizers", package: "swift-transformers"),
+                .product(name: "MLXLLM", package: "mlx-swift-lm"),
+                .product(name: "MLXLMCommon", package: "mlx-swift-lm"),
             ],
             path: "Sources/MLXEdgeLLM"
         ),

@@ -632,7 +632,7 @@ class DeviceSwarmEngine: NSObject, ObservableObject {
     
     override init() {
         super.init()
-        myPeerID = MCPeerID(displayName: UIDevice.current.name)
+        myPeerID = MCPeerID(displayName: Host.current().localizedName ?? "ZeroDark")
         session = MCSession(peer: myPeerID, securityIdentity: nil, encryptionPreference: .required)
         session?.delegate = self
     }
@@ -697,7 +697,7 @@ class DeviceSwarmEngine: NSObject, ObservableObject {
     
     private func deviceInfo() -> [String: String] {
         return [
-            "model": UIDevice.current.model,
+            "model": "Mac",
             "ram": "\(ProcessInfo.processInfo.physicalMemory / 1_000_000_000)GB"
         ]
     }

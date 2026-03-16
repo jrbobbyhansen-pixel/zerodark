@@ -664,7 +664,7 @@ class MetalCompute {
 // MARK: - 6. AUTONOMOUS AGENTS (Run For Hours/Days)
 
 /// Agents that work autonomously for extended periods
-class AutonomousAgent: ObservableObject {
+class AutonomousAgentBleedingEdge: ObservableObject {
     @Published var isRunning = false
     @Published var currentTask: String = ""
     @Published var completedTasks: Int = 0

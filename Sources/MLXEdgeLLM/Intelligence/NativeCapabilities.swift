@@ -12,16 +12,24 @@ import Vision
 import Speech
 import AVFoundation
 import CoreLocation
+#if canImport(CoreMotion)
 import CoreMotion
+#endif
+#if canImport(HealthKit)
 import HealthKit
+#endif
+#if canImport(HomeKit)
 import HomeKit
+#endif
 import EventKit
 import Contacts
 import Photos
 import Intents
 import ActivityKit
 import WidgetKit
+#if canImport(WatchConnectivity)
 import WatchConnectivity
+#endif
 import LocalAuthentication
 import CryptoKit
 import SoundAnalysis
@@ -692,39 +700,3 @@ class ARIntelligence: ObservableObject {
 
 // MARK: - Shortcuts Integration
 
-struct ZeroDarkShortcuts {
-    /// Register App Intents
-    static func registerIntents() {
-        // These would be AppIntent implementations
-    }
-}
-
-// Placeholder for App Intents (would be separate files)
-/*
-struct AskZeroDarkIntent: AppIntent {
-    static var title: LocalizedStringResource = "Ask ZeroDark"
-    static var description = IntentDescription("Ask ZeroDark anything")
-    
-    @Parameter(title: "Question")
-    var question: String
-    
-    func perform() async throws -> some IntentResult {
-        // Process with ZeroDark
-    }
-}
-
-struct GenerateImageIntent: AppIntent {
-    static var title: LocalizedStringResource = "Generate Image"
-    
-    @Parameter(title: "Description")
-    var description: String
-    
-    func perform() async throws -> some IntentResult {
-        // Generate image
-    }
-}
-*/
-
-#Preview {
-    Text("Native Capabilities")
-}

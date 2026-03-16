@@ -7,9 +7,14 @@
 //
 
 import SwiftUI
-import RoomPlan
 import AVFoundation
 import Vision
+
+#if canImport(RoomPlan)
+#if canImport(RoomPlan)
+import RoomPlan
+#endif
+#endif
 import ShazamKit
 import CoreHaptics
 import NearbyInteraction
@@ -375,7 +380,7 @@ class OnDeviceTranslation: ObservableObject {
 // MARK: - 11. DOCUMENT UNDERSTANDING
 
 /// Extract structured data from documents
-class DocumentUnderstanding: ObservableObject {
+class HiddenDocumentUnderstanding: ObservableObject {
     /// Extract data from driver's license
     func extractDriversLicense(from image: CGImage) async throws -> DriversLicenseData? {
         // Uses VNRecognizeTextRequest + parsing

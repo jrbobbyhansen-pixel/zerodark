@@ -8,7 +8,9 @@
 import SwiftUI
 import AVFoundation
 import Speech
+#if canImport(HealthKit)
 import HealthKit
+#endif
 import CoreML
 import NaturalLanguage
 import SoundAnalysis
