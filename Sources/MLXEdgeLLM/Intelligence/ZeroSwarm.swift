@@ -246,7 +246,7 @@ class ZeroSwarmEngine: ObservableObject {
         
         debateLog.append(DebateEntry(
             round: rounds + 1,
-            agent: AgentPersona(id: UUID(), name: "Consensus", emoji: "🤝", systemPrompt: "", bias: .practical, style: .direct, weight: 1.0),
+            agent: AgentPersona(id: UUID(), name: "Consensus", code: "CON", systemPrompt: "", bias: .practical, style: .direct, weight: 1.0),
             content: result.consensus,
             type: .consensus
         ))

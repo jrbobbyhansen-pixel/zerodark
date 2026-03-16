@@ -671,10 +671,10 @@ class ZeroDarkEngine: ObservableObject {
     let selfRewarding = SelfRewardingEngine.shared
     let rag = LocalRAGEngine.shared
     let inference = DeepInferenceEngine.shared
-    let learning = DeepLearningEngine.shared
+    // let learning = DeepLearningEngine.shared (disabled)
     let swarm = ZeroSwarmEngine.shared
-    let rocketFuel = RocketFuelEngine.shared
-    let cognitive = CognitiveCore.shared
+    // let rocketFuel = RocketFuelEngine.shared (disabled)
+    // let cognitive = CognitiveCore.shared (disabled)
     
     // State
     @Published var currentMode: InferenceMode = .standard
@@ -737,16 +737,16 @@ class ZeroDarkEngine: ObservableObject {
         Task {
             let _ = await selfRewarding.generate(prompt: prompt)
         }
-        
-        // Learning: Log interaction
-        learning.logInteraction(
-            prompt: prompt,
-            response: result.response,
-            wasEdited: false,
-            editedResponse: nil,
-            rating: nil,
-            context: .init(topic: nil, taskType: nil, modelUsed: "zerodark", responseTime: latency)
-        )
+        //         
+        //         // Learning: Log interaction
+        //         learning.logInteraction(
+        //             prompt: prompt,
+        //             response: result.response,
+        //             wasEdited: false,
+        //             editedResponse: nil,
+        //             rating: nil,
+        //             context: .init(topic: nil, taskType: nil, modelUsed: "zerodark", responseTime: latency)
+        //         )
         
         lastResult = result
         return result
@@ -791,29 +791,29 @@ class ZeroDarkEngine: ObservableObject {
         }
         
         // 2. Graph of Thoughts
-        let gotResult = await inference.treeOfThoughtsGenerate(
-            prompt: augmentWithRAG(prompt, context: ragContext),
+        let gotResult = try? await inference.treeOfThoughtsGenerate(
+            prompt: augmentWithRAG(prompt: prompt, context: ragContext),
             breadth: 3,
             depth: 3
         )
         techniques.append("Tree of Thoughts")
         
         // 3. Self-Consistency (3 paths)
-        let scResult = await inference.selfConsistencyGenerate(
-            prompt: gotResult.answer,
+        let scResult = try? await inference.selfConsistencyGenerate(
+            prompt: gotResult?.answer ?? prompt,
             paths: 3,
             temperature: 0.7
         )
         techniques.append("Self-Consistency (3 paths)")
         
         return ZeroDarkResult(
-            response: scResult.answer,
+            response: scResult?.answer ?? "Error",
             mode: .standard,
             techniquesUsed: techniques,
             latency: 0,
             equivalentSize: "~50B",
             speedup: 1.0,
-            confidence: scResult.confidence
+            confidence: scResult?.confidence ?? 0.5
         )
     }
     
@@ -829,14 +829,14 @@ class ZeroDarkEngine: ObservableObject {
         
         // 2. ZeroSwarm debate
         let swarmResult = await swarm.debate(
-            question: augmentWithRAG(prompt, context: ragContext),
+            question: augmentWithRAG(prompt: prompt, context: ragContext),
             swarm: ZeroSwarmEngine.defaultSwarm,
             rounds: 2
         )
         techniques.append("ZeroSwarm (\(swarmResult.participantCount) agents)")
         
         // 3. Self-Consistency on swarm output
-        let scResult = await inference.selfConsistencyGenerate(
+        let scResult = try? await inference.selfConsistencyGenerate(
             prompt: swarmResult.consensus,
             paths: 5,
             temperature: 0.7
@@ -844,9 +844,9 @@ class ZeroDarkEngine: ObservableObject {
         techniques.append("Self-Consistency (5 paths)")
         
         // 4. Iterative refinement
-        let refinedResult = await rocketFuel.activeTechniques.contains(.iterativeRefinement)
-            ? await IterativeRefinement.shared.refine(prompt: scResult.answer, maxIterations: 2)
-            : IterativeRefinement.RefinementResult(finalOutput: scResult.answer, iterations: [], finalQuality: scResult.confidence)
+        let refinedResult = await true
+            ? await IterativeRefinement.shared.refine(prompt: scResult?.answer ?? "Error", maxIterations: 2)
+            : IterativeRefinement.RefinementResult(finalOutput: scResult?.answer ?? "Error", iterations: [], finalQuality: scResult?.confidence ?? 0.5)
         techniques.append("Iterative Refinement")
         
         return ZeroDarkResult(
@@ -870,7 +870,7 @@ class ZeroDarkEngine: ObservableObject {
         
         // 2. MCTS reasoning
         let mctsResult = await MCTSReasoning.shared.reason(
-            problem: augmentWithRAG(prompt, context: ragContext),
+            problem: augmentWithRAG(prompt: prompt, context: ragContext),
             simulations: 100
         )
         techniques.append("MCTS (\(mctsResult.nodesExplored) nodes)")
@@ -903,7 +903,7 @@ class ZeroDarkEngine: ObservableObject {
         techniques.append("Iterative Refinement (3 rounds)")
         
         // 7. Final self-consistency check
-        let finalResult = await inference.selfConsistencyGenerate(
+        let finalResult = try? await inference.selfConsistencyGenerate(
             prompt: refined.finalOutput,
             paths: 7,
             temperature: 0.7
@@ -911,13 +911,13 @@ class ZeroDarkEngine: ObservableObject {
         techniques.append("Self-Consistency (7 paths)")
         
         return ZeroDarkResult(
-            response: finalResult.answer,
+            response: finalResult?.answer ?? "Error",
             mode: .maximum,
             techniquesUsed: techniques,
             latency: 0,
             equivalentSize: "300B+",
             speedup: 1.0,
-            confidence: finalResult.confidence
+            confidence: finalResult?.confidence ?? 0.5
         )
     }
     

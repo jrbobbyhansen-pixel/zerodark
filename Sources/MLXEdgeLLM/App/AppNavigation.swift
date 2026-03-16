@@ -141,7 +141,7 @@ struct HomeView: View {
             .background(Color.black)
             .navigationTitle("ZeroDark")
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .automatic) {
                     Button {
                         appState.selectedTab = .chat
                     } label: {
@@ -489,12 +489,12 @@ struct ChatView: View {
             }
             .background(Color.black)
             .navigationTitle("Chat")
-            .navigationBarTitleDisplayMode(.inline)
+            
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .automatic) {
                     ModeSelector(selectedMode: $viewModel.inferenceMode)
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .automatic) {
                     Menu {
                         Button("New Chat", systemImage: "plus") {
                             viewModel.newChat()
@@ -977,7 +977,7 @@ struct LibraryView: View {
             .background(Color.black)
             .navigationTitle("Library")
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .automatic) {
                     Button {
                         // Import document
                     } label: {
@@ -1072,7 +1072,7 @@ struct KnowledgeBaseView: View {
                 }
             }
         }
-        .listStyle(.insetGrouped)
+        .listStyle(.plain)
     }
 }
 
@@ -1141,7 +1141,7 @@ struct MoreView: View {
                     }
                 }
             }
-            .listStyle(.insetGrouped)
+            .listStyle(.plain)
             .navigationTitle("More")
         }
     }

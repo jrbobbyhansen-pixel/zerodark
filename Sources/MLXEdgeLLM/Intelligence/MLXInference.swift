@@ -2,7 +2,7 @@
 //  MLXInference.swift
 //  ZeroDark
 //
-//  Real MLX inference. Replaces all placeholders.
+//  Real MLX inference using mlx-swift-lm
 //
 
 import SwiftUI
@@ -12,90 +12,35 @@ import MLXLLM
 import MLXLMCommon
 import MLXRandom
 
-// MARK: - ═══════════════════════════════════════════════════════════════════
-// MARK: MLX MODEL MANAGER
-// MARK: ═══════════════════════════════════════════════════════════════════
+// MARK: - MLX Model Manager
 
 @MainActor
 class MLXModelManager: ObservableObject {
     static let shared = MLXModelManager()
     
-    // State
     @Published var isLoading = false
     @Published var loadProgress: Double = 0
-    @Published var currentModel: String?
+    @Published var currentModelId: String?
     @Published var isReady = false
     @Published var error: String?
+    @Published var tokensPerSecond: Double = 0
     
-    // Models
-    @Published var availableModels: [MLXModelInfo] = [
-        MLXModelInfo(id: "mlx-community/Qwen2.5-3B-Instruct-4bit", name: "Qwen 3B", size: "1.8 GB", parameters: "3B", recommended: true),
-        MLXModelInfo(id: "mlx-community/Qwen2.5-7B-Instruct-4bit", name: "Qwen 7B", size: "4.2 GB", parameters: "7B", recommended: false),
-        MLXModelInfo(id: "mlx-community/Llama-3.2-3B-Instruct-4bit", name: "Llama 3B", size: "1.8 GB", parameters: "3B", recommended: false),
-        MLXModelInfo(id: "mlx-community/Mistral-7B-Instruct-v0.3-4bit", name: "Mistral 7B", size: "4.0 GB", parameters: "7B", recommended: false),
-        MLXModelInfo(id: "mlx-community/gemma-2-2b-it-4bit", name: "Gemma 2B", size: "1.4 GB", parameters: "2B", recommended: false),
+    // Available models
+    let availableModels: [ModelInfo] = [
+        ModelInfo(id: "mlx-community/Qwen2.5-3B-Instruct-4bit", name: "Qwen 3B", size: "1.8 GB", recommended: true),
+        ModelInfo(id: "mlx-community/Llama-3.2-3B-Instruct-4bit", name: "Llama 3B", size: "1.8 GB", recommended: false),
+        ModelInfo(id: "mlx-community/gemma-2-2b-it-4bit", name: "Gemma 2B", size: "1.4 GB", recommended: false),
+        ModelInfo(id: "mlx-community/SmolLM-135M-Instruct-4bit", name: "SmolLM 135M", size: "100 MB", recommended: false),
     ]
     
-    @Published var downloadedModels: Set<String> = []
+    // Loaded model container
+    private var modelContainer: ModelContainer?
     
-    // Loaded model
-    private var llm: LLMModel?
-    private var tokenizer: Tokenizer?
-    
-    // Paths
-    private let modelsDirectory: URL
-    
-    init() {
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-        modelsDirectory = docs.appendingPathComponent("ZeroDark/Models", isDirectory: true)
-        
-        try? FileManager.default.createDirectory(at: modelsDirectory, withIntermediateDirectories: true)
-        
-        // Check what's already downloaded
-        scanDownloadedModels()
-    }
-    
-    private func scanDownloadedModels() {
-        let contents = try? FileManager.default.contentsOfDirectory(at: modelsDirectory, includingPropertiesForKeys: nil)
-        downloadedModels = Set(contents?.map { $0.lastPathComponent } ?? [])
-    }
-    
-    // MARK: - Download Model
-    
-    func downloadModel(_ modelId: String) async throws {
-        isLoading = true
-        loadProgress = 0
-        error = nil
-        
-        defer { isLoading = false }
-        
-        do {
-            // Use MLX's built-in hub download
-            let modelPath = try await downloadFromHub(modelId: modelId) { progress in
-                Task { @MainActor in
-                    self.loadProgress = progress
-                }
-            }
-            
-            let modelName = modelId.components(separatedBy: "/").last ?? modelId
-            downloadedModels.insert(modelName)
-            
-        } catch {
-            self.error = error.localizedDescription
-            throw error
-        }
-    }
-    
-    private func downloadFromHub(modelId: String, progress: @escaping (Double) -> Void) async throws -> URL {
-        // MLX Swift uses HuggingFace hub
-        let config = LLMModel.Configuration(id: modelId)
-        
-        // This downloads the model if not cached
-        let modelPath = try await LLMModel.download(configuration: config) { downloadProgress in
-            progress(downloadProgress.fractionCompleted)
-        }
-        
-        return modelPath
+    struct ModelInfo: Identifiable {
+        let id: String
+        let name: String
+        let size: String
+        let recommended: Bool
     }
     
     // MARK: - Load Model
@@ -108,19 +53,19 @@ class MLXModelManager: ObservableObject {
         defer { isLoading = false }
         
         do {
-            let config = LLMModel.Configuration(id: modelId)
+            // Get configuration from registry or create default
+            let config = ModelConfiguration(id: modelId)
             
-            // Load model
-            llm = try await LLMModel.load(configuration: config) { progress in
+            // Load the model
+            modelContainer = try await LLMModelFactory.shared.loadContainer(
+                configuration: config
+            ) { progress in
                 Task { @MainActor in
                     self.loadProgress = progress.fractionCompleted
                 }
             }
             
-            // Load tokenizer
-            tokenizer = try await AutoTokenizer.from(pretrained: modelId)
-            
-            currentModel = modelId
+            currentModelId = modelId
             isReady = true
             
         } catch {
@@ -135,51 +80,46 @@ class MLXModelManager: ObservableObject {
     func generate(
         prompt: String,
         maxTokens: Int = 512,
-        temperature: Float = 0.7,
-        topP: Float = 0.9,
-        stopSequences: [String] = []
+        temperature: Float = 0.7
     ) async throws -> String {
-        guard let llm = llm, let tokenizer = tokenizer else {
+        guard let container = modelContainer else {
             throw MLXError.modelNotLoaded
         }
         
-        // Format as chat
-        let messages: [[String: String]] = [
-            ["role": "user", "content": prompt]
-        ]
+        let startTime = Date()
+        var tokenCount = 0
+        var output = ""
         
-        let formattedPrompt = try tokenizer.applyChatTemplate(messages: messages)
-        
-        // Tokenize
-        let inputIds = tokenizer.encode(formattedPrompt)
+        // Create generation parameters
+        let parameters = GenerateParameters(
+            temperature: temperature,
+            topP: 0.9,
+            repetitionPenalty: 1.1
+        )
         
         // Generate
-        var outputTokens: [Int] = []
-        var generatedText = ""
-        
-        let sampler = TopPSampler(temperature: temperature, topP: topP)
-        
-        for try await token in llm.generate(
-            input: MLXArray(inputIds),
-            sampler: sampler,
-            maxTokens: maxTokens
-        ) {
-            outputTokens.append(token)
+        let result = try await container.perform { context in
+            let input = try await context.processor.prepare(input: UserInput(prompt: .text(prompt)))
             
-            // Decode incrementally
-            let newText = tokenizer.decode(outputTokens)
-            generatedText = newText
-            
-            // Check stop sequences
-            for stop in stopSequences {
-                if generatedText.contains(stop) {
-                    generatedText = generatedText.components(separatedBy: stop).first ?? generatedText
-                    return generatedText.trimmingCharacters(in: .whitespacesAndNewlines)
+            return try MLXLMCommon.generate(
+                input: input,
+                parameters: parameters,
+                context: context
+            ) { tokens in
+                tokenCount = tokens.count
+                if tokenCount >= maxTokens {
+                    return .stop
                 }
+                return .more
             }
         }
         
-        return generatedText.trimmingCharacters(in: .whitespacesAndNewlines)
+        output = result.output
+        
+        let elapsed = Date().timeIntervalSince(startTime)
+        tokensPerSecond = Double(tokenCount) / max(0.001, elapsed)
+        
+        return output
     }
     
     // MARK: - Stream Generate
@@ -190,69 +130,57 @@ class MLXModelManager: ObservableObject {
         temperature: Float = 0.7,
         onToken: @escaping (String) -> Void
     ) async throws {
-        guard let llm = llm, let tokenizer = tokenizer else {
+        guard let container = modelContainer else {
             throw MLXError.modelNotLoaded
         }
         
-        let messages: [[String: String]] = [
-            ["role": "user", "content": prompt]
-        ]
+        let parameters = GenerateParameters(
+            temperature: temperature,
+            topP: 0.9
+        )
         
-        let formattedPrompt = try tokenizer.applyChatTemplate(messages: messages)
-        let inputIds = tokenizer.encode(formattedPrompt)
+        var tokenCount = 0
         
-        var outputTokens: [Int] = []
-        var lastText = ""
-        
-        let sampler = TopPSampler(temperature: temperature, topP: 0.9)
-        
-        for try await token in llm.generate(
-            input: MLXArray(inputIds),
-            sampler: sampler,
-            maxTokens: maxTokens
-        ) {
-            outputTokens.append(token)
-            let currentText = tokenizer.decode(outputTokens)
+        try await container.perform { context in
+            let input = try await context.processor.prepare(input: UserInput(prompt: .text(prompt)))
             
-            // Only emit new characters
-            if currentText.count > lastText.count {
-                let newPart = String(currentText.dropFirst(lastText.count))
-                onToken(newPart)
+            return try MLXLMCommon.generate(
+                input: input,
+                parameters: parameters,
+                context: context
+            ) { tokens in
+                tokenCount = tokens.count
+                
+                // Decode latest token
+                if let lastToken = tokens.last {
+                    let decoded = context.tokenizer.decode(tokens: [lastToken])
+                    onToken(decoded)
+                }
+                
+                if tokenCount >= maxTokens {
+                    return .stop
+                }
+                return .more
             }
-            
-            lastText = currentText
         }
     }
     
     enum MLXError: Error, LocalizedError {
         case modelNotLoaded
-        case downloadFailed(String)
         case generationFailed(String)
         
         var errorDescription: String? {
             switch self {
             case .modelNotLoaded:
-                return "No model loaded. Please load a model first."
-            case .downloadFailed(let reason):
-                return "Download failed: \(reason)"
-            case .generationFailed(let reason):
-                return "Generation failed: \(reason)"
+                return "No model loaded"
+            case .generationFailed(let msg):
+                return "Generation failed: \(msg)"
             }
         }
     }
 }
 
-struct MLXModelInfo: Identifiable {
-    let id: String
-    let name: String
-    let size: String
-    let parameters: String
-    let recommended: Bool
-}
-
-// MARK: - ═══════════════════════════════════════════════════════════════════
-// MARK: UNIFIED INFERENCE ENGINE (Wires Everything)
-// MARK: ═══════════════════════════════════════════════════════════════════
+// MARK: - Unified Inference Engine
 
 @MainActor
 class UnifiedInferenceEngine: ObservableObject {
@@ -261,11 +189,8 @@ class UnifiedInferenceEngine: ObservableObject {
     private let modelManager = MLXModelManager.shared
     
     @Published var isGenerating = false
-    @Published var tokensPerSecond: Double = 0
     
-    // MARK: - Main Generate (Used by all systems)
-    
-    /// The ONE function everything calls
+    /// Main generate function - used by all systems
     func generate(
         prompt: String,
         systemPrompt: String? = nil,
@@ -273,33 +198,23 @@ class UnifiedInferenceEngine: ObservableObject {
         temperature: Float = 0.7
     ) async -> String {
         guard modelManager.isReady else {
-            return "[Error: No model loaded]"
+            return "[No model loaded. Please load a model first.]"
         }
         
         isGenerating = true
         defer { isGenerating = false }
         
-        let startTime = Date()
-        
-        // Build full prompt
         var fullPrompt = prompt
         if let system = systemPrompt {
-            fullPrompt = "System: \(system)\n\nUser: \(prompt)"
+            fullPrompt = "System: \(system)\n\nUser: \(prompt)\n\nAssistant:"
         }
         
         do {
-            let result = try await modelManager.generate(
+            return try await modelManager.generate(
                 prompt: fullPrompt,
                 maxTokens: maxTokens,
                 temperature: temperature
             )
-            
-            let elapsed = Date().timeIntervalSince(startTime)
-            let tokens = result.split(separator: " ").count
-            tokensPerSecond = Double(tokens) / elapsed
-            
-            return result
-            
         } catch {
             return "[Error: \(error.localizedDescription)]"
         }
@@ -308,27 +223,21 @@ class UnifiedInferenceEngine: ObservableObject {
     /// Stream generate with callback
     func streamGenerate(
         prompt: String,
-        systemPrompt: String? = nil,
         maxTokens: Int = 512,
         temperature: Float = 0.7,
         onToken: @escaping (String) -> Void
     ) async {
         guard modelManager.isReady else {
-            onToken("[Error: No model loaded]")
+            onToken("[No model loaded]")
             return
         }
         
         isGenerating = true
         defer { isGenerating = false }
         
-        var fullPrompt = prompt
-        if let system = systemPrompt {
-            fullPrompt = "System: \(system)\n\nUser: \(prompt)"
-        }
-        
         do {
             try await modelManager.streamGenerate(
-                prompt: fullPrompt,
+                prompt: prompt,
                 maxTokens: maxTokens,
                 temperature: temperature,
                 onToken: onToken
@@ -337,71 +246,9 @@ class UnifiedInferenceEngine: ObservableObject {
             onToken("[Error: \(error.localizedDescription)]")
         }
     }
-    
-    // MARK: - Embedding (for RAG/Memory)
-    
-    func embed(_ text: String) async -> [Float] {
-        // For now, use simple word embedding
-        // TODO: Add proper embedding model (e5-small, etc.)
-        
-        var embedding = [Float](repeating: 0, count: 384)
-        
-        let words = text.lowercased().components(separatedBy: .whitespacesAndNewlines)
-        for (i, word) in words.prefix(384).enumerated() {
-            // Simple hash-based embedding (placeholder)
-            let hash = word.hashValue
-            embedding[i % 384] += Float(hash % 1000) / 1000.0
-        }
-        
-        // Normalize
-        let norm = sqrt(embedding.reduce(0) { $0 + $1 * $1 })
-        if norm > 0 {
-            embedding = embedding.map { $0 / norm }
-        }
-        
-        return embedding
-    }
 }
 
-// MARK: - ═══════════════════════════════════════════════════════════════════
-// MARK: WIRE INTO EXISTING SYSTEMS
-// MARK: ═══════════════════════════════════════════════════════════════════
-
-// Replace placeholder callModel in all existing code
-
-extension DeepInferenceEngine {
-    func callModelReal(_ prompt: String) async -> String {
-        return await UnifiedInferenceEngine.shared.generate(prompt: prompt)
-    }
-}
-
-extension ZeroSwarmEngine {
-    func callModelReal(_ prompt: String, temperature: Float = 0.7) async -> String {
-        return await UnifiedInferenceEngine.shared.generate(
-            prompt: prompt,
-            temperature: temperature
-        )
-    }
-}
-
-extension InfiniteMemorySystem {
-    func callModelReal(_ prompt: String) async -> String {
-        return await UnifiedInferenceEngine.shared.generate(
-            prompt: prompt,
-            maxTokens: 256  // Shorter for memory extraction
-        )
-    }
-}
-
-extension SelfRewardingEngine {
-    func callModelReal(_ prompt: String) async -> String {
-        return await UnifiedInferenceEngine.shared.generate(prompt: prompt)
-    }
-}
-
-// MARK: - ═══════════════════════════════════════════════════════════════════
-// MARK: MODEL DOWNLOAD UI
-// MARK: ═══════════════════════════════════════════════════════════════════
+// MARK: - Model Manager View
 
 struct ModelManagerView: View {
     @StateObject private var manager = MLXModelManager.shared
@@ -430,7 +277,7 @@ struct ModelManagerView: View {
             }
             
             Section("Current Model") {
-                if let current = manager.currentModel {
+                if let current = manager.currentModelId {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
@@ -450,7 +297,18 @@ struct ModelManagerView: View {
             
             Section("Available Models") {
                 ForEach(manager.availableModels) { model in
-                    ModelRow(model: model, isDownloaded: manager.downloadedModels.contains(model.id.components(separatedBy: "/").last ?? ""))
+                    ModelRowView(model: model)
+                }
+            }
+            
+            if manager.isReady {
+                Section("Stats") {
+                    HStack {
+                        Text("Speed")
+                        Spacer()
+                        Text("\(manager.tokensPerSecond, specifier: "%.1f") tok/s")
+                            .foregroundColor(.cyan)
+                    }
                 }
             }
         }
@@ -458,10 +316,8 @@ struct ModelManagerView: View {
     }
 }
 
-struct ModelRow: View {
-    let model: MLXModelInfo
-    let isDownloaded: Bool
-    
+struct ModelRowView: View {
+    let model: MLXModelManager.ModelInfo
     @StateObject private var manager = MLXModelManager.shared
     
     var body: some View {
@@ -480,59 +336,25 @@ struct ModelRow: View {
                             .cornerRadius(4)
                     }
                 }
-                Text("\(model.parameters) parameters • \(model.size)")
+                Text(model.size)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
             
             Spacer()
             
-            if isDownloaded {
-                Button("Load") {
-                    Task {
-                        try? await manager.loadModel(model.id)
-                    }
+            Button("Load") {
+                Task {
+                    try? await manager.loadModel(model.id)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.cyan)
-                .disabled(manager.isLoading)
-            } else {
-                Button("Download") {
-                    Task {
-                        try? await manager.downloadModel(model.id)
-                    }
-                }
-                .buttonStyle(.bordered)
-                .disabled(manager.isLoading)
             }
+            .buttonStyle(.borderedProminent)
+            .tint(.cyan)
+            .disabled(manager.isLoading || manager.currentModelId == model.id)
         }
         .padding(.vertical, 4)
     }
 }
-
-// MARK: - ═══════════════════════════════════════════════════════════════════
-// MARK: PACKAGE.SWIFT (Dependencies)
-// MARK: ═══════════════════════════════════════════════════════════════════
-
-/*
- Add to Package.swift dependencies:
- 
- dependencies: [
-     .package(url: "https://github.com/ml-explore/mlx-swift", from: "0.18.0"),
-     .package(url: "https://github.com/ml-explore/mlx-swift-examples", branch: "main"),
-     .package(url: "https://github.com/huggingface/swift-transformers", from: "0.1.0"),
- ],
- targets: [
-     .target(
-         name: "ZeroDark",
-         dependencies: [
-             .product(name: "MLX", package: "mlx-swift"),
-             .product(name: "MLXLLM", package: "mlx-swift-examples"),
-             .product(name: "Tokenizers", package: "swift-transformers"),
-         ]
-     ),
- ]
-*/
 
 #Preview {
     NavigationStack {

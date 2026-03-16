@@ -941,7 +941,7 @@ struct MemoryDashboardView: View {
             
             Section("Efficiency") {
                 StatRow(label: "Tokens Saved", value: "\(memory.totalTokensSaved)")
-                StatRow(label: "Compression", value: "\(memory.compressionRatio, specifier: "%.1f")x")
+                StatRow(label: "Compression", value: String(format: "%.1fx", memory.compressionRatio))
             }
             
             Section("Actions") {
