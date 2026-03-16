@@ -219,10 +219,9 @@ class FileLearner: ObservableObject {
     }
     
     func learn() async {
-        // Learn from common directories
-        let home = FileManager.default.homeDirectoryForCurrentUser
-        await watchDirectory(home.appendingPathComponent("Documents"))
-        await watchDirectory(home.appendingPathComponent("Developer"))
+        // Learn from app's documents directory (iOS compatible)
+        guard let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+        await watchDirectory(documentsURL)
     }
 }
 
