@@ -141,6 +141,7 @@ public enum ImageType {
 
 // MARK: - Unified Vision Interface
 
+@MainActor
 public class UnifiedVisionEngine {
     
     private let glmOCR: GLMOCREngine
