@@ -1,0 +1,195 @@
+// LocalInferenceEngine.swift
+// ZeroDark Phase 8c — Real on-device inference via LLMFarm Core (llama.cpp)
+// Model: Phi-3.5-mini-instruct Q4_K_M
+
+import Foundation
+import llmfarm_core
+
+@MainActor
+final class LocalInferenceEngine: ObservableObject {
+    static let shared = LocalInferenceEngine()
+
+    // Path to Documents/Models/phi-3.5-mini.gguf for ModelManager
+    static var modelPath: URL {
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        return docs.appendingPathComponent("Models/phi-3.5-mini.gguf")
+    }
+
+    enum ModelState: Equatable {
+        case notLoaded, loading, ready, error(String)
+        static func == (lhs: ModelState, rhs: ModelState) -> Bool {
+            switch (lhs, rhs) {
+            case (.notLoaded, .notLoaded), (.loading, .loading), (.ready, .ready): return true
+            case (.error(let a), .error(let b)): return a == b
+            default: return false
+            }
+        }
+    }
+
+    @Published var modelState: ModelState = .notLoaded
+    @Published var loadProgress: Double = 0.0
+    @Published var isGenerating: Bool = false
+
+    private var ai: AI?
+    private var generationTask: Task<Void, Never>?
+
+    private init() {}
+
+    // Bundle-first lookup, fallback to Documents/Models/
+    private var modelURL: URL? {
+        if let bundled = Bundle.main.url(forResource: "phi-3.5-mini", withExtension: "gguf") {
+            return bundled
+        }
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let path = docs.appendingPathComponent("Models/phi-3.5-mini.gguf")
+        return FileManager.default.fileExists(atPath: path.path) ? path : nil
+    }
+
+    var modelFileExists: Bool { modelURL != nil }
+
+    // MARK: - Load
+
+    func loadModel() async {
+        guard modelState == .notLoaded || modelState == .ready else { return }
+        guard let modelURL else {
+            modelState = .error("Model not found — bundle or Documents/Models/phi-3.5-mini.gguf")
+            return
+        }
+        modelState = .loading
+        loadProgress = 0.1
+        print("[ZeroDark] LocalInferenceEngine: loading \(modelURL.lastPathComponent)")
+
+        do {
+            let instance = AI(_modelPath: modelURL.path, _chatName: "zerodark")
+            var params = ModelAndContextParams.default
+            params.context = 2048
+            params.n_threads = Int32(min(6, ProcessInfo.processInfo.processorCount))
+            params.use_metal = true  // Metal GPU acceleration
+
+            instance.initModel(ModelInference.LLama_gguf, contextParams: params)
+
+            try await Task.detached(priority: .userInitiated) {
+                try instance.loadModel_sync()
+            }.value
+
+            // initModel uses try? internally — model stays nil on init failure
+            guard instance.model != nil else {
+                throw NSError(domain: "LocalInferenceEngine", code: -1,
+                              userInfo: [NSLocalizedDescriptionKey: "initModel failed — model is nil after load"])
+            }
+
+            // Sampling params set after load on the underlying LLMBase model
+            instance.model?.sampleParams.temp = 0.7
+            instance.model?.sampleParams.top_k = 40
+            instance.model?.sampleParams.top_p = 0.95
+            instance.model?.sampleParams.n_batch = 512
+
+            ai = instance
+            loadProgress = 1.0
+            modelState = .ready
+            print("[ZeroDark] LocalInferenceEngine: Phi-3.5-mini ready")
+        } catch {
+            loadProgress = 0.0
+            modelState = .error(error.localizedDescription)
+            print("[ZeroDark] LocalInferenceEngine: \(error)")
+        }
+    }
+
+    // MARK: - Generate
+
+    func generate(
+        prompt: String,
+        maxTokens: Int = 512,
+        onToken: @escaping @MainActor (String) -> Void,
+        onComplete: @escaping @MainActor () -> Void
+    ) async {
+        let fullPrompt = buildPrompt(
+            system: "You are a tactical field advisor. Answer using only the field manual extracts provided. Be direct. Lead with the most critical action first.",
+            user: prompt
+        )
+        await runInference(prompt: fullPrompt, maxTokens: maxTokens, onToken: onToken, onComplete: onComplete)
+    }
+
+    func generateWithContext(
+        query: String,
+        retrievedChunks: [String],
+        maxTokens: Int = 512,
+        onToken: @escaping @MainActor (String) -> Void,
+        onComplete: @escaping @MainActor () -> Void
+    ) async {
+        let context = retrievedChunks.prefix(5).enumerated()
+            .map { i, chunk in "--- Extract \(i + 1) ---\n\(chunk)" }
+            .joined(separator: "\n\n")
+        let fullPrompt = buildPrompt(
+            system: "You are a tactical field advisor. Answer using only the field manual extracts provided. Be direct. Lead with the most critical action first.\n\nFIELD MANUAL EXTRACTS:\n\(context)",
+            user: query
+        )
+        await runInference(prompt: fullPrompt, maxTokens: maxTokens, onToken: onToken, onComplete: onComplete)
+    }
+
+    // MARK: - Private
+
+    private func runInference(
+        prompt: String,
+        maxTokens: Int,
+        onToken: @escaping @MainActor (String) -> Void,
+        onComplete: @escaping @MainActor () -> Void
+    ) async {
+        guard case .ready = modelState, let instance = ai else {
+            await onComplete(); return
+        }
+        isGenerating = true
+        instance.flagExit = false
+
+        generationTask = Task {
+            await withCheckedContinuation { continuation in
+                instance.conversation(
+                    prompt,
+                    { token, _ in   // tokenCallback — llmfarm delivers on main queue
+                        Task { @MainActor in
+                            let filtered = token
+                                .replacingOccurrences(of: "<|end|>", with: "")
+                                .replacingOccurrences(of: "<|endoftext|>", with: "")
+                                .replacingOccurrences(of: "<|assistant|>", with: "")
+                                .replacingOccurrences(of: "<|user|>", with: "")
+                                .replacingOccurrences(of: "<|system|>", with: "")
+                                .replacingOccurrences(of: "C_LIMIT", with: "")
+                            if !filtered.isEmpty { onToken(filtered) }
+                        }
+                    },
+                    nil,            // infoCallBack
+                    { _ in          // completion
+                        continuation.resume()
+                    },
+                    system_prompt: nil
+                )
+            }
+            await MainActor.run {
+                self.isGenerating = false
+                onComplete()
+            }
+        }
+        await generationTask?.value
+    }
+
+    private func buildPrompt(system: String, user: String) -> String {
+        "<|system|>\n\(system)<|end|>\n<|user|>\n\(user)<|end|>\n<|assistant|>\n"
+    }
+
+    // MARK: - Cancel / Unload
+
+    func cancel() {
+        ai?.flagExit = true
+        generationTask?.cancel()
+        isGenerating = false
+        print("[ZeroDark] LocalInferenceEngine: cancelled")
+    }
+
+    func unloadModel() {
+        cancel()
+        ai = nil
+        modelState = .notLoaded
+        loadProgress = 0.0
+        print("[ZeroDark] LocalInferenceEngine: unloaded")
+    }
+}

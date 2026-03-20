@@ -7,33 +7,64 @@ options:
   xcodeVersion: "15.0"
 
 packages:
+  # llmfarm-core disabled temporarily - xcframework rebuild needed
+  # llmfarm-core:
+  #   path: /Users/bobbyhansenjr./Developer/llmfarm_core
   MLXSwift:
     url: https://github.com/ml-explore/mlx-swift
     from: "0.18.0"
   MLXSwiftLM:
     url: https://github.com/ml-explore/mlx-swift-lm
     branch: main
+  MultipeerKit:
+    url: https://github.com/insidegui/MultipeerKit
+    from: "0.4.0"
+  CryptoSwift:
+    url: https://github.com/krzyzanowskim/CryptoSwift
+    from: "1.8.0"
+  mgrs-ios:
+    url: https://github.com/ngageoint/mgrs-ios
+    from: "2.0.0"
+  gars-ios:
+    url: https://github.com/ngageoint/gars-ios
+    from: "2.0.0"
+  geopackage-ios:
+    url: https://github.com/ngageoint/geopackage-ios
+    from: "9.0.0"
 
 targets:
   ZeroDark:
     type: application
     platform: iOS
     sources:
-      - path: App
-        excludes:
-          - README.md
       - path: Sources/MLXEdgeLLM
+        excludes:
+          - "**/*.backup"
+    resources:
+      - path: Sources/MLXEdgeLLM/Resources/Knowledge
+        type: folder
+      - path: Sources/MLXEdgeLLM/Resources/Models/phi-3.5-mini.gguf
+        buildPhase: resources
+        type: file
+      - path: Sources/MLXEdgeLLM/Resources/Assets.xcassets
+        type: folder
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.bobbyhansen.zerodark
         MARKETING_VERSION: "1.0.0"
         CURRENT_PROJECT_VERSION: 1
         CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: HWV3Q7B59G
         GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: ZeroDark
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
         ENABLE_USER_SCRIPT_SANDBOXING: NO
         SWIFT_STRICT_CONCURRENCY: minimal
+        SWIFT_OBJC_BRIDGING_HEADER: Sources/MLXEdgeLLM/ZeroDark-Bridging-Header.h
+        HEADER_SEARCH_PATHS: $(SRCROOT)/Sources/MLXEdgeLLM
     dependencies:
       - package: MLXSwift
         product: MLX
@@ -49,6 +80,18 @@ targets:
         product: MLXLMCommon
       - package: MLXSwiftLM
         product: MLXVLM
+      - package: MultipeerKit
+      - package: CryptoSwift
+      - package: mgrs-ios
+        product: MGRS
+      - package: gars-ios
+        product: GARS
+      - package: geopackage-ios
+        product: GeoPackage
+      # llmfarm-core disabled temporarily
+      # - package: llmfarm-core
+      #   product: llmfarm_core
+      - sdk: Accelerate.framework
     entitlements:
       path: ZeroDark.entitlements
       properties:

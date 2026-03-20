@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>UIFileSharingEnabled</key>
+    <true/>
+    <key>LSSupportsOpeningDocumentsInPlace</key>
+    <true/>
+    <key>NSCameraUsageDescription</key>
+    <string>ZeroDark uses the camera for LiDAR scanning and visual identification.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>ZeroDark uses the microphone for voice synthesis and acoustic communications.</string>
+    <key>NSHealthShareUsageDescription</key>
+    <string>ZeroDark uses health data to learn activity and sleep patterns for personalized recommendations.</string>
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>ZeroDark may write health data to support activity tracking features.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>ZeroDark uses location for mapping and navigation.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>ZeroDark uses location for tracking and emergency services.</string>
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>ZeroDark uses Bluetooth for mesh networking and LoRa communication.</string>
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>ZeroDark uses local network for peer-to-peer mesh communication.</string>
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>location</string>
+        <string>bluetooth-central</string>
+        <string>bluetooth-peripheral</string>
+        <string>audio</string>
+    </array>
+</dict>
+</plist>

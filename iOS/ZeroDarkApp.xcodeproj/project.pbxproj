@@ -9,12 +9,17 @@
 /* Begin PBXBuildFile section */
 		A1B2C3D4E5F60001 /* ZeroDarkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60011 /* ZeroDarkApp.swift */; };
 		A1B2C3D4E5F60002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60012 /* ContentView.swift */; };
+		A1B2C3D4E5F60003 /* LLMService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60013 /* LLMService.swift */; };
+		A1B2C3D4E5F60080 /* LocalLLMClient in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3D4E5F60081 /* LocalLLMClient */; };
+		A1B2C3D4E5F60082 /* LocalLLMClientMLX in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3D4E5F60083 /* LocalLLMClientMLX */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		A1B2C3D4E5F60010 /* ZeroDarkApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZeroDarkApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1B2C3D4E5F60011 /* ZeroDarkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZeroDarkApp.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60012 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60013 /* LLMService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMService.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60014 /* ZeroDarkApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ZeroDarkApp.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -22,6 +27,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1B2C3D4E5F60080 /* LocalLLMClient in Frameworks */,
+				A1B2C3D4E5F60082 /* LocalLLMClientMLX in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -41,6 +48,8 @@
 			children = (
 				A1B2C3D4E5F60011 /* ZeroDarkApp.swift */,
 				A1B2C3D4E5F60012 /* ContentView.swift */,
+				A1B2C3D4E5F60013 /* LLMService.swift */,
+				A1B2C3D4E5F60014 /* ZeroDarkApp.entitlements */,
 			);
 			path = ZeroDarkApp;
 			sourceTree = "<group>";
@@ -68,6 +77,10 @@
 			dependencies = (
 			);
 			name = ZeroDarkApp;
+			packageProductDependencies = (
+				A1B2C3D4E5F60081 /* LocalLLMClient */,
+				A1B2C3D4E5F60083 /* LocalLLMClientMLX */,
+			);
 			productName = ZeroDarkApp;
 			productReference = A1B2C3D4E5F60010 /* ZeroDarkApp.app */;
 			productType = "com.apple.product-type.application";
@@ -96,6 +109,9 @@
 				Base,
 			);
 			mainGroup = A1B2C3D4E5F60030;
+			packageReferences = (
+				A1B2C3D4E5F60090 /* XCRemoteSwiftPackageReference "LocalLLMClient" */,
+			);
 			productRefGroup = A1B2C3D4E5F60032 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -112,6 +128,7 @@
 			files = (
 				A1B2C3D4E5F60001 /* ZeroDarkApp.swift in Sources */,
 				A1B2C3D4E5F60002 /* ContentView.swift in Sources */,
+				A1B2C3D4E5F60003 /* LLMService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -122,6 +139,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ZeroDarkApp/ZeroDarkApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
@@ -150,6 +168,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = ZeroDarkApp/ZeroDarkApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
@@ -315,6 +334,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A1B2C3D4E5F60090 /* XCRemoteSwiftPackageReference "LocalLLMClient" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tattn/LocalLLMClient.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A1B2C3D4E5F60081 /* LocalLLMClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1B2C3D4E5F60090 /* XCRemoteSwiftPackageReference "LocalLLMClient" */;
+			productName = LocalLLMClient;
+		};
+		A1B2C3D4E5F60083 /* LocalLLMClientMLX */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1B2C3D4E5F60090 /* XCRemoteSwiftPackageReference "LocalLLMClient" */;
+			productName = LocalLLMClientMLX;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 	};
 	rootObject = A1B2C3D4E5F60050 /* Project object */;
