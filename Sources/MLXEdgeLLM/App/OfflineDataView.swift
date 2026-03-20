@@ -46,7 +46,7 @@ struct OfflineDataView: View {
             } header: {
                 Text("OFFLINE MAPS (\(mapPacks.count))")
             } footer: {
-                Text("Transfer .mbtiles files via USB:\nFinder → iPhone → Files → ZeroDark → Maps/")
+                Text("Transfer .mbtiles files via USB:\nFinder → iPhone → Files → ZeroDark → OfflineMaps/, Maps/, or root")
             }
             
             // Terrain Data
@@ -66,7 +66,7 @@ struct OfflineDataView: View {
             } header: {
                 Text("TERRAIN DATA (\(terrainTiles.count))")
             } footer: {
-                Text("Transfer .hgt or .tiff files via USB:\nFinder → iPhone → Files → ZeroDark → Terrain/")
+                Text("Transfer .hgt or .tiff files via USB:\nFinder → iPhone → Files → ZeroDark → Terrain/, SRTM/, or root")
             }
             
             // USB Transfer Instructions
@@ -94,31 +94,51 @@ struct OfflineDataView: View {
     }
     
     private func loadData() {
-        // Load map packs from offline maps directory
-        let fileManager = FileManager.default
-        let paths = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
-        let mapsDir = paths[0].appendingPathComponent("OfflineMaps", isDirectory: true)
-        let terrainDir = paths[0].appendingPathComponent("Terrain", isDirectory: true)
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let containerRoot = docs.deletingLastPathComponent()
+        let fm = FileManager.default
 
-        // Get map files
-        mapPacks = (try? fileManager.contentsOfDirectory(at: mapsDir, includingPropertiesForKeys: nil).filter { $0.pathExtension == "mbtiles" }) ?? []
+        // Map search paths (deduplicated by filename)
+        let mapDirs: [URL] = [
+            docs.appendingPathComponent("OfflineMaps"),
+            docs.appendingPathComponent("Maps"),
+            containerRoot.appendingPathComponent("OfflineMaps"),
+            containerRoot.appendingPathComponent("Maps")
+        ]
+        var seenMapNames = Set<String>()
+        mapPacks = mapDirs.flatMap { dir -> [URL] in
+            (try? fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil,
+                                          options: .skipsHiddenFiles)) ?? []
+        }.filter { $0.pathExtension == "mbtiles" }
+        .filter { seenMapNames.insert($0.lastPathComponent).inserted }
 
-        // Get terrain files
-        terrainTiles = (try? fileManager.contentsOfDirectory(at: terrainDir, includingPropertiesForKeys: nil).filter { ["hgt", "tiff"].contains($0.pathExtension.lowercased()) }) ?? []
+        // Terrain search paths (deduplicated by filename)
+        let terrainDirs: [URL] = [
+            docs.appendingPathComponent("Terrain"),
+            docs.appendingPathComponent("SRTM"),
+            containerRoot.appendingPathComponent("Terrain"),
+            containerRoot.appendingPathComponent("SRTM")
+        ]
+        var seenTerrainNames = Set<String>()
+        terrainTiles = terrainDirs.flatMap { dir -> [URL] in
+            (try? fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil,
+                                          options: .skipsHiddenFiles)) ?? []
+        }.filter { ["hgt", "tiff"].contains($0.pathExtension.lowercased()) }
+        .filter { seenTerrainNames.insert($0.lastPathComponent).inserted }
 
         // Calculate storage
         let mapSize = mapPacks.reduce(Int64(0)) { total, url in
-            total + ((try? fileManager.attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0)
+            total + ((try? fm.attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0)
         }
         let terrainSize = terrainTiles.reduce(Int64(0)) { total, url in
-            total + ((try? fileManager.attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0)
+            total + ((try? fm.attributesOfItem(atPath: url.path)[.size] as? Int64) ?? 0)
         }
 
         let totalBytes = mapSize + terrainSize
         let formatter = ByteCountFormatter()
         formatter.countStyle = .file
         totalStorage = formatter.string(fromByteCount: totalBytes)
-        
+
         // Available storage
         if let attrs = try? FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory()),
            let freeSpace = attrs[.systemFreeSize] as? Int64 {

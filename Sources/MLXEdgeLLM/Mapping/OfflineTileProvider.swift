@@ -283,6 +283,24 @@ final class OfflineTileProvider: ObservableObject {
             mapURLs.append(contentsOf: rootMaps)
         }
 
+        let containerRoot = documentsDir.deletingLastPathComponent()
+
+        // 3. Check container root /OfflineMaps/
+        let containerMapsDir = containerRoot.appendingPathComponent("OfflineMaps", isDirectory: true)
+        if let contents = try? FileManager.default.contentsOfDirectory(at: containerMapsDir,
+            includingPropertiesForKeys: nil, options: .skipsHiddenFiles) {
+            let maps = contents.filter { ["mbtiles", "pmtiles"].contains($0.pathExtension.lowercased()) }
+            mapURLs.append(contentsOf: maps)
+        }
+
+        // 4. Check Documents/Maps/
+        let docsMapsDir = documentsDir.appendingPathComponent("Maps", isDirectory: true)
+        if let contents = try? FileManager.default.contentsOfDirectory(at: docsMapsDir,
+            includingPropertiesForKeys: nil, options: .skipsHiddenFiles) {
+            let maps = contents.filter { ["mbtiles", "pmtiles"].contains($0.pathExtension.lowercased()) }
+            mapURLs.append(contentsOf: maps)
+        }
+
         for url in mapURLs {
             let ext = url.pathExtension.lowercased()
             let name = url.deletingPathExtension().lastPathComponent

@@ -370,8 +370,11 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
     private var collectedPoints: [SIMD3<Float>] = []
     private var meshAnchors: [ARMeshAnchor] = []
     private var scanStartTime: Date?
-    private let maxPointCount = 50_000_000
+    private let maxPointCount = 10_000_000
     private var hasWarnedPointLimit = false
+    private var pointStreamURL: URL?
+    private var pointStreamHandle: FileHandle?
+    private var streamedPointCount: Int = 0
 
     // Configuration
     var config = LiDARScanConfig()
@@ -437,8 +440,20 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         meshAnchors = []
         scanStartTime = Date()
         hasWarnedPointLimit = false
+
+        // Setup point streaming to disk
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("scan_\(UUID().uuidString).bin")
+        FileManager.default.createFile(atPath: tempURL.path, contents: nil)
+        pointStreamURL = tempURL
+        pointStreamHandle = try? FileHandle(forWritingTo: tempURL)
+        streamedPointCount = 0
+        // Write placeholder header (count updated at stop)
+        var placeholder = UInt32(0)
+        pointStreamHandle?.write(Data(bytes: &placeholder, count: 4))
+
         analysisStatus = "Scanning..."
-        
+
         // Reset guidance tracking
         scanGuidance = .goodCoverage
         pointsPerSecond = 0
@@ -463,12 +478,24 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
 
         guard let startTime = scanStartTime else { return }
 
-        // Capture before clearing
+        // Finalize stream file (update header with actual count)
+        let streamURL = pointStreamURL
+        if let handle = pointStreamHandle {
+            handle.seek(toFileOffset: 0)
+            var count = UInt32(streamedPointCount)
+            handle.write(Data(bytes: &count, count: 4))
+            try? handle.close()
+        }
+        pointStreamHandle = nil
+        pointStreamURL = nil
+
+        // Capture RAM buffer (last 100K) for analysis + bbox
         let points = collectedPoints
         let anchors = meshAnchors
         let location = currentLocation
         let heading = currentHeading
-        let bbox = calculateBoundingBox()  // Must call BEFORE clearing collectedPoints
+        let bbox = calculateBoundingBox()   // reads collectedPoints (100K max)
+        let totalCount = streamedPointCount > 0 ? streamedPointCount : points.count
 
         // Free memory immediately
         collectedPoints = []
@@ -478,28 +505,44 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
             timestamp: Date(),
             location: location,
             heading: heading,
-            pointCloud: points,
+            pointCloud: points,             // last 100K for analysis
             meshAnchors: anchors,
             depthMap: nil,
             confidenceMap: nil,
             scanDuration: Date().timeIntervalSince(startTime),
-            pointCount: points.count,
+            pointCount: totalCount,
             boundingBox: bbox
         )
 
         lastScanResult = result
-        scanHistory.insert(result, at: 0)
-        if scanHistory.count > 20 {
-            scanHistory.removeLast()
-        }
+        scanHistory = []                    // Clear — full point arrays waste memory
         analysisStatus = "Saving..."
 
         Task.detached(priority: .userInitiated) { [weak self] in
-            await self?.saveScanAsync(result)
+            await self?.saveScanAsync(result, streamURL: streamURL)
         }
     }
 
-    private func saveScanAsync(_ result: LiDARScanResult) async {
+    private func streamPointsToDisk(_ points: [SIMD3<Float>]) {
+        // Write to stream file
+        if let handle = pointStreamHandle, !points.isEmpty {
+            var data = Data(capacity: points.count * 12)
+            for point in points {
+                var p = point
+                data.append(Data(bytes: &p, count: 12))
+            }
+            handle.write(data)
+            streamedPointCount += points.count
+        }
+
+        // Keep last 100K in RAM for analysis/bounding box
+        collectedPoints.append(contentsOf: points)
+        if collectedPoints.count > 100_000 {
+            collectedPoints.removeFirst(collectedPoints.count - 100_000)
+        }
+    }
+
+    private func saveScanAsync(_ result: LiDARScanResult, streamURL: URL?) async {
         let scansDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("LiDARScans", isDirectory: true)
         let scanDir = scansDir.appendingPathComponent(result.id.uuidString, isDirectory: true)
@@ -508,10 +551,21 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         await saveMetadataAsync(result, to: scanDir)
 
         await MainActor.run { analysisStatus = "Saving points..." }
-        do {
-            try await savePointsBinary(result.pointCloud, to: scanDir.appendingPathComponent("points.bin"))
-        } catch {
-            print("[ZeroDark] Points save failed: \(error)")
+        let pointsDest = scanDir.appendingPathComponent("points.bin")
+        if let src = streamURL, FileManager.default.fileExists(atPath: src.path) {
+            do {
+                try FileManager.default.moveItem(at: src, to: pointsDest)
+            } catch {
+                print("[ZeroDark] Stream move failed: \(error)")
+                // Fallback: save 100K RAM buffer
+                try? await savePointsBinary(result.pointCloud, to: pointsDest)
+            }
+        } else if !result.pointCloud.isEmpty {
+            do {
+                try await savePointsBinary(result.pointCloud, to: pointsDest)
+            } catch {
+                print("[ZeroDark] Points save failed: \(error)")
+            }
         }
 
         await MainActor.run { analysisStatus = "Exporting 3D model..." }
@@ -1557,16 +1611,16 @@ extension LiDARCaptureEngine: ARSessionDelegate {
                     self.frameCount += 1
 
                     // Check memory limit before adding more points
-                    if self.collectedPoints.count >= self.maxPointCount {
+                    if self.streamedPointCount >= self.maxPointCount {
                         if !self.hasWarnedPointLimit {
                             self.hasWarnedPointLimit = true
-                            self.analysisStatus = "Point limit reached (50M). Stop scan to save."
+                            self.analysisStatus = "Point limit reached (10M). Stop scan to save."
                         }
                         return
                     }
 
                     // Always capture every frame for maximum quality
-                    self.collectedPoints.append(contentsOf: newPoints)
+                    self.streamPointsToDisk(newPoints)
                     
                     // Update coverage grid based on camera look direction
                     // Extract yaw (horizontal) and pitch (vertical) from camera transform
@@ -1645,10 +1699,10 @@ extension LiDARCaptureEngine: ARSessionDelegate {
             for anchor in anchors {
                 if let meshAnchor = anchor as? ARMeshAnchor {
                     // Check memory limit before adding mesh points
-                    if collectedPoints.count >= maxPointCount {
+                    if streamedPointCount >= maxPointCount {
                         if !hasWarnedPointLimit {
                             hasWarnedPointLimit = true
-                            analysisStatus = "Point limit reached (50M). Stop scan to save."
+                            analysisStatus = "Point limit reached (10M). Stop scan to save."
                         }
                         continue
                     }
@@ -1659,11 +1713,14 @@ extension LiDARCaptureEngine: ARSessionDelegate {
                     let geometry = meshAnchor.geometry
                     let vertices = geometry.extractVertexPositions()
 
+                    // Accumulate mesh vertices into a local array, then stream
+                    var meshPoints: [SIMD3<Float>] = []
                     for i in 0..<vertices.count {
                         let vertex = vertices[i]
                         let worldPos = meshAnchor.transform * SIMD4<Float>(vertex.x, vertex.y, vertex.z, 1)
-                        collectedPoints.append(SIMD3(worldPos.x, worldPos.y, worldPos.z))
+                        meshPoints.append(SIMD3(worldPos.x, worldPos.y, worldPos.z))
                     }
+                    streamPointsToDisk(meshPoints)
                 }
             }
         }

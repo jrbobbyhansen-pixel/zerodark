@@ -125,21 +125,29 @@ final class TerrainEngine {
     // MARK: - Private Helpers
 
     private func loadTile(named name: String) -> TerrainTile? {
-        if let cached = cachedTiles[name] {
-            return cached
-        }
+        if let cached = cachedTiles[name] { return cached }
 
-        let path = srtmDirectory.appendingPathComponent("\(name).hgt")
-        guard fileManager.fileExists(atPath: path.path) else { return nil }
+        let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let containerRoot = docs.deletingLastPathComponent()
 
-        do {
-            let data = try Data(contentsOf: path)
-            let tile = try parseHGT(data: data, name: name)
-            cachedTiles[name] = tile
-            return tile
-        } catch {
-            return nil
+        let searchDirs: [URL] = [
+            docs.appendingPathComponent("SRTM"),
+            docs.appendingPathComponent("Terrain"),
+            containerRoot.appendingPathComponent("SRTM"),
+            containerRoot.appendingPathComponent("Terrain")
+        ]
+
+        for dir in searchDirs {
+            let path = dir.appendingPathComponent("\(name).hgt")
+            guard fileManager.fileExists(atPath: path.path) else { continue }
+            do {
+                let data = try Data(contentsOf: path)
+                let tile = try parseHGT(data: data, name: name)
+                cachedTiles[name] = tile
+                return tile
+            } catch { continue }
         }
+        return nil
     }
 
     private func parseHGT(data: Data, name: String) throws -> TerrainTile {
