@@ -156,4 +156,10 @@ final class ScanStorage: ObservableObject {
         // Reload index to reflect changes
         loadScanIndex()
     }
+
+    func deleteScan(_ scan: SavedScan) {
+        try? FileManager.default.removeItem(at: scan.scanDir)
+        savedScans.removeAll { $0.id == scan.id }
+        loadScanIndex()
+    }
 }

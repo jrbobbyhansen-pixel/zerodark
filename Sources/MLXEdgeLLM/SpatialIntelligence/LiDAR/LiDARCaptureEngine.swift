@@ -353,13 +353,13 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
     
     enum ScanGuidance: String {
         case ready = "Point at room and tap SCAN"
-        case scanSlower = "⚠️ Scan slower for better quality"
-        case moveCloser = "📏 Move closer to surfaces (1-3m)"
-        case goodCoverage = "✓ Good coverage"
+        case scanSlower = "Scan slower for better quality"
+        case moveCloser = "Move closer to surfaces (1-3m)"
+        case goodCoverage = "Good coverage"
         case keepGoing = "Keep scanning more angles..."
-        case minimumReached = "✅ Minimum reached - add more for detail"
-        case goodScan = "🎯 Good scan! Stop when ready"
-        case excellentScan = "⭐ Excellent coverage!"
+        case minimumReached = "Minimum reached - add more for detail"
+        case goodScan = "Good scan — stop when ready"
+        case excellentScan = "Excellent coverage"
     }
     
     // AR Session
@@ -370,7 +370,9 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
     private var collectedPoints: [SIMD3<Float>] = []
     private var meshAnchors: [ARMeshAnchor] = []
     private var scanStartTime: Date?
-    
+    private let maxPointCount = 50_000_000
+    private var hasWarnedPointLimit = false
+
     // Configuration
     var config = LiDARScanConfig()
     
@@ -434,6 +436,7 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         collectedPoints = []
         meshAnchors = []
         scanStartTime = Date()
+        hasWarnedPointLimit = false
         analysisStatus = "Scanning..."
         
         // Reset guidance tracking
@@ -460,18 +463,28 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
 
         guard let startTime = scanStartTime else { return }
 
-        // Compile scan result
+        // Capture before clearing
+        let points = collectedPoints
+        let anchors = meshAnchors
+        let location = currentLocation
+        let heading = currentHeading
+        let bbox = calculateBoundingBox()  // Must call BEFORE clearing collectedPoints
+
+        // Free memory immediately
+        collectedPoints = []
+        meshAnchors = []
+
         let result = LiDARScanResult(
             timestamp: Date(),
-            location: currentLocation,
-            heading: currentHeading,
-            pointCloud: collectedPoints,
-            meshAnchors: meshAnchors,
-            depthMap: arSession?.currentFrame?.sceneDepth?.depthMap,
-            confidenceMap: arSession?.currentFrame?.sceneDepth?.confidenceMap,
+            location: location,
+            heading: heading,
+            pointCloud: points,
+            meshAnchors: anchors,
+            depthMap: nil,
+            confidenceMap: nil,
             scanDuration: Date().timeIntervalSince(startTime),
-            pointCount: collectedPoints.count,
-            boundingBox: calculateBoundingBox()
+            pointCount: points.count,
+            boundingBox: bbox
         )
 
         lastScanResult = result
@@ -479,15 +492,64 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         if scanHistory.count > 20 {
             scanHistory.removeLast()
         }
-        saveScanToDisk(result)
-        analysisStatus = "Scan complete. Analyzing..."
+        analysisStatus = "Saving..."
 
-        // Run analysis
-        Task {
-            await analyzeResult(result)
+        Task.detached(priority: .userInitiated) { [weak self] in
+            await self?.saveScanAsync(result)
         }
     }
-    
+
+    private func saveScanAsync(_ result: LiDARScanResult) async {
+        let scansDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("LiDARScans", isDirectory: true)
+        let scanDir = scansDir.appendingPathComponent(result.id.uuidString, isDirectory: true)
+        try? FileManager.default.createDirectory(at: scanDir, withIntermediateDirectories: true)
+
+        await saveMetadataAsync(result, to: scanDir)
+
+        await MainActor.run { analysisStatus = "Saving points..." }
+        do {
+            try await savePointsBinary(result.pointCloud, to: scanDir.appendingPathComponent("points.bin"))
+        } catch {
+            print("[ZeroDark] Points save failed: \(error)")
+        }
+
+        await MainActor.run { analysisStatus = "Exporting 3D model..." }
+        do {
+            try await exportMeshToUSDZAsync(result.meshAnchors, to: scanDir.appendingPathComponent("scan.usdz"))
+        } catch {
+            print("[ZeroDark] USDZ export failed: \(error)")
+        }
+
+        await MainActor.run {
+            ScanStorage.shared.loadScanIndex()
+            analysisStatus = "Saved"
+        }
+
+        await analyzeResult(result)
+    }
+
+    private func saveMetadataAsync(_ result: LiDARScanResult, to dir: URL) async {
+        struct Meta: Codable {
+            let id: String
+            let timestamp: Date
+            let lat, lon: Double?
+            let pointCount: Int
+        }
+        let meta = Meta(
+            id: result.id.uuidString,
+            timestamp: result.timestamp,
+            lat: result.location?.latitude,
+            lon: result.location?.longitude,
+            pointCount: result.pointCount
+        )
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        if let data = try? encoder.encode(meta) {
+            try? data.write(to: dir.appendingPathComponent("metadata.json"))
+        }
+    }
+
     // MARK: - Analysis
     
     private func analyzeResult(_ result: LiDARScanResult) async {
@@ -1282,114 +1344,48 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         return min((pointDensity + scanDuration) / 2, 1.0)
     }
 
-    private func saveScanToDisk(_ result: LiDARScanResult) {
-        let scansDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("LiDARScans", isDirectory: true)
-
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime]
-        let ts = formatter.string(from: result.timestamp)
-            .replacingOccurrences(of: ":", with: "-")
-        let scanDir = scansDir.appendingPathComponent(ts, isDirectory: true)
-        try? FileManager.default.createDirectory(at: scanDir, withIntermediateDirectories: true)
-
-        struct Meta: Codable {
-            let id, mode: String
-            let timestamp: Date
-            let lat, lon: Double?
-            let pointCount: Int
-            let riskScore: Float?
-        }
-        let meta = Meta(
-            id: result.id.uuidString,
-            mode: config.scanMode.displayName,
-            timestamp: result.timestamp,
-            lat: result.location?.latitude,
-            lon: result.location?.longitude,
-            pointCount: result.pointCount,
-            riskScore: result.tacticalAnalysis?.riskScore
-        )
-        let enc = JSONEncoder()
-        enc.dateEncodingStrategy = .iso8601
-        if let data = try? enc.encode(meta) {
-            try? data.write(to: scanDir.appendingPathComponent("metadata.json"))
-        }
-
-        // Export point cloud to PLY
-        exportPointCloudToPLY(result.pointCloud, to: scanDir.appendingPathComponent("points.ply"))
-
-        // Export mesh to USDZ
-        exportMeshToUSDZ(result.meshAnchors, to: scanDir.appendingPathComponent("scan.usdz"))
-
-        print("[ZeroDark] LiDAR scan saved to: \(scanDir.path)")
-
-        // Refresh ScanStorage index so gallery sees new scan
-        Task { @MainActor in
-            ScanStorage.shared.loadScanIndex()
-        }
-    }
-
     // MARK: - 3D Export
 
-    /// Export point cloud to PLY format (viewable in MeshLab, CloudCompare, etc.)
-    private func exportPointCloudToPLY(_ points: [SIMD3<Float>], to url: URL) {
-        guard !points.isEmpty else {
-            print("[ZeroDark] PLY export skipped — no points")
-            return
+    /// Save point cloud as binary (100x faster than ASCII PLY)
+    private func savePointsBinary(_ points: [SIMD3<Float>], to url: URL) async throws {
+        guard !points.isEmpty else { return }
+        FileManager.default.createFile(atPath: url.path, contents: nil)
+        let handle = try FileHandle(forWritingTo: url)
+        var count = UInt32(points.count)
+        handle.write(Data(bytes: &count, count: 4))
+        let chunkSize = 85_000
+        for chunkStart in stride(from: 0, to: points.count, by: chunkSize) {
+            let chunkEnd = min(chunkStart + chunkSize, points.count)
+            var data = Data(capacity: (chunkEnd - chunkStart) * 12)
+            for point in points[chunkStart..<chunkEnd] {
+                var p = point
+                data.append(Data(bytes: &p, count: 12))
+            }
+            handle.write(data)
+            await Task.yield()
         }
-
-        var ply = """
-        ply
-        format ascii 1.0
-        element vertex \(points.count)
-        property float x
-        property float y
-        property float z
-        end_header
-
-        """
-
-        for point in points {
-            ply += "\(point.x) \(point.y) \(point.z)\n"
-        }
-
-        do {
-            try ply.write(to: url, atomically: true, encoding: .utf8)
-            print("[ZeroDark] PLY exported: \(points.count) points")
-        } catch {
-            print("[ZeroDark] PLY export failed: \(error)")
-        }
+        try handle.close()
     }
 
-    /// Export AR mesh anchors to USDZ format (viewable in iOS Files, QuickLook, Scan3DView)
-    private func exportMeshToUSDZ(_ anchors: [ARMeshAnchor], to url: URL) {
-        guard !anchors.isEmpty else {
-            print("[ZeroDark] USDZ export skipped — no mesh anchors")
-            return
-        }
-
+    /// Async export AR mesh anchors to USDZ format
+    private func exportMeshToUSDZAsync(_ anchors: [ARMeshAnchor], to url: URL) async throws {
+        guard !anchors.isEmpty else { return }
         let scene = SCNScene()
-
         for anchor in anchors {
             if let node = scnNodeFromMeshAnchor(anchor) {
                 scene.rootNode.addChildNode(node)
             }
         }
-
-        // Check if we have any geometry
-        guard scene.rootNode.childNodes.count > 0 else {
-            print("[ZeroDark] USDZ export skipped — no valid geometry")
-            return
-        }
-
-        // Export to USDZ
-        scene.write(to: url, options: nil, delegate: nil) { totalProgress, error, stop in
-            if let error = error {
-                print("[ZeroDark] USDZ export error: \(error)")
+        guard !scene.rootNode.childNodes.isEmpty else { return }
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            scene.write(to: url, options: nil, delegate: nil) { progress, error, stop in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                } else if progress >= 1.0 {
+                    continuation.resume()
+                }
             }
         }
-
-        print("[ZeroDark] USDZ exported: \(anchors.count) mesh anchors")
     }
 
     /// Convert ARMeshAnchor to SCNNode with geometry
@@ -1559,6 +1555,16 @@ extension LiDARCaptureEngine: ARSessionDelegate {
                 await MainActor.run {
                     guard self.isScanning else { return }
                     self.frameCount += 1
+
+                    // Check memory limit before adding more points
+                    if self.collectedPoints.count >= self.maxPointCount {
+                        if !self.hasWarnedPointLimit {
+                            self.hasWarnedPointLimit = true
+                            self.analysisStatus = "Point limit reached (50M). Stop scan to save."
+                        }
+                        return
+                    }
+
                     // Always capture every frame for maximum quality
                     self.collectedPoints.append(contentsOf: newPoints)
                     
@@ -1638,12 +1644,21 @@ extension LiDARCaptureEngine: ARSessionDelegate {
         Task { @MainActor in
             for anchor in anchors {
                 if let meshAnchor = anchor as? ARMeshAnchor {
+                    // Check memory limit before adding mesh points
+                    if collectedPoints.count >= maxPointCount {
+                        if !hasWarnedPointLimit {
+                            hasWarnedPointLimit = true
+                            analysisStatus = "Point limit reached (50M). Stop scan to save."
+                        }
+                        continue
+                    }
+
                     meshAnchors.append(meshAnchor)
-                    
+
                     // Extract points from mesh
                     let geometry = meshAnchor.geometry
                     let vertices = geometry.extractVertexPositions()
-                    
+
                     for i in 0..<vertices.count {
                         let vertex = vertices[i]
                         let worldPos = meshAnchor.transform * SIMD4<Float>(vertex.x, vertex.y, vertex.z, 1)

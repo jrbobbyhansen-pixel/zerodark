@@ -3,6 +3,12 @@
 import SwiftUI
 import AVKit
 
+enum CameraError: Error {
+    case invalidURL
+    case httpError(Int)
+    case invalidImageData
+}
+
 struct CameraFeedView: View {
     let camera: TrafficCamera
     @Environment(\.dismiss) var dismiss
@@ -10,6 +16,7 @@ struct CameraFeedView: View {
 
     @State private var currentFrame: UIImage?
     @State private var isLoading = true
+    @State private var lastError: String?
     @State private var lastRefresh = Date()
     @State private var autoRefresh = true
     @State private var refreshTimer: Timer?
@@ -263,14 +270,34 @@ struct CameraFeedView: View {
 
     func loadFeed() {
         isLoading = true
-
         Task {
-            if let data = await camService.fetchFrame(for: camera),
-               let image = UIImage(data: data) {
-                currentFrame = image
-                lastRefresh = Date()
+            do {
+                guard let url = URL(string: camera.feedURL) else { throw CameraError.invalidURL }
+                let (data, response) = try await URLSession.shared.data(from: url)
+                if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+                    throw CameraError.httpError(http.statusCode)
+                }
+                guard let image = UIImage(data: data) else { throw CameraError.invalidImageData }
+                await MainActor.run { currentFrame = image; lastRefresh = Date(); isLoading = false }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    lastError = describeError(error)
+                }
             }
-            isLoading = false
+        }
+    }
+
+    private func describeError(_ error: Error) -> String {
+        switch error {
+        case CameraError.invalidURL:
+            return "Invalid camera URL"
+        case CameraError.httpError(let code):
+            return "Feed unavailable (HTTP \(code))"
+        case CameraError.invalidImageData:
+            return "Invalid image data"
+        default:
+            return "Feed unavailable"
         }
     }
 

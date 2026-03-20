@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D3DE7B00FA7545E2BB7D6ED5 /* ScanStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E7A0EB9B43A48CAA51F732F /* ScanStorage.swift */; };
+		17DE728F4D32401DB9D68B8D /* MeasurementTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFD79FC3D22F4C91A6DB2329 /* MeasurementTypes.swift */; };
+		3323D0726BBE42EE92D43D66 /* MeasurementManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFDDECA782394633A48419DD /* MeasurementManager.swift */; };
+		6AC5597881634B118E32CA0E /* MeasurementOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F000C539826442C2A080727B /* MeasurementOverlayView.swift */; };
 		009F1B2E9357A4601A4701C3 /* 35-heat-injuries.md in Resources */ = {isa = PBXBuildFile; fileRef = 428A93DEE055293DB509BBC0 /* 35-heat-injuries.md */; };
 		01CD9BC0A9C34877E82138F7 /* 40-infections-sepsis.md in Resources */ = {isa = PBXBuildFile; fileRef = 5D63E6E785FB6E0400A3087E /* 40-infections-sepsis.md */; };
 		021392BFE0544F5A799DD9A3 /* MLX in Frameworks */ = {isa = PBXBuildFile; productRef = AA97FEE2AEDBA8EEF1AD0265 /* MLX */; };
@@ -310,6 +314,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2E7A0EB9B43A48CAA51F732F /* ScanStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanStorage.swift; sourceTree = "<group>"; };
+		DFD79FC3D22F4C91A6DB2329 /* MeasurementTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementTypes.swift; sourceTree = "<group>"; };
+		FFDDECA782394633A48419DD /* MeasurementManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementManager.swift; sourceTree = "<group>"; };
+		F000C539826442C2A080727B /* MeasurementOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementOverlayView.swift; sourceTree = "<group>"; };
 		007B0CE6CBE12CB052F751AE /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		03074ABD965482838F946A7A /* 64-salute-reporting.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "64-salute-reporting.md"; sourceTree = "<group>"; };
 		032E5FE3F3C7C24B6F46BDFF /* CameraFeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFeedView.swift; sourceTree = "<group>"; };
@@ -657,6 +665,7 @@
 		0727435835E11FEBC76603A1 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				F000C539826442C2A080727B /* MeasurementOverlayView.swift */,
 				35A8FC4924F81BC9825ACB7B /* AppNavigation.swift */,
 				0B772199593D9D025F163EEC /* CameraAnnotationView.swift */,
 				032E5FE3F3C7C24B6F46BDFF /* CameraFeedView.swift */,
@@ -721,6 +730,14 @@
 			path = sere;
 			sourceTree = "<group>";
 		};
+		1F13125D522E3B2ECCC0067A /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				35C4FEB1640264E6591D7F32 /* MLXEdgeLLM */,
+			);
+			name = Sources;
+			sourceTree = "<group>";
+		};
 		20DD3F3C3349E468B5D9902E /* SpatialIntelligence */ = {
 			isa = PBXGroup;
 			children = (
@@ -765,6 +782,15 @@
 				09FD18B93302ECFAC569C567 /* 62-emcon.md */,
 			);
 			path = comms;
+			sourceTree = "<group>";
+		};
+		35C4FEB1640264E6591D7F32 /* MLXEdgeLLM */ = {
+			isa = PBXGroup;
+			children = (
+				C3ACCED63702ED7CCFAD8A90 /* SpatialIntelligence */,
+				E302FD3D50F99D3CE575A70D /* App */,
+			);
+			name = MLXEdgeLLM;
 			sourceTree = "<group>";
 		};
 		36CA9D2A7D162E5B8C29DDF3 /* defense */ = {
@@ -915,6 +941,9 @@
 		78BD6C2B7D2208DE46C9D038 /* LiDAR */ = {
 			isa = PBXGroup;
 			children = (
+				2E7A0EB9B43A48CAA51F732F /* ScanStorage.swift */,
+				DFD79FC3D22F4C91A6DB2329 /* MeasurementTypes.swift */,
+				FFDDECA782394633A48419DD /* MeasurementManager.swift */,
 				07D63B33998E1D545A23E671 /* LiDARCaptureEngine.swift */,
 				57A42188C625C602766D7ACF /* ReconWalkEngine.swift */,
 			);
@@ -1088,6 +1117,7 @@
 				C7D66D91AB795626008E43EE /* MLXEdgeLLM */,
 				A121C3D179774B1E9649F43B /* Frameworks */,
 				1A4AAF57146BB7D27C77F518 /* Products */,
+				1F13125D522E3B2ECCC0067A /* Sources */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1169,6 +1199,14 @@
 			path = environment;
 			sourceTree = "<group>";
 		};
+		C3ACCED63702ED7CCFAD8A90 /* SpatialIntelligence */ = {
+			isa = PBXGroup;
+			children = (
+				CA90394C3D83E45C28E22A2D /* LiDAR */,
+			);
+			name = SpatialIntelligence;
+			sourceTree = "<group>";
+		};
 		C3CAEA24E7207656E441FD85 /* Knowledge */ = {
 			isa = PBXGroup;
 			children = (
@@ -1237,6 +1275,13 @@
 			);
 			name = MLXEdgeLLM;
 			path = Sources/MLXEdgeLLM;
+			sourceTree = "<group>";
+		};
+		CA90394C3D83E45C28E22A2D /* LiDAR */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = LiDAR;
 			sourceTree = "<group>";
 		};
 		CD874708A479A2B6955E4525 /* logistics */ = {
@@ -1326,6 +1371,13 @@
 			path = Meshtastic;
 			sourceTree = "<group>";
 		};
+		E302FD3D50F99D3CE575A70D /* App */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = App;
+			sourceTree = "<group>";
+		};
 		EA59F6D795F3D932A8FE8F37 /* leadership */ = {
 			isa = PBXGroup;
 			children = (
@@ -1413,13 +1465,6 @@
 			path = Mapping;
 			sourceTree = "<group>";
 		};
-		"TEMP_5421DCAE-EA0D-4402-9A9E-95CD0A82A150" /* UIFramework */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = UIFramework;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1489,6 +1534,7 @@
 				E32FA2ACF2E3F9646EF923FD /* XCRemoteSwiftPackageReference "mgrs-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
+			productRefGroup = 1A4AAF57146BB7D27C77F518 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -1799,7 +1845,11 @@
 				E0196484FA7379843DCCEC52 /* Widgets.swift in Sources */,
 				C0447F9D1D4D9052FD789427 /* ZeroDarkApp.swift in Sources */,
 				CF550F996A7163226860512E /* ZeroDarkModules.swift in Sources */,
-			);
+			
+				D3DE7B00FA7545E2BB7D6ED5 /* ScanStorage.swift in Sources */,
+				17DE728F4D32401DB9D68B8D /* MeasurementTypes.swift in Sources */,
+				3323D0726BBE42EE92D43D66 /* MeasurementManager.swift in Sources */,
+				6AC5597881634B118E32CA0E /* MeasurementOverlayView.swift in Sources */,);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */

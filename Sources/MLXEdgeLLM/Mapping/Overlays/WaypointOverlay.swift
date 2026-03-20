@@ -36,7 +36,7 @@ public class TacticalWaypointAnnotationView: MKAnnotationView {
 
         // Icon label
         let label = UILabel(frame: bounds)
-        label.text = "📍"
+        label.text = "WP"
         label.font = UIFont.systemFont(ofSize: 20)
         label.textAlignment = .center
         container.addSubview(label)
@@ -47,7 +47,7 @@ public class TacticalWaypointAnnotationView: MKAnnotationView {
     private func updateAppearance() {
         // Update icon based on annotation title or type
         if let label = subviews.first?.subviews.last as? UILabel {
-            label.text = "📍"  // Default marker
+            label.text = "WP"  // Default marker
         }
     }
 }

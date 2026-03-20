@@ -77,7 +77,8 @@ public class TacticalNavigationStack: NSObject, ObservableObject {
         currentCommand = command
 
         // Check if we've completed the path
-        if pose.coordinate.distance(to: path.waypoints.last!.coordinate) < 5.0 {
+        guard let lastWaypoint = path.waypoints.last else { return }
+        if pose.coordinate.distance(to: lastWaypoint.coordinate) < 5.0 {
             stop()
             status = .completed
         } else {

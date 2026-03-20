@@ -6,6 +6,8 @@ import SceneKit
 struct ScanGalleryView: View {
     @StateObject private var storage = ScanStorage.shared
     @Environment(\.dismiss) var dismiss
+    @State private var scanToAlert: SavedScan?
+    @State private var showBrokenAlert = false
 
     var body: some View {
         NavigationStack {
@@ -21,27 +23,14 @@ struct ScanGalleryView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     List(storage.savedScans) { scan in
-                        NavigationLink(destination: scanDetailView(scan)) {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("\(scan.pointCount.formatted()) points")
-                                        .font(.headline)
-                                    Text(scan.timestamp.formatted(date: .abbreviated, time: .shortened))
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                    if let risk = scan.riskScore {
-                                        let level = risk < 0.3 ? "Low" : risk < 0.7 ? "Elevated" : "High"
-                                        let color = risk < 0.3 ? ZDDesign.successGreen : risk < 0.7 ? ZDDesign.safetyYellow : ZDDesign.signalRed
-                                        Text(level)
-                                            .font(.caption)
-                                            .foregroundColor(color)
-                                    }
-                                }
-                                Spacer()
-                                if scan.hasUSDZ {
-                                    Image(systemName: scan.scanType == .reconWalk ? "figure.walk" : "cube.transparent.fill")
-                                        .foregroundColor(scan.scanType == .reconWalk ? ZDDesign.safetyYellow : ZDDesign.cyanAccent)
-                                }
+                        if scan.hasUSDZ {
+                            NavigationLink(destination: scanDetailView(scan)) {
+                                ScanRow(scan: scan)
+                            }
+                        } else {
+                            ScanRow(scan: scan).onTapGesture {
+                                scanToAlert = scan
+                                showBrokenAlert = true
                             }
                         }
                     }
@@ -54,12 +43,84 @@ struct ScanGalleryView: View {
                     Button("Done") { dismiss() }
                 }
             }
+            .alert("Scan Incomplete", isPresented: $showBrokenAlert, presenting: scanToAlert) { s in
+                Button("Delete", role: .destructive) { storage.deleteScan(s) }
+                Button("OK", role: .cancel) {}
+            } message: { _ in
+                Text("3D model export failed. Point data saved but cannot be viewed. Delete and rescan?")
+            }
         }
     }
 
     @ViewBuilder
     private func scanDetailView(_ scan: SavedScan) -> some View {
         ScanDetailView(scan: scan)
+    }
+}
+
+// MARK: - Scan Row
+
+struct ScanRow: View {
+    let scan: SavedScan
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // Thumbnail or placeholder
+            ZStack {
+                Rectangle().fill(Color.gray.opacity(0.2))
+                if let img = loadThumbnail() {
+                    Image(uiImage: img).resizable().aspectRatio(contentMode: .fill)
+                } else {
+                    Image(systemName: "cube.transparent").foregroundColor(.gray)
+                }
+            }
+            .frame(width: 60, height: 60).cornerRadius(8).clipped()
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(scan.name.isEmpty ? defaultName : scan.name)
+                    .font(.headline).lineLimit(1)
+                HStack(spacing: 8) {
+                    Text(formatPointCount(scan.pointCount))
+                        .font(.caption).foregroundColor(.secondary)
+                    Text("•").foregroundColor(.secondary)
+                    Text(scan.timestamp.formatted(.relative(presentation: .named)))
+                        .font(.caption).foregroundColor(.secondary)
+                }
+            }
+            Spacer()
+            statusBadge
+            Image(systemName: "chevron.right").font(.caption).foregroundColor(.secondary)
+        }
+        .padding(.vertical, 4)
+    }
+
+    var statusBadge: some View {
+        HStack(spacing: 4) {
+            Image(systemName: scan.hasUSDZ ? "cube.fill" : "exclamationmark.triangle.fill")
+                .foregroundColor(scan.hasUSDZ ? ZDDesign.cyanAccent : .orange)
+            Text(scan.hasUSDZ ? "3D" : "No model")
+                .font(.caption2.bold())
+                .foregroundColor(scan.hasUSDZ ? ZDDesign.cyanAccent : .orange)
+        }
+        .padding(.horizontal, 8).padding(.vertical, 4)
+        .background(Color.gray.opacity(0.15)).cornerRadius(6)
+    }
+
+    var defaultName: String {
+        let f = DateFormatter()
+        f.dateFormat = "MMM d, h:mm a"
+        return "Scan \(f.string(from: scan.timestamp))"
+    }
+
+    func formatPointCount(_ n: Int) -> String {
+        if n >= 1_000_000 { return String(format: "%.1fM pts", Double(n)/1_000_000) }
+        if n >= 1_000 { return String(format: "%.0fK pts", Double(n)/1_000) }
+        return "\(n) pts"
+    }
+
+    func loadThumbnail() -> UIImage? {
+        guard let data = try? Data(contentsOf: scan.scanDir.appendingPathComponent("thumbnail.jpg")) else { return nil }
+        return UIImage(data: data)
     }
 }
 
@@ -374,9 +435,7 @@ struct TacticalSceneView: UIViewRepresentable {
         }
 
         @objc func handleTap(_ gesture: UITapGestureRecognizer) {
-            guard let measurementManager = measurementManager,
-                  measurementManager.isActive,
-                  let scnView = scnView else { return }
+            guard let scnView = scnView else { return }
 
             let location = gesture.location(in: scnView)
             let hitResults = scnView.hitTest(location, options: [
@@ -394,6 +453,8 @@ struct TacticalSceneView: UIViewRepresentable {
                 let point = SIMD3<Float>(Float(worldPos.x), Float(worldPos.y), Float(worldPos.z))
 
                 Task { @MainActor in
+                    guard let measurementManager = self.measurementManager,
+                          measurementManager.isActive else { return }
                     measurementManager.addPoint(point)
                     self.updateMeasurementVisualization()
                 }
@@ -431,9 +492,11 @@ struct TacticalSceneView: UIViewRepresentable {
 
                 // Close polygon for area
                 if measurementManager.currentType == .area && measurementManager.currentPoints.count >= 3 {
+                    guard let lastPt = measurementManager.currentPoints.last,
+                          let firstPt = measurementManager.currentPoints.first else { return }
                     let closingLine = createLine(
-                        from: measurementManager.currentPoints.last!,
-                        to: measurementManager.currentPoints.first!,
+                        from: lastPt,
+                        to: firstPt,
                         color: .cyan.withAlphaComponent(0.5)
                     )
                     measurementNode.addChildNode(closingLine)
@@ -463,9 +526,11 @@ struct TacticalSceneView: UIViewRepresentable {
 
                     // Close polygon for area
                     if annotation.type == .area {
+                        guard let lastPt = annotation.points.last?.simd,
+                              let firstPt = annotation.points.first?.simd else { continue }
                         let closingLine = createLine(
-                            from: annotation.points.last!.simd,
-                            to: annotation.points.first!.simd,
+                            from: lastPt,
+                            to: firstPt,
                             color: color
                         )
                         measurementNode.addChildNode(closingLine)

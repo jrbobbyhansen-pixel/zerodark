@@ -52,7 +52,7 @@ public class TeamMemberAnnotationView: MKAnnotationView {
 
         // Icon
         let label = UILabel(frame: bounds)
-        label.text = "👤"
+        label.text = "T"
         label.font = UIFont.systemFont(ofSize: 20)
         label.textAlignment = .center
         container.addSubview(label)
@@ -67,11 +67,11 @@ public class TeamMemberAnnotationView: MKAnnotationView {
         if let label = subviews.first?.subviews.last as? UILabel {
             switch annotation.status {
             case "online":
-                label.text = "👤"
+                label.text = "T"
             case "offline":
-                label.text = "❌"
+                label.text = "X"
             default:
-                label.text = "❓"
+                label.text = "?"
             }
         }
     }

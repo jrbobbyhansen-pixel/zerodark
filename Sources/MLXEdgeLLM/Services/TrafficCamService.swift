@@ -284,8 +284,18 @@ final class TrafficCamService: ObservableObject {
     // MARK: - TxDOT Integration
 
     private func fetchTxDOTCameras() async -> [TrafficCamera] {
-        // Return hardcoded TxDOT cameras
-        return txdotSanAntonioCameras()
+        let urlStr = "https://services.arcgis.com/KTcxiTD9dsQw4r7Z/arcgis/rest/services/TxDOT_CCTV_Cameras/FeatureServer/0/query?where=1%3D1&outFields=*&f=json"
+        guard let url = URL(string: urlStr),
+              let (data, _) = try? await URLSession.shared.data(from: url) else {
+            return loadCachedTxDOTCameras()
+        }
+        let cameras = parseTxDOTResponse(data)
+        if cameras.isEmpty { return loadCachedTxDOTCameras() }
+        // Cache result
+        if let data = try? JSONEncoder().encode(cameras) {
+            try? data.write(to: cacheDirectory.appendingPathComponent("txdot_cameras.json"))
+        }
+        return cameras
     }
 
     private func txdotSanAntonioCameras() -> [TrafficCamera] {
@@ -403,6 +413,73 @@ final class TrafficCamService: ObservableObject {
                 state: "TX"
             )
         ]
+    }
+
+    private func parseTxDOTResponse(_ data: Data) -> [TrafficCamera] {
+        struct ArcGISResponse: Codable {
+            struct Feature: Codable {
+                struct Attributes: Codable {
+                    let OBJECTID: Int?
+                    let CCTV_ID: String?
+                    let LOCATION: String?
+                    let ROADWAY: String?
+                    let CROSS_ST: String?
+                    let CITY: String?
+                    let DISTRICT: String?
+                    let ACTIVE: Int?
+                    let SNAPSHOT_URL: String?
+                    let STREAM_URL: String?
+                }
+                struct Geometry: Codable {
+                    let x: Double?
+                    let y: Double?
+                }
+                let attributes: Attributes?
+                let geometry: Geometry?
+            }
+            let features: [Feature]?
+        }
+        guard let resp = try? JSONDecoder().decode(ArcGISResponse.self, from: data),
+              let features = resp.features else { return [] }
+        return features.compactMap { f -> TrafficCamera? in
+            guard let attrs = f.attributes, let geom = f.geometry,
+                  let lat = geom.y, let lon = geom.x,
+                  let id = attrs.CCTV_ID ?? attrs.OBJECTID.map(String.init),
+                  attrs.ACTIVE == 1 else { return nil }
+            let feedURL: String
+            let feedType: TrafficCamera.FeedType
+            if let s = attrs.STREAM_URL, !s.isEmpty {
+                feedURL = s
+                feedType = s.contains(".m3u8") ? .hls : .mjpeg
+            } else if let s = attrs.SNAPSHOT_URL, !s.isEmpty {
+                feedURL = s
+                feedType = .jpeg
+            } else {
+                return nil
+            }
+            return TrafficCamera(
+                id: "txdot_\(id)",
+                name: attrs.LOCATION ?? "TxDOT Camera",
+                coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon),
+                heading: nil,
+                fieldOfView: 90,
+                source: .txdot,
+                feedType: feedType,
+                feedURL: feedURL,
+                thumbnailURL: attrs.SNAPSHOT_URL,
+                roadName: attrs.ROADWAY,
+                crossStreet: attrs.CROSS_ST,
+                city: attrs.CITY,
+                state: "TX"
+            )
+        }
+    }
+
+    private func loadCachedTxDOTCameras() -> [TrafficCamera] {
+        let cacheFile = cacheDirectory.appendingPathComponent("txdot_cameras.json")
+        guard let data = try? Data(contentsOf: cacheFile),
+              let cameras = try? JSONDecoder().decode([TrafficCamera].self, from: data) else { return [] }
+        return cameras
     }
 
     // MARK: - Helpers

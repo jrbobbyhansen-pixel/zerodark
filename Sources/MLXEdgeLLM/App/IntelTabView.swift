@@ -420,7 +420,7 @@ struct KnowledgeContentView: View {
         if let proto = protocolDB.quickMatch(query: question) {
             // Show protocol card immediately
             matchedProtocol = proto
-            messages.append(("assistant", "📋 **PROTOCOL MATCHED** — Tap to view full card"))
+            messages.append(("assistant", "PROTOCOL MATCHED — Tap to view full card"))
             return
         }
         
