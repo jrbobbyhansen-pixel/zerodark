@@ -36,7 +36,6 @@ public class RuntimeSafetyMonitor: ObservableObject {
             await monitorLoop()
         }
 
-        print("[SafetyMonitor] Started monitoring \(SafetyProperty.allCases.count) properties")
     }
 
     /// Stop monitoring
@@ -44,7 +43,6 @@ public class RuntimeSafetyMonitor: ObservableObject {
         monitoringTask?.cancel()
         monitoringTask = nil
         isMonitoring = false
-        print("[SafetyMonitor] Stopped")
     }
 
     /// Main monitoring loop
@@ -100,7 +98,6 @@ public class RuntimeSafetyMonitor: ObservableObject {
     private func evaluateProperty(_ property: SafetyProperty) async -> Bool {
         switch property {
         case .teamMemberReachable:
-            // TODO: Integration with HapticComms
             // return HapticComms.shared.connectedPeers.count > 0
             return true  // Placeholder
 
@@ -113,13 +110,11 @@ public class RuntimeSafetyMonitor: ObservableObject {
             return true
 
         case .positionKnown:
-            // TODO: Integration with LocationManager
             // let age = Date().timeIntervalSince(LocationManager.shared.lastFix)
             // return age < positionAgeThreshold
             return true  // Placeholder
 
         case .withinGeofence:
-            // TODO: Integration with geofencing
             return true  // Placeholder
 
         case .batteryAboveThreshold:
@@ -135,16 +130,13 @@ public class RuntimeSafetyMonitor: ObservableObject {
             return true
 
         case .modelLoaded:
-            // TODO: Integration with LocalInferenceEngine
             // return LocalInferenceEngine.shared.modelState == .ready
             return true  // Placeholder
 
         case .checkInOnSchedule:
-            // TODO: Integration with check-in tracking
             return true  // Placeholder
 
         case .missionTimeRemaining:
-            // TODO: Integration with mission timer
             return true  // Placeholder
         }
     }
@@ -176,7 +168,6 @@ public class RuntimeSafetyMonitor: ObservableObject {
 
     /// Trigger automatic handler for violation (Ogma pattern)
     private func triggerHandler(for property: SafetyProperty, violation: SafetyViolation) async {
-        print("[SafetyMonitor] VIOLATION: \(property.rawValue)")
 
         // Mark handler as triggered
         if let idx = activeViolations.firstIndex(where: { $0.id == violation.id }) {
@@ -187,27 +178,22 @@ public class RuntimeSafetyMonitor: ObservableObject {
         switch property {
         case .teamMemberReachable:
             // Attempt reconnection, escalate to SOS if prolonged
-            // TODO: HapticComms.shared.attemptReconnection()
             break
 
         case .meshNetworkHealthy:
             // Alert user immediately
-            // TODO: Send local notification
             break
 
         case .positionKnown:
             // Attempt position fix methods in order
-            // TODO: Try GPS, then celestial, then dead reckoning
             break
 
         case .withinGeofence:
             // Alert user, suggest return path
-            // TODO: HapticComms.shared.send(.danger, to: "all")
             break
 
         case .batteryAboveThreshold:
             // Enable power saving
-            // TODO: PowerManager.shared.enableConservation()
             break
 
         case .storageAvailable:
@@ -216,7 +202,6 @@ public class RuntimeSafetyMonitor: ObservableObject {
 
         case .modelLoaded:
             // Attempt reload (try to avoid main thread blocking)
-            // TODO: LocalInferenceEngine.shared.loadModel()
             break
 
         case .checkInOnSchedule:

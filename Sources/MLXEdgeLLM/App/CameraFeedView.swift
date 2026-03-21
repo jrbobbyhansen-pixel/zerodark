@@ -53,7 +53,7 @@ struct CameraFeedView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(camera.displayName)
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
 
                 HStack(spacing: 8) {
                     Text(camera.source.rawValue)
@@ -98,7 +98,7 @@ struct CameraFeedView: View {
                 dismiss()
             } label: {
                 Image(systemName: "xmark.circle.fill")
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
                     .font(.title2)
             }
             .padding(.leading, 12)
@@ -153,7 +153,7 @@ struct CameraFeedView: View {
                     Spacer()
                     Text("Updated \(lastRefresh.formatted(date: .omitted, time: .shortened))")
                         .font(.caption2)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                         .padding(6)
                         .background(Color.black.opacity(0.6))
                         .cornerRadius(4)
@@ -230,7 +230,7 @@ struct CameraFeedView: View {
                     Text("Refresh")
                         .font(.caption2)
                 }
-                .foregroundColor(.white)
+                .foregroundColor(ZDDesign.pureWhite)
             }
 
             Spacer()
@@ -246,7 +246,7 @@ struct CameraFeedView: View {
                         Text("Share")
                             .font(.caption2)
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
                 }
 
                 Button {
@@ -258,7 +258,7 @@ struct CameraFeedView: View {
                         Text("Save")
                             .font(.caption2)
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
                 }
             }
         }

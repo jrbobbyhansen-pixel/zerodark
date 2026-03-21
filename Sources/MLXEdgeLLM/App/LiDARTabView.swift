@@ -78,7 +78,7 @@ struct LiDARTabView: View {
                         .foregroundColor(.gray)
                 }
                 .padding(6)
-                .background(Color.black.opacity(0.7))
+                .background(ZDDesign.darkBackground.opacity(0.7))
                 .cornerRadius(6)
 
                 Spacer()
@@ -93,7 +93,7 @@ struct LiDARTabView: View {
                     }
                 }
                 .padding(6)
-                .background(Color.black.opacity(0.7))
+                .background(ZDDesign.darkBackground.opacity(0.7))
                 .cornerRadius(6)
             }
             .padding(.horizontal)
@@ -104,7 +104,7 @@ struct LiDARTabView: View {
                 .foregroundColor(guidanceColor)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
-                .background(Color.black.opacity(0.8))
+                .background(ZDDesign.darkBackground.opacity(0.8))
                 .cornerRadius(8)
 
             // Progress bar
@@ -157,7 +157,7 @@ struct LiDARTabView: View {
                 Spacer()
                 Text("COVERAGE")
                     .font(.caption2.bold())
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
                 Spacer()
                 Text("→")
                     .font(.caption2)
@@ -182,7 +182,7 @@ struct LiDARTabView: View {
                 }
             }
             .padding(4)
-            .background(Color.black.opacity(0.7))
+            .background(ZDDesign.darkBackground.opacity(0.7))
             .cornerRadius(6)
         }
         .frame(width: 120)
@@ -218,7 +218,7 @@ struct LiDARTabView: View {
                         Text(engine.isScanning ? "STOP" : "QUICK SCAN")
                             .font(.headline.bold())
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
                     .background(engine.isScanning ? ZDDesign.signalRed : ZDDesign.forestGreen)
@@ -239,7 +239,7 @@ struct LiDARTabView: View {
                         Text(reconEngine.isRecording ? "STOP" : "RECON WALK")
                             .font(.headline.bold())
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
                     .background(reconEngine.isRecording ? ZDDesign.signalRed : ZDDesign.cyanAccent)
@@ -393,7 +393,7 @@ struct LiDARResultsView: View {
             }
             .frame(width: 80)
             .padding()
-            .background(Color.black.opacity(0.4))
+            .background(ZDDesign.darkBackground.opacity(0.4))
             .cornerRadius(10)
 
             VStack(alignment: .leading, spacing: 4) {
@@ -401,7 +401,7 @@ struct LiDARResultsView: View {
                     .font(.headline)
                 if let structural = result.structuralAnalysis {
                     Text("\(structural.surfaces.count) surfaces · \(structural.openings.count) openings")
-                        .font(.caption).foregroundColor(.secondary)
+                        .font(.caption).foregroundColor(ZDDesign.mediumGray)
                     if !structural.entryPoints.isEmpty {
                         Text("\(structural.entryPoints.count) entry points")
                             .font(.caption).foregroundColor(ZDDesign.safetyYellow)
@@ -412,7 +412,7 @@ struct LiDARResultsView: View {
                         .font(.caption).foregroundColor(ZDDesign.cyanAccent)
                 }
                 Text(result.timestamp.formatted(date: .abbreviated, time: .shortened))
-                    .font(.caption2).foregroundColor(.secondary)
+                    .font(.caption2).foregroundColor(ZDDesign.mediumGray)
             }
 
             Spacer()
@@ -424,7 +424,7 @@ struct LiDARResultsView: View {
     private var structuralView: some View {
         LazyVStack(spacing: 8) {
             guard let s = result.structuralAnalysis else {
-                return AnyView(Text("No structural data").foregroundColor(.secondary).padding())
+                return AnyView(Text("No structural data").foregroundColor(ZDDesign.mediumGray).padding())
             }
             return AnyView(VStack(spacing: 8) {
                 // Entry points
@@ -455,7 +455,7 @@ struct LiDARResultsView: View {
                             Spacer()
                             Text("\(grouped[type]?.count ?? 0)")
                                 .font(.caption.monospaced())
-                                .foregroundColor(.secondary)
+                                .foregroundColor(ZDDesign.mediumGray)
                         }
                     }
                 }
@@ -478,14 +478,14 @@ struct LiDARResultsView: View {
     private var tacticalView: some View {
         LazyVStack(spacing: 8) {
             guard let t = result.tacticalAnalysis else {
-                return AnyView(Text("No tactical data").foregroundColor(.secondary).padding())
+                return AnyView(Text("No tactical data").foregroundColor(ZDDesign.mediumGray).padding())
             }
             return AnyView(VStack(spacing: 8) {
                 // Overall assessment text
                 Text(t.overallAssessment)
                     .font(.caption)
                     .padding()
-                    .background(Color.black.opacity(0.3))
+                    .background(ZDDesign.darkBackground.opacity(0.3))
                     .cornerRadius(8)
 
                 if !t.observationPosts.isEmpty {
@@ -530,7 +530,7 @@ struct LiDARResultsView: View {
     private var terrainView: some View {
         LazyVStack(spacing: 8) {
             guard let t = result.terrainAnalysis else {
-                return AnyView(Text("No terrain data").foregroundColor(.secondary).padding())
+                return AnyView(Text("No terrain data").foregroundColor(ZDDesign.mediumGray).padding())
             }
             return AnyView(VStack(spacing: 8) {
                 if !t.coverPositions.isEmpty {
@@ -569,7 +569,7 @@ struct LiDARResultsView: View {
             content()
         }
         .padding()
-        .background(Color.black.opacity(0.35))
+        .background(ZDDesign.darkBackground.opacity(0.35))
         .cornerRadius(10)
     }
 
@@ -614,9 +614,9 @@ struct LiDARHistoryView: View {
                     VStack {
                         Image(systemName: "clock.arrow.circlepath")
                             .font(.largeTitle)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                         Text("No scans yet")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -627,7 +627,7 @@ struct LiDARHistoryView: View {
                                     Text("\(result.pointCount.formatted()) points")
                                         .font(.headline)
                                     Text(result.timestamp.formatted(date: .abbreviated, time: .shortened))
-                                        .font(.caption).foregroundColor(.secondary)
+                                        .font(.caption).foregroundColor(ZDDesign.mediumGray)
                                     if let t = result.tacticalAnalysis {
                                         let risk = t.riskScore
                                         Text(risk < 0.3 ? "Low Risk" : risk < 0.7 ? "Elevated" : "High Risk")
@@ -639,7 +639,7 @@ struct LiDARHistoryView: View {
                                 if let loc = result.location {
                                     Text(MGRSConverter.toMGRS(coordinate: loc, precision: 4))
                                         .font(.caption2.monospaced())
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(ZDDesign.mediumGray)
                                 }
                             }
                         }

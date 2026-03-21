@@ -120,7 +120,7 @@ struct ReportFormView: View {
                         .padding(10)
                         .background(ZDDesign.darkBackground)
                         .cornerRadius(8)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                 }
 
                 ReportTextField(label: "Line 5: Litter/Ambulatory (e.g., 1L 2A)", text: $medevac.line5_litter)
@@ -287,7 +287,7 @@ struct ReportTextField: View {
                 .padding(10)
                 .background(ZDDesign.darkBackground)
                 .cornerRadius(8)
-                .foregroundColor(.white)
+                .foregroundColor(ZDDesign.pureWhite)
         }
     }
 }
@@ -307,7 +307,7 @@ struct ReportTextArea: View {
                 .padding(6)
                 .background(ZDDesign.darkBackground)
                 .cornerRadius(8)
-                .foregroundColor(.white)
+                .foregroundColor(ZDDesign.pureWhite)
                 .scrollContentBackground(.hidden)
         }
     }

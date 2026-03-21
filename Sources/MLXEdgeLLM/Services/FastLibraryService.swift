@@ -137,7 +137,6 @@ final class FastLibraryService: ObservableObject {
             }
 
         let elapsed = (CFAbsoluteTimeGetCurrent() - startTime) * 1000
-        print("[FastLibrary] Search '\(query)' returned \(results.count) results in \(String(format: "%.1f", elapsed))ms")
 
         return Array(results)
     }
@@ -245,7 +244,6 @@ final class FastLibraryService: ObservableObject {
         isIndexing = false
         indexProgress = 1.0
 
-        print("[FastLibrary] Indexed \(docs.count) documents, \(chunks.count) total chunks")
     }
 
     /// Create text chunks with page tracking
@@ -326,7 +324,6 @@ final class FastLibraryService: ObservableObject {
         avgLength = chunks.isEmpty ? 500 : Double(totalLength) / Double(chunks.count)
 
         let elapsed = (CFAbsoluteTimeGetCurrent() - startTime) * 1000
-        print("[FastLibrary] Built inverted index with \(invertedIndex.count) terms in \(String(format: "%.1f", elapsed))ms")
     }
 
     // MARK: - Text Processing

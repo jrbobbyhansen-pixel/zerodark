@@ -17,7 +17,7 @@ struct GeofenceEditorView: View {
                     Text("Geofences")
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
 
                     Spacer()
 
@@ -37,7 +37,7 @@ struct GeofenceEditorView: View {
                             .foregroundColor(ZDDesign.mediumGray)
                         Text("No Geofences")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                         Text("Add a keep-in or keep-out zone")
                             .font(.caption)
                             .foregroundColor(ZDDesign.mediumGray)
@@ -75,7 +75,7 @@ struct GeofenceRow: View {
                     Text(geofence.name)
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
 
                     Text(geofence.type.uppercased())
                         .font(.caption2)
@@ -122,7 +122,7 @@ struct AddGeofenceView: View {
                 HStack {
                     Text("Add Geofence")
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
 
                     Spacer()
 
@@ -143,7 +143,7 @@ struct AddGeofenceView: View {
 
                         TextField("Zone name", text: $name)
                             .textFieldStyle(.roundedBorder)
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                     }
 
                     // Type

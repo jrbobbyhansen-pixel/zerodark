@@ -18,7 +18,7 @@ struct ThreatFeedView: View {
                     Text("Threats")
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
 
                     Spacer()
 
@@ -45,7 +45,7 @@ struct ThreatFeedView: View {
 
                         Text("No Threats Detected")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
 
                         Text("All clear")
                             .font(.caption)
@@ -108,7 +108,7 @@ struct ThreatRow: View {
                     Text(category.displayName)
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
 
                     Text(report.source)
                         .font(.caption)
@@ -131,7 +131,7 @@ struct ThreatRow: View {
 
             Text(report.text)
                 .font(.caption)
-                .foregroundColor(.white)
+                .foregroundColor(ZDDesign.pureWhite)
                 .lineLimit(2)
 
             HStack(spacing: 8) {
@@ -178,7 +178,7 @@ struct ThreatSubmitSheet: View {
                 HStack {
                     Text("Report Threat")
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
 
                     Spacer()
 
@@ -200,7 +200,7 @@ struct ThreatSubmitSheet: View {
                         .scrollContentBackground(.hidden)
                         .background(ZDDesign.darkCard)
                         .cornerRadius(8)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                 }
                 .padding(.horizontal)
 
@@ -212,7 +212,7 @@ struct ThreatSubmitSheet: View {
 
                     TextField("", text: $reporterID)
                         .textFieldStyle(.roundedBorder)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                 }
                 .padding(.horizontal)
 
@@ -229,7 +229,7 @@ struct ThreatSubmitSheet: View {
                         .padding(12)
                         .background(ZDDesign.cyanAccent.opacity(0.5))
                         .cornerRadius(8)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                     } else {
                         Text("Submit Report")
                             .font(.headline)

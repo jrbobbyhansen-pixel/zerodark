@@ -129,7 +129,6 @@ public actor MeshCryptoManager {
         seenNonces.removeAll()
         nonceTimestamps.removeAll()
         _ = await keyManager.clearAllKeys()
-        print("[MeshCryptoManager] Security wipe complete")
     }
 }
 

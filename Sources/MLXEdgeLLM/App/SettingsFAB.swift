@@ -16,7 +16,7 @@ struct SettingsFAB: View {
                 } label: {
                     Image(systemName: "gearshape.fill")
                         .font(.title2)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                         .padding()
                         .background(ZDDesign.darkCard)
                         .clipShape(Circle())
@@ -37,7 +37,7 @@ struct SettingsFAB: View {
 
 #Preview {
     ZStack {
-        Color.black
+        ZDDesign.darkBackground
         SettingsFAB()
     }
 }

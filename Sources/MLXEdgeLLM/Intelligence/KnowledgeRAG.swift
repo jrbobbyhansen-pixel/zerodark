@@ -117,12 +117,9 @@ final class KnowledgeRAG: ObservableObject {
         let searchURL: URL
         if let knowledgeURL = Bundle.main.url(forResource: "Knowledge", withExtension: nil) {
             searchURL = knowledgeURL
-            print("[ZeroDark] KnowledgeRAG: Found Knowledge folder")
         } else if let bundleURL = Bundle.main.resourceURL {
             searchURL = bundleURL
-            print("[ZeroDark] KnowledgeRAG: Searching bundle root for .md files")
         } else {
-            print("[ZeroDark] KnowledgeRAG: No bundle resource URL found")
             return
         }
         
@@ -152,7 +149,6 @@ final class KnowledgeRAG: ObservableObject {
         chunkCount = loaded.count
         fileCount = files
         isLoaded = true
-        print("[ZeroDark] KnowledgeRAG: \(files) files – \(chunkCount) chunks")
     }
 
     // MARK: - BM25 Search

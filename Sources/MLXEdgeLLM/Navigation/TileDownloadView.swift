@@ -37,7 +37,7 @@ struct TileDownloadView: View {
                     .overlay(alignment: .bottomTrailing) {
                         Text("Drag to set download region")
                             .font(.caption)
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                             .padding(6)
                             .background(Color.black.opacity(0.6))
                             .cornerRadius(6)
@@ -108,7 +108,7 @@ struct TileDownloadView: View {
                                     VStack(alignment: .leading) {
                                         Text(job.regionName).font(.headline)
                                         Text("\(job.downloadedTiles) tiles · \(String(format: "%.0f MB", job.estimatedStorageMB))")
-                                            .font(.caption).foregroundColor(.secondary)
+                                            .font(.caption).foregroundColor(ZDDesign.mediumGray)
                                     }
                                     Spacer()
                                     Image(systemName: "checkmark.circle.fill")
@@ -137,7 +137,7 @@ struct TileDownloadView: View {
                             }
                         }
                         .frame(maxWidth: .infinity)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                         .padding(.vertical, 8)
                         .background(
                             downloader.isDownloading || regionName.isEmpty

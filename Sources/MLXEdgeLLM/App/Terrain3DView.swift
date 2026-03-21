@@ -27,7 +27,7 @@ struct Terrain3DView: View {
                     noDataView
                 } else {
                     ProgressView("Generating terrain…")
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                 }
 
                 // Controls overlay
@@ -36,12 +36,12 @@ struct Terrain3DView: View {
                     HStack(spacing: 12) {
                         Text("Exaggeration")
                             .font(.caption)
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                         Slider(value: $exaggeration, in: 1.0...5.0)
                             .frame(width: 150)
                         Text(String(format: "%.1fx", exaggeration))
                             .font(.caption)
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                             .frame(width: 40)
                     }
                     .padding()
@@ -67,12 +67,12 @@ struct Terrain3DView: View {
         VStack(spacing: 12) {
             Image(systemName: "mountain.2")
                 .font(.largeTitle)
-                .foregroundColor(.secondary)
+                .foregroundColor(ZDDesign.mediumGray)
             Text("No SRTM data for this area")
-                .foregroundColor(.secondary)
+                .foregroundColor(ZDDesign.mediumGray)
             Text("Copy .hgt files to ZeroDark/SRTM/ in Files app")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(ZDDesign.mediumGray)
                 .multilineTextAlignment(.center)
                 .padding()
         }

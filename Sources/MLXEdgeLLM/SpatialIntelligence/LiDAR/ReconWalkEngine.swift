@@ -183,7 +183,7 @@ final class ReconWalkEngine: NSObject, ObservableObject {
 
     private func finalizeVideoCapture() {
         videoInput?.markAsFinished()
-        videoWriter?.finishWriting { print("[ReconWalk] Video saved") }
+        videoWriter?.finishWriting { /* saved */ }
         videoWriter = nil; videoInput = nil; pixelBufferAdaptor = nil; videoStartTime = nil
     }
 
@@ -216,9 +216,7 @@ final class ReconWalkEngine: NSObject, ObservableObject {
                 scene.rootNode.addChildNode(node)
             }
         }
-        scene.write(to: url, options: nil, delegate: nil) { _, error, _ in
-            if let e = error { print("[ReconWalk] USDZ export error: \(e)") }
-        }
+        scene.write(to: url, options: nil, delegate: nil) { _, _, _ in }
     }
 
     private func scnNode(from anchor: ARMeshAnchor) -> SCNNode? {

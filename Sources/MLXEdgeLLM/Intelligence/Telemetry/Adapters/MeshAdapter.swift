@@ -11,7 +11,6 @@ class MeshTelemetryAdapter: BaseTelemetryAdapter {
 
     override func start() {
         timer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { [weak self] _ in
-            // TODO: Query DTNBuffer.shared.getPendingBundles().count once async access is properly handled
             // For now, emit placeholder value
             self?.emit(.int(0))
         }

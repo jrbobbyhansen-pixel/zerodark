@@ -58,7 +58,7 @@ struct GeoPackageImportView: View {
                                         Image(systemName: "doc.fill")
                                             .foregroundColor(ZDDesign.cyanAccent)
                                         Text(url.lastPathComponent)
-                                            .foregroundColor(.white)
+                                            .foregroundColor(ZDDesign.pureWhite)
                                     }
                                 }
                             }
@@ -85,7 +85,7 @@ struct GeoPackageImportView: View {
                                             .frame(width: 24)
                                         VStack(alignment: .leading, spacing: 2) {
                                             Text(layer.name)
-                                                .foregroundColor(.white)
+                                                .foregroundColor(ZDDesign.pureWhite)
                                             Text("\(layer.featureCount) features • \(layer.geometryType.rawValue)")
                                                 .font(.caption)
                                                 .foregroundColor(ZDDesign.mediumGray)
@@ -178,14 +178,14 @@ struct GeoPackageLayerDetailView: View {
                         LabeledContent("Features", value: "\(layer.featureCount)")
                     }
                     .listRowBackground(ZDDesign.darkCard)
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
 
                     Section {
                         ForEach(features) { feature in
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(feature.name)
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(ZDDesign.pureWhite)
                                 if let coord = feature.coordinates.first {
                                     Text(MGRSConverter.toMGRS(coordinate: coord, precision: 4))
                                         .font(.caption)

@@ -79,7 +79,6 @@ final class HapticComms: ObservableObject {
                 try? self?.engine?.start()
             }
         } catch {
-            print("[HapticComms] Engine setup failed: \(error)")
         }
     }
 

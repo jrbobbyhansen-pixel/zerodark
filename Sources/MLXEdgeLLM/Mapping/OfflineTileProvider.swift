@@ -127,18 +127,15 @@ final class PMTilesReader {
         self.path = path
         
         guard let handle = try? FileHandle(forReadingFrom: path) else {
-            print("[OfflineTileProvider] Could not open file: \(path.lastPathComponent)")
             return nil
         }
         self.fileHandle = handle
         
         do {
             guard try parseHeader() else {
-                print("[OfflineTileProvider] Invalid PMTiles header: \(path.lastPathComponent)")
                 return nil
             }
         } catch {
-            print("[OfflineTileProvider] PMTiles parse error: \(error)")
             return nil
         }
     }
@@ -309,16 +306,13 @@ final class OfflineTileProvider: ObservableObject {
                 if let reader = MBTilesReader(path: url) {
                     mbtilesReaders[name] = reader
                     availableMaps.append(name)
-                    print("[OfflineTileProvider] Loaded MBTiles: \(name)")
                 }
             } else if ext == "pmtiles" {
                 // PMTiles parsing can fail — wrapped in failable init
                 if let reader = PMTilesReader(path: url) {
                     pmtilesReaders[name] = reader
                     availableMaps.append(name)
-                    print("[OfflineTileProvider] Loaded PMTiles: \(name)")
                 } else {
-                    print("[OfflineTileProvider] Skipped invalid PMTiles: \(name)")
                 }
             }
         }

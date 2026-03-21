@@ -7,13 +7,12 @@ options:
   xcodeVersion: "15.0"
 
 packages:
-  # llmfarm-core disabled temporarily - xcframework rebuild needed
-  # llmfarm-core:
-  #   path: /Users/bobbyhansenjr./Developer/llmfarm_core
-  MLXSwift:
+  llmfarm-core:
+    path: /Users/bobbyhansenjr./Developer/llmfarm_core
+  mlx-swift:
     url: https://github.com/ml-explore/mlx-swift
     from: "0.18.0"
-  MLXSwiftLM:
+  mlx-swift-lm:
     url: https://github.com/ml-explore/mlx-swift-lm
     branch: main
   MultipeerKit:
@@ -60,26 +59,18 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
-        INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortraitUpsideDown"
         ENABLE_USER_SCRIPT_SANDBOXING: NO
         SWIFT_STRICT_CONCURRENCY: minimal
         SWIFT_OBJC_BRIDGING_HEADER: Sources/MLXEdgeLLM/ZeroDark-Bridging-Header.h
         HEADER_SEARCH_PATHS: $(SRCROOT)/Sources/MLXEdgeLLM
     dependencies:
-      - package: MLXSwift
+      - package: llmfarm-core
+        product: llmfarm_core
+      - package: mlx-swift
         product: MLX
-      - package: MLXSwift
-        product: MLXRandom
-      - package: MLXSwift
-        product: MLXNN
-      - package: MLXSwift
-        product: MLXOptimizers
-      - package: MLXSwiftLM
+      - package: mlx-swift-lm
         product: MLXLLM
-      - package: MLXSwiftLM
-        product: MLXLMCommon
-      - package: MLXSwiftLM
-        product: MLXVLM
       - package: MultipeerKit
       - package: CryptoSwift
       - package: mgrs-ios
@@ -88,9 +79,6 @@ targets:
         product: GARS
       - package: geopackage-ios
         product: GeoPackage
-      # llmfarm-core disabled temporarily
-      # - package: llmfarm-core
-      #   product: llmfarm_core
       - sdk: Accelerate.framework
     entitlements:
       path: ZeroDark.entitlements

@@ -19,7 +19,7 @@ struct TacticalNavigationView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Navigation")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
 
                         switch navStack.status {
                         case .idle:
@@ -78,10 +78,10 @@ struct TacticalNavigationView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Speed: \(String(format: "%.1f", cmd.desiredSpeed)) m/s")
                                     .font(.caption)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(ZDDesign.pureWhite)
                                 Text("Heading: \(Int(cmd.desiredHeading))°")
                                     .font(.caption)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(ZDDesign.pureWhite)
                             }
                             Spacer()
                             VStack(alignment: .trailing, spacing: 4) {
@@ -109,7 +109,7 @@ struct TacticalNavigationView: View {
                     HStack(spacing: 8) {
                         TextField("Coordinates or waypoint", text: $destinationInput)
                             .textFieldStyle(.roundedBorder)
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
 
                         Button(action: { showDestinationPicker = true }) {
                             Image(systemName: "location.fill")

@@ -21,7 +21,6 @@ final class VisionInferenceEngine: ObservableObject {
     func loadModel() async throws {
         guard !isLoaded else { return }
         guard modelFileExists else { throw VisionError.modelNotFound }
-        // TODO: Load moondream2 via llama.cpp or mlx-vlm when multimodal API is available (Phase 16)
         isLoaded = true
     }
 
@@ -32,7 +31,6 @@ final class VisionInferenceEngine: ObservableObject {
         isProcessing = true
         defer { isProcessing = false }
 
-        // TODO: On-device inference — Phase 16
         return "[On-device vision stub — copy moondream2-q4.gguf to Documents/Models/ to enable]"
     }
 

@@ -22,7 +22,7 @@ struct CoordinationView: View {
                 Section(header: Label("Active Incidents", systemImage: "exclamationmark.triangle.fill")) {
                     if store.incidents.filter({ $0.status == .active }).isEmpty {
                         Text("No active incidents")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                     } else {
                         ForEach(store.incidents.filter({ $0.status == .active })) { incident in
                             NavigationLink(destination: IncidentDetailView(incident: incident)) {
@@ -35,17 +35,17 @@ struct CoordinationView: View {
                                     }
                                     Text(incident.summary)
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(ZDDesign.mediumGray)
                                     HStack(spacing: 12) {
                                         Image(systemName: "person.2.fill")
                                             .font(.caption)
                                         Text("\(incident.assignments.count) assigned")
                                             .font(.caption)
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(ZDDesign.mediumGray)
                                         Spacer()
                                         Text(incident.timestamp.formatted(date: .omitted, time: .shortened))
                                             .font(.caption2)
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(ZDDesign.mediumGray)
                                     }
                                 }
                                 .padding(.vertical, 4)
@@ -58,7 +58,7 @@ struct CoordinationView: View {
                 Section(header: Label("Personnel (\(store.units.count))", systemImage: "person.3.fill")) {
                     if store.units.isEmpty {
                         Text("No units assigned")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                     } else {
                         ForEach(store.units) { unit in
                             HStack {
@@ -76,7 +76,7 @@ struct CoordinationView: View {
                                                 .foregroundColor(.blue)
                                             Text(String(format: "%.4f, %.4f", location.latitude, location.longitude))
                                                 .font(.caption)
-                                                .foregroundColor(.secondary)
+                                                .foregroundColor(ZDDesign.mediumGray)
                                         }
                                         Spacer()
                                         HStack(spacing: 4) {
@@ -104,7 +104,7 @@ struct CoordinationView: View {
                             Spacer()
                             Image(systemName: "chevron.right")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(ZDDesign.mediumGray)
                         }
                     }
                 }
@@ -121,7 +121,7 @@ struct CoordinationView: View {
                     VStack(alignment: .leading) {
                         Text("Search Radius: \(Int(sarRadius))m")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                         Slider(value: $sarRadius, in: 500...10000, step: 500)
                     }
 
@@ -152,7 +152,7 @@ struct CoordinationView: View {
                         if let rec = sarModel.recommendedCell {
                             Text("Next sector: \(String(format: "%.4f", rec.coordinate.latitude)), \(String(format: "%.4f", rec.coordinate.longitude))")
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(ZDDesign.mediumGray)
                         }
 
                         Button("Mark Recommended Sector Searched (POD 70%)") {
@@ -174,7 +174,7 @@ struct CoordinationView: View {
                                     .font(.headline)
                                 Text(incident.status.rawValue)
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(ZDDesign.mediumGray)
                             }
                             .padding(.vertical, 4)
                         }
@@ -223,7 +223,7 @@ struct PriorityBadge: View {
         Text(priority.rawValue)
             .font(.caption2)
             .fontWeight(.semibold)
-            .foregroundColor(.white)
+            .foregroundColor(ZDDesign.pureWhite)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .background(priorityColor(priority))
@@ -295,7 +295,7 @@ struct NewIncidentSheet: View {
                 Section("Location") {
                     Text(String(format: "%.4f°, %.4f°", coordinate.latitude, coordinate.longitude))
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(ZDDesign.mediumGray)
                     Button("Use Current Location") {
                         coordinate = CLLocationCoordinate2D(
                             latitude: 37.7749,  // Example: SF
@@ -361,7 +361,7 @@ struct IncidentDetailView: View {
                     Section("Assigned Units (\(current.assignments.count))") {
                         if current.assignments.isEmpty {
                             Text("No units assigned")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(ZDDesign.mediumGray)
                         } else {
                             ForEach(current.assignments) { assignment in
                                 if let unit = store.units.first(where: { $0.id == assignment.unitId }) {
@@ -375,12 +375,12 @@ struct IncidentDetailView: View {
                                         if let eta = assignment.eta {
                                             Text("ETA: \(eta.formatted(date: .omitted, time: .shortened))")
                                                 .font(.caption)
-                                                .foregroundColor(.secondary)
+                                                .foregroundColor(ZDDesign.mediumGray)
                                         }
                                         if !assignment.note.isEmpty {
                                             Text(assignment.note)
                                                 .font(.caption)
-                                                .foregroundColor(.secondary)
+                                                .foregroundColor(ZDDesign.mediumGray)
                                         }
                                     }
                                     .padding(.vertical, 4)

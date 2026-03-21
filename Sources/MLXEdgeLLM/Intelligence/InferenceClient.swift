@@ -28,7 +28,6 @@ final class TextInferenceClient: ObservableObject {
             isConnected = (response as? HTTPURLResponse)?.statusCode == 200
         } catch {
             isConnected = false
-            print("[ZeroDark] TextInferenceClient unreachable: \(error)")
         }
     }
 
@@ -88,7 +87,6 @@ final class TextInferenceClient: ObservableObject {
                     continuation.finish()
                 }
                 guard let data, error == nil else {
-                    print("[ZeroDark] TextInferenceClient error: \(String(describing: error))")
                     return
                 }
                 String(data: data, encoding: .utf8)?
@@ -164,7 +162,6 @@ final class VisionInferenceClient: ObservableObject {
             isConnected = (response as? HTTPURLResponse)?.statusCode == 200
         } catch {
             isConnected = false
-            print("[ZeroDark] VisionInferenceClient unreachable: \(error)")
         }
     }
 

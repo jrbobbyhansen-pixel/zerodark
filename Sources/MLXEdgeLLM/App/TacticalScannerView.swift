@@ -38,14 +38,14 @@ struct TacticalScannerView: View {
                 HStack {
                     Button(action: { dismiss() }) {
                         Image(systemName: "xmark")
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                     }
 
                     Spacer()
 
                     Text("Tactical Scanner")
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
 
                     Spacer()
 
@@ -65,7 +65,7 @@ struct TacticalScannerView: View {
                             .foregroundColor(ZDDesign.cyanAccent.opacity(0.3))
 
                         Text("Point at \(selectedMode == .qr ? "QR code" : "document")")
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.black.opacity(0.3))
@@ -89,7 +89,7 @@ struct TacticalScannerView: View {
                     // Mode-specific controls
                     if selectedMode == .torch {
                         VStack(spacing: 8) {
-                            Button(action: { Task { await scanner.sendSOS() } }) {
+                            Button(action: { Task { scanner.sendSOS() } }) {
                                 HStack {
                                     Image(systemName: "flashlight.on.fill")
                                     Text("Send SOS")
@@ -133,7 +133,7 @@ struct TacticalScannerView: View {
                                 Text("Scan successful")
                                     .font(.caption)
                                     .fontWeight(.semibold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(ZDDesign.pureWhite)
 
                                 Text(result.data)
                                     .font(.caption2)

@@ -22,7 +22,7 @@ struct TelemetryDashboard: View {
                     Text("Telemetry Dashboard")
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
 
@@ -66,7 +66,7 @@ struct TelemetryPanel: View {
                 Text(object.type.displayName)
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
 
                 Spacer()
 
@@ -152,7 +152,7 @@ struct TelemetryDetailView: View {
 
                     Text(object.type.displayName)
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
 
                     Spacer()
 

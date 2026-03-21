@@ -30,7 +30,6 @@ public actor SessionKeyManager {
         currentKeyID = id
         keyCreatedAt = Date()
 
-        print("[SessionKeyManager] Generated new session key: \(id)")
         return (key, id)
     }
 
@@ -51,7 +50,6 @@ public actor SessionKeyManager {
     /// Store a peer's session key (received during key exchange)
     public func storePeerKey(_ key: SymmetricKey, id: UUID, for peerID: String) {
         peerKeys[peerID] = (key, id)
-        print("[SessionKeyManager] Stored key for peer: \(peerID)")
     }
 
     /// Get a peer's key by ID
@@ -90,6 +88,5 @@ public actor SessionKeyManager {
         currentKeyID = nil
         keyCreatedAt = nil
         peerKeys.removeAll()
-        print("[SessionKeyManager] All keys cleared")
     }
 }

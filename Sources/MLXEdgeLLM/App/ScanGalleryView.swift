@@ -16,9 +16,9 @@ struct ScanGalleryView: View {
                     VStack {
                         Image(systemName: "cube.fill")
                             .font(.largeTitle)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                         Text("No scans yet")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -81,15 +81,15 @@ struct ScanRow: View {
                     .font(.headline).lineLimit(1)
                 HStack(spacing: 8) {
                     Text(formatPointCount(scan.pointCount))
-                        .font(.caption).foregroundColor(.secondary)
-                    Text("•").foregroundColor(.secondary)
+                        .font(.caption).foregroundColor(ZDDesign.mediumGray)
+                    Text("•").foregroundColor(ZDDesign.mediumGray)
                     Text(scan.timestamp.formatted(.relative(presentation: .named)))
-                        .font(.caption).foregroundColor(.secondary)
+                        .font(.caption).foregroundColor(ZDDesign.mediumGray)
                 }
             }
             Spacer()
             statusBadge
-            Image(systemName: "chevron.right").font(.caption).foregroundColor(.secondary)
+            Image(systemName: "chevron.right").font(.caption).foregroundColor(ZDDesign.mediumGray)
         }
         .padding(.vertical, 4)
     }
@@ -130,128 +130,102 @@ struct ScanDetailView: View {
     let scan: SavedScan
     @State private var scanName: String = ""
     @State private var isEditingName = false
+    @State private var showMetadata = false
     
     var body: some View {
-        VStack(spacing: 16) {
-            // Editable name field
-            HStack {
-                if isEditingName {
-                    TextField("Scan name", text: $scanName)
-                        .textFieldStyle(.roundedBorder)
-                        .font(.headline)
-                        .onSubmit { saveName() }
-                } else {
-                    Text(scanName.isEmpty ? "Unnamed Scan" : scanName)
-                        .font(.headline)
-                        .foregroundColor(scanName.isEmpty ? .secondary : .primary)
-                }
-                Spacer()
-                Button {
+        GeometryReader { geo in
+            VStack(spacing: 0) {
+                // Editable name field - compact
+                HStack {
                     if isEditingName {
-                        saveName()
-                    }
-                    isEditingName.toggle()
-                } label: {
-                    Image(systemName: isEditingName ? "checkmark.circle.fill" : "pencil.circle")
-                        .foregroundColor(ZDDesign.cyanAccent)
-                }
-            }
-            .padding(.horizontal)
-            
-            // 3D Preview (simplified for performance)
-            if scan.hasUSDZ {
-                Scan3DView(usdzURL: scan.usdzURL, scanDir: scan.scanDir)
-                    .frame(height: 250)
-                    .cornerRadius(8)
-            } else {
-                VStack(spacing: 12) {
-                    Image(systemName: "cube.transparent.fill")
-                        .font(.title)
-                        .foregroundColor(.secondary)
-                    Text("3D model not available")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 250)
-                .background(Color.black.opacity(0.3))
-                .cornerRadius(8)
-            }
-
-            // Metadata card
-            VStack(alignment: .leading, spacing: 8) {
-                // Points
-                HStack {
-                    Label("Points", systemImage: "cube.fill")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Spacer()
-                    Text(scan.pointCount.formatted())
-                        .font(.caption.bold())
-                        .monospaced()
-                }
-                
-                Divider()
-                
-                // GPS Coordinates
-                HStack {
-                    Label("Location", systemImage: "location.fill")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Spacer()
-                    if let coords = scan.coordinateString {
-                        Text(coords)
-                            .font(.caption.monospaced())
-                            .foregroundColor(ZDDesign.cyanAccent)
+                        TextField("Scan name", text: $scanName)
+                            .textFieldStyle(.roundedBorder)
+                            .font(.subheadline)
+                            .onSubmit { saveName() }
                     } else {
-                        Text("No GPS")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                        Text(scanName.isEmpty ? "Unnamed Scan" : scanName)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundColor(scanName.isEmpty ? .secondary : .primary)
                     }
-                }
-                
-                Divider()
-                
-                // Timestamp
-                HStack {
-                    Label("Captured", systemImage: "clock")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
                     Spacer()
-                    Text(scan.timestamp.formatted(date: .abbreviated, time: .shortened))
-                        .font(.caption)
-                }
-                
-                // Risk Score
-                if let risk = scan.riskScore {
-                    Divider()
-                    HStack {
-                        Label("Threat Level", systemImage: "exclamationmark.shield")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Spacer()
-                        Text(risk < 0.3 ? "LOW" : risk < 0.7 ? "ELEVATED" : "HIGH")
-                            .font(.caption.bold())
-                            .foregroundColor(risk < 0.3 ? ZDDesign.successGreen : risk < 0.7 ? ZDDesign.safetyYellow : ZDDesign.signalRed)
+                    Button {
+                        if isEditingName { saveName() }
+                        isEditingName.toggle()
+                    } label: {
+                        Image(systemName: isEditingName ? "checkmark.circle.fill" : "pencil.circle")
+                            .foregroundColor(ZDDesign.cyanAccent)
                     }
                 }
-            }
-            .padding()
-            .background(Color.white.opacity(0.05))
-            .cornerRadius(8)
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                
+                // 3D Preview - takes all available space
+                if scan.hasUSDZ {
+                    Scan3DView(usdzURL: scan.usdzURL, scanDir: scan.scanDir)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    VStack(spacing: 12) {
+                        Image(systemName: "cube.transparent.fill")
+                            .font(.largeTitle)
+                            .foregroundColor(ZDDesign.mediumGray)
+                        Text("3D model not available")
+                            .font(.caption)
+                            .foregroundColor(ZDDesign.mediumGray)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.black)
+                }
 
-            Spacer()
+                // Compact metadata bar
+                metadataBar
+            }
         }
-        .padding()
+        .background(Color.black)
         .navigationTitle("Scan Details")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            scanName = scan.name
+        .onAppear { scanName = scan.name }
+    }
+    
+    private var metadataBar: some View {
+        HStack(spacing: 16) {
+            // Points
+            Label(formatPoints(scan.pointCount), systemImage: "cube.fill")
+                .font(.caption2)
+                .foregroundColor(ZDDesign.mediumGray)
+            
+            // Location
+            if let coords = scan.coordinateString {
+                Label(coords, systemImage: "location.fill")
+                    .font(.caption2)
+                    .foregroundColor(ZDDesign.cyanAccent)
+                    .lineLimit(1)
+            }
+            
+            Spacer()
+            
+            // Threat level badge
+            if let risk = scan.riskScore {
+                Text(risk < 0.3 ? "LOW" : risk < 0.7 ? "ELEVATED" : "HIGH")
+                    .font(.caption2.bold())
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(risk < 0.3 ? ZDDesign.successGreen.opacity(0.2) : risk < 0.7 ? ZDDesign.safetyYellow.opacity(0.2) : ZDDesign.signalRed.opacity(0.2))
+                    .foregroundColor(risk < 0.3 ? ZDDesign.successGreen : risk < 0.7 ? ZDDesign.safetyYellow : ZDDesign.signalRed)
+                    .cornerRadius(4)
+            }
         }
+        .padding(.horizontal)
+        .padding(.vertical, 10)
+        .background(Color.white.opacity(0.05))
+    }
+    
+    private func formatPoints(_ n: Int) -> String {
+        if n >= 1_000_000 { return String(format: "%.1fM", Double(n)/1_000_000) }
+        if n >= 1_000 { return String(format: "%.0fK", Double(n)/1_000) }
+        return "\(n)"
     }
     
     private func saveName() {
-        // Save updated name via storage manager
         ScanStorage.shared.updateScanName(scan, newName: scanName)
     }
 }
@@ -318,39 +292,66 @@ struct TacticalSceneView: UIViewRepresentable {
         scnView.addGestureRecognizer(tapGesture)
 
         if let scene = try? SCNScene(url: usdzURL) {
-            // Add tactical lighting
+            // Professional 3-point lighting setup
             let ambientLight = SCNNode()
             ambientLight.light = SCNLight()
             ambientLight.light?.type = .ambient
-            ambientLight.light?.color = UIColor(red: 0.0, green: 0.3, blue: 0.1, alpha: 1.0)
-            ambientLight.light?.intensity = 500
+            ambientLight.light?.color = UIColor(white: 0.15, alpha: 1.0)
+            ambientLight.light?.intensity = 300
             scene.rootNode.addChildNode(ambientLight)
 
-            let directionalLight = SCNNode()
-            directionalLight.light = SCNLight()
-            directionalLight.light?.type = .directional
-            directionalLight.light?.color = UIColor(red: 0.1, green: 0.5, blue: 0.2, alpha: 1.0)
-            directionalLight.light?.intensity = 800
-            directionalLight.position = SCNVector3(0, 10, 10)
-            directionalLight.look(at: SCNVector3(0, 0, 0))
-            scene.rootNode.addChildNode(directionalLight)
+            // Key light (main)
+            let keyLight = SCNNode()
+            keyLight.light = SCNLight()
+            keyLight.light?.type = .directional
+            keyLight.light?.color = UIColor(red: 0.2, green: 0.9, blue: 0.5, alpha: 1.0)
+            keyLight.light?.intensity = 1200
+            keyLight.light?.castsShadow = true
+            keyLight.light?.shadowMode = .deferred
+            keyLight.light?.shadowSampleCount = 8
+            keyLight.position = SCNVector3(5, 10, 8)
+            keyLight.look(at: SCNVector3(0, 0, 0))
+            scene.rootNode.addChildNode(keyLight)
+            
+            // Fill light (softer, opposite side)
+            let fillLight = SCNNode()
+            fillLight.light = SCNLight()
+            fillLight.light?.type = .directional
+            fillLight.light?.color = UIColor(red: 0.1, green: 0.6, blue: 0.8, alpha: 1.0)
+            fillLight.light?.intensity = 400
+            fillLight.position = SCNVector3(-8, 5, 5)
+            fillLight.look(at: SCNVector3(0, 0, 0))
+            scene.rootNode.addChildNode(fillLight)
+            
+            // Rim light (edge highlighting)
+            let rimLight = SCNNode()
+            rimLight.light = SCNLight()
+            rimLight.light?.type = .directional
+            rimLight.light?.color = UIColor(red: 0.0, green: 1.0, blue: 0.6, alpha: 1.0)
+            rimLight.light?.intensity = 600
+            rimLight.position = SCNVector3(0, 3, -10)
+            rimLight.look(at: SCNVector3(0, 0, 0))
+            scene.rootNode.addChildNode(rimLight)
 
-            // Apply tactical green material to all geometry
+            // Apply high-quality PBR materials
             scene.rootNode.enumerateChildNodes { node, _ in
                 if let geometry = node.geometry {
-                    let tacticalMaterial = SCNMaterial()
-                    tacticalMaterial.diffuse.contents = UIColor(red: 0.1, green: 0.4, blue: 0.15, alpha: 1.0)
-                    tacticalMaterial.emission.contents = UIColor(red: 0.0, green: 0.15, blue: 0.05, alpha: 1.0)
-                    tacticalMaterial.isDoubleSided = true
-                    geometry.materials = [tacticalMaterial]
+                    let material = SCNMaterial()
+                    material.lightingModel = .physicallyBased
+                    material.diffuse.contents = UIColor(red: 0.08, green: 0.35, blue: 0.15, alpha: 1.0)
+                    material.metalness.contents = 0.1
+                    material.roughness.contents = 0.6
+                    material.emission.contents = UIColor(red: 0.0, green: 0.08, blue: 0.03, alpha: 1.0)
+                    material.isDoubleSided = true
+                    geometry.materials = [material]
                 }
             }
 
-            // Add grid floor
+            // Subtle grid floor
             let gridGeometry = SCNFloor()
-            gridGeometry.reflectivity = 0
+            gridGeometry.reflectivity = 0.05
             let gridMaterial = SCNMaterial()
-            gridMaterial.diffuse.contents = UIColor(red: 0.0, green: 0.2, blue: 0.1, alpha: 0.3)
+            gridMaterial.diffuse.contents = UIColor(red: 0.02, green: 0.08, blue: 0.04, alpha: 0.5)
             gridMaterial.isDoubleSided = true
             gridGeometry.materials = [gridMaterial]
             let gridNode = SCNNode(geometry: gridGeometry)
@@ -386,22 +387,29 @@ struct TacticalSceneView: UIViewRepresentable {
             case .wireframe:
                 let wireMaterial = SCNMaterial()
                 wireMaterial.fillMode = .lines
-                wireMaterial.diffuse.contents = UIColor(red: 0.0, green: 1.0, blue: 0.4, alpha: 1.0)
+                wireMaterial.diffuse.contents = UIColor(red: 0.0, green: 1.0, blue: 0.5, alpha: 1.0)
+                wireMaterial.emission.contents = UIColor(red: 0.0, green: 0.4, blue: 0.2, alpha: 1.0)
                 wireMaterial.isDoubleSided = true
                 geometry.materials = [wireMaterial]
 
             case .solid:
-                let solidMaterial = SCNMaterial()
-                solidMaterial.diffuse.contents = UIColor(red: 0.1, green: 0.4, blue: 0.15, alpha: 1.0)
-                solidMaterial.emission.contents = UIColor(red: 0.0, green: 0.15, blue: 0.05, alpha: 1.0)
-                solidMaterial.isDoubleSided = true
-                geometry.materials = [solidMaterial]
+                let material = SCNMaterial()
+                material.lightingModel = .physicallyBased
+                material.diffuse.contents = UIColor(red: 0.08, green: 0.35, blue: 0.15, alpha: 1.0)
+                material.metalness.contents = 0.1
+                material.roughness.contents = 0.6
+                material.emission.contents = UIColor(red: 0.0, green: 0.08, blue: 0.03, alpha: 1.0)
+                material.isDoubleSided = true
+                geometry.materials = [material]
 
             case .topDown:
-                let solidMaterial = SCNMaterial()
-                solidMaterial.diffuse.contents = UIColor(red: 0.1, green: 0.4, blue: 0.15, alpha: 1.0)
-                solidMaterial.isDoubleSided = true
-                geometry.materials = [solidMaterial]
+                let material = SCNMaterial()
+                material.lightingModel = .physicallyBased
+                material.diffuse.contents = UIColor(red: 0.1, green: 0.5, blue: 0.2, alpha: 1.0)
+                material.metalness.contents = 0.0
+                material.roughness.contents = 0.8
+                material.isDoubleSided = true
+                geometry.materials = [material]
             }
         }
 

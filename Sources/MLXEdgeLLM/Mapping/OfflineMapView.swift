@@ -162,7 +162,7 @@ struct MapStatusOverlay: View {
                         .foregroundColor(.green)
                     Text(tileProvider.currentMap ?? "Offline")
                         .font(.caption)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
@@ -174,7 +174,7 @@ struct MapStatusOverlay: View {
                         .foregroundColor(.orange)
                     Text("No offline maps")
                         .font(.caption)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)

@@ -99,7 +99,6 @@ final class ActivityFeed: ObservableObject {
             try text.write(to: tempURL, atomically: true, encoding: .utf8)
             return tempURL
         } catch {
-            print("[ActivityFeed] Export failed: \(error)")
             return nil
         }
     }

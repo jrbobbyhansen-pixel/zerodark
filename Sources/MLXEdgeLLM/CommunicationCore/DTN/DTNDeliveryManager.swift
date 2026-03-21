@@ -29,7 +29,6 @@ public class DTNDeliveryManager: ObservableObject {
             await deliveryLoop()
         }
 
-        print("[DTNDeliveryManager] Started")
     }
 
     /// Stop the delivery manager
@@ -37,7 +36,6 @@ public class DTNDeliveryManager: ObservableObject {
         deliveryTask?.cancel()
         deliveryTask = nil
         isRunning = false
-        print("[DTNDeliveryManager] Stopped")
     }
 
     /// Main delivery loop
@@ -91,7 +89,6 @@ public class DTNDeliveryManager: ObservableObject {
         let isReachable = await checkReachability(bundle.destination)
 
         guard isReachable else {
-            print("[DTNDeliveryManager] \(bundle.destination) not reachable, will retry later")
             return
         }
 
@@ -101,13 +98,11 @@ public class DTNDeliveryManager: ObservableObject {
 
         if success {
             try? await buffer.markDelivered(bundle.id)
-            print("[DTNDeliveryManager] Delivered bundle \(bundle.id) to \(bundle.destination)")
         }
     }
 
     /// Check if a destination is currently reachable
     private func checkReachability(_ destination: String) async -> Bool {
-        // TODO: Integrate with HapticComms
         // return HapticComms.shared.isReachable(destination)
 
         // Placeholder: assume reachable for broadcast
@@ -122,7 +117,6 @@ public class DTNDeliveryManager: ObservableObject {
 
     /// Deliver the bundle payload to destination
     private func deliverPayload(_ bundle: DTNBundle) async -> Bool {
-        // TODO: Integrate with HapticComms
         // return await HapticComms.shared.send(bundle.payload, to: bundle.destination)
 
         // Placeholder

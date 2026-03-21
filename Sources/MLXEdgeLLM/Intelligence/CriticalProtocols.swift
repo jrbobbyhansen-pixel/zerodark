@@ -1068,7 +1068,7 @@ struct ProtocolCardView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(proto.title.uppercased())
                         .font(.headline.bold())
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                     
                     HStack(spacing: 8) {
                         Text(proto.severity.rawValue)
@@ -1076,11 +1076,11 @@ struct ProtocolCardView: View {
                             .foregroundColor(proto.severity.color)
                         
                         Text("•")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                         
                         Text(proto.timeframe)
                             .font(.caption2)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                         
                         Spacer()
                         
@@ -1116,7 +1116,7 @@ struct ProtocolCardView: View {
                                     Spacer()
                                     Text(timing)
                                         .font(.caption2)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(ZDDesign.mediumGray)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
                                         .background(Color.black.opacity(0.3))
@@ -1199,7 +1199,7 @@ struct ProtocolBrowserView: View {
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
                         .background(selectedCategory == nil ? ZDDesign.cyanAccent : Color.gray.opacity(0.3))
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                         .cornerRadius(16)
                         
                         ForEach(ProtocolCategory.allCases) { category in
@@ -1212,7 +1212,7 @@ struct ProtocolBrowserView: View {
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
                             .background(selectedCategory == category ? category.color : Color.gray.opacity(0.3))
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                             .cornerRadius(16)
                         }
                     }
@@ -1264,7 +1264,7 @@ struct ProtocolBrowserView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(proto.title)
                     .font(.subheadline.bold())
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
                 
                 HStack(spacing: 6) {
                     Text(proto.severity.rawValue)
@@ -1272,7 +1272,7 @@ struct ProtocolBrowserView: View {
                         .foregroundColor(proto.severity.color)
                     
                     Text("•")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(ZDDesign.mediumGray)
                     
                     Label(proto.category.rawValue, systemImage: proto.category.icon)
                         .font(.caption2)
@@ -1283,7 +1283,7 @@ struct ProtocolBrowserView: View {
             Spacer()
             
             Image(systemName: "chevron.right")
-                .foregroundColor(.secondary)
+                .foregroundColor(ZDDesign.mediumGray)
         }
         .padding()
         .background(Color.black.opacity(0.3))

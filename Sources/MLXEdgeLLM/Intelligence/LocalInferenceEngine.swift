@@ -43,7 +43,6 @@ final class LocalInferenceEngine: ObservableObject {
         loadProgress = 0.1
         
         do {
-            print("[ZeroDark] LocalInferenceEngine: Loading MLX model \(modelId)...")
             
             let configuration = ModelConfiguration(id: modelId)
             
@@ -72,10 +71,8 @@ final class LocalInferenceEngine: ObservableObject {
             self.loadProgress = 1.0
             self.modelState = .ready
             
-            print("[ZeroDark] LocalInferenceEngine: Model loaded successfully")
             
         } catch {
-            print("[ZeroDark] LocalInferenceEngine: Failed to load model: \(error)")
             self.modelState = .error(error.localizedDescription)
         }
     }

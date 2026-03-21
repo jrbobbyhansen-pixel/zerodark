@@ -95,7 +95,6 @@ public class LoRaCommsManager: NSObject, ObservableObject {
         )
         
         sendMessage(message)
-        print("🚨 Emergency beacon sent")
     }
     
     /// Send current location to trusted contacts
@@ -148,7 +147,6 @@ public class LoRaCommsManager: NSObject, ObservableObject {
     private func sendMessage(_ message: LoRaMessage) {
         guard isConnected, let characteristic = writeCharacteristic else {
             pendingMessages.append(message)
-            print("⚠️ LoRa not connected - message queued")
             return
         }
         
@@ -157,7 +155,6 @@ public class LoRaCommsManager: NSObject, ObservableObject {
             loraPeripheral?.writeValue(data, for: characteristic, type: .withResponse)
             lastMessageTime = Date()
         } catch {
-            print("❌ Failed to send message: \(error)")
         }
     }
     
@@ -209,18 +206,15 @@ public class LoRaCommsManager: NSObject, ObservableObject {
                 break
             }
         } catch {
-            print("❌ Failed to decode received message: \(error)")
         }
     }
     
     private func handleEmergency(_ message: LoRaMessage) {
         // Alert user to emergency beacon from another device
-        print("🚨 EMERGENCY BEACON RECEIVED")
     }
     
     private func handleDeadDrop(_ message: LoRaMessage) {
         // Store dead drop for later retrieval
-        print("📍 Dead drop marker received")
     }
 }
 

@@ -364,7 +364,6 @@ final class HAMMERAcousticModem: ObservableObject {
     private func demodulateAndDecode(samples: [Float]) -> HAMMERPacket? {
         // FFT to frequency domain
         guard let setup = fftSetup else {
-            print("[HAMMER] FFT setup unavailable — skipping demodulation")
             return nil
         }
 
@@ -373,17 +372,14 @@ final class HAMMERAcousticModem: ObservableObject {
 
         let success = samples.withUnsafeBufferPointer { samplesPtr -> Bool in
             guard let samplesBase = samplesPtr.baseAddress else {
-                print("[HAMMER] Samples buffer has no base address")
                 return false
             }
             return realPart.withUnsafeMutableBufferPointer { realPtr -> Bool in
                 guard let realBase = realPtr.baseAddress else {
-                    print("[HAMMER] Real buffer has no base address")
                     return false
                 }
                 return imagPart.withUnsafeMutableBufferPointer { imagPtr -> Bool in
                     guard let imagBase = imagPtr.baseAddress else {
-                        print("[HAMMER] Imaginary buffer has no base address")
                         return false
                     }
                     vDSP_DFT_Execute(
@@ -616,7 +612,6 @@ final class HAMMERAcousticModem: ObservableObject {
     
     private func encryptPayload(_ data: Data) throws -> Data {
         guard let key = sessionKey else {
-            print("[HAMMER] No session key established — call setSessionKey() before transmitting")
             throw HAMMERError.noSessionKey
         }
 

@@ -68,10 +68,10 @@ struct SettingsTabView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Phi-3.5-mini Not Installed")
                                     .font(.subheadline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(ZDDesign.pureWhite)
                                 Text("The on-device model enables fully offline AI responses.\nModel: Phi-3.5-mini (2.2GB) — no internet required after install")
                                     .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(ZDDesign.mediumGray)
                             }
                         }
                         Button(action: { Task { await modelMgr.installFromBundle() } }) {
@@ -101,7 +101,7 @@ struct SettingsTabView: View {
                                 .tint(ZDDesign.safetyYellow)
                             Text("Loading Phi-3.5-mini...")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(ZDDesign.mediumGray)
                         }
                         ProgressView(value: engine.loadProgress)
                             .tint(ZDDesign.safetyYellow)
@@ -112,10 +112,10 @@ struct SettingsTabView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Phi-3.5-mini — On Device")
                                     .font(.subheadline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(ZDDesign.pureWhite)
                                 Text("\(modelMgr.installedModelSize) • Running on A18 Pro • CPU/NEON")
                                     .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(ZDDesign.mediumGray)
                             }
                         }
                         Button(action: { engine.unloadModel() }) {
@@ -131,10 +131,10 @@ struct SettingsTabView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Model Error")
                                     .font(.subheadline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(ZDDesign.pureWhite)
                                 Text(msg)
                                     .font(.caption2)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(ZDDesign.mediumGray)
                             }
                         }
                         Button(action: { Task { await engine.loadModel() } }) {
@@ -148,7 +148,7 @@ struct SettingsTabView: View {
                 Section("Remote AI Servers") {
                     Text("Used when on-device model is unavailable or for vision analysis.")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(ZDDesign.mediumGray)
                     HStack {
                         Circle().fill(TextInferenceClient.shared.isConnected ? ZDDesign.successGreen : ZDDesign.warmGray)
                             .frame(width: 8, height: 8)
@@ -174,7 +174,7 @@ struct SettingsTabView: View {
                     Button("Test Vision Connection") { Task { await VisionInferenceClient.shared.checkConnection() } }
 
                     Text("Start servers on Mac: see ~/Desktop/start-bitnet-server.sh")
-                        .font(.caption2).foregroundColor(.secondary)
+                        .font(.caption2).foregroundColor(ZDDesign.mediumGray)
                 }
 
                 Section("Maps") {

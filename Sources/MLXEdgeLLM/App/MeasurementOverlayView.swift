@@ -35,7 +35,7 @@ struct MeasurementOverlayView: View {
                         .font(.caption.bold())
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.white.opacity(0.2))
+                        .background(ZDDesign.pureWhite.opacity(0.2))
                         .cornerRadius(4)
                 }
             }
@@ -50,10 +50,10 @@ struct MeasurementOverlayView: View {
                     // Instruction
                     Text(manager.instructionText)
                         .font(.caption)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
-                        .background(Color.black.opacity(0.7))
+                        .background(ZDDesign.darkBackground.opacity(0.7))
                         .cornerRadius(8)
 
                     // Current value (if measuring)
@@ -63,7 +63,7 @@ struct MeasurementOverlayView: View {
                             .foregroundColor(ZDDesign.cyanAccent)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 8)
-                            .background(Color.black.opacity(0.8))
+                            .background(ZDDesign.darkBackground.opacity(0.8))
                             .cornerRadius(8)
                     }
 
@@ -93,7 +93,7 @@ struct MeasurementOverlayView: View {
                     }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
-                    .background(Color.white.opacity(0.15))
+                    .background(ZDDesign.pureWhite.opacity(0.15))
                     .cornerRadius(8)
                 }
 
@@ -108,7 +108,7 @@ struct MeasurementOverlayView: View {
                             .foregroundColor(.red)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(Color.white.opacity(0.15))
+                            .background(ZDDesign.pureWhite.opacity(0.15))
                             .cornerRadius(8)
                     }
 
@@ -121,7 +121,7 @@ struct MeasurementOverlayView: View {
                                 .foregroundColor(ZDDesign.cyanAccent)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
-                                .background(Color.white.opacity(0.15))
+                                .background(ZDDesign.pureWhite.opacity(0.15))
                                 .cornerRadius(8)
                         }
                     }
@@ -134,7 +134,7 @@ struct MeasurementOverlayView: View {
                             Image(systemName: "ruler")
                             Text("Measure")
                         }
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
                         .background(ZDDesign.cyanAccent)
@@ -163,9 +163,9 @@ struct MeasurementListView: View {
                     VStack {
                         Image(systemName: "ruler")
                             .font(.largeTitle)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                         Text("No measurements")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -214,7 +214,7 @@ struct MeasurementRow: View {
                     .font(.headline)
                 Text(measurement.timestamp.formatted(date: .abbreviated, time: .shortened))
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(ZDDesign.mediumGray)
             }
 
             Spacer()

@@ -33,7 +33,7 @@ struct ReconWalkActiveView: View {
                             .opacity(engine.isRecording ? 1 : 0)
                         Text(formatTime(engine.elapsedTime))
                             .font(.caption.monospacedDigit())
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                     }
                     .padding(8)
                     .background(Color.black.opacity(0.5))
@@ -47,7 +47,7 @@ struct ReconWalkActiveView: View {
                         }
                     } label: {
                         Image(systemName: "eye.slash")
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                             .padding(8)
                             .background(Color.black.opacity(0.5))
                             .cornerRadius(8)
@@ -78,7 +78,7 @@ struct ReconWalkActiveView: View {
                             Image(systemName: "stop.fill")
                             Text("STOP & SAVE").fontWeight(.bold)
                         }
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(ZDDesign.signalRed)
@@ -188,10 +188,10 @@ struct CovertPhotoView: View {
             VStack {
                 Spacer()
                 HStack(spacing: 60) {
-                    Image(systemName: "photo.on.rectangle").font(.title).foregroundColor(.white)
+                    Image(systemName: "photo.on.rectangle").font(.title).foregroundColor(ZDDesign.pureWhite)
                     Circle().stroke(.white, lineWidth: 3).frame(width: 70, height: 70)
                         .overlay(Circle().stroke(.white, lineWidth: 6).frame(width: 64, height: 64))
-                    Image(systemName: "arrow.triangle.2.circlepath.camera").font(.title).foregroundColor(.white)
+                    Image(systemName: "arrow.triangle.2.circlepath.camera").font(.title).foregroundColor(ZDDesign.pureWhite)
                 }
                 .padding(.bottom, 50)
             }
@@ -205,7 +205,7 @@ struct CovertMapView: View {
             Color(uiColor: .systemGray5).ignoresSafeArea()
             VStack {
                 Text("Checking directions...")
-                    .foregroundColor(.secondary)
+                    .foregroundColor(ZDDesign.mediumGray)
                     .font(.caption)
             }
         }

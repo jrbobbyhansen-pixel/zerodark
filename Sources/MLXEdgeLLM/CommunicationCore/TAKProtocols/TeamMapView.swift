@@ -25,15 +25,17 @@ struct TeamMapView: View {
     @State private var showWaypointPicker = false
     @State private var pendingCoord: CLLocationCoordinate2D?
     @State private var showOps = false
-    @State private var show3DTerrain = false
+    @State private var showContours = false
+    @State private var contourOverlay: ContourOverlay?
     @StateObject private var camService = TrafficCamService.shared
     @State private var showCameras = false
     @State private var selectedCam: TrafficCamera?
     @State private var showCelestialNav = false
     @State private var mapRegion = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 30.267, longitude: -97.743),
-        span: MKCoordinateSpan(latitudeDelta: 0.15, longitudeDelta: 0.15)
+        center: CLLocationCoordinate2D(latitude: 0, longitude: 0),  // Updated by LocationManager on appear
+        span: MKCoordinateSpan(latitudeDelta: 0.015, longitudeDelta: 0.015)  // ~1.5km tactical view
     )
+    @State private var hasInitializedRegion = false
 
     var body: some View {
         NavigationStack {
@@ -52,6 +54,8 @@ struct TeamMapView: View {
                     region: $mapRegion,
                     cameras: showCameras ? camService.cameras : [],
                     selectedCam: $selectedCam,
+                    showContours: showContours,
+                    contourOverlay: contourOverlay,
                     onLongPress: { coord in
                         pendingCoord = coord
                         showWaypointPicker = true
@@ -63,8 +67,28 @@ struct TeamMapView: View {
                     locationManager.startUpdatingLocation()
                     if let location = locationManager.location {
                         userLocation = location.coordinate
+                        // Center map on user location with tactical zoom
+                        if !hasInitializedRegion {
+                            mapRegion = MKCoordinateRegion(
+                                center: location.coordinate,
+                                span: MKCoordinateSpan(latitudeDelta: 0.015, longitudeDelta: 0.015)
+                            )
+                            hasInitializedRegion = true
+                        }
                     }
                     offlineTiles.scanForMaps()
+                }
+                .task {
+                    // Wait briefly for location to become available, then center
+                    try? await Task.sleep(nanoseconds: 500_000_000)  // 0.5 sec
+                    if let location = locationManager.location, !hasInitializedRegion {
+                        mapRegion = MKCoordinateRegion(
+                            center: location.coordinate,
+                            span: MKCoordinateSpan(latitudeDelta: 0.015, longitudeDelta: 0.015)
+                        )
+                        hasInitializedRegion = true
+                        shouldCenterOnUser = true
+                    }
                 }
 
                 // MGRS HUD (top)
@@ -89,7 +113,7 @@ struct TeamMapView: View {
                             .foregroundColor(mesh.isActive ? ZDDesign.successGreen : ZDDesign.mediumGray)
                         Text("Mesh")
                             .font(.caption)
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                         Text("\(mesh.peers.count) peers")
                             .font(.caption2)
                             .foregroundColor(ZDDesign.mediumGray)
@@ -130,9 +154,21 @@ struct TeamMapView: View {
                                 .cornerRadius(8)
                         }
 
-                        // Terrain toggle
+                        // Terrain contour toggle
                         Button {
-                            show3DTerrain = true
+                            showContours.toggle()
+                            if showContours && contourOverlay == nil {
+                                // Generate contours for current region
+                                Task {
+                                    let overlay = ContourOverlay(region: mapRegion, contourInterval: 30)
+                                    await Task.detached {
+                                        overlay.generateContours(resolution: 40)
+                                    }.value
+                                    await MainActor.run {
+                                        contourOverlay = overlay
+                                    }
+                                }
+                            }
                         } label: {
                             VStack(spacing: 2) {
                                 Image(systemName: "mountain.2.fill")
@@ -140,7 +176,7 @@ struct TeamMapView: View {
                                 Text("Terrain")
                                     .font(.caption2)
                             }
-                            .foregroundColor(.white)
+                            .foregroundColor(showContours ? ZDDesign.cyanAccent : .white)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 8)
                             .background(Color.black.opacity(0.6))
@@ -221,9 +257,6 @@ struct TeamMapView: View {
                 if let coord = pendingCoord {
                     WaypointPickerSheet(coordinate: coord)
                 }
-            }
-            .sheet(isPresented: $show3DTerrain) {
-                Terrain3DView(region: mapRegion, waypoints: waypointStore.waypoints)
             }
             .sheet(item: $selectedCam) { cam in
                 CameraFeedView(camera: cam)
@@ -314,7 +347,7 @@ struct PeerDetailsView: View {
                         LabeledContent("Course", value: String(format: "%.0f°", track.course))
                     } else {
                         Text("No movement data")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                     }
                 }
 
@@ -326,7 +359,7 @@ struct PeerDetailsView: View {
                         LabeledContent("Version", value: takv.version)
                     } else {
                         Text("No device info")
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                     }
                 }
             }
@@ -497,6 +530,8 @@ struct MapViewWithOverlays: UIViewRepresentable {
     @Binding var region: MKCoordinateRegion
     let cameras: [TrafficCamera]
     @Binding var selectedCam: TrafficCamera?
+    let showContours: Bool
+    let contourOverlay: ContourOverlay?
     let onLongPress: (CLLocationCoordinate2D) -> Void
 
     func makeUIView(context: Context) -> MKMapView {
@@ -524,7 +559,7 @@ struct MapViewWithOverlays: UIViewRepresentable {
         // Update overlays
         mapView.removeOverlays(mapView.overlays)
 
-        if showMGRS, let region = mapView.region as MKCoordinateRegion? {
+        if showMGRS {
             let mgrsOverlay = MGRSGridOverlay()
             mapView.addOverlay(mgrsOverlay, level: .aboveLabels)
         }
@@ -532,6 +567,11 @@ struct MapViewWithOverlays: UIViewRepresentable {
         if showRangeRings, let location = userLocation {
             let rings = RangeRingGenerator.rings(center: location)
             mapView.addOverlays(rings, level: .aboveLabels)
+        }
+        
+        // Add contour overlay if enabled
+        if showContours, let overlay = contourOverlay {
+            mapView.addOverlay(overlay, level: .aboveLabels)
         }
 
         // Update peer annotations
@@ -606,6 +646,10 @@ struct MapViewWithOverlays: UIViewRepresentable {
                 renderer.fillColor = nil
                 return renderer
             }
+            
+            if let contour = overlay as? ContourOverlay {
+                return ContourOverlayRenderer(overlay: contour)
+            }
 
             return MKOverlayRenderer(overlay: overlay)
         }
@@ -635,7 +679,7 @@ struct MapViewWithOverlays: UIViewRepresentable {
 
             if let tacticalAnnotation = annotation as? TacticalAnnotation {
                 let identifier = "tactical"
-                var view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKAnnotationView
+                var view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
                 if view == nil {
                     view = MKAnnotationView(annotation: tacticalAnnotation, reuseIdentifier: identifier)
                 } else {
@@ -784,7 +828,7 @@ struct CelestialNavStatusView: View {
 
                     Text("Celestial Navigation")
                         .font(.title2)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
 
                     VStack(spacing: 8) {
                         HStack {

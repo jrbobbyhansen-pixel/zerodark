@@ -2,6 +2,8 @@
 
 import Foundation
 import CoreLocation
+import MapKit
+import Compression
 
 /// SRTM HGT file parser for elevation data
 final class TerrainEngine {
@@ -10,11 +12,162 @@ final class TerrainEngine {
     private let fileManager = FileManager.default
     private let srtmDirectory: URL
     private var cachedTiles: [String: TerrainTile] = [:]
+    
+    /// AWS-hosted Mapzen/Nextzen terrain tiles (free, public, no auth required)
+    private let baseURL = "https://elevation-tiles-prod.s3.amazonaws.com/skadi"
 
     private init() {
         let paths = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
         srtmDirectory = paths[0].appendingPathComponent("SRTM", isDirectory: true)
         try? fileManager.createDirectory(at: srtmDirectory, withIntermediateDirectories: true)
+    }
+    
+    // MARK: - Tile Download (Tesla-style: download once, cache forever)
+    
+    /// Check if tile exists locally for a coordinate
+    func hasTile(for coordinate: CLLocationCoordinate2D) -> Bool {
+        let name = tileName(for: coordinate)
+        return loadTile(named: name) != nil
+    }
+    
+    /// Get the tile name for a coordinate
+    func tileName(for coordinate: CLLocationCoordinate2D) -> String {
+        let lat = Int(floor(coordinate.latitude))
+        let lon = Int(floor(coordinate.longitude))
+        let latPrefix = lat >= 0 ? "N" : "S"
+        let lonPrefix = lon >= 0 ? "E" : "W"
+        return "\(latPrefix)\(String(format: "%02d", abs(lat)))\(lonPrefix)\(String(format: "%03d", abs(lon)))"
+    }
+    
+    /// Download URL for a tile (gzipped HGT from AWS)
+    func downloadURL(for tileName: String) -> URL? {
+        // Format: https://elevation-tiles-prod.s3.amazonaws.com/skadi/N29/N29W099.hgt.gz
+        let latPart = String(tileName.prefix(3)) // e.g., "N29"
+        return URL(string: "\(baseURL)/\(latPart)/\(tileName).hgt.gz")
+    }
+    
+    /// Download and cache a tile (async)
+    func downloadTile(named name: String) async throws {
+        guard let url = downloadURL(for: name) else {
+            throw TerrainError.invalidTileName
+        }
+        
+        
+        let (data, response) = try await URLSession.shared.data(from: url)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw TerrainError.downloadFailed
+        }
+        
+        // Decompress gzip
+        let decompressed = try decompressGzip(data)
+        
+        // Save to SRTM directory
+        let destination = srtmDirectory.appendingPathComponent("\(name).hgt")
+        try decompressed.write(to: destination)
+        
+        
+        // Clear cache to pick up new tile
+        cachedTiles.removeValue(forKey: name)
+    }
+    
+    /// Download tile for a coordinate
+    func downloadTile(for coordinate: CLLocationCoordinate2D) async throws {
+        let name = tileName(for: coordinate)
+        try await downloadTile(named: name)
+    }
+    
+    /// Get all tiles needed for a region
+    func tilesNeeded(for region: MKCoordinateRegion) -> [String] {
+        let minLat = Int(floor(region.center.latitude - region.span.latitudeDelta / 2))
+        let maxLat = Int(floor(region.center.latitude + region.span.latitudeDelta / 2))
+        let minLon = Int(floor(region.center.longitude - region.span.longitudeDelta / 2))
+        let maxLon = Int(floor(region.center.longitude + region.span.longitudeDelta / 2))
+        
+        var tiles: [String] = []
+        for lat in minLat...maxLat {
+            for lon in minLon...maxLon {
+                let latPrefix = lat >= 0 ? "N" : "S"
+                let lonPrefix = lon >= 0 ? "E" : "W"
+                let name = "\(latPrefix)\(String(format: "%02d", abs(lat)))\(lonPrefix)\(String(format: "%03d", abs(lon)))"
+                tiles.append(name)
+            }
+        }
+        return tiles
+    }
+    
+    /// Check which tiles are missing for a region
+    func missingTiles(for region: MKCoordinateRegion) -> [String] {
+        let needed = tilesNeeded(for: region)
+        return needed.filter { loadTile(named: $0) == nil }
+    }
+    
+    // MARK: - Gzip Decompression
+    
+    private func decompressGzip(_ data: Data) throws -> Data {
+        // Skip gzip header (10 bytes minimum)
+        guard data.count > 10 else { throw TerrainError.invalidData }
+        
+        // Find the start of deflate data (skip gzip header)
+        var headerSize = 10
+        let flags = data[3]
+        
+        // Check for optional fields
+        if flags & 0x04 != 0 { // FEXTRA
+            let xlen = Int(data[10]) | (Int(data[11]) << 8)
+            headerSize += 2 + xlen
+        }
+        if flags & 0x08 != 0 { // FNAME
+            while headerSize < data.count && data[headerSize] != 0 { headerSize += 1 }
+            headerSize += 1
+        }
+        if flags & 0x10 != 0 { // FCOMMENT
+            while headerSize < data.count && data[headerSize] != 0 { headerSize += 1 }
+            headerSize += 1
+        }
+        if flags & 0x02 != 0 { // FHCRC
+            headerSize += 2
+        }
+        
+        let compressedData = data.dropFirst(headerSize).dropLast(8) // Drop header and trailer
+        
+        // Decompress using Compression framework
+        let decompressedSize = 3601 * 3601 * 2 // Max SRTM1 size
+        var decompressed = Data(count: decompressedSize)
+        
+        let result = decompressed.withUnsafeMutableBytes { destBuffer in
+            compressedData.withUnsafeBytes { srcBuffer in
+                compression_decode_buffer(
+                    destBuffer.bindMemory(to: UInt8.self).baseAddress!,
+                    decompressedSize,
+                    srcBuffer.bindMemory(to: UInt8.self).baseAddress!,
+                    compressedData.count,
+                    nil,
+                    COMPRESSION_ZLIB
+                )
+            }
+        }
+        
+        guard result > 0 else { throw TerrainError.decompressionFailed }
+        
+        return decompressed.prefix(result)
+    }
+    
+    enum TerrainError: Error, LocalizedError {
+        case invalidTileName
+        case downloadFailed
+        case invalidData
+        case decompressionFailed
+        
+        var errorDescription: String? {
+            switch self {
+            case .invalidTileName: return "Invalid tile name"
+            case .downloadFailed: return "Failed to download terrain data"
+            case .invalidData: return "Invalid terrain data"
+            case .decompressionFailed: return "Failed to decompress terrain data"
+            }
+        }
     }
 
     /// Get elevation at a specific coordinate (meters)
@@ -123,31 +276,158 @@ final class TerrainEngine {
     }
 
     // MARK: - Private Helpers
+    
+    private func loadTileFromPath(_ path: URL, name: String) -> TerrainTile? {
+        do {
+            let data = try Data(contentsOf: path)
+            let tile = try parseHGT(data: data, name: name)
+            cachedTiles[name] = tile
+            return tile
+        } catch {
+            return nil
+        }
+    }
 
     private func loadTile(named name: String) -> TerrainTile? {
         if let cached = cachedTiles[name] { return cached }
 
         let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let containerRoot = docs.deletingLastPathComponent()
-
-        let searchDirs: [URL] = [
+        let appSupportDir = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+        let libraryDir = fileManager.urls(for: .libraryDirectory, in: .userDomainMask).first
+        
+        // App bundle for bundled terrain - check multiple bundle locations
+        let bundleSRTM = Bundle.main.bundleURL.appendingPathComponent("SRTM")
+        let bundleResources = Bundle.main.resourceURL
+        
+        // Direct bundle path (most reliable)
+        if let bundlePath = Bundle.main.path(forResource: name, ofType: "hgt", inDirectory: "SRTM") {
+            if let tile = loadTileFromPath(URL(fileURLWithPath: bundlePath), name: name) {
+                return tile
+            }
+        }
+        
+        // Also check bundle root
+        if let bundlePath = Bundle.main.path(forResource: name, ofType: "hgt") {
+            if let tile = loadTileFromPath(URL(fileURLWithPath: bundlePath), name: name) {
+                return tile
+            }
+        }
+        
+        // Build comprehensive search paths
+        var searchDirs: [URL] = [
+            // Documents folder variants
             docs.appendingPathComponent("SRTM"),
             docs.appendingPathComponent("Terrain"),
+            docs.appendingPathComponent("terrain"),
+            docs.appendingPathComponent("HGT"),
+            docs,
+            
+            // Container root (where Finder drops files)
             containerRoot.appendingPathComponent("SRTM"),
-            containerRoot.appendingPathComponent("Terrain")
+            containerRoot.appendingPathComponent("Terrain"),
+            containerRoot.appendingPathComponent("terrain"),
+            containerRoot,
+            
+            // App bundle
+            bundleSRTM,
         ]
+        
+        // Add optional paths
+        if let resources = bundleResources {
+            searchDirs.append(resources.appendingPathComponent("SRTM"))
+            searchDirs.append(resources.appendingPathComponent("Terrain"))
+            searchDirs.append(resources)
+        }
+        if let appSupport = appSupportDir {
+            searchDirs.append(appSupport.appendingPathComponent("SRTM"))
+            searchDirs.append(appSupport.appendingPathComponent("Terrain"))
+        }
+        if let library = libraryDir {
+            searchDirs.append(library.appendingPathComponent("SRTM"))
+        }
 
+        
+        // First, list what's actually in these directories
+        for dir in [docs, containerRoot] {
+            if let contents = try? fileManager.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil) {
+                let items = contents.map { $0.lastPathComponent }
+            }
+        }
+        
         for dir in searchDirs {
             let path = dir.appendingPathComponent("\(name).hgt")
-            guard fileManager.fileExists(atPath: path.path) else { continue }
+            let exists = fileManager.fileExists(atPath: path.path)
+            if exists {
+            }
+            
+            guard exists else { continue }
             do {
                 let data = try Data(contentsOf: path)
                 let tile = try parseHGT(data: data, name: name)
                 cachedTiles[name] = tile
                 return tile
-            } catch { continue }
+            } catch {
+                continue
+            }
         }
+        
         return nil
+    }
+    
+    /// List all available terrain tiles
+    func availableTiles() -> [String] {
+        var tiles: [String] = []
+        let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let containerRoot = docs.deletingLastPathComponent()
+        
+        let searchDirs: [URL] = [
+            docs.appendingPathComponent("SRTM"),
+            docs.appendingPathComponent("Terrain"),
+            docs.appendingPathComponent("terrain"),
+            docs.appendingPathComponent("HGT"),
+            docs,
+            containerRoot.appendingPathComponent("SRTM"),
+            containerRoot.appendingPathComponent("Terrain"),
+            containerRoot.appendingPathComponent("terrain"),
+            containerRoot
+        ]
+        
+        for dir in searchDirs {
+            guard let contents = try? fileManager.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil) else { continue }
+            let hgtFiles = contents.filter { $0.pathExtension.lowercased() == "hgt" }
+            tiles.append(contentsOf: hgtFiles.map { $0.deletingPathExtension().lastPathComponent })
+            
+            // Also check subdirectories one level deep
+            let subdirs = contents.filter { $0.hasDirectoryPath }
+            for subdir in subdirs {
+                if let subContents = try? fileManager.contentsOfDirectory(at: subdir, includingPropertiesForKeys: nil) {
+                    let subHgtFiles = subContents.filter { $0.pathExtension.lowercased() == "hgt" }
+                    tiles.append(contentsOf: subHgtFiles.map { $0.deletingPathExtension().lastPathComponent })
+                }
+            }
+        }
+        
+        let uniqueTiles = Array(Set(tiles))
+        return uniqueTiles
+    }
+    
+    /// Preload tiles for a region
+    func preloadTiles(for region: MKCoordinateRegion) {
+        let minLat = Int(floor(region.center.latitude - region.span.latitudeDelta / 2))
+        let maxLat = Int(floor(region.center.latitude + region.span.latitudeDelta / 2))
+        let minLon = Int(floor(region.center.longitude - region.span.longitudeDelta / 2))
+        let maxLon = Int(floor(region.center.longitude + region.span.longitudeDelta / 2))
+        
+        
+        for lat in minLat...maxLat {
+            for lon in minLon...maxLon {
+                let latPrefix = lat >= 0 ? "N" : "S"
+                let lonPrefix = lon >= 0 ? "E" : "W"
+                let tileName = "\(latPrefix)\(String(format: "%02d", abs(lat)))\(lonPrefix)\(String(format: "%03d", abs(lon)))"
+                _ = loadTile(named: tileName)
+            }
+        }
     }
 
     private func parseHGT(data: Data, name: String) throws -> TerrainTile {

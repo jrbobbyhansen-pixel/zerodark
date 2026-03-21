@@ -39,7 +39,6 @@ final class ModelManager: ObservableObject {
             copyProgress = 1.0
         } catch {
             copyError = error.localizedDescription
-            print("[ZeroDark] ModelManager installFromBundle: \(error)")
         }
         isCopying = false
     }

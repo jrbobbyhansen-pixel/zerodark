@@ -59,12 +59,10 @@ public class GeofenceMonitor: NSObject, ObservableObject, CLLocationManagerDeleg
 
             // Log violations
             for violation in violations {
-                print("[GeofenceMonitor] Violation: \(violation.geofenceName) at \(coordinate)")
             }
         }
     }
 
     public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("[GeofenceMonitor] Location error: \(error)")
     }
 }

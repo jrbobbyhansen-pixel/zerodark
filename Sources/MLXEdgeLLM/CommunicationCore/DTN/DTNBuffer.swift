@@ -49,7 +49,6 @@ public class DTNBuffer: ObservableObject {
         try data.write(to: fileURL)
 
         await refreshCounts()
-        print("[DTNBuffer] Stored bundle \(bundle.id) for \(bundle.destination)")
     }
 
     /// Get all pending (undelivered, unexpired) bundles
@@ -102,7 +101,6 @@ public class DTNBuffer: ObservableObject {
         try updatedData.write(to: fileURL)
 
         await refreshCounts()
-        print("[DTNBuffer] Marked bundle \(bundleID) as delivered")
     }
 
     /// Record a delivery attempt

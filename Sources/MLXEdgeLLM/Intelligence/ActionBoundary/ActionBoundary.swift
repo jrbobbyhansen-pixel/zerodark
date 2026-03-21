@@ -23,26 +23,22 @@ public actor ActionBoundary {
     public func validate(aiOutput: String) -> ActionCall? {
         // Step 1: Extract JSON from AI output
         guard let jsonString = extractJSON(from: aiOutput) else {
-            print("[ActionBoundary] No valid JSON found in output")
             return nil
         }
 
         // Step 2: Decode to ActionCall
         guard let data = jsonString.data(using: .utf8),
               let call = try? JSONDecoder().decode(ActionCall.self, from: data) else {
-            print("[ActionBoundary] Failed to decode ActionCall")
             return nil
         }
 
         // Step 3: Validate action is in allowed set
         guard ValidAction.allCases.contains(call.action) else {
-            print("[ActionBoundary] Unknown action: \(call.action)")
             return nil
         }
 
         // Step 4: Validate parameters for this action type
         guard validateParameters(for: call) else {
-            print("[ActionBoundary] Invalid parameters for action: \(call.action)")
             return nil
         }
 

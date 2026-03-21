@@ -34,7 +34,7 @@ struct ContentView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(code.displayName)
                                 .font(.headline)
-                                .foregroundColor(.white)
+                                .foregroundColor(ZDDesign.pureWhite)
                             Text("from \(sender)")
                                 .font(.caption)
                                 .foregroundColor(ZDDesign.mediumGray)

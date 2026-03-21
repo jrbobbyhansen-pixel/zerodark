@@ -160,7 +160,7 @@ struct OpsTabView: View {
 
             Text(mesh.isActive ? "Mesh Active" : "Mesh Offline")
                 .font(.headline)
-                .foregroundColor(.white)
+                .foregroundColor(ZDDesign.pureWhite)
 
             Spacer()
 
@@ -169,7 +169,7 @@ struct OpsTabView: View {
                     Image(systemName: "person.2.fill")
                         .foregroundColor(ZDDesign.cyanAccent)
                     Text("\(mesh.peers.count)")
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                 }
             }
         }
@@ -218,7 +218,7 @@ struct OpsTabView: View {
                     Text(ptt.isTransmitting ? "TRANSMITTING" : "PUSH TO TALK")
                         .font(.caption)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                 }
                 .frame(width: 100, height: 100)
                 .background(
@@ -306,7 +306,7 @@ struct OpsTabView: View {
                         .frame(width: 8, height: 8)
                     Text(alert.message)
                         .font(.subheadline)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                     Spacer()
                     Text(alert.timestamp.formatted(date: .omitted, time: .shortened))
                         .font(.caption2)
@@ -382,7 +382,7 @@ struct OpsTabView: View {
                         Text("\(conditions.temperature)°F")
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                         Text(conditions.description)
                             .font(.caption)
                             .foregroundColor(ZDDesign.mediumGray)
@@ -398,7 +398,7 @@ struct OpsTabView: View {
                             Image(systemName: "wind")
                                 .foregroundColor(ZDDesign.cyanAccent)
                             Text("\(conditions.windSpeed) mph")
-                                .foregroundColor(.white)
+                                .foregroundColor(ZDDesign.pureWhite)
                         }
                         Text(conditions.windDirection)
                             .font(.caption)
@@ -415,7 +415,7 @@ struct OpsTabView: View {
                             Image(systemName: "sunset.fill")
                                 .foregroundColor(.orange)
                             Text(conditions.sunset.formatted(date: .omitted, time: .shortened))
-                                .foregroundColor(.white)
+                                .foregroundColor(ZDDesign.pureWhite)
                         }
                         Text("Sunset")
                             .font(.caption)
@@ -469,7 +469,7 @@ struct OpsTabView: View {
                             .frame(width: 20)
                         Text(item.message)
                             .font(.caption)
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                         Spacer()
                         Text(item.timestamp.formatted(date: .omitted, time: .shortened))
                             .font(.caption2)
@@ -550,7 +550,7 @@ struct OpsTabView: View {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundColor(violation.severity >= 2 ? ZDDesign.signalRed : ZDDesign.safetyYellow)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(violation.property).font(.subheadline).foregroundColor(.white)
+                            Text(violation.property).font(.subheadline).foregroundColor(ZDDesign.pureWhite)
                             Text(violation.details).font(.caption).foregroundColor(ZDDesign.mediumGray)
                         }
                     }
@@ -617,7 +617,7 @@ struct OpsTabView: View {
                         }
                         Text(msg.content)
                             .font(.subheadline)
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                     }
                     .padding(.vertical, 4)
                 }
@@ -630,7 +630,7 @@ struct OpsTabView: View {
                     .padding(10)
                     .background(ZDDesign.darkBackground)
                     .cornerRadius(8)
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
 
                 Button {
                     if !messageText.isEmpty {
@@ -685,7 +685,7 @@ struct OpsQuickActionButton: View {
                     .foregroundColor(color)
                 Text(title)
                     .font(.caption2)
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
@@ -707,7 +707,7 @@ struct ToolButton: View {
                     .foregroundColor(ZDDesign.cyanAccent)
                 Text(title)
                     .font(.caption)
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
             }
             .frame(maxWidth: .infinity)
             .padding()
@@ -732,7 +732,7 @@ struct TeamMemberRow: View {
 
             Text(name)
                 .font(.subheadline)
-                .foregroundColor(.white)
+                .foregroundColor(ZDDesign.pureWhite)
 
             if isYou {
                 Text("(You)")
@@ -878,7 +878,7 @@ struct JoinMeshSheet: View {
 
             Text(statusText)
                 .font(.headline)
-                .foregroundColor(.white)
+                .foregroundColor(ZDDesign.pureWhite)
 
             Spacer()
 
@@ -937,7 +937,7 @@ struct JoinMeshSheet: View {
                     .padding()
                     .background(ZDDesign.darkCard)
                     .cornerRadius(8)
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
             }
 
             // Remember toggle
@@ -946,7 +946,7 @@ struct JoinMeshSheet: View {
                     Image(systemName: "key.fill")
                         .foregroundColor(ZDDesign.cyanAccent)
                     Text("Remember this network")
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                 }
             }
             .tint(ZDDesign.cyanAccent)
@@ -966,7 +966,7 @@ struct JoinMeshSheet: View {
                 .frame(maxWidth: .infinity)
                 .padding()
                 .background(groupKey.isEmpty ? ZDDesign.mediumGray : ZDDesign.forestGreen)
-                .foregroundColor(.white)
+                .foregroundColor(ZDDesign.pureWhite)
                 .cornerRadius(12)
             }
             .disabled(groupKey.isEmpty)
@@ -993,7 +993,7 @@ struct JoinMeshSheet: View {
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(mesh.displayName(for: peer))
-                                .foregroundColor(.white)
+                                .foregroundColor(ZDDesign.pureWhite)
                             Text(peer.name)
                                 .font(.caption)
                                 .foregroundColor(ZDDesign.mediumGray)
@@ -1037,7 +1037,7 @@ struct JoinMeshSheet: View {
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(ZDDesign.signalRed.opacity(0.8))
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
                     .cornerRadius(12)
                 }
 
@@ -1068,7 +1068,7 @@ struct JoinMeshSheet: View {
             HStack {
                 Text("Trusted Devices")
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
 
                 Spacer()
 
@@ -1094,7 +1094,7 @@ struct JoinMeshSheet: View {
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(device.nickname)
-                                .foregroundColor(.white)
+                                .foregroundColor(ZDDesign.pureWhite)
                             Text("Last seen: \(device.lastSeen.formatted(.relative(presentation: .named)))")
                                 .font(.caption)
                                 .foregroundColor(ZDDesign.mediumGray)
@@ -1167,7 +1167,7 @@ struct SARToolsSheet: View {
                                 .font(.caption).fontWeight(.bold).foregroundColor(ZDDesign.mediumGray)
                             VStack(alignment: .leading) {
                                 Text("Track Spacing: \(Int(trackSpacing))m")
-                                    .foregroundColor(.white)
+                                    .foregroundColor(ZDDesign.pureWhite)
                                 Slider(value: $trackSpacing, in: 10...200, step: 10)
                                     .tint(ZDDesign.cyanAccent)
                             }
@@ -1227,7 +1227,7 @@ struct ReportPickerSheet: View {
 
                                 Text(type.rawValue)
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(ZDDesign.pureWhite)
 
                                 Spacer()
 

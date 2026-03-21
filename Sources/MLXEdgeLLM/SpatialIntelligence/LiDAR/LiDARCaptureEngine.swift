@@ -556,7 +556,6 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
             do {
                 try FileManager.default.moveItem(at: src, to: pointsDest)
             } catch {
-                print("[ZeroDark] Stream move failed: \(error)")
                 // Fallback: save 100K RAM buffer
                 try? await savePointsBinary(result.pointCloud, to: pointsDest)
             }
@@ -564,7 +563,6 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
             do {
                 try await savePointsBinary(result.pointCloud, to: pointsDest)
             } catch {
-                print("[ZeroDark] Points save failed: \(error)")
             }
         }
 
@@ -572,7 +570,6 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         do {
             try await exportMeshToUSDZAsync(result.meshAnchors, to: scanDir.appendingPathComponent("scan.usdz"))
         } catch {
-            print("[ZeroDark] USDZ export failed: \(error)")
         }
 
         await MainActor.run {

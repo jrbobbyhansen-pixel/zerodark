@@ -251,7 +251,6 @@ final class MeshService: ObservableObject {
         // Decrypt payload
         guard let key = encryptionKey,
               let decrypted = decrypt(data: message.payload, iv: message.iv, tag: message.tag, key: key) else {
-            print("[MeshService] Failed to decrypt message from \(peer.name)")
             return
         }
         
@@ -514,7 +513,6 @@ final class MeshService: ObservableObject {
                 tag: Data(tag)
             )
         } catch {
-            print("[MeshService] Encryption failed: \(error)")
             return nil
         }
     }
@@ -529,7 +527,6 @@ final class MeshService: ObservableObject {
             let decrypted = try aes.decrypt(dataBytes)
             return Data(decrypted)
         } catch {
-            print("[MeshService] Decryption failed: \(error)")
             return nil
         }
     }

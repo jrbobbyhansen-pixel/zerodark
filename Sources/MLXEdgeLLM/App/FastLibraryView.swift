@@ -45,7 +45,7 @@ struct FastLibraryView: View {
 
             TextField("Search manuals...", text: $searchText)
                 .textFieldStyle(.plain)
-                .foregroundColor(.white)
+                .foregroundColor(ZDDesign.pureWhite)
                 .focused($searchFocused)
                 .onChange(of: searchText) { _, newValue in
                     library.performSearch(newValue)
@@ -78,7 +78,7 @@ struct FastLibraryView: View {
 
             Text("Indexing PDFs...")
                 .font(.headline)
-                .foregroundColor(.white)
+                .foregroundColor(ZDDesign.pureWhite)
 
             ProgressView(value: library.indexProgress)
                 .tint(ZDDesign.cyanAccent)
@@ -144,7 +144,7 @@ struct FastLibraryView: View {
 
             Text("No Documents")
                 .font(.headline)
-                .foregroundColor(.white)
+                .foregroundColor(ZDDesign.pureWhite)
 
             Text("Add PDFs to Documents/Library/")
                 .font(.caption)
@@ -181,7 +181,7 @@ struct SearchResultRow: View {
 
                 Text(chunk.content)
                     .font(.caption)
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
                     .lineLimit(3)
 
                 HStack {
@@ -221,7 +221,7 @@ struct DocumentRow: View {
                     Text(document.title)
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundColor(.white)
+                        .foregroundColor(ZDDesign.pureWhite)
                         .lineLimit(2)
 
                     Text("\(document.pageCount) pages")
@@ -260,7 +260,7 @@ struct PDFReaderSheet: View {
                     PDFKitViewer(url: url, initialPage: initialPage ?? 1)
                 } else {
                     Text("Unable to load PDF")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(ZDDesign.mediumGray)
                 }
             }
             .navigationTitle(document.title)

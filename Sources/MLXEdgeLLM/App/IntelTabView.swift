@@ -49,7 +49,7 @@ struct IntelTabView: View {
                                 .frame(width: 8, height: 8)
                             Text(KnowledgeContentView.inferenceStatusLabel)
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(ZDDesign.mediumGray)
                         }
                     } else if intelMode == .vision {
                         HStack {
@@ -58,7 +58,7 @@ struct IntelTabView: View {
                                 .foregroundColor(VisionContentView.visionStatusColor)
                             Text(VisionContentView.visionStatusLabel)
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(ZDDesign.mediumGray)
                         }
                     } else {
                         EmptyView()
@@ -184,10 +184,10 @@ struct KnowledgeContentView: View {
                             VStack(spacing: 16) {
                                 Text("Ask Survival Questions")
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(ZDDesign.pureWhite)
                                 Text("Get AI-powered answers from the knowledge base")
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(ZDDesign.mediumGray)
                                 Divider()
                                 VStack(spacing: 8) {
                                     ForEach(quickPrompts, id: \.self) { prompt in
@@ -236,7 +236,7 @@ struct KnowledgeContentView: View {
                                         .tint(ZDDesign.skyBlue)
                                     Text("Thinking...")
                                         .font(.caption)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(ZDDesign.mediumGray)
                                     Spacer()
                                 }
                                 .padding()
@@ -318,10 +318,10 @@ struct KnowledgeContentView: View {
                     .foregroundColor(category.zdColor)
                 Text(category.rawValue)
                     .font(.caption)
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
                 Text("\(count)")
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(ZDDesign.mediumGray)
             }
             .frame(maxWidth: .infinity)
             .padding(12)
@@ -339,10 +339,10 @@ struct KnowledgeContentView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(chunk.title)
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                         Text(chunk.summary)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                             .lineLimit(2)
                         HStack(spacing: 4) {
                             Image(systemName: chunk.category.icon)
@@ -350,7 +350,7 @@ struct KnowledgeContentView: View {
                                 .foregroundColor(chunk.category.zdColor)
                             Text(chunk.category.rawValue)
                                 .font(.caption2)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(ZDDesign.mediumGray)
                         }
                     }
                 }
@@ -368,10 +368,10 @@ struct KnowledgeContentView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(chunk.title)
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                         Text(chunk.summary)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                             .lineLimit(2)
                     }
                 }
@@ -387,7 +387,7 @@ struct KnowledgeContentView: View {
             VStack(alignment: .leading, spacing: 12) {
                 Text(chunk.title)
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
                 Divider()
                 Text(chunk.content)
                     .font(.system(size: fontSize))
@@ -537,7 +537,7 @@ struct VisionContentView: View {
                             .foregroundColor(ZDDesign.skyBlue)
                         Text("Tap to capture or select image")
                             .font(.body)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 200)
@@ -588,7 +588,7 @@ struct VisionContentView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Analysis")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(ZDDesign.pureWhite)
                         Divider()
                         Text(answer)
                             .font(.body)
@@ -596,7 +596,7 @@ struct VisionContentView: View {
                         Divider()
                         Text("Related Knowledge")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ZDDesign.mediumGray)
                         let ragChunks = rag.search(query: answer, topK: 3)
                         ForEach(ragChunks) { chunk in
                             NavigationLink(destination: knowledgeDetailView(chunk)) {
@@ -607,7 +607,7 @@ struct VisionContentView: View {
                                         .foregroundColor(chunk.category.zdColor)
                                     Text(chunk.summary)
                                         .font(.caption2)
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(ZDDesign.mediumGray)
                                         .lineLimit(1)
                                 }
                             }
@@ -664,7 +664,7 @@ struct VisionContentView: View {
             VStack(alignment: .leading, spacing: 12) {
                 Text(chunk.title)
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(ZDDesign.pureWhite)
                 Divider()
                 Text(chunk.content)
                     .font(.body)
