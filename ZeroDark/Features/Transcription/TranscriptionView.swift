@@ -102,6 +102,7 @@ struct TranscriptionView: View {
                             Label("Export", systemImage: "square.and.arrow.up")
                         }
                         .buttonStyle(.bordered)
+                        .onDisappear { VaultManager.shared.cleanupExport(filename: filename) }
                     }
                 }
                 .padding()

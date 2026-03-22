@@ -23,13 +23,13 @@ struct EnvironmentMonitorView: View {
                 }
 
                 // Events
-                Section("Anomaly Events (\(sensor.recentEvents.count))") {
-                    if sensor.recentEvents.isEmpty {
+                Section("Anomaly Events (\(sensor.events.count))") {
+                    if sensor.events.isEmpty {
                         Text("No anomalies detected")
                             .foregroundStyle(.secondary)
                             .font(.caption)
                     } else {
-                        ForEach(sensor.recentEvents) { event in
+                        ForEach(sensor.events) { event in
                             EventRow(event: event)
                         }
                     }
@@ -47,8 +47,8 @@ struct EnvironmentMonitorView: View {
 
                     Spacer()
 
-                    if !sensor.recentEvents.isEmpty,
-                       let data = try? JSONEncoder().encode(sensor.recentEvents),
+                    if !sensor.events.isEmpty,
+                       let data = try? JSONEncoder().encode(sensor.events),
                        let str = String(data: data, encoding: .utf8) {
                         ShareLink(item: str, preview: .init("Environment Log")) {
                             Label("Export", systemImage: "square.and.arrow.up")

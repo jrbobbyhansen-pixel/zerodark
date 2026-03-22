@@ -6,7 +6,7 @@ import UIKit
 import Observation
 
 @Observable
-final class TranscriptionManager: NSObject, SFSpeechRecognizerDelegate {
+final class TranscriptionManager {  // NSObject + SFSpeechRecognizerDelegate removed — delegate was never used
     var isListening = false
     var currentTranscript = ""
     var alertCount = 0
@@ -21,8 +21,10 @@ final class TranscriptionManager: NSObject, SFSpeechRecognizerDelegate {
     private let vault = VaultManager.shared
     private var sessionStart: Date?
 
-    override init() {
-        super.init()
+    // Fix: Set-based dedup prevents re-alerting when partial transcript grows
+    private var alertedKeywords = Set<String>()
+
+    init() {
         loadKeywords()
         SFSpeechRecognizer.requestAuthorization { _ in }
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
@@ -37,9 +39,14 @@ final class TranscriptionManager: NSObject, SFSpeechRecognizerDelegate {
 
     func startListening() throws {
         guard !isListening else { return }
+
+        // Check permission before attempting to start
+        guard SFSpeechRecognizer.authorizationStatus() == .authorized else {
+            throw TranscriptionError.permissionDenied
+        }
+
         try configureAudioSession()
         recognizer = SFSpeechRecognizer(locale: .current)
-        recognizer?.delegate = self
         guard recognizer?.isAvailable == true else { throw TranscriptionError.recognizerUnavailable }
 
         recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
@@ -60,6 +67,7 @@ final class TranscriptionManager: NSObject, SFSpeechRecognizerDelegate {
         sessionFilename = nil
         fullTranscript = ""
         currentTranscript = ""
+        alertedKeywords.removeAll()
 
         recognitionTask = recognizer?.recognitionTask(with: request) { [weak self] result, error in
             guard let self else { return }
@@ -104,15 +112,12 @@ final class TranscriptionManager: NSObject, SFSpeechRecognizerDelegate {
         }
     }
 
-    private var lastAlertedText = ""
     private func checkKeywords(in text: String) {
-        guard text != lastAlertedText else { return }
         let lower = text.lowercased()
-        for kw in keywords where lower.contains(kw) {
-            lastAlertedText = text
+        for kw in keywords where lower.contains(kw) && !alertedKeywords.contains(kw) {
+            alertedKeywords.insert(kw)  // won't re-alert this keyword for the session
             alertCount += 1
             triggerAlert(keyword: kw)
-            break
         }
     }
 
@@ -122,8 +127,9 @@ final class TranscriptionManager: NSObject, SFSpeechRecognizerDelegate {
         content.title = "ZeroDark Alert"
         content.body = "Keyword detected: \"\(keyword)\""
         content.sound = .default
-        let req = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
-        UNUserNotificationCenter.current().add(req)
+        UNUserNotificationCenter.current().add(
+            UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+        )
     }
 
     private func saveTranscript() {
@@ -131,18 +137,20 @@ final class TranscriptionManager: NSObject, SFSpeechRecognizerDelegate {
         let formatter = ISO8601DateFormatter()
         let filename = "transcript_\(formatter.string(from: start)).txt"
         let header = "ZeroDark Transcript\nSession: \(formatter.string(from: start))\nKeywords: \(keywords.joined(separator: ", "))\nAlerts: \(alertCount)\n\n"
-        let content = header + fullTranscript
-        try? vault.save(data: Data(content.utf8), filename: filename)
+        try? vault.save(data: Data((header + fullTranscript).utf8), filename: filename)
         sessionFilename = filename
     }
 }
 
 enum TranscriptionError: Error, LocalizedError {
+    case permissionDenied
     case recognizerUnavailable
     case requestFailed
+
     var errorDescription: String? {
         switch self {
-        case .recognizerUnavailable: return "Speech recognizer unavailable — check iOS Settings > Privacy > Speech Recognition"
+        case .permissionDenied: return "Speech recognition permission denied — enable in Settings > Privacy > Speech Recognition"
+        case .recognizerUnavailable: return "Speech recognizer unavailable on this device"
         case .requestFailed: return "Failed to create recognition request"
         }
     }

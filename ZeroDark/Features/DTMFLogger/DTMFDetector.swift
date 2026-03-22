@@ -6,20 +6,20 @@ struct DTMFEvent: Codable, Identifiable {
     let id: UUID
     let character: String
     let timestamp: Date
-    let snr: Float
+    let toneFraction: Float  // renamed from snr — this is (DTMF tone power / total power), NOT dB SNR
 
-    init(character: String, timestamp: Date = .now, snr: Float) {
+    init(character: String, timestamp: Date = .now, toneFraction: Float) {
         self.id = UUID()
         self.character = character
         self.timestamp = timestamp
-        self.snr = snr
+        self.toneFraction = toneFraction
     }
 }
 
 @Observable
 final class DTMFDetector {
     var isDetecting = false
-    var recentEvents: [DTMFEvent] = []
+    var recentEvents: [DTMFEvent] = []   // newest-first for display; appended to end, reversed in view
     var sessionLog: [DTMFEvent] = []
 
     private let audioEngine = AVAudioEngine()
@@ -36,17 +36,13 @@ final class DTMFDetector {
         ["*", "0", "#", "D"]
     ]
 
-    // Goertzel state per frequency
     private struct GoertzelState {
         var s1: Float = 0
         var s2: Float = 0
         let coeff: Float
-        let freq: Float
-        var sampleCount = 0
         let blockSize: Int
 
         init(targetFreq: Float, sampleRate: Float, blockSize: Int) {
-            self.freq = targetFreq
             self.blockSize = blockSize
             let k = Int(0.5 + Float(blockSize) * targetFreq / sampleRate)
             let omega = 2.0 * Float.pi * Float(k) / Float(blockSize)
@@ -56,16 +52,11 @@ final class DTMFDetector {
         mutating func process(sample: Float) {
             let s0 = sample + coeff * s1 - s2
             s2 = s1; s1 = s0
-            sampleCount += 1
         }
 
-        var power: Float {
-            s1 * s1 + s2 * s2 - coeff * s1 * s2
-        }
+        var power: Float { s1 * s1 + s2 * s2 - coeff * s1 * s2 }
 
-        mutating func reset() {
-            s1 = 0; s2 = 0; sampleCount = 0
-        }
+        mutating func reset() { s1 = 0; s2 = 0 }
     }
 
     private let sampleRate: Float = 44100
@@ -75,7 +66,7 @@ final class DTMFDetector {
     private var sampleBuffer: [Float] = []
     private var lastDetectedChar: Character? = nil
     private var consecutiveMatchCount = 0
-    private static let requiredConsecutiveMatches = 2  // 2 blocks = ~80ms confirmed tone
+    private static let requiredConsecutiveMatches = 2  // 2 × 40ms = 80ms confirmed tone
 
     func startDetecting() throws {
         guard !isDetecting else { return }
@@ -86,6 +77,7 @@ final class DTMFDetector {
         sampleBuffer = []
         sessionStart = Date()
         sessionLog = []
+        recentEvents = []
 
         let inputNode = audioEngine.inputNode
         let format = AVAudioFormat(standardFormatWithSampleRate: Double(sampleRate), channels: 1)!
@@ -105,7 +97,7 @@ final class DTMFDetector {
         saveLog()
     }
 
-    // MARK: - DSP
+    // MARK: - DSP (runs on audio thread)
 
     private func processSamples(buffer: AVAudioPCMBuffer) {
         guard let channelData = buffer.floatChannelData?[0] else { return }
@@ -120,7 +112,6 @@ final class DTMFDetector {
     }
 
     private func analyzeBlock(_ samples: [Float]) {
-        // Reset and feed samples to all Goertzel filters
         for i in 0..<rowStates.count {
             rowStates[i].reset()
             for s in samples { rowStates[i].process(sample: s) }
@@ -135,37 +126,34 @@ final class DTMFDetector {
         let totalPower = rowPowers.reduce(0, +) + colPowers.reduce(0, +)
 
         guard totalPower > 1e-6 else {
-            // Silence — reset consecutive count
-            lastDetectedChar = nil
-            consecutiveMatchCount = 0
+            lastDetectedChar = nil; consecutiveMatchCount = 0
             return
         }
 
         guard let rowIdx = rowPowers.indices.max(by: { rowPowers[$0] < rowPowers[$1] }),
               let colIdx = colPowers.indices.max(by: { colPowers[$0] < colPowers[$1] }) else { return }
 
-        let rowDominance = rowPowers[rowIdx] / (totalPower / Float(rowPowers.count + colPowers.count))
-        let colDominance = colPowers[colIdx] / (totalPower / Float(rowPowers.count + colPowers.count))
+        let avgPower = totalPower / Float(rowPowers.count + colPowers.count)
+        let rowDominance = rowPowers[rowIdx] / avgPower
+        let colDominance = colPowers[colIdx] / avgPower
 
-        // Both row and col must be dominant (DTMF dual-tone requirement)
         guard rowDominance > 2.0 && colDominance > 2.0 else {
             lastDetectedChar = nil; consecutiveMatchCount = 0
             return
         }
 
         let detected = Self.dtmfTable[rowIdx][colIdx]
-        let snr = (rowPowers[rowIdx] + colPowers[colIdx]) / totalPower * 10.0
+        let toneFraction = (rowPowers[rowIdx] + colPowers[colIdx]) / totalPower
 
         if detected == lastDetectedChar {
             consecutiveMatchCount += 1
             if consecutiveMatchCount == Self.requiredConsecutiveMatches {
-                // Confirmed tone
-                let event = DTMFEvent(character: String(detected), snr: snr)
+                let event = DTMFEvent(character: String(detected), toneFraction: toneFraction)
                 DispatchQueue.main.async { [weak self] in
                     guard let self else { return }
-                    recentEvents.insert(event, at: 0)
-                    if recentEvents.count > 50 { recentEvents.removeLast() }
                     sessionLog.append(event)
+                    recentEvents.append(event)     // append to end — O(1)
+                    if recentEvents.count > 50 { recentEvents.removeFirst() }
                 }
             }
         } else {
@@ -183,7 +171,6 @@ final class DTMFDetector {
     private func saveLog() {
         guard !sessionLog.isEmpty, let start = sessionStart else { return }
         let formatter = ISO8601DateFormatter()
-        let filename = "dtmf_\(formatter.string(from: start)).json"
-        try? vault.saveJSON(sessionLog, filename: filename)
+        try? vault.saveJSON(sessionLog, filename: "dtmf_\(formatter.string(from: start)).json")
     }
 }

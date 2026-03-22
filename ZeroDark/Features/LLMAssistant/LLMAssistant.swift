@@ -1,4 +1,5 @@
 import Foundation
+import AVFoundation
 import Speech
 import Observation
 
@@ -12,26 +13,18 @@ protocol LLMProvider {
 
 struct LocalLLMStub: LLMProvider {
     func generate(prompt: String) async -> String {
-        // Simulate thinking time
         try? await Task.sleep(nanoseconds: 800_000_000)
         return """
         [Model not loaded]
-        
+
         To enable on-device inference, integrate MLXEdgeLLM:
-        
-        1. Add MLXEdgeLLM via Swift Package Manager:
-           https://github.com/ml-explore/mlx-swift-examples
-        
-        2. Download a model (e.g. Qwen3-0.6B-4bit):
-           from HuggingFace on first launch over WiFi
-        
-        3. Replace LocalLLMStub with:
-           LLMModelContainer(modelName: "mlx-community/Qwen3-0.6B-4bit")
-        
-        Once loaded, all inference runs on the A18 Pro Neural Engine
-        with zero network calls. ~200–500MB storage required.
-        
-        Your prompt was: "\(prompt.prefix(100))"
+
+        1. Add package: https://github.com/ml-explore/mlx-swift-examples
+        2. Download model (e.g. Qwen3-0.6B-4bit) on first launch over WiFi
+        3. Replace LocalLLMStub with MLXProvider (see README)
+
+        All inference runs on the A18 Pro Neural Engine — zero network calls.
+        ~200–500MB storage required.
         """
     }
 }
@@ -70,25 +63,30 @@ final class LLMAssistantViewModel {
     private var provider: LLMProvider = LocalLLMStub()
     private let vault = VaultManager.shared
     private var sessionStart: Date?
+
+    // Voice input — property so stopVoiceInput() can actually stop it
+    private let voiceAudioEngine = AVAudioEngine()
     private var recognizer: SFSpeechRecognizer?
     private var recognitionTask: SFSpeechRecognitionTask?
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
+
+    // MARK: - Chat
 
     func sendMessage(_ text: String) async {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, !isGenerating else { return }
 
         if sessionStart == nil { sessionStart = .now }
-        let userMsg = ConversationMessage(role: .user, content: trimmed)
-        messages.append(userMsg)
+        messages.append(ConversationMessage(role: .user, content: trimmed))
         isGenerating = true
 
-        // Build context (last 6 messages)
-        let context = messages.suffix(6).map { "\($0.role.rawValue): \($0.content)" }.joined(separator: "\n")
+        // Build context window (last 6 messages)
+        let context = messages.suffix(6)
+            .map { "\($0.role.rawValue): \($0.content)" }
+            .joined(separator: "\n")
         let response = await provider.generate(prompt: context)
 
-        let assistantMsg = ConversationMessage(role: .assistant, content: response)
-        messages.append(assistantMsg)
+        messages.append(ConversationMessage(role: .assistant, content: response))
         isGenerating = false
         saveSession()
     }
@@ -99,9 +97,7 @@ final class LLMAssistantViewModel {
         guard !isListeningForVoice else { return }
         SFSpeechRecognizer.requestAuthorization { [weak self] status in
             guard status == .authorized, let self else { return }
-            do {
-                try self.startRecognizing()
-            } catch {
+            do { try self.startRecognizing() } catch {
                 print("Voice input error: \(error)")
             }
         }
@@ -110,6 +106,10 @@ final class LLMAssistantViewModel {
     func stopVoiceInput() -> String {
         recognitionRequest?.endAudio()
         recognitionTask?.cancel()
+        if voiceAudioEngine.isRunning {
+            voiceAudioEngine.stop()
+            voiceAudioEngine.inputNode.removeTap(onBus: 0)
+        }
         isListeningForVoice = false
         return voiceTranscript
     }
@@ -121,28 +121,28 @@ final class LLMAssistantViewModel {
         request.requiresOnDeviceRecognition = true
         request.shouldReportPartialResults = true
 
-        let audioEngine = AVAudioEngine()
-        let inputNode = audioEngine.inputNode
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.record, options: [.allowBluetooth])
+        try session.setActive(true)
+
+        let inputNode = voiceAudioEngine.inputNode
         let format = inputNode.outputFormat(forBus: 0)
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
             self?.recognitionRequest?.append(buffer)
         }
-        audioEngine.prepare()
-        try audioEngine.start()
+        voiceAudioEngine.prepare()
+        try voiceAudioEngine.start()
 
         isListeningForVoice = true
         voiceTranscript = ""
 
         recognitionTask = recognizer?.recognitionTask(with: request) { [weak self] result, error in
+            guard let self else { return }
             if let result {
-                DispatchQueue.main.async {
-                    self?.voiceTranscript = result.bestTranscription.formattedString
-                }
+                DispatchQueue.main.async { self.voiceTranscript = result.bestTranscription.formattedString }
             }
             if error != nil || result?.isFinal == true {
-                audioEngine.stop()
-                inputNode.removeTap(onBus: 0)
-                DispatchQueue.main.async { self?.isListeningForVoice = false }
+                DispatchQueue.main.async { _ = self.stopVoiceInput() }
             }
         }
     }
@@ -157,6 +157,3 @@ final class LLMAssistantViewModel {
         sessionFilename = filename
     }
 }
-
-// Needed for AVAudioEngine in LLMAssistant
-import AVFoundation

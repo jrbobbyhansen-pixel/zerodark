@@ -3,8 +3,6 @@ import SwiftUI
 struct DTMFLoggerView: View {
     @State private var detector = DTMFDetector()
     @State private var errorMessage: String?
-    @State private var exportData: Data?
-    @State private var showingExport = false
 
     var body: some View {
         NavigationStack {
@@ -13,19 +11,20 @@ struct DTMFLoggerView: View {
                 ZStack {
                     Color(.systemGray6)
                     VStack(spacing: 4) {
-                        Text(detector.recentEvents.first?.character ?? "·")
+                        Text(detector.recentEvents.last?.character ?? "·")
                             .font(.system(size: 96, weight: .bold, design: .monospaced))
                             .foregroundStyle(detector.isDetecting ? .primary : .tertiary)
                             .contentTransition(.numericText())
-                            .animation(.spring(duration: 0.2), value: detector.recentEvents.first?.id)
+                            .animation(.spring(duration: 0.2), value: detector.recentEvents.last?.id)
 
-                        if let event = detector.recentEvents.first {
+                        if let event = detector.recentEvents.last {
                             HStack(spacing: 8) {
-                                Label(String(format: "SNR %.1f", event.snr), systemImage: "waveform")
+                                Label(String(format: "%.0f%% tone", event.toneFraction * 100),
+                                      systemImage: "waveform")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                 Circle()
-                                    .fill(snrColor(event.snr))
+                                    .fill(qualityColor(event.toneFraction))
                                     .frame(width: 8, height: 8)
                             }
                         }
@@ -33,7 +32,7 @@ struct DTMFLoggerView: View {
                 }
                 .frame(height: 180)
 
-                // Session sequence
+                // Session sequence — newest at right
                 if !detector.sessionLog.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 2) {
@@ -41,7 +40,8 @@ struct DTMFLoggerView: View {
                                 Text(event.character)
                                     .font(.system(.body, design: .monospaced))
                                     .padding(.horizontal, 4)
-                                    .background(snrColor(event.snr).opacity(0.2), in: RoundedRectangle(cornerRadius: 4))
+                                    .background(qualityColor(event.toneFraction).opacity(0.2),
+                                                in: RoundedRectangle(cornerRadius: 4))
                             }
                         }
                         .padding(.horizontal)
@@ -52,8 +52,8 @@ struct DTMFLoggerView: View {
 
                 Divider()
 
-                // Event log
-                List(detector.recentEvents) { event in
+                // Event log (recentEvents is newest-last, reverse for display)
+                List(detector.recentEvents.reversed()) { event in
                     HStack {
                         Text(event.character)
                             .font(.system(.title2, design: .monospaced).bold())
@@ -61,13 +61,13 @@ struct DTMFLoggerView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(event.timestamp, style: .time)
                                 .font(.caption)
-                            Text(String(format: "SNR: %.1fdB", event.snr))
+                            Text(String(format: "Tone: %.0f%%", event.toneFraction * 100))
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                         }
                         Spacer()
                         Circle()
-                            .fill(snrColor(event.snr))
+                            .fill(qualityColor(event.toneFraction))
                             .frame(width: 10, height: 10)
                     }
                 }
@@ -75,7 +75,6 @@ struct DTMFLoggerView: View {
 
                 Divider()
 
-                // Controls
                 HStack(spacing: 16) {
                     Button(action: toggleDetecting) {
                         Label(detector.isDetecting ? "Stop" : "Start Detecting",
@@ -86,8 +85,9 @@ struct DTMFLoggerView: View {
                     .tint(detector.isDetecting ? .red : .accentColor)
 
                     if !detector.sessionLog.isEmpty,
-                       let data = try? JSONEncoder().encode(detector.sessionLog) {
-                        ShareLink(item: String(data: data, encoding: .utf8) ?? "", preview: .init("DTMF Log")) {
+                       let data = try? JSONEncoder().encode(detector.sessionLog),
+                       let str = String(data: data, encoding: .utf8) {
+                        ShareLink(item: str, preview: .init("DTMF Log")) {
                             Label("Export", systemImage: "square.and.arrow.up")
                         }
                         .buttonStyle(.bordered)
@@ -98,9 +98,7 @@ struct DTMFLoggerView: View {
             .navigationTitle("DTMF Logger")
             .alert("Error", isPresented: .constant(errorMessage != nil)) {
                 Button("OK") { errorMessage = nil }
-            } message: {
-                Text(errorMessage ?? "")
-            }
+            } message: { Text(errorMessage ?? "") }
         }
     }
 
@@ -108,16 +106,12 @@ struct DTMFLoggerView: View {
         if detector.isDetecting {
             detector.stopDetecting()
         } else {
-            do {
-                try detector.startDetecting()
-            } catch {
-                errorMessage = error.localizedDescription
-            }
+            do { try detector.startDetecting() } catch { errorMessage = error.localizedDescription }
         }
     }
 
-    private func snrColor(_ snr: Float) -> Color {
-        switch snr {
+    private func qualityColor(_ toneFraction: Float) -> Color {
+        switch toneFraction {
         case ..<0.3: return .red
         case 0.3..<0.6: return .orange
         default: return .green

@@ -1,9 +1,10 @@
 import Foundation
 import CryptoKit
-import UIKit
+import Security
 
 /// AES-256-GCM encrypted local vault. All ZeroDark data lives here.
-/// Key derived from device identifierForVendor — unique per device/app install.
+/// Key stored in iOS Keychain — survives app restarts and OS updates,
+/// scoped to this device only (kSecAttrAccessibleWhenUnlockedThisDeviceOnly).
 final class VaultManager {
     static let shared = VaultManager()
     private let vaultURL: URL
@@ -13,11 +14,49 @@ final class VaultManager {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         vaultURL = docs.appendingPathComponent("ZeroDarkVault")
         try? FileManager.default.createDirectory(at: vaultURL, withIntermediateDirectories: true)
+        key = VaultManager.loadOrCreateKey()
+    }
 
-        // Derive a 256-bit key from the device UUID
-        let deviceID = UIDevice.current.identifierForVendor?.uuidString ?? "ZeroDarkFallback"
-        let keyData = SHA256.hash(data: Data(deviceID.utf8))
-        key = SymmetricKey(data: keyData)
+    // MARK: - Key Management (Keychain)
+
+    private static let keychainTag = "ai.zerodark.vault.key"
+
+    private static func loadOrCreateKey() -> SymmetricKey {
+        // Try to load existing key from Keychain
+        if let existing = loadKeyFromKeychain() {
+            return existing
+        }
+        // First run — generate a random 256-bit key and persist it
+        let newKey = SymmetricKey(size: .bits256)
+        saveKeyToKeychain(newKey)
+        return newKey
+    }
+
+    private static func loadKeyFromKeychain() -> SymmetricKey? {
+        let query: [CFString: Any] = [
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrAccount: keychainTag,
+            kSecAttrAccessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            kSecReturnData: true,
+            kSecMatchLimit: kSecMatchLimitOne
+        ]
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        guard status == errSecSuccess, let data = result as? Data else { return nil }
+        return SymmetricKey(data: data)
+    }
+
+    private static func saveKeyToKeychain(_ key: SymmetricKey) {
+        let keyData = key.withUnsafeBytes { Data($0) }
+        let attrs: [CFString: Any] = [
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrAccount: keychainTag,
+            kSecAttrAccessible: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            kSecValueData: keyData
+        ]
+        // Delete any stale entry first, then add
+        SecItemDelete(attrs as CFDictionary)
+        SecItemAdd(attrs as CFDictionary, nil)
     }
 
     // MARK: - Core Operations
@@ -27,12 +66,14 @@ final class VaultManager {
         guard let combined = sealed.combined else {
             throw VaultError.encryptionFailed
         }
-        let url = vaultURL.appendingPathComponent(filename)
-        try combined.write(to: url, options: .atomic)
+        try combined.write(to: vaultURL.appendingPathComponent(filename), options: .atomic)
     }
 
     func load(filename: String) throws -> Data {
         let url = vaultURL.appendingPathComponent(filename)
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            throw VaultError.fileNotFound(filename)
+        }
         let combined = try Data(contentsOf: url)
         let sealed = try AES.GCM.SealedBox(combined: combined)
         return try AES.GCM.open(sealed, using: key)
@@ -53,16 +94,20 @@ final class VaultManager {
     }
 
     func delete(filename: String) throws {
-        let url = vaultURL.appendingPathComponent(filename)
-        try FileManager.default.removeItem(at: url)
+        try FileManager.default.removeItem(at: vaultURL.appendingPathComponent(filename))
     }
 
-    /// Decrypts to a temp file for ShareLink. Caller is responsible for cleanup.
+    /// Decrypts to a temp file for ShareLink. Call cleanupExport(filename:) after sharing.
     func exportURL(filename: String) throws -> URL {
         let data = try load(filename: filename)
         let tmp = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
         try data.write(to: tmp, options: .atomic)
         return tmp
+    }
+
+    func cleanupExport(filename: String) {
+        let tmp = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+        try? FileManager.default.removeItem(at: tmp)
     }
 }
 
