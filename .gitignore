@@ -8,3 +8,7 @@
 Sources/MLXEdgeLLMExample/MLXEdgeLLMExample.xcodeproj/xcuserdata/
 
 Sources/MLXEdgeLLMExample/MLXEdgeLLMExample.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Large model files
+*.gguf
+*.bin
