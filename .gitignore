@@ -40,5 +40,14 @@ TYPE_CONFLICTS.md
 # Disabled modules archive
 _disabled_modules/
 
+# Old/orphaned project targets
+iOS/
+
+# Unused frameworks
+Frameworks/
+
+# Backup files
+*.bak
+
 # Scripts (internal tooling)
 scripts/
