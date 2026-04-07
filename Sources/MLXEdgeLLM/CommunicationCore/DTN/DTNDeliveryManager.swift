@@ -101,25 +101,33 @@ public class DTNDeliveryManager: ObservableObject {
         }
     }
 
-    /// Check if a destination is currently reachable
+    /// Check if a destination is currently reachable via mesh
     private func checkReachability(_ destination: String) async -> Bool {
-        // return HapticComms.shared.isReachable(destination)
-
-        // Placeholder: assume reachable for broadcast
+        let mesh = await MeshService.shared
         if destination == "all" {
-            return true
+            return mesh.isActive
         }
-
-        // For specific peer, check connectivity
-        // return HapticComms.shared.connectedPeers.contains(destination)
-        return false
+        return mesh.peers.contains { $0.id == destination && $0.status == .online }
     }
 
-    /// Deliver the bundle payload to destination
+    /// Deliver the bundle payload to destination via mesh (supports binary + text)
     private func deliverPayload(_ bundle: DTNBundle) async -> Bool {
-        // return await HapticComms.shared.send(bundle.payload, to: bundle.destination)
+        let mesh = await MeshService.shared
+        guard mesh.isActive else { return false }
 
-        // Placeholder
-        return false
+        let destination = bundle.destination
+        var success = false
+
+        if destination == "all" || destination == "broadcast" {
+            mesh.broadcastData(bundle.payload, type: .dtn)
+            success = true
+        } else {
+            success = mesh.sendData(bundle.payload, to: destination, type: .dtn)
+        }
+
+        if success {
+            ActivityFeed.shared.log(.dtnDelivered, message: "DTN delivered to \(destination)")
+        }
+        return success
     }
 }

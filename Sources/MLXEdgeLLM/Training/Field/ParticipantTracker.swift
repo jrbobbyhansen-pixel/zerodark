@@ -68,7 +68,7 @@ struct ParticipantTrackerView: View {
     
     var body: some View {
         VStack {
-            $name(location: tracker.currentLocation)
+            ParticipantMapSnippet(location: tracker.currentLocation)
                 .edgesIgnoringSafeArea(.all)
             
             List(tracker.participants) { participant in
@@ -122,7 +122,7 @@ struct ParticipantMapSnippet: UIViewRepresentable {
     var location: CLLocationCoordinate2D?
     
     func makeUIView(context: Context) -> MKMapView {
-        let mapView = MK$name()
+        let mapView = MKMapView()
         if let location = location {
             let region = MKCoordinateRegion(center: location, latitudinalMeters: 1000, longitudinalMeters: 1000)
             mapView.setRegion(region, animated: true)

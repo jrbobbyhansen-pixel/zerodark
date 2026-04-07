@@ -69,7 +69,7 @@ struct FieldReportView: View {
                 .font(.largeTitle)
                 .padding()
 
-            $name(location: viewModel.report.location)
+            FieldReportMapSnippet(location: viewModel.report.location)
                 .frame(height: 300)
                 .padding()
 
@@ -126,7 +126,7 @@ struct FieldReportMapSnippet: UIViewRepresentable {
     let location: CLLocationCoordinate2D
 
     func makeUIView(context: Context) -> MKMapView {
-        let mapView = MK$name()
+        let mapView = MKMapView()
         let annotation = MKPointAnnotation()
         annotation.coordinate = location
         mapView.addAnnotation(annotation)

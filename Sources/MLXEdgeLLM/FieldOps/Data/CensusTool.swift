@@ -83,7 +83,7 @@ struct CensusToolView: View {
     
     var body: some View {
         VStack {
-            $name(currentLocation: $viewModel.currentLocation)
+            CensusMapSnippet(currentLocation: $viewModel.currentLocation)
                 .edgesIgnoringSafeArea(.all)
             
             Button(action: {
@@ -119,7 +119,7 @@ struct CensusMapSnippet: UIViewRepresentable {
     @Binding var currentLocation: CLLocationCoordinate2D?
     
     func makeUIView(context: Context) -> MKMapView {
-        let mapView = MK$name()
+        let mapView = MKMapView()
         mapView.delegate = context.coordinator
         return mapView
     }

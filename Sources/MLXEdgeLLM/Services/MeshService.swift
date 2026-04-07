@@ -20,6 +20,7 @@ enum ZDMessageType: String, Codable {
     case acknowledgment
     case audioChunk
     case haptic
+    case dtn
 }
 
 struct ZDMeshMessage: Codable {
@@ -214,7 +215,7 @@ final class MeshService: ObservableObject {
             Task { @MainActor in
                 guard let self else { return }
                 let newPeer = ZDPeer(
-                    id: peer.name, // MultipeerKit uses name as identifier
+                    id: peer.id, // Unique hash of MCPeerID
                     name: peer.name,
                     lastSeen: Date(),
                     location: nil,
@@ -234,7 +235,7 @@ final class MeshService: ObservableObject {
         transceiver.peerRemoved = { [weak self] peer in
             Task { @MainActor in
                 guard let self else { return }
-                self.peers.removeAll { $0.id == peer.name }
+                self.peers.removeAll { $0.id == peer.id }
                 self.updateConnectionStatus()
             }
         }
@@ -441,6 +442,50 @@ final class MeshService: ObservableObject {
         transceiver?.broadcast(message)
     }
 
+    /// Broadcast binary data (DTN bundles, AAR reports, etc.) over mesh
+    func broadcastData(_ data: Data, type: ZDMessageType = .dtn) {
+        guard let encrypted = encryptPayload(data) else { return }
+
+        let message = ZDMeshMessage(
+            id: UUID(),
+            type: type,
+            senderId: deviceId,
+            senderName: deviceName,
+            timestamp: Date(),
+            payload: encrypted.ciphertext,
+            iv: encrypted.iv,
+            tag: encrypted.tag
+        )
+
+        transceiver?.broadcast(message)
+    }
+
+    /// Send binary data to a specific peer (broadcasts with destination header)
+    func sendData(_ data: Data, to peerID: String, type: ZDMessageType = .dtn) -> Bool {
+        guard peers.contains(where: { $0.id == peerID }) else { return false }
+
+        // Prefix payload with destination ID for targeted filtering on receive
+        var targeted = Data(peerID.utf8.prefix(40))
+        targeted.append(UInt8(0)) // null separator
+        targeted.append(data)
+
+        guard let encrypted = encryptPayload(targeted) else { return false }
+
+        let message = ZDMeshMessage(
+            id: UUID(),
+            type: type,
+            senderId: deviceId,
+            senderName: deviceName,
+            timestamp: Date(),
+            payload: encrypted.ciphertext,
+            iv: encrypted.iv,
+            tag: encrypted.tag
+        )
+
+        transceiver?.broadcast(message)
+        return true
+    }
+
     func sendHapticCode(_ code: TacticalHapticCode) {
         guard let encrypted = encryptPayload(Data(code.rawValue.utf8)) else { return }
 
@@ -476,8 +521,8 @@ final class MeshService: ObservableObject {
         let tag: Data
     }
     
-    private func deriveKey(from passphrase: String) -> [UInt8] {
-        // PBKDF2 key derivation
+    private func deriveKey(from passphrase: String) -> [UInt8]? {
+        // PBKDF2 key derivation — no fallback; refuse to encrypt with weak key
         let salt = "ZeroDarkMesh2026".bytes
         do {
             return try PKCS5.PBKDF2(
@@ -488,8 +533,8 @@ final class MeshService: ObservableObject {
                 variant: .sha2(.sha256)
             ).calculate()
         } catch {
-            // Fallback to simple SHA256
-            return passphrase.sha256().bytes
+            assertionFailure("PBKDF2 key derivation failed: \(error)")
+            return nil
         }
     }
     
