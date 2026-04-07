@@ -14,6 +14,7 @@ enum TacticalHapticPattern {
     case threatMedium                                  // Double pulse every 1s
     case threatHigh                                    // Rapid triple pulse every 0.5s
     case threatCritical                                // Continuous buzz, 0.3s period
+    case coverNearby(distance: Float)                  // Gentle guiding pulse toward cover
     case clear                                         // Stop all haptics
 }
 
@@ -197,6 +198,48 @@ final class TacticalHapticOverlay: ObservableObject {
         stopHaptics()
         hapticEngine?.stop()
         hapticEngine = nil
+    }
+
+    // MARK: - Factory: threatVibe
+
+    /// Builds a CHHapticPattern for a given threat level and distance.
+    /// Use this to create one-shot haptic alerts from external callers.
+    static func threatVibe(level: TacticalThreatLevel, distance: Float, maxRange: Float = 15.0) -> CHHapticPattern? {
+        let intensity = max(0, min(1, 1.0 - (distance / maxRange)))
+        let sharpness = CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.6)
+        var events: [CHHapticEvent] = []
+
+        switch level {
+        case .none:
+            return nil
+        case .low:
+            let ip = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity * 0.3)
+            events.append(CHHapticEvent(eventType: .hapticTransient, parameters: [ip, sharpness], relativeTime: 0, duration: 0.1))
+        case .medium:
+            let ip = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity * 0.5)
+            events.append(CHHapticEvent(eventType: .hapticTransient, parameters: [ip, sharpness], relativeTime: 0, duration: 0.08))
+            events.append(CHHapticEvent(eventType: .hapticTransient, parameters: [ip, sharpness], relativeTime: 0.15, duration: 0.08))
+        case .high:
+            let ip = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity * 0.75)
+            for i in 0..<3 {
+                events.append(CHHapticEvent(eventType: .hapticTransient, parameters: [ip, sharpness], relativeTime: Double(i) * 0.1, duration: 0.06))
+            }
+        case .critical:
+            let ip = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
+            let sp = CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.8)
+            events.append(CHHapticEvent(eventType: .hapticContinuous, parameters: [ip, sp], relativeTime: 0, duration: 0.3))
+        }
+
+        return try? CHHapticPattern(events: events, parameters: [])
+    }
+
+    /// Builds a gentle guiding haptic for nearby cover positions.
+    static func coverVibePattern(distance: Float, maxRange: Float = 10.0) -> CHHapticPattern? {
+        let intensity = max(0, min(0.4, 0.4 * (1.0 - distance / maxRange)))
+        let ip = CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity)
+        let sp = CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.3)
+        let event = CHHapticEvent(eventType: .hapticTransient, parameters: [ip, sp], relativeTime: 0, duration: 0.15)
+        return try? CHHapticPattern(events: [event], parameters: [])
     }
 
     deinit {

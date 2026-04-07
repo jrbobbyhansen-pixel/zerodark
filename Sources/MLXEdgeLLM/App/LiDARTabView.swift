@@ -10,12 +10,13 @@ struct LiDARTabView: View {
     @State private var showingResults = false
     @StateObject private var reconEngine = ReconWalkEngine.shared
     @State private var showReconWalk = false
+    @State private var lidarMode: LiDARMode = .full
 
     var body: some View {
         NavigationStack {
             ZStack {
                 // AR view always present - session starts/stops with scan
-                LiDARARView(engine: engine)
+                LiDARARView(engine: engine, mode: lidarMode)
                     .ignoresSafeArea()
 
                 VStack {
@@ -202,6 +203,18 @@ struct LiDARTabView: View {
 
     private var scanControls: some View {
         VStack(spacing: 12) {
+            // Mode picker: Depth / Mesh / Full
+            Picker("Mode", selection: $lidarMode) {
+                ForEach(LiDARMode.allCases) { mode in
+                    Label(mode.label, systemImage: mode.icon).tag(mode)
+                }
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .onChange(of: lidarMode) { _, newMode in
+                engine.pipeline?.activeMode = newMode
+            }
+
             // Two-button row: Quick Scan + Recon Walk
             HStack(spacing: 12) {
                 // Quick Scan — always captures at max quality, analysis choice comes after
@@ -257,6 +270,7 @@ struct LiDARTabView: View {
 
 struct LiDARARView: UIViewRepresentable {
     @ObservedObject var engine: LiDARCaptureEngine
+    var mode: LiDARMode = .full
     
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -311,12 +325,14 @@ struct LiDARARView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: ARView, context: Context) {
-        // Show/hide mesh visualization based on scanning state
         if engine.isScanning {
-            // Show the live wireframe mesh overlay
-            uiView.debugOptions = [.showSceneUnderstanding]
+            // Mode-dependent visualization
+            if mode.showsMesh {
+                uiView.debugOptions = [.showSceneUnderstanding]
+            } else {
+                uiView.debugOptions = []
+            }
         } else {
-            // Hide mesh overlay when not scanning (just camera)
             uiView.debugOptions = []
         }
     }

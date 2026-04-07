@@ -1,137 +1,197 @@
+// HazardDetector.swift — DEM-based terrain hazard detection
+// Detects: drop-offs (steep elevation changes), holes (local depressions),
+// and structural instability (high plane-fit residuals)
+// Operates on post-scan DEM grid and PlaneDetection output
+
 import Foundation
-import SwiftUI
-import CoreLocation
-import ARKit
-import AVFoundation
+import simd
 
-// MARK: - HazardDetector
+// MARK: - Hazard Types
 
-class HazardDetector: ObservableObject {
-    @Published var hazards: [Hazard] = []
-    @Published var safetyZone: [CLLocationCoordinate2D] = []
-    
-    private let arSession: ARSession
-    private let locationManager: CLLocationManager
-    
-    init(arSession: ARSession, locationManager: CLLocationManager) {
-        self.arSession = arSession
-        self.locationManager = locationManager
-        setupARSession()
-        setupLocationManager()
-    }
-    
-    private func setupARSession() {
-        arSession.delegate = self
-        arSession.run(ARWorldTrackingConfiguration(), options: [])
-    }
-    
-    private func setupLocationManager() {
-        locationManager.delegate = self
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
-    }
-    
-    /// YOLO threat detector providing real-time hazard detections
-    var yoloDetector: YOLOThreatDetector?
-
-    func detectHazards() {
-        // Pull hazard-relevant detections from YOLO pipeline if available
-        guard let yolo = yoloDetector else { return }
-
-        hazards = yolo.activeDetections
-            .filter { detection in
-                let level = detection.tacticalLevel()
-                return level >= .medium
-            }
-            .compactMap { detection -> Hazard? in
-                guard let pos3D = detection.position3D else { return nil }
-                let hazardType: HazardType = detection.tacticalCategory == .weapon ? .unstableStructure : .dropOff
-                return Hazard(
-                    type: hazardType,
-                    location: CLLocationCoordinate2D(
-                        latitude: Double(pos3D.z),
-                        longitude: Double(pos3D.x)
-                    )
-                )
-            }
-    }
-    
-    func markSafetyZone() {
-        // Placeholder for safety zone marking logic
-        // This should define a safe area based on detected hazards
-        // For now, simulate a safety zone
-        safetyZone = [
-            CLLocationCoordinate2D(latitude: 37.7751, longitude: -122.4196),
-            CLLocationCoordinate2D(latitude: 37.7752, longitude: -122.4197),
-            CLLocationCoordinate2D(latitude: 37.7753, longitude: -122.4198)
-        ]
-    }
-    
-    func generateAlert(for hazard: Hazard) {
-        // Placeholder for alert generation logic
-        // This should generate an alert based on the detected hazard
-        print("Alert: Hazard detected - \(hazard.type) at \(hazard.location)")
-    }
+enum HazardType: String, CaseIterable {
+    case dropOff           // Steep elevation change > 1.5m within 1m horizontal
+    case hole              // Local depression surrounded by higher terrain
+    case unstableStructure // Plane with high fit residual (fractured surface)
 }
 
-// MARK: - Hazard
+enum HazardSeverity: Int, Comparable {
+    case low = 1
+    case medium = 2
+    case high = 3
+    case critical = 4
+
+    static func < (lhs: HazardSeverity, rhs: HazardSeverity) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
+}
 
 struct Hazard: Identifiable {
     let id = UUID()
     let type: HazardType
-    let location: CLLocationCoordinate2D
+    let position: SIMD3<Float>
+    let severity: HazardSeverity
+    let description: String
 }
 
-// MARK: - HazardType
+// MARK: - HazardDetector
 
-enum HazardType {
-    case hole
-    case dropOff
-    case unstableStructure
-}
+class HazardDetector {
 
-// MARK: - ARSessionDelegate
+    /// Cell size of the DEM grid (meters)
+    var cellSize: Float = 0.5
 
-extension HazardDetector: ARSessionDelegate {
-    func session(_ session: ARSession, didUpdate frame: ARFrame) {
-        // Process AR frame data for hazard detection
-        detectHazards()
+    /// Minimum elevation drop to qualify as a drop-off (meters)
+    var dropOffThreshold: Float = 1.5
+
+    /// Minimum depression depth for hole detection (meters)
+    var holeThreshold: Float = 0.5
+
+    /// Minimum neighbors that must be higher for hole classification
+    var holeNeighborCount: Int = 6
+
+    // MARK: - Detect All Hazards
+
+    /// Run all hazard detection algorithms on the DEM grid and optional plane data.
+    func detect(
+        dem: [[Float]],
+        cellSize: Float = 0.5,
+        planes: [DetectedPlane] = [],
+        originOffset: SIMD2<Float> = .zero
+    ) -> [Hazard] {
+        self.cellSize = cellSize
+        var hazards: [Hazard] = []
+
+        let rows = dem.count
+        guard rows >= 3, let cols = dem.first?.count, cols >= 3 else { return [] }
+
+        // 1. Drop-off detection
+        hazards += detectDropOffs(dem: dem, rows: rows, cols: cols, originOffset: originOffset)
+
+        // 2. Hole detection
+        hazards += detectHoles(dem: dem, rows: rows, cols: cols, originOffset: originOffset)
+
+        // 3. Structural instability from plane residuals
+        hazards += detectUnstablePlanes(planes: planes)
+
+        return hazards
     }
-}
 
-// MARK: - CLLocationManagerDelegate
+    // MARK: - Drop-Off Detection
 
-extension HazardDetector: CLLocationManagerDelegate {
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        // Update safety zone based on current location
-        markSafetyZone()
-    }
-}
+    /// Find cells where elevation drops more than threshold within 1 cell distance.
+    private func detectDropOffs(dem: [[Float]], rows: Int, cols: Int, originOffset: SIMD2<Float>) -> [Hazard] {
+        var hazards: [Hazard] = []
 
-// MARK: - HazardView
+        for r in 1..<(rows - 1) {
+            for c in 1..<(cols - 1) {
+                let center = dem[r][c]
+                if center.isNaN { continue }
 
-struct HazardView: View {
-    @StateObject private var hazardDetector = HazardDetector(arSession: ARSession(), locationManager: CLLocationManager())
-    
-    var body: some View {
-        VStack {
-            Map(coordinateRegion: .constant(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194), latitudinalMeters: 1000, longitudinalMeters: 1000)))
-                .edgesIgnoringSafeArea(.all)
-            
-            List(hazardDetector.hazards) { hazard in
-                Text("Hazard: \(hazard.type) at \(hazard.location)")
+                var maxDrop: Float = 0
+                var dropDirection = SIMD2<Float>.zero
+
+                for dr in -1...1 {
+                    for dc in -1...1 {
+                        if dr == 0 && dc == 0 { continue }
+                        let neighbor = dem[r + dr][c + dc]
+                        if neighbor.isNaN { continue }
+                        let drop = center - neighbor
+                        if drop > maxDrop {
+                            maxDrop = drop
+                            dropDirection = SIMD2(Float(dc), Float(dr))
+                        }
+                    }
+                }
+
+                if maxDrop >= dropOffThreshold {
+                    let worldPos = SIMD3<Float>(
+                        Float(c) * cellSize + originOffset.x,
+                        center,
+                        Float(r) * cellSize + originOffset.y
+                    )
+                    let severity: HazardSeverity = maxDrop >= 3.0 ? .critical : (maxDrop >= 2.0 ? .high : .medium)
+                    hazards.append(Hazard(
+                        type: .dropOff,
+                        position: worldPos,
+                        severity: severity,
+                        description: "Drop-off: \(String(format: "%.1f", maxDrop))m"
+                    ))
+                }
             }
         }
-        .onAppear {
-            hazardDetector.detectHazards()
-        }
+
+        return hazards
     }
-}
 
-// MARK: - Preview
+    // MARK: - Hole Detection
 
-struct HazardView_Previews: PreviewProvider {
-    static var previews: some View {
-        HazardView()
+    /// Find cells that are lower than most of their 8 neighbors by more than threshold.
+    private func detectHoles(dem: [[Float]], rows: Int, cols: Int, originOffset: SIMD2<Float>) -> [Hazard] {
+        var hazards: [Hazard] = []
+
+        for r in 1..<(rows - 1) {
+            for c in 1..<(cols - 1) {
+                let center = dem[r][c]
+                if center.isNaN { continue }
+
+                var higherCount = 0
+                var totalDiff: Float = 0
+
+                for dr in -1...1 {
+                    for dc in -1...1 {
+                        if dr == 0 && dc == 0 { continue }
+                        let neighbor = dem[r + dr][c + dc]
+                        if neighbor.isNaN { continue }
+                        if neighbor - center > holeThreshold {
+                            higherCount += 1
+                            totalDiff += neighbor - center
+                        }
+                    }
+                }
+
+                if higherCount >= holeNeighborCount {
+                    let avgDepth = totalDiff / Float(higherCount)
+                    let worldPos = SIMD3<Float>(
+                        Float(c) * cellSize + originOffset.x,
+                        center,
+                        Float(r) * cellSize + originOffset.y
+                    )
+                    let severity: HazardSeverity = avgDepth >= 1.5 ? .high : (avgDepth >= 0.8 ? .medium : .low)
+                    hazards.append(Hazard(
+                        type: .hole,
+                        position: worldPos,
+                        severity: severity,
+                        description: "Hole: ~\(String(format: "%.1f", avgDepth))m deep"
+                    ))
+                }
+            }
+        }
+
+        return hazards
+    }
+
+    // MARK: - Unstable Structure Detection
+
+    /// Planes with very few inliers relative to their extent indicate fractured/unstable surfaces.
+    private func detectUnstablePlanes(planes: [DetectedPlane]) -> [Hazard] {
+        var hazards: [Hazard] = []
+
+        for plane in planes {
+            // A wall or ceiling with sparse inlier density may indicate structural damage
+            guard plane.classification == .wall || plane.classification == .ceiling else { continue }
+            guard plane.inlierCount > 0 else { continue }
+
+            // Heuristic: if inlier count is suspiciously low for a detected plane, flag it
+            if plane.inlierCount < 30 {
+                hazards.append(Hazard(
+                    type: .unstableStructure,
+                    position: plane.centroid,
+                    severity: .medium,
+                    description: "Potentially unstable \(plane.classification.rawValue) (sparse surface)"
+                ))
+            }
+        }
+
+        return hazards
     }
 }

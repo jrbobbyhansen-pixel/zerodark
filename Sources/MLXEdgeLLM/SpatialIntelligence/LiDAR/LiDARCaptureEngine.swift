@@ -84,6 +84,11 @@ struct StructuralAnalysis {
     let materialEstimates: [MaterialEstimate]
     let structuralVulnerabilities: [Vulnerability]
     let confidenceScore: Float
+    // Enhanced by PlaneDetection + BuildingExtractor + VolumeMeasure + HeightMeasure
+    var detectedPlanes: [DetectedPlane] = []
+    var buildingFootprints: [ExtractedBuilding] = []
+    var estimatedVolume: Float = 0
+    var maxHeight: Float = 0
 }
 
 struct TerrainAnalysis {
@@ -104,6 +109,9 @@ struct TacticalAnalysis {
     let threatVectors: [ThreatVector]
     let overallAssessment: String
     let riskScore: Float  // 0-1
+    // Enhanced by HazardDetector + PersonDetector
+    var hazards: [Hazard] = []
+    var detectedPersonCount: Int = 0
 }
 
 // MARK: - Detection Types
@@ -217,7 +225,7 @@ struct CoverPosition: Identifiable {
     var visibilityFromThreats: Float = 0.5  // 0 = invisible, 1 = fully visible
     var accessibility: Float = 1.0  // 0 = inaccessible, 1 = easily accessible
 
-    enum CoverType {
+    enum CoverType: String {
         case hardCover     // Stops bullets
         case concealment   // Hides but doesn't stop
         case partial       // Some protection
@@ -590,12 +598,19 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         } catch {
         }
 
+        // Build and save initial SceneTag with YOLO detections + covers
+        let detections = await MainActor.run { pipeline?.yoloDetector.activeDetections ?? [] }
+        let covers = findCoverPositions(pointCloud: result.pointCloud, meshAnchors: result.meshAnchors)
+        var sceneTag = SceneTag.from(result: result, detections: detections, coverPositions: covers, scanDir: scanDir)
+        SceneTagStore.shared.save(sceneTag)
+
         await MainActor.run {
             ScanStorage.shared.loadScanIndex()
+            AppState.shared.latestSceneTag = sceneTag
             analysisStatus = "Saved"
         }
 
-        await analyzeResult(result)
+        await analyzeResult(result, scanDir: scanDir, sceneTag: &sceneTag)
     }
 
     private func saveMetadataAsync(_ result: LiDARScanResult, to dir: URL) async {
@@ -621,31 +636,86 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
 
     // MARK: - Analysis
     
-    private func analyzeResult(_ result: LiDARScanResult) async {
+    private func analyzeResult(_ result: LiDARScanResult, scanDir: URL? = nil, sceneTag: inout SceneTag) async {
         isAnalyzing = true
         var analyzedResult = result
-        
-        // Always run ALL analyses — user picks which to view in results
+
+        // Phase 1: Core preprocessing (normals + ground classification)
+        analysisStatus = "Estimating normals..."
+        let normals = PointCloudEngine.shared.estimateNormals(result.pointCloud)
+
+        analysisStatus = "Classifying ground..."
+        let groundResult = GroundClassification().classify(result.pointCloud)
+
+        // Phase 2: Plane detection on non-ground points
+        analysisStatus = "Detecting planes..."
+        let detectedPlanes = PlaneDetection.detectPlanes(in: groundResult.nonGround, normals: normals)
+        let wallPlanes = detectedPlanes.filter { $0.classification == .wall }
+
+        // Phase 3: Building extraction from wall clusters
+        analysisStatus = "Extracting buildings..."
+        let buildings = BuildingExtractor().extract(wallPlanes: wallPlanes, allPoints: result.pointCloud)
+
+        // Phase 4: Measurements
+        let volumeResult = VolumeMeasure.calculateVolume(from: result.pointCloud)
+        let groundPlaneY = detectedPlanes.first(where: { $0.classification == .floor })?.centroid.y
+        let heightResult = HeightMeasure.measureHeight(points: result.pointCloud, groundPlaneY: groundPlaneY)
+
+        // Phase 5: Structural analysis (enhanced with planes, buildings, volume, height)
         analysisStatus = "Analyzing structure..."
-        analyzedResult.structuralAnalysis = await performStructuralAnalysis(result)
-        
+        var structuralAnalysis = await performStructuralAnalysis(result)
+        structuralAnalysis.detectedPlanes = detectedPlanes
+        structuralAnalysis.buildingFootprints = buildings
+        structuralAnalysis.estimatedVolume = volumeResult.volume
+        structuralAnalysis.maxHeight = heightResult.maxHeight
+        analyzedResult.structuralAnalysis = structuralAnalysis
+
+        // Phase 6: Terrain analysis (enhanced with ground classification)
         analysisStatus = "Analyzing terrain..."
-        analyzedResult.terrainAnalysis = await performTerrainAnalysis(result)
-        
+        let terrainAnalysis = await performTerrainAnalysis(result)
+        analyzedResult.terrainAnalysis = terrainAnalysis
+
+        // Phase 7: Hazard detection from DEM + planes
+        analysisStatus = "Detecting hazards..."
+        let hazardDetector = HazardDetector()
+        let demGrid = buildDEMGrid(from: result.pointCloud, cellSize: 0.5)
+        let hazards = hazardDetector.detect(dem: demGrid, planes: detectedPlanes)
+
+        // Phase 8: Tactical assessment (enhanced with hazards)
         analysisStatus = "Performing tactical assessment..."
-        analyzedResult.tacticalAnalysis = await performTacticalAnalysis(result)
+        var tacticalAnalysis = await performTacticalAnalysis(result, terrain: terrainAnalysis, structure: structuralAnalysis)
+        tacticalAnalysis.hazards = hazards
+        tacticalAnalysis.detectedPersonCount = pipeline?.yoloDetector.activeDetections.filter({ $0.classId == 0 }).count ?? 0
+        analyzedResult.tacticalAnalysis = tacticalAnalysis
 
         // Update the scan's riskScore in storage after analysis completes
         if let riskScore = analyzedResult.tacticalAnalysis?.riskScore {
+            sceneTag.riskScore = riskScore
             Task { @MainActor in
                 ScanStorage.shared.updateRiskScore(for: result.id, riskScore: riskScore)
             }
         }
 
+        // Generate MLX tactical assessment (post-scan, not per-frame)
+        analysisStatus = "Generating tactical assessment..."
+        let assessment = await LiDARIntelBridge.shared.generateAssessment(
+            threats: sceneTag.threats,
+            covers: sceneTag.covers,
+            tacticalAnalysis: analyzedResult.tacticalAnalysis,
+            terrainAnalysis: analyzedResult.terrainAnalysis
+        )
+        sceneTag.assessment = assessment
+
+        // Persist updated SceneTag with risk score and assessment
+        SceneTagStore.shared.save(sceneTag)
+        await MainActor.run {
+            AppState.shared.latestSceneTag = sceneTag
+        }
+
         lastScanResult = analyzedResult
         isAnalyzing = false
         analysisStatus = "Analysis complete"
-        
+
         onScanComplete?(analyzedResult)
         onAnalysisComplete?(analyzedResult)
     }
@@ -774,11 +844,10 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         
         // Find cover positions
         cover = findCoverPositions(pointCloud: result.pointCloud, meshAnchors: result.meshAnchors)
-        
-        // Find dead space
-        deadSpace = findDeadSpace(pointCloud: result.pointCloud, elevation: elevation)
-        
-        // Calculate route options
+
+        // Dead space is deferred to performTacticalAnalysis (needs observation posts first)
+
+        // Calculate route options through cover
         routes = calculateRouteOptions(elevation: elevation, cover: cover, obstructions: obstructions)
         
         return TerrainAnalysis(
@@ -791,17 +860,13 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         )
     }
     
-    private func performTacticalAnalysis(_ result: LiDARScanResult) async -> TacticalAnalysis {
+    private func performTacticalAnalysis(_ result: LiDARScanResult, terrain: TerrainAnalysis, structure: StructuralAnalysis) async -> TacticalAnalysis {
         var observationPosts: [ObservationPost] = []
         var fieldsOfFire: [FieldOfFire] = []
         var concealment: [ConcealmentPosition] = []
         var approach: [ApproachRoute] = []
         var escape: [EscapeRoute] = []
         var threats: [ThreatVector] = []
-        
-        // Get terrain and structural analysis
-        let terrain = await performTerrainAnalysis(result)
-        let structure = await performStructuralAnalysis(result)
         
         // Find observation posts (high ground with good visibility)
         for elevPoint in terrain.elevation.sorted(by: { $0.elevation > $1.elevation }).prefix(10) {
@@ -825,6 +890,13 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
             fieldsOfFire.append(calculateFieldOfFire(from: op.position, pointCloud: result.pointCloud))
         }
         
+        // Compute dead space now that we have observation posts (fixes circular dependency)
+        let deadSpace = findDeadSpace(
+            pointCloud: result.pointCloud,
+            elevation: terrain.elevation,
+            observerPositions: observationPosts.map(\.position)
+        )
+
         // Find concealment positions
         for cover in terrain.coverPositions {
             concealment.append(ConcealmentPosition(
@@ -1021,20 +1093,23 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
     
     private func findCoverPositions(pointCloud: [SIMD3<Float>], meshAnchors: [ARMeshAnchor]) -> [CoverPosition] {
         var cover: [CoverPosition] = []
-        
-        // Find clusters of points that could provide cover
+
+        // Stage 1: Point density grid (existing heuristic)
         let gridSize: Float = 1.0
         var pointGrid: [SIMD3<Int>: Int] = [:]
-        
+
         for point in pointCloud {
             let gridPos = SIMD3(Int(point.x / gridSize), Int(point.y / gridSize), Int(point.z / gridSize))
             pointGrid[gridPos, default: 0] += 1
         }
-        
-        // High density areas are potential cover
+
         for (gridPos, count) in pointGrid where count > 20 {
             let center = SIMD3(Float(gridPos.x) * gridSize, Float(gridPos.y) * gridSize, Float(gridPos.z) * gridSize)
-            
+
+            // Height check: cover must be ≥0.5m above ground to be useful
+            let groundLevel = estimateGroundLevel(near: center, pointCloud: pointCloud)
+            guard center.y - groundLevel >= 0.5 else { continue }
+
             cover.append(CoverPosition(
                 center: center,
                 type: count > 100 ? .hardCover : .concealment,
@@ -1042,8 +1117,83 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
                 exposedDirections: calculateExposedDirections(from: center, pointCloud: pointCloud)
             ))
         }
-        
+
+        // Stage 2: ARMeshClassification — walls/seats/tables provide cover
+        for anchor in meshAnchors {
+            let geometry = anchor.geometry
+            guard geometry.classification != nil else { continue }
+
+            let vertices = geometry.extractVertexPositions()
+            guard let classifications = geometry.extractClassifications() else { continue }
+
+            // Group wall/seat/table vertices into cover clusters
+            var wallVertices: [SIMD3<Float>] = []
+            for (i, classification) in classifications.enumerated() where i < vertices.count {
+                let worldPos = anchor.transform * SIMD4<Float>(vertices[i], 1.0)
+                let pos = SIMD3(worldPos.x, worldPos.y, worldPos.z)
+
+                switch classification {
+                case .wall, .seat, .table:
+                    wallVertices.append(pos)
+                default:
+                    break
+                }
+            }
+
+            // Cluster wall vertices into cover positions (simple grid bucketing)
+            var wallGrid: [SIMD3<Int>: [SIMD3<Float>]] = [:]
+            for v in wallVertices {
+                let key = SIMD3(Int(v.x / gridSize), Int(v.y / gridSize), Int(v.z / gridSize))
+                wallGrid[key, default: []].append(v)
+            }
+
+            for (_, verts) in wallGrid where verts.count > 5 {
+                let avg = verts.reduce(SIMD3<Float>.zero, +) / Float(verts.count)
+                let groundLevel = estimateGroundLevel(near: avg, pointCloud: pointCloud)
+                guard avg.y - groundLevel >= 0.5 else { continue }
+
+                // Avoid duplicating existing density-based covers
+                let isDuplicate = cover.contains { length($0.center - avg) < gridSize }
+                if !isDuplicate {
+                    cover.append(CoverPosition(
+                        center: avg,
+                        type: .hardCover,
+                        protection: min(Float(verts.count) / 50.0, 1.0),
+                        exposedDirections: calculateExposedDirections(from: avg, pointCloud: pointCloud)
+                    ))
+                }
+            }
+        }
+
+        // Stage 3: YOLO vehicle detections as hard cover
+        if let detections = pipeline?.yoloDetector.activeDetections {
+            for det in detections {
+                guard let pos3D = det.position3D,
+                      ThreatClassMap.coverCategory(for: det.classId, distance: det.distance) == .cover else { continue }
+
+                let isDuplicate = cover.contains { length($0.center - pos3D) < gridSize }
+                if !isDuplicate {
+                    cover.append(CoverPosition(
+                        center: pos3D,
+                        type: .hardCover,
+                        protection: 0.8,
+                        exposedDirections: calculateExposedDirections(from: pos3D, pointCloud: pointCloud)
+                    ))
+                }
+            }
+        }
+
         return cover
+    }
+
+    private func estimateGroundLevel(near position: SIMD3<Float>, pointCloud: [SIMD3<Float>]) -> Float {
+        // Find lowest points within 2m horizontal radius as ground estimate
+        let nearby = pointCloud.filter {
+            let dx = $0.x - position.x
+            let dz = $0.z - position.z
+            return (dx * dx + dz * dz) < 4.0
+        }
+        return nearby.map(\.y).min() ?? position.y
     }
     
     private func calculateExposedDirections(from position: SIMD3<Float>, pointCloud: [SIMD3<Float>]) -> [SIMD3<Float>] {
@@ -1069,12 +1219,8 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         return exposed
     }
     
-    private func findDeadSpace(pointCloud: [SIMD3<Float>], elevation: [LiDARElevationPoint]) -> [DeadSpaceRegion] {
+    private func findDeadSpace(pointCloud: [SIMD3<Float>], elevation: [LiDARElevationPoint], observerPositions: [SIMD3<Float>] = []) -> [DeadSpaceRegion] {
         var deadSpaceRegions: [DeadSpaceRegion] = []
-
-        // Use terrain observation posts to identify dead space
-        // For each cover position, find areas not visible from it
-        let observerPositions = lastScanResult?.tacticalAnalysis?.observationPosts.map { $0.position } ?? []
 
         guard !observerPositions.isEmpty && !pointCloud.isEmpty else { return [] }
 
@@ -1164,8 +1310,70 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
     }
     
     private func calculateRouteOptions(elevation: [LiDARElevationPoint], cover: [CoverPosition], obstructions: [Obstruction]) -> [RouteOption] {
-        // Simplified route calculation
-        return []
+        guard cover.count >= 2 else { return [] }
+
+        var routes: [RouteOption] = []
+
+        // Build elevation lookup for slope penalty
+        var elevLookup: [SIMD2<Int>: Float] = [:]
+        for ep in elevation {
+            let key = SIMD2(Int(ep.position.x * 2), Int(ep.position.y * 2))
+            elevLookup[key] = ep.elevation
+        }
+
+        // Route 1: Low-exposure path through cover positions (greedy nearest-neighbor)
+        var visited = Set<Int>()
+        var waypoints: [SIMD3<Float>] = [cover[0].center]
+        visited.insert(0)
+        var totalDist: Float = 0
+        var maxExposure: Float = 0
+
+        while visited.count < min(cover.count, 8) {
+            let current = waypoints.last!
+            var bestIdx = -1
+            var bestDist: Float = .infinity
+            for (i, c) in cover.enumerated() where !visited.contains(i) {
+                let d = simd_distance(current, c.center)
+                if d < bestDist {
+                    bestDist = d
+                    bestIdx = i
+                }
+            }
+            guard bestIdx >= 0 else { break }
+            visited.insert(bestIdx)
+            waypoints.append(cover[bestIdx].center)
+            totalDist += bestDist
+            maxExposure = max(maxExposure, 1.0 - cover[bestIdx].protection)
+        }
+
+        if waypoints.count >= 2 {
+            let elevGain = abs((waypoints.last?.y ?? 0) - (waypoints.first?.y ?? 0))
+            routes.append(RouteOption(
+                waypoints: waypoints,
+                distance: totalDist,
+                elevation: elevGain,
+                exposure: maxExposure,
+                difficulty: min(elevGain / 10.0 + maxExposure * 0.5, 1.0),
+                estimatedTime: TimeInterval(totalDist / 1.2) // ~1.2 m/s walking
+            ))
+        }
+
+        // Route 2: Direct route (shortest path, higher exposure)
+        if cover.count >= 2 {
+            let start = cover[0].center
+            let end = cover[cover.count - 1].center
+            let directDist = simd_distance(start, end)
+            routes.append(RouteOption(
+                waypoints: [start, end],
+                distance: directDist,
+                elevation: abs(end.y - start.y),
+                exposure: 0.8,
+                difficulty: 0.3,
+                estimatedTime: TimeInterval(directDist / 1.5)
+            ))
+        }
+
+        return routes
     }
     
     private func calculateCoverage(from position: SIMD3<Float>, pointCloud: [SIMD3<Float>]) -> Float {
@@ -1199,32 +1407,96 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
     }
     
     private func calculateAccessibility(to position: SIMD3<Float>, terrain: TerrainAnalysis) -> Float {
-        // Based on slope and obstacles
-        return 0.7  // Simplified
+        // Find nearest elevation point to get local slope
+        let posXZ = SIMD2(position.x, position.z)
+        var nearestSlope: Float = 0
+        var nearestDist: Float = .infinity
+
+        for ep in terrain.elevation {
+            let d = simd_distance(posXZ, ep.position)
+            if d < nearestDist {
+                nearestDist = d
+                nearestSlope = ep.slope
+            }
+        }
+
+        // Slope penalty: flat (0°) = 1.0, steep (45°+) = 0.1
+        let slopePenalty = max(0.1, 1.0 - nearestSlope / 1.0) // slope is rise/run, 1.0 = 45°
+
+        // Obstruction penalty: count obstructions within 3m of position
+        let obstructionCount = terrain.obstructions.filter {
+            simd_distance($0.center, position) < 3.0
+        }.count
+        let obstructionPenalty = max(0.2, 1.0 - Float(obstructionCount) * 0.3)
+
+        return slopePenalty * obstructionPenalty
     }
     
     private func calculateFieldOfFire(from position: SIMD3<Float>, pointCloud: [SIMD3<Float>]) -> FieldOfFire {
         var sectors: [FieldOfFire.Sector] = []
-        
-        // Divide into 8 sectors
+
+        // Divide into 8 sectors and raycast against point cloud
         for i in 0..<8 {
             let azStart = Float(i) * 45.0
             let azEnd = Float(i + 1) * 45.0
-            
+            let azStartRad = azStart * .pi / 180.0
+            let azEndRad = azEnd * .pi / 180.0
+
+            var obstacleCount = 0
+            var maxRange: Float = 0
+
+            // Check point cloud points in this sector
+            for point in pointCloud {
+                let delta = point - position
+                let horizontalDist = sqrt(delta.x * delta.x + delta.z * delta.z)
+                guard horizontalDist > 0.5 else { continue } // Skip points at origin
+
+                let azimuth = atan2(delta.x, delta.z) // radians, 0 = +Z
+                let azDeg = azimuth * 180.0 / .pi
+                let normalizedAz = azDeg < 0 ? azDeg + 360.0 : azDeg
+
+                if normalizedAz >= azStart && normalizedAz < azEnd {
+                    maxRange = max(maxRange, horizontalDist)
+
+                    // Points above eye level within range are obstacles
+                    if delta.y > 0.3 && horizontalDist < 50.0 {
+                        obstacleCount += 1
+                    }
+                }
+            }
+
             sectors.append(FieldOfFire.Sector(
                 azimuthStart: azStart,
                 azimuthEnd: azEnd,
-                maxRange: 100.0,
-                obstacleCount: 0
+                maxRange: maxRange > 0 ? maxRange : 50.0,
+                obstacleCount: obstacleCount
             ))
         }
-        
+
         return FieldOfFire(origin: position, sectors: sectors, deadSpaces: [])
     }
     
     private func findEgressRoutes(from position: SIMD3<Float>, terrain: TerrainAnalysis) -> [SIMD3<Float>] {
-        // Find quick exit routes
-        return terrain.coverPositions.prefix(3).map { $0.center }
+        // Find exit directions: pick the 3 nearest cover positions in different directions
+        let candidates = terrain.coverPositions
+            .filter { simd_distance($0.center, position) > 2.0 } // At least 2m away
+            .sorted { simd_distance($0.center, position) < simd_distance($1.center, position) }
+
+        var egress: [SIMD3<Float>] = []
+        var usedDirections: [SIMD3<Float>] = []
+
+        for candidate in candidates {
+            let dir = simd_normalize(candidate.center - position)
+            // Only add if direction is sufficiently different from existing egress routes
+            let isTooSimilar = usedDirections.contains { simd_dot($0, dir) > 0.7 }
+            if !isTooSimilar {
+                egress.append(candidate.center)
+                usedDirections.append(dir)
+                if egress.count >= 3 { break }
+            }
+        }
+
+        return egress
     }
     
     private func calculateApproachRoutes(to target: SIMD3<Float>, terrain: TerrainAnalysis, cover: [CoverPosition]) -> [ApproachRoute] {
@@ -1411,6 +1683,35 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         let pointDensity = Float(result.pointCount) / 10000.0
         let scanDuration = Float(result.scanDuration) / 30.0
         return min((pointDensity + scanDuration) / 2, 1.0)
+    }
+
+    /// Build a 2D DEM grid from point cloud (used by HazardDetector).
+    /// Returns [[Float]] where grid[row][col] = min elevation.
+    private func buildDEMGrid(from points: [SIMD3<Float>], cellSize: Float) -> [[Float]] {
+        guard !points.isEmpty else { return [] }
+
+        var gridDict: [SIMD2<Int>: Float] = [:]
+        for p in points {
+            let key = SIMD2(Int(floor(p.x / cellSize)), Int(floor(p.z / cellSize)))
+            if let existing = gridDict[key] {
+                gridDict[key] = min(existing, p.y)
+            } else {
+                gridDict[key] = p.y
+            }
+        }
+
+        guard !gridDict.isEmpty else { return [] }
+        let allKeys = Array(gridDict.keys)
+        let minX = allKeys.map(\.x).min()!, maxX = allKeys.map(\.x).max()!
+        let minZ = allKeys.map(\.y).min()!, maxZ = allKeys.map(\.y).max()!
+        let rows = maxZ - minZ + 1
+        let cols = maxX - minX + 1
+
+        var grid = [[Float]](repeating: [Float](repeating: .nan, count: cols), count: rows)
+        for (key, elev) in gridDict {
+            grid[key.y - minZ][key.x - minX] = elev
+        }
+        return grid
     }
 
     // MARK: - 3D Export

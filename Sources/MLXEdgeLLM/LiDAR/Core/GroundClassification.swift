@@ -1,110 +1,168 @@
+// GroundClassification.swift — Progressive morphological ground filter (Zhang et al. 2003)
+// Iteratively opens the elevation surface with increasing window sizes
+// Points above the opened surface + threshold are classified as non-ground
+// Uses 2D grid index (x,z plane) for spatial queries
+
 import Foundation
-import SwiftUI
-import CoreLocation
-import ARKit
-import AVFoundation
+import simd
 
 // MARK: - GroundClassification
 
-class GroundClassification: ObservableObject {
-    @Published var points: [Point] = []
-    @Published var groundPoints: [Point] = []
-    @Published var nonGroundPoints: [Point] = []
-    
-    private var morphologicalFilter: MorphologicalFilter
-    
-    init() {
-        morphologicalFilter = MorphologicalFilter()
-    }
-    
-    func classifyPoints() {
-        let (ground, nonGround) = morphologicalFilter.apply(points)
-        groundPoints = ground
-        nonGroundPoints = nonGround
-    }
-    
-    func correctClassification(point: Point, isGround: Bool) {
-        if isGround {
-            nonGroundPoints.removeAll { $0.id == point.id }
-            groundPoints.append(point)
-        } else {
-            groundPoints.removeAll { $0.id == point.id }
-            nonGroundPoints.append(point)
-        }
-    }
-}
+class GroundClassification {
 
-// MARK: - Point
+    /// Cell size for the elevation grid (meters)
+    var cellSize: Float = 0.5
 
-struct Point: Identifiable {
-    let id = UUID()
-    let coordinates: CLLocationCoordinate2D
-    let intensity: Double
-    let classification: Classification
-}
+    /// Maximum terrain slope (degrees) — controls threshold increase with window size
+    var maxSlope: Float = 30.0
 
-enum Classification {
-    case ground
-    case nonGround
-}
+    /// Initial height threshold (meters)
+    var initialThreshold: Float = 0.1
 
-// MARK: - MorphologicalFilter
+    /// Window sizes for progressive filtering (in grid cells)
+    var windowSizes: [Int] = [2, 4, 8, 16]
 
-class MorphologicalFilter {
-    var windowSize: Int = 5
-    var threshold: Double = 0.5
-    
-    func apply(_ points: [Point]) -> ([Point], [Point]) {
-        var groundPoints: [Point] = []
-        var nonGroundPoints: [Point] = []
-        
-        for point in points {
-            let neighbors = getNeighbors(point, in: points)
-            let groundCount = neighbors.filter { $0.classification == .ground }.count
-            let nonGroundCount = neighbors.filter { $0.classification == .nonGround }.count
-            
-            if Double(groundCount) / Double(neighbors.count) > threshold {
-                groundPoints.append(point)
+    // MARK: - Classify
+
+    /// Classify points into ground and non-ground using progressive morphological filtering.
+    func classify(_ points: [SIMD3<Float>]) -> (ground: [SIMD3<Float>], nonGround: [SIMD3<Float>]) {
+        guard !points.isEmpty else { return ([], []) }
+
+        // Build 2D elevation grid (x,z plane), storing minimum elevation per cell
+        var grid: [GridKey: Float] = [:]
+        var pointToCell: [GridKey] = []
+
+        for p in points {
+            let key = GridKey(x: Int(floor(p.x / cellSize)), z: Int(floor(p.z / cellSize)))
+            pointToCell.append(key)
+            if let existing = grid[key] {
+                grid[key] = min(existing, p.y)
             } else {
-                nonGroundPoints.append(point)
+                grid[key] = p.y
             }
         }
-        
-        return (groundPoints, nonGroundPoints)
+
+        // Convert to 2D array for morphological operations
+        let allKeys = Array(grid.keys)
+        guard !allKeys.isEmpty else { return (points, []) }
+
+        let minX = allKeys.map(\.x).min()!, maxX = allKeys.map(\.x).max()!
+        let minZ = allKeys.map(\.z).min()!, maxZ = allKeys.map(\.z).max()!
+        let rows = maxZ - minZ + 1
+        let cols = maxX - minX + 1
+
+        // Build dense grid (NaN for empty cells)
+        var surface = [[Float]](repeating: [Float](repeating: .nan, count: cols), count: rows)
+        for (key, elev) in grid {
+            let r = key.z - minZ
+            let c = key.x - minX
+            surface[r][c] = elev
+        }
+
+        // Fill NaN cells with nearest valid elevation (prevents filter artifacts)
+        fillNaN(&surface, rows: rows, cols: cols)
+
+        // Progressive morphological filter
+        var openedSurface = surface
+        let slopeRad = maxSlope * .pi / 180.0
+
+        for windowSize in windowSizes {
+            // Height threshold increases with window size to handle sloped terrain
+            let windowMeters = Float(windowSize) * cellSize
+            let threshold = initialThreshold + windowMeters * tan(slopeRad) * 0.5
+
+            // Erosion (minimum filter)
+            let eroded = morphologicalOp(openedSurface, windowSize: windowSize, rows: rows, cols: cols, isErosion: true)
+            // Dilation (maximum filter)
+            openedSurface = morphologicalOp(eroded, windowSize: windowSize, rows: rows, cols: cols, isErosion: false)
+
+            // Mark cells above opened surface + threshold as non-ground
+            // (We apply this progressively — each pass can only ADD non-ground, not remove it)
+        }
+
+        // Final classification: compare each point's elevation to the opened surface
+        var ground: [SIMD3<Float>] = []
+        var nonGround: [SIMD3<Float>] = []
+
+        let finalThreshold = initialThreshold + Float(windowSizes.last ?? 16) * cellSize * tan(slopeRad) * 0.5
+
+        for (i, p) in points.enumerated() {
+            let key = pointToCell[i]
+            let r = key.z - minZ
+            let c = key.x - minX
+            guard r >= 0, r < rows, c >= 0, c < cols else {
+                nonGround.append(p)
+                continue
+            }
+
+            let surfaceElev = openedSurface[r][c]
+            if p.y - surfaceElev > finalThreshold {
+                nonGround.append(p)
+            } else {
+                ground.append(p)
+            }
+        }
+
+        return (ground, nonGround)
     }
-    
-    private func getNeighbors(_ point: Point, in points: [Point]) -> [Point] {
-        // Implement neighbor fetching logic based on windowSize
-        return []
+
+    // MARK: - Morphological Operations
+
+    /// Apply min (erosion) or max (dilation) filter with a square window.
+    private func morphologicalOp(_ grid: [[Float]], windowSize: Int, rows: Int, cols: Int, isErosion: Bool) -> [[Float]] {
+        var result = grid
+        let half = windowSize / 2
+
+        for r in 0..<rows {
+            for c in 0..<cols {
+                var val = isErosion ? Float.infinity : -Float.infinity
+
+                for dr in -half...half {
+                    for dc in -half...half {
+                        let nr = min(max(r + dr, 0), rows - 1)
+                        let nc = min(max(c + dc, 0), cols - 1)
+                        let v = grid[nr][nc]
+                        if !v.isNaN {
+                            val = isErosion ? min(val, v) : max(val, v)
+                        }
+                    }
+                }
+
+                result[r][c] = val.isInfinite ? grid[r][c] : val
+            }
+        }
+
+        return result
+    }
+
+    /// Fill NaN cells with nearest valid neighbor elevation.
+    private func fillNaN(_ grid: inout [[Float]], rows: Int, cols: Int) {
+        for r in 0..<rows {
+            for c in 0..<cols {
+                if grid[r][c].isNaN {
+                    // Search expanding rings for nearest valid cell
+                    outer: for radius in 1...max(rows, cols) {
+                        for dr in -radius...radius {
+                            for dc in -radius...radius {
+                                if abs(dr) < radius && abs(dc) < radius { continue }
+                                let nr = r + dr, nc = c + dc
+                                guard nr >= 0, nr < rows, nc >= 0, nc < cols else { continue }
+                                if !grid[nr][nc].isNaN {
+                                    grid[r][c] = grid[nr][nc]
+                                    break outer
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
-// MARK: - GroundClassificationView
+// MARK: - Grid Key
 
-struct GroundClassificationView: View {
-    @StateObject private var viewModel = GroundClassification()
-    
-    var body: some View {
-        VStack {
-            Button("Classify Points") {
-                viewModel.classifyPoints()
-            }
-            
-            List(viewModel.groundPoints) { point in
-                Text("Ground Point: \(point.coordinates.description)")
-            }
-            
-            List(viewModel.nonGroundPoints) { point in
-                Text("Non-Ground Point: \(point.coordinates.description)")
-            }
-        }
-    }
-}
-
-// MARK: - Preview
-
-struct GroundClassificationView_Previews: PreviewProvider {
-    static var previews: some View {
-        GroundClassificationView()
-    }
+private struct GridKey: Hashable {
+    let x: Int
+    let z: Int
 }

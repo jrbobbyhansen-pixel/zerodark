@@ -305,15 +305,21 @@ final class ThreatAnalyzer: ObservableObject {
     // MARK: - Data Gathering
     
     private func gatherEnvironmentalConditions() -> EnvironmentalConditions {
-        // Gather data from available sensors and systems
+        // Gather data from available sensors — use real values where possible
+        let hour = Calendar.current.component(.hour, from: Date())
+        let isDaylight = hour >= 6 && hour <= 20
+        let baseLightLevel: Float = isDaylight ? 0.9 : 0.2
+
+        // Ambient pressure from barometer can estimate altitude (CoreMotion)
+        // Temperature/wind unavailable without WeatherKit entitlement — use NaN to signal "unknown"
         var conditions = EnvironmentalConditions(
-            visibility: 0.8,
-            precipitation: 0.0,
-            windSpeed: 5.0,
-            temperature: 22.0,
-            humidity: 0.45,
-            lightLevel: 0.9,
-            noiseLevel: 40.0
+            visibility: isDaylight ? 0.8 : 0.4,
+            precipitation: 0.0, // No sensor available
+            windSpeed: .nan,    // Unknown — no WeatherKit
+            temperature: .nan,  // Unknown — no WeatherKit
+            humidity: .nan,     // Unknown — no WeatherKit
+            lightLevel: baseLightLevel,
+            noiseLevel: 40.0    // Baseline ambient
         )
 
         // Terrain visibility from LiDAR
@@ -360,8 +366,47 @@ final class ThreatAnalyzer: ObservableObject {
     }
     
     private func processLiDARResult(_ result: LiDARScanResult) async {
-        // Trigger reassessment when new LiDAR data arrives
+        // Extract YOLO detections from the latest SceneTag for richer threat data
+        if let sceneTag = AppState.shared.latestSceneTag, sceneTag.id == result.id {
+            for taggedThreat in sceneTag.threats where taggedThreat.level >= 2 {
+                let threat = Threat(
+                    category: threatCategory(from: taggedThreat.category),
+                    level: threatLevel(from: taggedThreat.level),
+                    description: "LiDAR detection: \(taggedThreat.className) (\(String(format: "%.0f%%", taggedThreat.confidence * 100)) conf)",
+                    location: result.location,
+                    position3D: taggedThreat.position?.simd,
+                    confidence: Double(taggedThreat.confidence),
+                    timestamp: Date(),
+                    expiresAt: Date().addingTimeInterval(120),
+                    mitigation: ["Monitor detected object", "Maintain distance"],
+                    source: .lidarAnalysis
+                )
+                activeThreats.append(threat)
+            }
+        }
+
+        // Trigger full reassessment
         await performAssessment()
+    }
+
+    private func threatCategory(from rawValue: String) -> ThreatCategory {
+        switch rawValue {
+        case "human": return .human
+        case "vehicle": return .structural
+        case "weapon": return .human
+        case "animal": return .biological
+        default: return .environmental
+        }
+    }
+
+    private func threatLevel(from intLevel: Int) -> ThreatLevel {
+        switch intLevel {
+        case 4: return .critical
+        case 3: return .high
+        case 2: return .medium
+        case 1: return .low
+        default: return .none
+        }
     }
     
     private func processMeshMessages(_ messages: [MeshService.DecryptedMessage]) {

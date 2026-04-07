@@ -55,7 +55,7 @@ final class HapticFeedbackManager: ObservableObject {
 
 // MARK: - HapticIntensity
 
-enum HapticIntensity: Float {
+enum HapticIntensity: Float, CaseIterable {
     case low = 0.25
     case medium = 0.5
     case high = 0.75

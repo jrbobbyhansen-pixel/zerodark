@@ -52,6 +52,7 @@ final class LiDARPipeline: ObservableObject {
     private let clutterFilter: ClutterFilter
     let yoloDetector: YOLOThreatDetector
     let hapticOverlay: TacticalHapticOverlay
+    let personDetector = PersonDetector()
     private var gaussianEngine: GaussianSplatEngine?
 
     // Thermal monitoring & benchmarking
@@ -63,6 +64,9 @@ final class LiDARPipeline: ObservableObject {
     private let baseConfig: LiDARPipelineConfig
     private let capability: DeviceCapability
 
+    // Active display mode (set from LiDARTabView)
+    var activeMode: LiDARMode = .full
+
     // Active throttle state (updated by thermal monitor)
     @Published private(set) var activeThrottleProfile: ThrottleProfile = .nominal
     @Published private(set) var effectiveYOLOFrameSkip: Int = 3
@@ -72,6 +76,7 @@ final class LiDARPipeline: ObservableObject {
     @Published private(set) var isRunning = false
     @Published private(set) var lastFrameResult: PipelineFrameResult?
     @Published private(set) var isCalibrating = false
+    @Published private(set) var detectedPeopleCount: Int = 0
 
     // Frame timestamp tracking for undistortion
     private var previousFrameTimestamp: TimeInterval?
@@ -177,28 +182,47 @@ final class LiDARPipeline: ObservableObject {
             }
         }
 
-        // 2. YOLO detection (throttled by thermal-adjusted frame skip)
+        // 2. YOLO detection (throttled by thermal-adjusted frame skip, gated by mode)
         yoloFrameCounter += 1
-        if baseConfig.enableYOLO && yoloFrameCounter % effectiveYOLOFrameSkip == 0 {
+        if baseConfig.enableYOLO && activeMode.enablesYOLO && yoloFrameCounter % effectiveYOLOFrameSkip == 0 {
             benchmark.startTiming("yoloInference")
             yoloDetector.processFrame(frame)
             benchmark.endTiming("yoloInference")
         }
 
-        // 3. Feed detections to haptic overlay
-        if baseConfig.enableHapticOverlay {
+        // 2b. Person tracking from YOLO detections
+        if baseConfig.enableYOLO && activeMode.enablesYOLO {
+            personDetector.update(detections: yoloDetector.activeDetections, timestamp: frameTimestamp)
+            detectedPeopleCount = personDetector.peopleCount
+        }
+
+        // 3. Feed detections to haptic overlay (gated by mode)
+        if baseConfig.enableHapticOverlay && activeMode.enablesHaptics {
             benchmark.startTiming("hapticUpdate")
             hapticOverlay.activeDetections = yoloDetector.activeDetections
             if let pose = fusedPose {
                 hapticOverlay.devicePosition = pose.position
             }
             benchmark.endTiming("hapticUpdate")
+        } else if !activeMode.enablesHaptics {
+            hapticOverlay.stopHaptics()
+        }
+
+        // 4. Gaussian splatting range extension
+        var extended: [SIMD3<Float>] = []
+        if let engine = gaussianEngine, baseConfig.enableRangeExtension && activeThrottleProfile.enableRangeExtension {
+            benchmark.startTiming("gaussianExtend")
+            extended = engine.extendedPoints(
+                cameraTransform: frame.camera.transform,
+                intrinsics: frame.camera.intrinsics
+            )
+            benchmark.endTiming("gaussianExtend")
         }
 
         previousFrameTimestamp = frameTimestamp
         benchmark.endTiming("totalFrame")
 
-        return [] // Points are processed in processPoints()
+        return extended
     }
 
     /// Process extracted point cloud through undistortion + clutter filter.

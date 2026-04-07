@@ -13,6 +13,7 @@ enum TacticalThreatCategory: String, CaseIterable {
     case animal         // Dog, horse, bear
     case structural     // Fire hydrant, stop sign, traffic light
     case environmental  // Umbrella, kite (visual clutter)
+    case cover          // Objects usable as cover (vehicles, large furniture)
 }
 
 // MARK: - Tactical Threat Level
@@ -113,7 +114,27 @@ struct ThreatClassMap {
 
         // Environmental clutter
         25: .environmental, // umbrella
+
+        // Cover — large objects usable for concealment/protection
+        // These are also mapped under .vehicle above; cover classification
+        // is applied contextually via coverCategory(for:distance:)
+        56: .structural,     // chair (small, not cover)
+        57: .cover,          // couch
+        59: .cover,          // bed
+        60: .structural,     // dining table
+        72: .cover,          // refrigerator
     ]
+
+    /// Returns `.cover` for objects that can serve as ballistic/visual cover
+    /// based on size heuristics and distance. Vehicles already in .vehicle
+    /// category can also serve as cover — use this for non-vehicle cover objects.
+    static func coverCategory(for classId: Int, distance: Float?) -> TacticalThreatCategory? {
+        let cat = category(for: classId)
+        // Vehicles at close range are potential cover
+        if cat == .vehicle, let d = distance, d < 15.0 { return .cover }
+        if cat == .cover { return .cover }
+        return nil
+    }
 
     static func category(for classId: Int) -> TacticalThreatCategory {
         classCategories[classId] ?? .environmental
@@ -157,6 +178,9 @@ struct ThreatClassMap {
 
         case .environmental:
             return .none
+
+        case .cover:
+            return .none  // Cover objects are not threats — they provide protection
         }
     }
 
