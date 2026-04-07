@@ -79,29 +79,53 @@ public class SimBandOptimizer: TrajectoryOptimizerProtocol {
         )
     }
 
-    /// Vector force toward target
+    /// Vector force toward target (operates in meters, returns degree offsets)
     private func vectorToward(
         from: CLLocationCoordinate2D,
         to: CLLocationCoordinate2D,
         weight: Double
     ) -> (lat: Double, lon: Double) {
-        let dlat = to.latitude - from.latitude
-        let dlon = to.longitude - from.longitude
-        let distance = sqrt(dlat * dlat + dlon * dlon)
-        let magnitude = distance > 0 ? weight / distance : 0
-        return (lat: dlat * magnitude * 0.0001, lon: dlon * magnitude * 0.0001)
+        let mPerDegLat = 111320.0
+        let mPerDegLon = 111320.0 * cos(from.latitude * .pi / 180.0)
+
+        // Convert delta to meters
+        let dNorth = (to.latitude - from.latitude) * mPerDegLat
+        let dEast = (to.longitude - from.longitude) * mPerDegLon
+        let distMeters = sqrt(dNorth * dNorth + dEast * dEast)
+
+        guard distMeters > 0.01 else { return (lat: 0, lon: 0) }
+
+        // Force magnitude in meters, clamped to 1m per iteration
+        let forceMag = min(weight * distMeters * 0.1, 1.0)
+        let forceN = (dNorth / distMeters) * forceMag
+        let forceE = (dEast / distMeters) * forceMag
+
+        // Convert back to degrees
+        return (lat: forceN / mPerDegLat, lon: forceE / max(mPerDegLon, 1.0))
     }
 
-    /// Vector force away from obstacle
+    /// Vector force away from obstacle (operates in meters, returns degree offsets)
     private func vectorAwayFrom(
         from: CLLocationCoordinate2D,
         to: CLLocationCoordinate2D,
         weight: Double
     ) -> (lat: Double, lon: Double) {
-        let dlat = from.latitude - to.latitude
-        let dlon = from.longitude - to.longitude
-        let distance = sqrt(dlat * dlat + dlon * dlon)
-        let magnitude = distance > 0 ? weight / distance : 0
-        return (lat: dlat * magnitude * 0.00001, lon: dlon * magnitude * 0.00001)
+        let mPerDegLat = 111320.0
+        let mPerDegLon = 111320.0 * cos(from.latitude * .pi / 180.0)
+
+        // Convert delta to meters (pointing away from obstacle)
+        let dNorth = (from.latitude - to.latitude) * mPerDegLat
+        let dEast = (from.longitude - to.longitude) * mPerDegLon
+        let distMeters = sqrt(dNorth * dNorth + dEast * dEast)
+
+        guard distMeters > 0.01 else { return (lat: 0, lon: 0) }
+
+        // Inverse-square repulsion, clamped to 0.5m per iteration
+        let forceMag = min(weight / max(distMeters * distMeters, 0.01), 0.5)
+        let forceN = (dNorth / distMeters) * forceMag
+        let forceE = (dEast / distMeters) * forceMag
+
+        // Convert back to degrees
+        return (lat: forceN / mPerDegLat, lon: forceE / max(mPerDegLon, 1.0))
     }
 }

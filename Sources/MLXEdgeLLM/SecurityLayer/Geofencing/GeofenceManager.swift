@@ -66,6 +66,9 @@ public class GeofenceManager: ObservableObject {
                 )
                 newViolations.append(violation)
                 violations.append(violation)
+
+                // v6.1: Rotate crypto session key on geofence crossing
+                MeshKeychain.shared.rotateKeyForGeofence(fenceId: geofence.id, fenceName: geofence.name)
             }
         }
 
@@ -85,6 +88,26 @@ public class GeofenceManager: ObservableObject {
         } else {
             return .violation
         }
+    }
+
+    // MARK: - OpSec Relay Filtering (v6.2)
+
+    /// Check if a coordinate is outside all active geofence constraints
+    public func isOutOfZone(coordinate: CodableCoordinate) -> Bool {
+        for geofence in geofences {
+            let isInside = geofence.contains(coordinate)
+            if geofence.type == "keep-in" && !isInside { return true }
+            if geofence.type == "keep-out" && isInside { return true }
+        }
+        return false
+    }
+
+    /// Determine if mesh relay to a peer location should be allowed
+    /// Returns false (denied) for nil location or out-of-zone coordinates
+    public func shouldAllowRelay(to peerLocation: CLLocationCoordinate2D?) -> Bool {
+        guard let loc = peerLocation else { return false }
+        let coord = CodableCoordinate(latitude: loc.latitude, longitude: loc.longitude)
+        return !isOutOfZone(coordinate: coord)
     }
 
     /// Save geofences to Documents

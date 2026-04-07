@@ -95,7 +95,7 @@ struct MapTabView: View {
 
                         // Breadcrumb trail
                         if appState.mapLayerConfig.showBreadcrumbs && breadcrumb.trail.count >= 2 {
-                            MapPolyline(coordinates: breadcrumb.trail)
+                            MapPolyline(coordinates: breadcrumb.trail.map(\.coordinate))
                                 .stroke(.cyan, lineWidth: 3)
                         }
 

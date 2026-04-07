@@ -82,6 +82,14 @@ public actor SessionKeyManager {
         return false
     }
 
+    /// Inject an externally generated key (e.g. from geofence rotation)
+    public func injectExternalKey(_ keyData: Data, id: UUID) {
+        let key = SymmetricKey(data: keyData)
+        currentKey = key
+        currentKeyID = id
+        keyCreatedAt = Date()
+    }
+
     /// Clear all keys (for security wipe)
     public func clearAllKeys() {
         currentKey = nil

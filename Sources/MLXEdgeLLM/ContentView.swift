@@ -11,6 +11,10 @@ struct ContentView: View {
                     .tabItem { Label("Map", systemImage: "map.fill") }
                     .tag(AppTab.map)
 
+                NavTabView()
+                    .tabItem { Label("Nav", systemImage: "location.north.fill") }
+                    .tag(AppTab.nav)
+
                 LiDARTabView()
                     .tabItem { Label("LiDAR", systemImage: "cube.fill") }
                     .tag(AppTab.lidar)
@@ -81,6 +85,13 @@ struct ContentView: View {
             // Phase v6: Intel/Threat cross-tab sync
             AppState.shared.setupThreatSync()
             _ = IntelCorpus.shared  // Triggers multi-modal index build
+
+            // Phase v6.1: Navigation sync (must subscribe BEFORE recording starts)
+            AppState.shared.setupNavSync()
+            BreadcrumbEngine.shared.startRecording()  // After setupNavSync so first positions are captured
+
+            // Phase v6.2: MeshRelay with OpSec geofencing
+            MeshRelay.shared.start()
         }
     }
 }

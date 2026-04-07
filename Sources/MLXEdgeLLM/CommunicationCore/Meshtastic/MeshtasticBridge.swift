@@ -20,6 +20,35 @@ struct MeshtasticNode: Identifiable {
     var snr: Float?
 }
 
+// MARK: - Drone Telemetry (v6.1)
+
+struct DroneTelemetry: Codable, Identifiable {
+    let id: String  // drone node ID
+    let latitude: Double
+    let longitude: Double
+    let altitudeAGL: Double
+    let batteryPercent: Int
+    let heading: Double
+    let speed: Double
+    let status: DroneStatus
+    let timestamp: Date
+
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+}
+
+enum DroneStatus: Int, Codable {
+    case idle = 0, flying = 1, returning = 2, landing = 3, emergency = 4
+}
+
+enum DroneCommand {
+    case goto(CLLocationCoordinate2D, altitude: Double)
+    case returnToBase
+    case hover
+    case land
+}
+
 @MainActor
 final class MeshtasticBridge: NSObject, ObservableObject {
     static let shared = MeshtasticBridge()
@@ -29,6 +58,10 @@ final class MeshtasticBridge: NSObject, ObservableObject {
     @Published var connectedDevice: String? = nil
     @Published var discoveredDevices: [CBPeripheral] = []
     @Published var meshNodes: [MeshtasticNode] = []
+    @Published var droneNodes: [DroneTelemetry] = []
+
+    // Drone portnum (private app range in Meshtastic spec)
+    private let dronePortnum: Int = 256
 
     private var centralManager: CBCentralManager?
     private var connectedPeripheral: CBPeripheral?
@@ -85,25 +118,31 @@ final class MeshtasticBridge: NSObject, ObservableObject {
         let bytes = [UInt8](data)
 
         while offset < bytes.count {
-            guard let (fieldTag, wireType, headerLen) = readProtoFieldHeader(bytes, offset: offset) else { break }
+            guard offset >= 0,
+                  let (fieldTag, wireType, headerLen) = pbReadFieldHeader(bytes, offset: offset),
+                  offset + headerLen <= bytes.count else { break }
             offset += headerLen
 
             switch (fieldTag, wireType) {
             case (3, 2): // fromRadio.packet = MeshPacket (length-delimited)
-                guard let (length, lenBytes) = readVarint(bytes, offset: offset) else { break }
+                guard offset < bytes.count,
+                      let (length, lenBytes) = pbReadVarint(bytes, offset: offset),
+                      offset + lenBytes + Int(length) <= bytes.count else { return }
                 offset += lenBytes
-                let packetBytes = Array(bytes[offset..<min(offset + Int(length), bytes.count)])
+                let packetBytes = Array(bytes[offset..<offset + Int(length)])
                 offset += Int(length)
                 parseMeshPacket(packetBytes)
 
             default:
                 // Skip unknown fields
-                if wireType == 2, let (length, lenBytes) = readVarint(bytes, offset: offset) {
+                if wireType == 2, let (length, lenBytes) = pbReadVarint(bytes, offset: offset),
+                   offset + lenBytes + Int(length) <= bytes.count {
                     offset += lenBytes + Int(length)
-                } else if wireType == 0, let (_, varBytes) = readVarint(bytes, offset: offset) {
+                } else if wireType == 0, let (_, varBytes) = pbReadVarint(bytes, offset: offset),
+                          offset + varBytes <= bytes.count {
                     offset += varBytes
                 } else {
-                    offset = bytes.count
+                    return  // Malformed data, stop parsing
                 }
             }
         }
@@ -114,28 +153,31 @@ final class MeshtasticBridge: NSObject, ObservableObject {
         var offset = 0
 
         while offset < bytes.count {
-            guard let (fieldTag, wireType, headerLen) = readProtoFieldHeader(bytes, offset: offset) else { break }
+            guard let (fieldTag, wireType, headerLen) = pbReadFieldHeader(bytes, offset: offset),
+                  offset + headerLen <= bytes.count else { break }
             offset += headerLen
 
             switch (fieldTag, wireType) {
             case (1, 0): // from (node ID)
-                if let (v, n) = readVarint(bytes, offset: offset) {
-                    nodeId = UInt32(v & 0xFFFFFFFF)
-                    offset += n
-                }
+                guard let (v, n) = pbReadVarint(bytes, offset: offset),
+                      offset + n <= bytes.count else { return }
+                nodeId = UInt32(v & 0xFFFFFFFF)
+                offset += n
             case (6, 2): // decoded Data message
-                if let (length, lenBytes) = readVarint(bytes, offset: offset) {
-                    offset += lenBytes
-                    let dataBytes = Array(bytes[offset..<min(offset + Int(length), bytes.count)])
-                    offset += Int(length)
-                    parseDataMessage(dataBytes, nodeId: nodeId)
-                }
+                guard let (length, lenBytes) = pbReadVarint(bytes, offset: offset),
+                      offset + lenBytes + Int(length) <= bytes.count else { return }
+                offset += lenBytes
+                let dataBytes = Array(bytes[offset..<offset + Int(length)])
+                offset += Int(length)
+                parseDataMessage(dataBytes, nodeId: nodeId)
             default:
-                if wireType == 2, let (length, lenBytes) = readVarint(bytes, offset: offset) {
+                if wireType == 2, let (length, lenBytes) = pbReadVarint(bytes, offset: offset),
+                   offset + lenBytes + Int(length) <= bytes.count {
                     offset += lenBytes + Int(length)
-                } else if wireType == 0, let (_, n) = readVarint(bytes, offset: offset) {
+                } else if wireType == 0, let (_, n) = pbReadVarint(bytes, offset: offset),
+                          offset + n <= bytes.count {
                     offset += n
-                } else { offset = bytes.count }
+                } else { return }
             }
         }
     }
@@ -146,24 +188,29 @@ final class MeshtasticBridge: NSObject, ObservableObject {
         var offset = 0
 
         while offset < bytes.count {
-            guard let (fieldTag, wireType, headerLen) = readProtoFieldHeader(bytes, offset: offset) else { break }
+            guard let (fieldTag, wireType, headerLen) = pbReadFieldHeader(bytes, offset: offset),
+                  offset + headerLen <= bytes.count else { break }
             offset += headerLen
 
             switch (fieldTag, wireType) {
             case (1, 0): // portnum
-                if let (v, n) = readVarint(bytes, offset: offset) { portnum = Int(v); offset += n }
+                guard let (v, n) = pbReadVarint(bytes, offset: offset),
+                      offset + n <= bytes.count else { return }
+                portnum = Int(v); offset += n
             case (2, 2): // payload
-                if let (length, lenBytes) = readVarint(bytes, offset: offset) {
-                    offset += lenBytes
-                    payload = Data(bytes[offset..<min(offset + Int(length), bytes.count)])
-                    offset += Int(length)
-                }
+                guard let (length, lenBytes) = pbReadVarint(bytes, offset: offset),
+                      offset + lenBytes + Int(length) <= bytes.count else { return }
+                offset += lenBytes
+                payload = Data(bytes[offset..<offset + Int(length)])
+                offset += Int(length)
             default:
-                if wireType == 2, let (length, lenBytes) = readVarint(bytes, offset: offset) {
+                if wireType == 2, let (length, lenBytes) = pbReadVarint(bytes, offset: offset),
+                   offset + lenBytes + Int(length) <= bytes.count {
                     offset += lenBytes + Int(length)
-                } else if wireType == 0, let (_, n) = readVarint(bytes, offset: offset) {
+                } else if wireType == 0, let (_, n) = pbReadVarint(bytes, offset: offset),
+                          offset + n <= bytes.count {
                     offset += n
-                } else { offset = bytes.count }
+                } else { return }
             }
         }
 
@@ -180,10 +227,11 @@ final class MeshtasticBridge: NSObject, ObservableObject {
                 } else {
                     meshNodes.append(node)
                 }
-                Task { @MainActor in
-                    MeshService.shared.updatePeerFromMeshtastic(node)
-                }
+                // MeshRelay subscribes to $meshNodes and applies OpSec
+                // checks before forwarding to MeshService
             }
+        } else if portnum == dronePortnum { // DRONE_TELEMETRY (v6.1)
+            parseDroneTelemetry(payload, nodeId: nodeId)
         }
     }
 
@@ -192,9 +240,9 @@ final class MeshtasticBridge: NSObject, ObservableObject {
         var lat: Int64 = 0; var lon: Int64 = 0
         var offset = 0
         while offset < bytes.count {
-            guard let (fieldTag, wireType, headerLen) = readProtoFieldHeader(bytes, offset: offset) else { break }
+            guard let (fieldTag, wireType, headerLen) = pbReadFieldHeader(bytes, offset: offset) else { break }
             offset += headerLen
-            if wireType == 0, let (v, n) = readVarint(bytes, offset: offset) {
+            if wireType == 0, let (v, n) = pbReadVarint(bytes, offset: offset) {
                 if fieldTag == 1 { lat = Int64(bitPattern: v) }
                 else if fieldTag == 2 { lon = Int64(bitPattern: v) }
                 offset += n
@@ -204,64 +252,82 @@ final class MeshtasticBridge: NSObject, ObservableObject {
         return (Double(lat) / 1e7, Double(lon) / 1e7)
     }
 
-    // MARK: - Minimal Protobuf Encoding
+    // MARK: - Drone Telemetry (v6.1)
 
-    private func encodeVarint(_ value: UInt64) -> Data {
-        var data = Data()
-        var v = value
-        repeat {
-            var byte = UInt8(v & 0x7F)
-            v >>= 7
-            if v != 0 { byte |= 0x80 }
-            data.append(byte)
-        } while v != 0
-        return data
+    private func parseDroneTelemetry(_ data: Data, nodeId: UInt32) {
+        // Decode JSON telemetry from drone payload
+        guard let telemetry = try? JSONDecoder().decode(DroneTelemetry.self, from: data) else {
+            return
+        }
+
+        let hexId = String(format: "%08x", nodeId)
+        let updated = DroneTelemetry(
+            id: hexId,
+            latitude: telemetry.latitude,
+            longitude: telemetry.longitude,
+            altitudeAGL: telemetry.altitudeAGL,
+            batteryPercent: telemetry.batteryPercent,
+            heading: telemetry.heading,
+            speed: telemetry.speed,
+            status: telemetry.status,
+            timestamp: Date()
+        )
+
+        if let idx = droneNodes.firstIndex(where: { $0.id == hexId }) {
+            droneNodes[idx] = updated
+        } else {
+            droneNodes.append(updated)
+        }
     }
 
-    private func encodeField(tag: Int, wireType: Int, value: Data) -> Data {
-        var data = Data()
-        data.append(contentsOf: encodeVarint(UInt64(tag << 3 | wireType)))
-        data.append(contentsOf: encodeVarint(UInt64(value.count)))
-        data.append(value)
-        return data
+    /// Send a command to a drone via Meshtastic mesh
+    func sendDroneCommand(_ command: DroneCommand) {
+        guard let char = toRadioChar, let peripheral = connectedPeripheral else { return }
+
+        let commandData: Data
+        switch command {
+        case .goto(let coord, let altitude):
+            let payload: [String: Any] = [
+                "cmd": "goto",
+                "lat": coord.latitude,
+                "lon": coord.longitude,
+                "alt": altitude
+            ]
+            commandData = (try? JSONSerialization.data(withJSONObject: payload)) ?? Data()
+        case .returnToBase:
+            commandData = "{\"cmd\":\"rtb\"}".data(using: .utf8) ?? Data()
+        case .hover:
+            commandData = "{\"cmd\":\"hover\"}".data(using: .utf8) ?? Data()
+        case .land:
+            commandData = "{\"cmd\":\"land\"}".data(using: .utf8) ?? Data()
+        }
+
+        // Encode as Meshtastic data message with drone portnum
+        var decoded = Data()
+        decoded.append(contentsOf: pbEncodeVarintField(tag: 1, value: UInt64(dronePortnum)))
+        decoded.append(contentsOf: pbEncodeBytesField(tag: 2, value: commandData))
+        let packet = pbEncodeBytesField(tag: 1, value: decoded)
+
+        peripheral.writeValue(packet, for: char, type: .withResponse)
     }
+
+    // MARK: - Meshtastic-Specific Protobuf Encoding (uses shared ProtobufHelpers)
 
     private func encodeMeshtasticPosition(lat: Double, lon: Double, callsign: String) -> Data {
         var posPayload = Data()
         let latI = Int32(lat * 1e7)
         let lonI = Int32(lon * 1e7)
-        posPayload.append(contentsOf: encodeField(tag: 1, wireType: 0,
-            value: encodeVarint(UInt64(bitPattern: Int64(latI)))))
-        posPayload.append(contentsOf: encodeField(tag: 2, wireType: 0,
-            value: encodeVarint(UInt64(bitPattern: Int64(lonI)))))
-        return encodeField(tag: 1, wireType: 2, value: posPayload)
+        posPayload.append(contentsOf: pbEncodeVarintField(tag: 1, value: UInt64(bitPattern: Int64(latI))))
+        posPayload.append(contentsOf: pbEncodeVarintField(tag: 2, value: UInt64(bitPattern: Int64(lonI))))
+        return pbEncodeBytesField(tag: 1, value: posPayload)
     }
 
     private func encodeMeshtasticText(_ text: String) -> Data {
         guard let textData = text.data(using: .utf8) else { return Data() }
         var decoded = Data()
-        decoded.append(contentsOf: encodeField(tag: 1, wireType: 0, value: encodeVarint(1)))
-        decoded.append(contentsOf: encodeField(tag: 2, wireType: 2, value: textData))
-        return encodeField(tag: 1, wireType: 2, value: decoded)
-    }
-
-    // MARK: - Minimal Protobuf Decoding Helpers
-
-    private func readVarint(_ bytes: [UInt8], offset: Int) -> (UInt64, Int)? {
-        var result: UInt64 = 0; var shift = 0; var i = offset
-        while i < bytes.count {
-            let byte = bytes[i]; i += 1
-            result |= UInt64(byte & 0x7F) << shift
-            if byte & 0x80 == 0 { return (result, i - offset) }
-            shift += 7
-            if shift >= 64 { return nil }
-        }
-        return nil
-    }
-
-    private func readProtoFieldHeader(_ bytes: [UInt8], offset: Int) -> (tag: Int, wireType: Int, headerLen: Int)? {
-        guard let (v, n) = readVarint(bytes, offset: offset) else { return nil }
-        return (Int(v >> 3), Int(v & 0x07), n)
+        decoded.append(contentsOf: pbEncodeVarintField(tag: 1, value: 1))
+        decoded.append(contentsOf: pbEncodeBytesField(tag: 2, value: textData))
+        return pbEncodeBytesField(tag: 1, value: decoded)
     }
 }
 

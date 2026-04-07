@@ -7,6 +7,7 @@ import Combine
 /// Active tactical tab
 public enum AppTab: String, CaseIterable {
     case map   = "Map"
+    case nav   = "Nav"
     case lidar = "LiDAR"
     case intel = "Intel"
     case ops = "Ops"
@@ -14,6 +15,7 @@ public enum AppTab: String, CaseIterable {
     public var icon: String {
         switch self {
         case .map: return "map.fill"
+        case .nav: return "location.north.fill"
         case .lidar: return "cube.fill"
         case .intel: return "brain"
         case .ops: return "shield.checkered"
@@ -103,10 +105,17 @@ public class AppState: ObservableObject {
     @Published public var latestIntelSummary: String = ""
     @Published public var intelUpdateCount: Int = 0
 
+    // LiDAR SceneTag (v6 — latest scan with threats/covers for cross-tab consumption)
+    @Published public var latestSceneTag: SceneTag?
+
+    // Navigation state (v6.1 — fused from BreadcrumbEngine, DR, Celestial, Battery)
+    @Published public var navState: NavState = NavState()
+
     // Pub/sub event buses for cross-tab coordination
     public let mapEventBus = PassthroughSubject<MapEvent, Never>()
     public let intelEventBus = PassthroughSubject<IntelEvent, Never>()
     public let threatEventBus = PassthroughSubject<ThreatEvent, Never>()
+    public let navEventBus = PassthroughSubject<NavEvent, Never>()
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -159,6 +168,72 @@ public class AppState: ObservableObject {
 
     public func updateIntelSummary(_ summary: String) {
         latestIntelSummary = summary
+    }
+
+    // MARK: - Navigation Sync (v6.1)
+
+    private var navSyncSetup = false
+
+    public func setupNavSync() {
+        guard !navSyncSetup else { return }
+        navSyncSetup = true
+
+        let bc = BreadcrumbEngine.shared
+
+        // Fuse BreadcrumbEngine EKF outputs into navState
+        bc.$currentPosition
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] pos in
+                self?.navState.position = pos
+                if let pos {
+                    self?.navEventBus.send(.positionUpdated(pos))
+                }
+            }
+            .store(in: &cancellables)
+
+        bc.$heading
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] hdg in
+                self?.navState.heading = hdg
+            }
+            .store(in: &cancellables)
+
+        bc.$speedMps
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] spd in
+                self?.navState.speed = spd
+            }
+            .store(in: &cancellables)
+
+        bc.$positionUncertaintyMeters
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] unc in
+                self?.navState.ekfUncertainty = unc
+            }
+            .store(in: &cancellables)
+
+        bc.$canopyDetected
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] canopy in
+                self?.navState.canopyDetected = canopy
+            }
+            .store(in: &cancellables)
+
+        // Wire battery data into NavState
+        let battery = BatteryProxy.shared
+        battery.$drainRatePerHour
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] rate in
+                self?.navState.batteryTrend = rate
+            }
+            .store(in: &cancellables)
+
+        battery.$estimatedMinutesRemaining
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] mins in
+                self?.navState.batteryMinutesRemaining = mins
+            }
+            .store(in: &cancellables)
     }
 }
 

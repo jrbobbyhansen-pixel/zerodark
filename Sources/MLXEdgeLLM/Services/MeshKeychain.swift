@@ -142,10 +142,90 @@ final class MeshKeychain {
         getTrustedDevices().first { $0.id == deviceId }?.nickname
     }
 
+    // MARK: - Session Key Storage (v6.1 — geofence-aware)
+
+    private let sessionKeyPrefix = "sessionKey:"
+
+    /// Save an ephemeral session key to Keychain
+    func saveSessionKey(_ keyData: Data, id: UUID, context: String) -> Bool {
+        let account = "\(sessionKeyPrefix)\(id.uuidString)"
+
+        // Delete existing
+        let deleteQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: serviceIdentifier,
+            kSecAttrAccount as String: account
+        ]
+        SecItemDelete(deleteQuery as CFDictionary)
+
+        // Store key with context in label
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: serviceIdentifier,
+            kSecAttrAccount as String: account,
+            kSecAttrLabel as String: context,
+            kSecValueData as String: keyData,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        ]
+
+        let status = SecItemAdd(query as CFDictionary, nil)
+        return status == errSecSuccess
+    }
+
+    /// Retrieve session key by ID
+    func getSessionKey(id: UUID) -> Data? {
+        let account = "\(sessionKeyPrefix)\(id.uuidString)"
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: serviceIdentifier,
+            kSecAttrAccount as String: account,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        guard status == errSecSuccess, let data = result as? Data else { return nil }
+        return data
+    }
+
+    /// Clear all session keys from Keychain
+    func clearSessionKeys() {
+        // Query for all items with our service prefix
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: serviceIdentifier
+        ]
+        // This deletes all items for our service — we'll re-save passphrase if needed
+        let savedPassphrase = getPassphrase()
+        SecItemDelete(query as CFDictionary)
+        if let passphrase = savedPassphrase {
+            _ = savePassphrase(passphrase)
+        }
+    }
+
+    /// Generate and store a new session key bound to a geofence crossing
+    func rotateKeyForGeofence(fenceId: UUID, fenceName: String) {
+        // Generate 256-bit random key
+        var keyBytes = [UInt8](repeating: 0, count: 32)
+        _ = SecRandomCopyBytes(kSecRandomDefault, keyBytes.count, &keyBytes)
+        let keyData = Data(keyBytes)
+
+        let keyId = UUID()
+        let context = "geofence:\(fenceId.uuidString):\(fenceName)"
+        _ = saveSessionKey(keyData, id: keyId, context: context)
+
+        // Notify SessionKeyManager if available
+        Task {
+            await SessionKeyManager.shared.injectExternalKey(keyData, id: keyId)
+        }
+    }
+
     // MARK: - Full Reset
 
     func resetAll() {
         deletePassphrase()
+        clearSessionKeys()
         UserDefaults.standard.removeObject(forKey: trustedDevicesKey)
         UserDefaults.standard.removeObject(forKey: autoConnectKey)
     }

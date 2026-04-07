@@ -14,13 +14,20 @@ import Accelerate
 final class BreadcrumbEngine: ObservableObject {
     static let shared = BreadcrumbEngine()
 
-    // Published trail for map rendering
-    @Published private(set) var trail: [CLLocationCoordinate2D] = []
+    // Published trail for map rendering (3D with metadata)
+    @Published private(set) var trail: [NavTrailPoint] = []
     @Published private(set) var isRecording = false
     @Published private(set) var speedMps: Double = 0
     @Published private(set) var heading: Double = 0
     @Published private(set) var currentPosition: CLLocationCoordinate2D?
     @Published private(set) var positionUncertaintyMeters: Double = 0
+    @Published private(set) var canopyDetected: Bool = false
+
+    /// Fused navigation pose snapshot for NavState consumption
+    var fusedNavPose: NavPose? {
+        guard let pos = currentPosition else { return nil }
+        return NavPose(coordinate: pos, heading: heading, speed: speedMps)
+    }
 
     // EKF state vector: [lat, lon, alt, vN, vE, vD, heading] (7 states)
     private var x = [Double](repeating: 0, count: 7)
@@ -75,7 +82,7 @@ final class BreadcrumbEngine: ObservableObject {
         locationManager.startUpdatingLocation()
         locationManager.startUpdatingHeading()
 
-        // IMU prediction at 10Hz
+        // IMU prediction at 10Hz (50Hz under canopy for better dead-reckoning)
         if motionManager.isDeviceMotionAvailable {
             motionManager.deviceMotionUpdateInterval = 0.1
             motionManager.startDeviceMotionUpdates(to: .main) { [weak self] motion, _ in
@@ -208,6 +215,18 @@ final class BreadcrumbEngine: ObservableObject {
         let mPerDegLat = 111320.0
         let mPerDegLon = 111320.0 * cos(x[0] * .pi / 180.0)
 
+        // Canopy detection: GPS accuracy >15m suggests foliage/urban canyon
+        // Scale R (measurement noise) up so EKF trusts IMU more under canopy
+        let isCanopy = hAcc > 15.0
+        let canopyFactor: Double = isCanopy ? (hAcc / 5.0) : 1.0
+        if isCanopy != canopyDetected {
+            canopyDetected = isCanopy
+            // Increase IMU rate to 50Hz under canopy for better prediction
+            if motionManager.isDeviceMotionAvailable {
+                motionManager.deviceMotionUpdateInterval = isCanopy ? 0.02 : 0.1
+            }
+        }
+
         let hasSpeed = location.speed >= 0 && location.speedAccuracy >= 0
 
         if hasSpeed {
@@ -226,11 +245,11 @@ final class BreadcrumbEngine: ObservableObject {
                 gpsVE - x[4]
             ]
 
-            // R diagonal (5x5)
-            let rLat = pow(hAcc / mPerDegLat, 2)
-            let rLon = pow(hAcc / mPerDegLon, 2)
-            let rAlt = pow(vAcc, 2)
-            let rSpd = pow(max(location.speedAccuracy, 0.5), 2)
+            // R diagonal (5x5) — scaled by canopyFactor under foliage
+            let rLat = pow(hAcc * canopyFactor / mPerDegLat, 2)
+            let rLon = pow(hAcc * canopyFactor / mPerDegLon, 2)
+            let rAlt = pow(vAcc * canopyFactor, 2)
+            let rSpd = pow(max(location.speedAccuracy, 0.5) * canopyFactor, 2)
             let R: [Double] = [rLat, rLon, rAlt, rSpd, rSpd]
 
             // Since H is a simple selector (first 5 rows of I), S = H*P*H' + R simplifies to:
@@ -294,9 +313,9 @@ final class BreadcrumbEngine: ObservableObject {
                 location.altitude - x[2]
             ]
             let R: [Double] = [
-                pow(hAcc / mPerDegLat, 2),
-                pow(hAcc / mPerDegLon, 2),
-                pow(vAcc, 2)
+                pow(hAcc * canopyFactor / mPerDegLat, 2),
+                pow(hAcc * canopyFactor / mPerDegLon, 2),
+                pow(vAcc * canopyFactor, 2)
             ]
 
             // S = P[0:3, 0:3] + R (3x3)
@@ -354,7 +373,13 @@ final class BreadcrumbEngine: ObservableObject {
             if dist < minRecordDistanceMeters { return }
         }
 
-        trail.append(coord)
+        let point = NavTrailPoint(
+            coordinate: coord,
+            altitude: x[2],
+            timestamp: ProcessInfo.processInfo.systemUptime,
+            uncertainty: positionUncertaintyMeters
+        )
+        trail.append(point)
         lastRecordedCoord = coord
         currentPosition = coord
 
@@ -390,7 +415,7 @@ final class BreadcrumbEngine: ObservableObject {
 
     // MARK: - Douglas-Peucker Simplification
 
-    private func douglasPeuckerSimplify(_ points: [CLLocationCoordinate2D], epsilon: Double, maxPoints: Int) -> [CLLocationCoordinate2D] {
+    private func douglasPeuckerSimplify(_ points: [NavTrailPoint], epsilon: Double, maxPoints: Int) -> [NavTrailPoint] {
         guard points.count > 2 else { return points }
 
         var result = dpSimplify(points, epsilon: epsilon)
@@ -403,17 +428,17 @@ final class BreadcrumbEngine: ObservableObject {
         return result
     }
 
-    private func dpSimplify(_ points: [CLLocationCoordinate2D], epsilon: Double) -> [CLLocationCoordinate2D] {
+    private func dpSimplify(_ points: [NavTrailPoint], epsilon: Double) -> [NavTrailPoint] {
         guard points.count > 2 else { return points }
 
         var maxDist: Double = 0
         var maxIdx = 0
 
-        let first = points[0]
-        let last = points[points.count - 1]
+        let first = points[0].coordinate
+        let last = points[points.count - 1].coordinate
 
         for i in 1..<(points.count - 1) {
-            let d = perpendicularDistance(points[i], lineStart: first, lineEnd: last)
+            let d = perpendicularDistance(points[i].coordinate, lineStart: first, lineEnd: last)
             if d > maxDist {
                 maxDist = d
                 maxIdx = i
@@ -425,7 +450,7 @@ final class BreadcrumbEngine: ObservableObject {
             let right = dpSimplify(Array(points[maxIdx...]), epsilon: epsilon)
             return Array(left.dropLast()) + right
         } else {
-            return [first, last]
+            return [points[0], points[points.count - 1]]
         }
     }
 
@@ -439,25 +464,17 @@ final class BreadcrumbEngine: ObservableObject {
 
     // MARK: - Matrix Operations (7x7)
 
-    /// 7x7 matrix multiply: C = A * B (row-major)
+    /// 7x7 matrix multiply: C = A * B (row-major) — Accelerate vDSP
     private func matMul7(_ A: [Double], _ B: [Double]) -> [Double] {
         var C = [Double](repeating: 0, count: 49)
-        for i in 0..<7 {
-            for j in 0..<7 {
-                var sum = 0.0
-                for k in 0..<7 { sum += A[i * 7 + k] * B[k * 7 + j] }
-                C[i * 7 + j] = sum
-            }
-        }
+        vDSP_mmulD(A, 1, B, 1, &C, 1, 7, 7, 7)
         return C
     }
 
-    /// 7x7 transpose
+    /// 7x7 transpose — Accelerate vDSP
     private func transpose7(_ A: [Double]) -> [Double] {
         var T = [Double](repeating: 0, count: 49)
-        for i in 0..<7 {
-            for j in 0..<7 { T[j * 7 + i] = A[i * 7 + j] }
-        }
+        vDSP_mtransD(A, 1, &T, 1, 7, 7)
         return T
     }
 
@@ -530,8 +547,8 @@ final class BreadcrumbEngine: ObservableObject {
             <name>EKF Breadcrumb Trail</name>
             <trkseg>
         """
-        for coord in trail {
-            gpx += "      <trkpt lat=\"\(coord.latitude)\" lon=\"\(coord.longitude)\"/>\n"
+        for point in trail {
+            gpx += "      <trkpt lat=\"\(point.latitude)\" lon=\"\(point.longitude)\"><ele>\(point.altitude)</ele></trkpt>\n"
         }
         gpx += """
             </trkseg>

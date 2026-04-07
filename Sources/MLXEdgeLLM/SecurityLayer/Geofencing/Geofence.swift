@@ -146,7 +146,7 @@ public struct Geofence: Identifiable, Codable {
                 minDistance = min(minDistance, distance)
             }
             let half = widthMeters / 2
-            return contains(coordinate) ? (minDistance - half) : (minDistance - half)
+            return contains(coordinate) ? -(half - minDistance) : (minDistance - half)
         }
     }
 

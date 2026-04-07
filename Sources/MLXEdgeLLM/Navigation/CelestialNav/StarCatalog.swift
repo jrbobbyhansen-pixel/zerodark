@@ -36,13 +36,24 @@ public class StarCatalog {
         StarEntry(name: "Antares", ra: 247.35, dec: -26.43, magnitude: 0.96)
     ]
 
-    /// Get stars visible from given heading and altitude
-    public func visibleStars(heading: Double, altitude: Double) -> [StarEntry] {
+    /// Get stars visible from observer's latitude and camera heading
+    /// - Parameters:
+    ///   - heading: camera/device heading in degrees (0-360)
+    ///   - latitude: observer's geographic latitude in degrees (-90 to +90)
+    /// - Returns: stars that are above the horizon and within ±60° of heading
+    public func visibleStars(heading: Double, latitude: Double) -> [StarEntry] {
         brightStars.filter { star in
-            // Rough visibility check: within ±60° of heading, above horizon
+            // Heading filter: star RA within ±60° of device heading
             let headingDiff = abs(star.rightAscension - heading)
             let adjustedHeadingDiff = min(headingDiff, 360 - headingDiff)
-            return adjustedHeadingDiff <= 60 && star.declination > altitude - 30
+
+            // Visibility check: star is above horizon at this latitude
+            // A star is circumpolar (always visible) if dec > 90 - |lat|
+            // A star never rises if dec < -(90 - |lat|)
+            // Otherwise it rises and sets — approximate: visible if dec > lat - 90
+            let minVisibleDec = latitude - 90.0
+
+            return adjustedHeadingDiff <= 60 && star.declination > minVisibleDec
         }
     }
 }

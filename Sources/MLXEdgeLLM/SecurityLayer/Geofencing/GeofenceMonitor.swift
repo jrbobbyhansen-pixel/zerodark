@@ -57,8 +57,10 @@ public class GeofenceMonitor: NSObject, ObservableObject, CLLocationManagerDeleg
             let notificationGenerator = UINotificationFeedbackGenerator()
             notificationGenerator.notificationOccurred(.warning)
 
-            // Log violations
+            // Log violations and post to event bus
             for violation in violations {
+                print("[GeofenceMonitor] VIOLATION: \(violation.violationType) on '\(violation.geofenceName)' at (\(violation.coordinate.latitude), \(violation.coordinate.longitude))")
+                AppState.shared.navEventBus.send(.geofenceKeyRotated(fenceId: violation.geofenceID))
             }
         }
     }

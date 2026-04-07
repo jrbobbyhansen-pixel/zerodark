@@ -120,15 +120,67 @@ final class LOSRaycastEngine {
         )
     }
 
+    // MARK: - Elevation Profile
+
+    /// Compute elevation profile along a line — returns per-sample terrain vs LOS height
+    func elevationProfile(
+        from observer: CLLocationCoordinate2D,
+        to target: CLLocationCoordinate2D,
+        observerHeight: Double? = nil,
+        targetHeight: Double? = nil,
+        sampleCount: Int = 100
+    ) -> [ElevationProfilePoint] {
+        let obsHeight = observerHeight ?? defaultObserverHeight
+        let tgtHeight = targetHeight ?? defaultTargetHeight
+
+        let obsElev = TerrainEngine.shared.elevationAt(coordinate: observer) ?? 0
+        let tgtElev = TerrainEngine.shared.elevationAt(coordinate: target) ?? 0
+        let obsTotal = obsElev + obsHeight
+        let tgtTotal = tgtElev + tgtHeight
+
+        let totalDist = CLLocation(latitude: observer.latitude, longitude: observer.longitude)
+            .distance(from: CLLocation(latitude: target.latitude, longitude: target.longitude))
+
+        guard totalDist > 0 && sampleCount > 1 else { return [] }
+
+        var profile: [ElevationProfilePoint] = []
+        var maxElevAngle = -Double.infinity
+
+        for i in 1...sampleCount {
+            let fraction = Double(i) / Double(sampleCount)
+            let sampleDist = totalDist * fraction
+            let sampleCoord = interpolateCoordinate(from: observer, to: target, fraction: fraction)
+            let terrainElev = TerrainEngine.shared.elevationAt(coordinate: sampleCoord) ?? 0
+
+            let losHeight = obsTotal + (tgtTotal - obsTotal) * fraction
+            let curvatureDrop = (sampleDist * (totalDist - sampleDist)) / (2.0 * earthRadius)
+            let effectiveLOSHeight = losHeight - curvatureDrop
+
+            let elevAngle = atan2(terrainElev - obsTotal, sampleDist)
+            let isBlocked = elevAngle > maxElevAngle ? false : true
+            if elevAngle > maxElevAngle { maxElevAngle = elevAngle }
+
+            profile.append(ElevationProfilePoint(
+                distance: sampleDist,
+                terrainElevation: terrainElev,
+                losHeight: effectiveLOSHeight,
+                isBlocked: terrainElev > effectiveLOSHeight
+            ))
+        }
+
+        return profile
+    }
+
     // MARK: - Viewshed (360° LOS)
 
     /// Compute viewshed — which areas are visible from a point
     /// Returns array of (coordinate, isVisible) for rendering as heat map
+    /// Default resolution: 360 radials (1° each), 100 samples per radial
     func computeViewshed(
         from observer: CLLocationCoordinate2D,
         radius: Double = 2000,  // meters
         observerHeight: Double? = nil,
-        resolution: Int = 36    // number of radial lines (every 10°)
+        resolution: Int = 360    // number of radial lines (every 1°)
     ) -> [(coordinate: CLLocationCoordinate2D, isVisible: Bool)] {
         var results: [(CLLocationCoordinate2D, Bool)] = []
 
@@ -141,7 +193,7 @@ final class LOSRaycastEngine {
             // Compute target coordinate at radius along bearing
             let target = coordinateAtBearing(from: observer, bearing: bearing, distance: radius)
 
-            let los = computeLOS(from: observer, to: target, observerHeight: obsHeight, sampleCount: 50)
+            let los = computeLOS(from: observer, to: target, observerHeight: obsHeight, sampleCount: 100)
 
             for segment in los.segments {
                 results.append((segment.end, segment.isVisible))
@@ -149,6 +201,23 @@ final class LOSRaycastEngine {
         }
 
         return results
+    }
+
+    /// GPU-accelerated viewshed (delegates to ViewshedComputeEngine)
+    func computeViewshedGPU(
+        from observer: CLLocationCoordinate2D,
+        radius: Double = 2000,
+        observerHeight: Double = 1.8,
+        resolution: Int = 360,
+        samplesPerRadial: Int = 200
+    ) async -> ViewshedResult? {
+        await ViewshedComputeEngine.shared.computeViewshed(
+            from: observer,
+            radius: radius,
+            observerHeight: observerHeight,
+            resolution: resolution,
+            samplesPerRadial: samplesPerRadial
+        )
     }
 
     // MARK: - Helpers
