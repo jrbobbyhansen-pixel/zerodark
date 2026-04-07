@@ -1,290 +1,139 @@
-# Zero Dark 🌑
+# ZeroDark
 
-**The AI assistant Apple was too scared to build.**
-
-Zero Dark is a fully on-device AI operating system for iOS, iPadOS, macOS, and visionOS. No cloud. No telemetry. No censorship. Just raw intelligence running on Apple Silicon.
+An open-source iOS tactical operations platform built on SwiftUI and on-device AI. Designed for field teams who need mapping, navigation, communications, and intelligence tools that work without cell service.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Swift](https://img.shields.io/badge/Swift-5.9+-orange.svg)](https://swift.org)
-[![Platform](https://img.shields.io/badge/Platform-iOS%2017%2B%20%7C%20macOS%2014%2B-blue.svg)](https://apple.com)
+[![Platform](https://img.shields.io/badge/Platform-iOS%2017%2B-blue.svg)](https://apple.com)
 
 ---
 
-## Why Zero Dark?
+## What It Does
 
-| Siri | Zero Dark |
-|------|-----------|
-| Cloud-dependent | **100% on-device** |
-| "I found this on the web" | **Actually executes 50+ tools** |
-| Can't reason | **14B parameter reasoning** |
-| No memory | **Remembers across sessions** |
-| Censored | **Uncensored option** |
-| One model | **17 models, auto-routed** |
-| No code execution | **Runs JavaScript locally** |
-| "I can't do that" | **Actually tries** |
+ZeroDark puts a full tactical toolkit on your iPhone or iPad — mapping, mesh comms, breadcrumb navigation, line-of-sight analysis, LiDAR scanning, and an on-device AI assistant. Everything runs locally. No cloud dependency, no subscriptions, no telemetry.
+
+**Four tabs, one mission:**
+
+- **Map** — SwiftUI Map with TAK peer tracking, MGRS grid overlay, range rings, breadcrumb trails, terrain contours, waypoint management, offline tile support, and line-of-sight raycast
+- **LiDAR** — 3D point cloud capture and mesh export using ARKit
+- **Intel** — Hybrid RAG search over a tactical knowledge base (115+ field manuals), threat scoring, and AI-generated situation reports
+- **Ops** — Mission planning, team dashboard, comms strip, after-action reports, and OPSEC checklists
 
 ---
 
-## 🧰 50+ Real Tools
+## Core Systems
 
-### Core Tools (34)
-| Tool | What It Does |
-|------|--------------|
-| `weather` | Real weather from Open-Meteo API |
-| `calendar` | Read your EventKit calendar |
-| `reminder` | Create real Apple Reminders |
-| `calculator` | Math via JavaScript engine |
-| `timer` / `alarm` | Set timers and alarms |
-| `contacts` | Search CNContactStore |
-| `notes` | Create/read local notes |
-| `directions` | MapKit search |
-| `health` | HealthKit: steps, sleep, calories, HR |
-| `homekit` | Control smart home devices |
-| `translate` | On-device translation |
-| `code` | Execute JavaScript safely |
-| `clipboard` | Read/write system clipboard |
-| `device` / `battery` | Device info, battery level |
-| `brightness` / `volume` | Screen and audio control |
-| `flashlight` | Toggle torch |
-| `music` | Control playback |
-| `call` | Initiate phone calls |
-| `message` | Compose SMS/iMessage |
-| `open_app` | Open any app (30+ URL schemes) |
-| `location` | Current location |
-| `convert` | Unit conversion |
-| `currency` | Currency conversion (12 currencies) |
-| `haptic` | Trigger haptic feedback |
-| `speak` | Text-to-speech |
-| `qr` | Generate QR codes |
-| `random` | Random numbers |
-| `define` | Dictionary definitions |
+### Navigation
+- **EKF Breadcrumb Engine** — 7-state Extended Kalman Filter fusing GPS + IMU for smooth trail recording, even under tree canopy or urban canyons
+- **Line-of-Sight Raycast** — DEM-based visibility analysis with earth curvature correction. Tap any point on the map to see what's visible and what's blocked
+- **360° Viewshed** — Radial LOS computation showing visible/hidden terrain from your position
+- **MGRS Grid** — Military Grid Reference System overlay with adaptive zoom levels
+- **Celestial Navigation** — Sun/star position calculator for compass-free orientation
+- **Dead Reckoning** — IMU-based position estimation when GPS is unavailable
 
-### Vision & Speech Tools
-| Tool | What It Does |
-|------|--------------|
-| `ocr` | Extract text from images |
-| `detect_objects` | Identify 1000+ objects |
-| `face_detect` | Detect faces and landmarks |
-| `read_barcode` | Scan QR/barcodes |
-| `listen` | Speech-to-text |
-| `shazam` | Identify songs |
+### Mapping
+- **Offline Tiles** — PMTiles support for map access without connectivity (UIViewRepresentable backing layer for iOS 17 compatibility)
+- **GIS Overlays** — Import KML and Shapefile data directly onto the map
+- **Terrain Contours** — Marching squares algorithm generates contour lines from DEM elevation data
+- **HotZone Classification** — On-device MLX inference to classify sensor readings into hot/warm/cold zones
 
-### Motion & Sensors
-| Tool | What It Does |
-|------|--------------|
-| `motion` | Accelerometer data |
-| `pedometer` | Steps, distance, floors |
-| `altitude` | Barometric altitude |
-| `authenticate` | Face ID / Touch ID |
+### Communications
+- **TAK Integration** — Cursor on Target (CoT) protocol support via FreeTAK server and BLE bridge
+- **Mesh Networking** — Meshtastic bridge for off-grid peer-to-peer comms with status tracking
+- **Haptic Comms** — Tap-coded signal system between nearby devices
+- **DTN Messaging** — Delay-Tolerant Networking for store-and-forward message delivery
+- **PTT Voice** — Push-to-talk voice relay over mesh
 
-### Free APIs (No Keys Required)
-| Tool | What It Does |
-|------|--------------|
-| `news` | Headlines via Hacker News API |
-| `crypto` | Bitcoin/Ethereum prices (CoinGecko) |
-| `nasa` | Picture of the Day |
-| `quote` | Inspirational quotes |
-| `joke` | Random jokes |
-| `fact` | Random facts |
-| `trivia` | Trivia questions |
-| `wiki` | Wikipedia summaries |
-| `air_quality` | AQI by city |
-| `sunrise` / `sunset` | Sun times |
-| `holidays` | Public holidays by country |
-| `bible` | Bible verses |
-| `hackernews` | Top HN stories |
-| `dog` / `cat` | Random pet images |
-| `ip` | Your IP and location |
+### Intelligence
+- **Tactical Knowledge Base** — 115+ field manuals covering medical, navigation, comms, SERE, urban ops, and more
+- **Hybrid RAG Search** — Full-text + vector search with Reciprocal Rank Fusion for relevant results
+- **Threat Scoring** — Cross-tab threat analysis that syncs between Intel and Map tabs
+- **On-Device LLM** — MLX-powered inference (Llama, Qwen, DeepSeek) for situation analysis and field queries
 
-### System Tools
-| Tool | What It Does |
-|------|--------------|
-| `network` | Connection status |
-| `disk` | Storage info |
-| `memory` | RAM usage |
-| `cpu` | Processor info |
+### Field Operations
+- **Mission Planning** — Briefings, phase tracking, contingency planning, objective management
+- **Team Management** — Roster, check-ins, task assignment, shift scheduling
+- **Medical** — TCCC protocols, triage tools, 9-line MEDEVAC formatting
+- **Training** — Field exercise planning, scenario generation, skill assessments, after-action reviews
 
 ---
 
-## 🎤 Siri Integration (9 Intents)
-
-Say these to activate Zero Dark via Siri:
+## Architecture
 
 ```
-"Hey Siri, ask ZeroDark..."
-"Hey Siri, ZeroDark weather"
-"Hey Siri, ZeroDark reminder"
-"Hey Siri, ZeroDark calculate"
-"Hey Siri, ZeroDark health"
-"Hey Siri, ZeroDark timer"
-"Hey Siri, ZeroDark open app"
-"Hey Siri, ZeroDark convert"
-"Hey Siri, ZeroDark speak"
+Sources/MLXEdgeLLM/
+├── AI/              # RAG engine, LLM inference, embeddings, prompts
+├── App/             # SwiftUI views (MapTabView, IntelTabView, OpsTabView, LiDARTabView)
+├── CommunicationCore/  # TAK, Meshtastic, DTN, haptic, voice
+├── Coordination/    # Team management, task assignment, incident logging
+├── FieldOps/        # Mission planning, reports, team ops
+├── Hardware/        # Drone integration, sensor bridges
+├── Intelligence/    # Threat tracking, pattern analysis, SITREP generation
+├── Interop/         # GIS handlers (KML, Shapefile, GeoPackage, GPX)
+├── LiDAR/           # Point cloud capture and processing
+├── Logistics/       # Supply tracking, equipment management
+├── Mapping/         # Offline tiles, GIS overlays, tile providers
+├── Medical/         # TCCC, triage, pharmacy reference
+├── Navigation/      # EKF engine, LOS raycast, dead reckoning, terrain analysis
+├── Planning/        # Route planning, contingency, resource allocation
+├── Resources/       # Knowledge base (115+ field manuals), model configs
+├── Scenarios/       # HazMat, SAR, wildfire, active shooter response
+├── Security/        # Encryption, session keys, geofencing, runtime safety
+├── Services/        # Weather, hydration calc, sun/moon, altitude tracking
+├── SpatialIntelligence/  # Distance/bearing, elevation profiles, mesh export
+├── Training/        # Exercises, skill tracking, tabletop scenarios
+└── UI/              # Shared components and design tokens
 ```
 
 ---
 
-## 🧠 Intelligence Layer
-
-### Power Modes
-| Mode | Time | Equivalent | Techniques |
-|------|------|------------|------------|
-| Quick | 1-2s | ~8B | Speculative decoding |
-| Standard | 5-10s | ~50B | ToT + Self-Consistency |
-| Deep | 30-60s | ~150B | ZeroSwarm (12 agents) |
-| Maximum | 2-5min | ~300B+ | Full ensemble |
-| Adaptive | Auto | Auto | Selects based on query |
-
-### ZeroSwarm (12-Agent Debate)
-When you need the highest quality, Zero Dark deploys 12 specialized AI agents that debate and reach consensus:
-
-- Analyst, Critic, Creative, Devil's Advocate
-- Synthesizer, Fact-Checker, Ethicist, Optimizer
-- Generalist, Specialist, Simplifier, Visionary
-
-### RocketFuel (25+ Techniques)
-- Speculative decoding (3x speedup)
-- Tree of Thoughts
-- Monte Carlo Tree Search
-- Self-Consistency (5 paths)
-- Chain of Thought
-- Self-Rewarding
-- RAG (Retrieval Augmented Generation)
-- And 18 more...
-
----
-
-## 📱 Zeta³: Device Swarm
-
-Connect multiple Apple devices to distribute AI inference:
-
-```
-iPad Pro (16GB) ←→ iPhone 16 Pro (8GB) ←→ Mac Mini (32GB)
-         ↓                    ↓                    ↓
-    Layers 0-10          Layers 11-20        Layers 21-32
-```
-
-- **MultipeerConnectivity** for local networking
-- **Pipeline parallelism** across devices
-- **Encrypted** communication
-- Run models larger than any single device's RAM
-
----
-
-## 🧠 Infinite Memory
-
-Zero Dark remembers across sessions:
-
-- **L0 (Hot)**: Always loaded, ~100 tokens
-- **L1 (Warm)**: Loaded when relevant, ~500 tokens  
-- **L2 (Cold)**: Full content, on-demand
-- **95%+ token savings** via compression
-
----
-
-## 🤖 Autonomous Agent
-
-Give Zero Dark a task and watch it work:
-
-```
-"Check the weather and remind me if it's going to rain"
-
-→ Analyzing task...
-→ Executing: weather
-→ ✓ San Antonio: 75°F, Partly cloudy
-→ Executing: reminder
-→ ✓ Reminder created: "Check for rain"
-→ Done!
-```
-
----
-
-## 📊 Models
-
-### Standard Tier (Any iPhone)
-| Model | Size | Use Case |
-|-------|------|----------|
-| Qwen3 0.6B | 0.4GB | Ultra-fast |
-| Llama 3.2 1B | 0.7GB | Quick tasks |
-| Qwen3 4B | 2.5GB | Balanced |
-
-### Beast Tier (8GB RAM)
-| Model | Size | Use Case |
-|-------|------|----------|
-| ⚡ Qwen3 8B | 4.5GB | Best general |
-| 🔓 Abliterated 8B | 4.5GB | Uncensored |
-| 🧠 DeepSeek R1 8B | 4.5GB | Reasoning |
-| 💻 Qwen Coder 7B | 4.0GB | Code |
-
-### PRO Tier (16GB+ RAM)
-| Model | Size | Use Case |
-|-------|------|----------|
-| 🚀 Qwen 14B | 7.5GB | Desktop-class |
-| 🚀 DeepSeek 14B | 7.5GB | Deep reasoning |
-
----
-
-## 🔒 Privacy
-
-**Zero Dark sends nothing to the cloud. Ever.**
-
-- All models run locally via MLX
-- All tools execute on-device
-- External APIs (weather, crypto) are optional
-- Conversations stored locally
-- No telemetry, no analytics, no tracking
-
----
-
-## 📦 Installation
+## Getting Started
 
 ### Requirements
-- iOS 17+ / macOS 14+
+- iOS 17+ (iPhone or iPad)
 - Xcode 15+
-- ~5GB storage per model
+- ~5GB storage per AI model (optional — app works without models)
 
-### Build from Source
+### Build
 
 ```bash
 git clone https://github.com/jrbobbyhansen-pixel/zerodark.git
 cd zerodark
 open ZeroDark.xcodeproj
-# Build and run
+# Select your device target and build
 ```
 
----
+The app runs without any AI models installed — mapping, navigation, comms, and ops features all work independently. To enable the AI assistant, download a model through the in-app settings.
 
-## 🗺️ Roadmap
+### Offline Maps
 
-- [x] 50+ tool integrations
-- [x] Siri App Intents
-- [x] Device swarm
-- [x] Power modes
-- [x] Autonomous agent
-- [ ] Apple Watch companion
-- [ ] CarPlay integration
-- [ ] Live Activities
-- [ ] On-device fine-tuning
-- [ ] Widget support
+Drop a `.pmtiles` file into the app's Documents directory for offline map access. The app auto-detects and renders tiles behind the SwiftUI Map layer.
 
 ---
 
-## 📄 License
+## How It's Built
+
+- **SwiftUI + MapKit** (iOS 17 Map API) for the primary interface
+- **MLX Swift** for on-device LLM inference on Apple Silicon
+- **CoreLocation + CoreMotion** for the EKF navigation engine
+- **ARKit + LiDAR** for 3D point cloud capture
+- **MultipeerConnectivity + BLE** for mesh networking
+- **Combine** for cross-tab state management and event buses
+
+The map system uses a hybrid approach: SwiftUI `Map` with `MapContentBuilder` handles annotations, polylines, and circles natively. For offline tiles (not supported in SwiftUI Map on iOS 17), a thin `MKMapView` UIViewRepresentable sits behind the SwiftUI layer in a ZStack with user interaction disabled.
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. The codebase is organized by domain — pick a module that interests you and dive in.
+
+---
+
+## License
 
 MIT License. See [LICENSE](LICENSE).
 
 ---
 
-## 🙏 Credits
-
-Built with:
-- [MLX](https://github.com/ml-explore/mlx) by Apple
-- [mlx-swift](https://github.com/ml-explore/mlx-swift)
-- [mlx-swift-examples](https://github.com/ml-explore/mlx-swift-examples)
-
----
-
-<p align="center">
-  <b>The AI assistant Apple was too scared to build.</b><br>
-  <sub>Private. Powerful. Yours.</sub>
-</p>
+Built with [MLX](https://github.com/ml-explore/mlx-swift) by Apple.

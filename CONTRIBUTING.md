@@ -1,94 +1,81 @@
-# Contributing to Zero Dark
+# Contributing to ZeroDark
 
-First off, thank you for considering contributing to Zero Dark! 🎉
+Thanks for your interest in contributing. Here's how to get involved.
 
-## Code of Conduct
-
-Be excellent to each other. We're building something cool here.
-
-## How Can I Contribute?
-
-### Reporting Bugs
+## Reporting Issues
 
 - Use the GitHub issue tracker
-- Include device info (iPhone model, iOS version, RAM)
+- Include device info (iPhone/iPad model, iOS version)
 - Include steps to reproduce
-- Include crash logs if applicable
+- Attach crash logs if applicable
 
-### Suggesting Features
-
-- Open an issue with the "enhancement" label
-- Explain the use case
-- Bonus points for implementation ideas
-
-### Pull Requests
+## Pull Requests
 
 1. Fork the repo
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch (`git checkout -b feature/your-feature`)
+3. Commit your changes
+4. Push and open a PR
+5. Describe what you changed and why
 
-### Code Style
+## Code Style
 
 - Follow Swift API Design Guidelines
-- Use SwiftLint (config in repo)
-- Add documentation comments for public APIs
-- Write tests for new features
+- Keep files organized by domain module (see Architecture in README)
+- Add doc comments for public APIs
+- Prefer SwiftUI over UIKit unless there's a specific reason (e.g., offline tiles on iOS 17)
 
 ## Development Setup
 
 ```bash
-# Clone
-git clone https://github.com/bobbyhansenjr/zerodark.git
+git clone https://github.com/jrbobbyhansen-pixel/zerodark.git
 cd zerodark
-
-# Open in Xcode
-open Package.swift
-
-# Build
-swift build
-
-# Test
-swift test
+open ZeroDark.xcodeproj
 ```
 
-## Areas We Need Help
+Build target: any iOS 17+ device. The app works without AI models — mapping, navigation, and comms features are standalone.
 
-### High Priority
-- **Testing on different devices** — We need performance data from iPhone 15, 16, iPad Pro, Mac
-- **Additional tools** — More agentic capabilities
-- **Voice pipeline improvements** — Better wake word detection
+## Areas Where Help Is Needed
 
-### Medium Priority
-- **UI polish** — Make it beautiful
-- **Accessibility** — VoiceOver, Dynamic Type
-- **Localization** — Translate to other languages
+**High priority:**
+- Testing on different devices (iPhone 15/16, iPad Pro, iPad Air)
+- Accessibility improvements (VoiceOver, Dynamic Type)
+- Unit tests for Navigation and Mapping modules
 
-### Research
-- **On-device fine-tuning** — LoRA training on device
-- **Smaller models** — Distillation for older devices
-- **Speculative decoding** — Speed improvements
+**Medium priority:**
+- Additional GIS format support (GeoJSON import)
+- Improved contour rendering performance at high zoom
+- CarPlay integration for navigation features
 
-## Architecture Overview
+**Research:**
+- On-device model fine-tuning (LoRA on Apple Silicon)
+- Improved EKF tuning for different movement patterns
+- Alternative offline tile formats
+
+## Project Structure
 
 ```
-Sources/
-├── MLXEdgeLLM/           # Core library
-│   ├── Intelligence/     # Model routing, ensemble, memory
-│   ├── Nuclear/          # Tools, code sandbox, integrations
-│   ├── Models.swift      # Model definitions
-│   └── BeastEngine.swift # MLX wrapper
-├── MLXEdgeLLMUI/         # SwiftUI views
-├── MLXEdgeLLMVoice/      # Voice pipeline
-├── MLXEdgeLLMDocs/       # RAG/document support
-└── ZeroDarkApp/          # Demo app
+Sources/MLXEdgeLLM/
+├── AI/                  # RAG, embeddings, LLM inference
+├── App/                 # SwiftUI tab views and sheets
+├── CommunicationCore/   # TAK, Meshtastic, DTN, haptic, voice
+├── Coordination/        # Team management, task assignment
+├── FieldOps/            # Mission planning, reports
+├── Hardware/            # Drone, sensor bridges
+├── Intelligence/        # Threat analysis, pattern recognition
+├── Interop/             # GIS handlers (KML, Shapefile, GPX)
+├── LiDAR/               # Point cloud capture
+├── Mapping/             # Offline tiles, GIS overlays
+├── Medical/             # TCCC, triage protocols
+├── Navigation/          # EKF engine, LOS, dead reckoning
+├── Resources/           # Knowledge base, model configs
+├── Scenarios/           # HazMat, SAR, emergency response
+├── Security/            # Encryption, geofencing
+├── Services/            # Weather, altitude, environmental
+├── SpatialIntelligence/ # Distance/bearing, elevation profiles
+├── Training/            # Exercises, skill tracking
+└── UI/                  # Shared design components
 ```
 
 ## Questions?
 
-Open an issue or reach out on Twitter: [@bobbyhansenjr](https://twitter.com/bobbyhansenjr)
-
----
-
-**Let's build the AI assistant Apple was too scared to build.** 🌑
+Open an issue on GitHub.

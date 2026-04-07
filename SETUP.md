@@ -1,156 +1,93 @@
-# DarkPhone Setup Guide
+# ZeroDark Setup Guide
 
-## What This Is
+## Requirements
 
-A custom iOS app for your iPhone 16 Pro Max that runs:
-- **Text AI** — Local LLM (Qwen3, Llama, Gemma)
-- **Vision AI** — Analyze photos, screenshots, documents
-- **Voice AI** — Speak → LLM → Speaks back (100% local)
-- **Document RAG** — Import PDFs, ask questions
-- **OCR** — Extract text from images, receipts
+- iOS 17+ device (iPhone or iPad)
+- Xcode 15+
+- Apple Developer account (free or paid)
+- USB cable for device deployment
 
-All processing happens on-device. No internet. No cloud. Complete privacy.
+## Build & Install
 
----
-
-## Prerequisites
-
-- ✅ Xcode 16+ installed on your Mac
-- ✅ Apple Developer account (you already have this)
-- ✅ iPhone 16 Pro Max with USB-C cable
-- ✅ WiFi for initial model downloads
-
----
-
-## Step-by-Step Build
-
-### 1. Open the Project
+### 1. Clone and open
 
 ```bash
-open ~/Developer/DarkPhone/Sources/DarkPhoneApp/DarkPhone.xcodeproj
+git clone https://github.com/jrbobbyhansen-pixel/zerodark.git
+cd zerodark
+open ZeroDark.xcodeproj
 ```
 
-### 2. Configure Signing (First Time Only)
+### 2. Configure signing
 
-1. In Xcode, click on **DarkPhone** in the left sidebar (the blue project icon)
-2. Select **DarkPhone** under TARGETS
-3. Click **Signing & Capabilities** tab
-4. Check **"Automatically manage signing"**
-5. Select your Team from the dropdown (Bobby Hansen or Hill Country Ventures)
-6. If prompted, let Xcode create/update provisioning profiles
+1. Select the **ZeroDark** project in Xcode's navigator
+2. Under **Signing & Capabilities**, check "Automatically manage signing"
+3. Select your development team
+4. Let Xcode create provisioning profiles
 
-### 3. Connect Your Dark Phone
+### 3. Connect your device
 
-1. Plug in your iPhone 16 Pro Max via USB-C
-2. Unlock the phone
-3. If prompted "Trust This Computer?" → tap **Trust**
-4. In Xcode top bar, select your iPhone as the build target (instead of simulator)
+1. Plug in your iPhone/iPad via USB
+2. Unlock and trust the computer if prompted
+3. Select your device as the build target in Xcode's toolbar
 
-### 4. Build & Run
+### 4. Build and run
 
-1. Press **⌘R** (Command + R) or click the Play button
-2. Wait for build (first time takes 2-3 minutes)
-3. App will install and launch on your phone
-4. If prompted on phone, go to Settings → General → VPN & Device Management → Trust the developer profile
+Press **Cmd+R**. First build takes 2-3 minutes. The app will install and launch.
 
-### 5. Download Models (One Time, Requires WiFi)
+If you see "Untrusted Developer" on the device: Settings > General > VPN & Device Management > Trust.
 
-On the phone:
-1. Open **DarkPhone** app
-2. Go to **Models** tab
-3. Recommended downloads:
-   - **Qwen3 1.7B** (~1GB) — Best balance for text
-   - **Qwen3.5 0.8B Vision** (~625MB) — Image analysis
-   - **FastVLM 0.5B** (~1.25GB) — Receipt/document OCR
-4. Tap each model to download
-5. Wait for all downloads to complete
+## First Launch
 
-### 6. Go Dark
+The app launches into four tabs:
 
-1. Close Xcode on your Mac
-2. Unplug the phone
-3. On the phone: **Settings → Airplane Mode → ON**
-4. Done. App works forever, completely offline.
+- **Map** — Your tactical map with peer tracking, waypoints, and navigation tools
+- **LiDAR** — 3D scanning (requires LiDAR-equipped device)
+- **Intel** — Knowledge base search and threat analysis
+- **Ops** — Mission planning and team coordination
 
----
+All features work immediately without any AI models.
 
-## Using the App
+## AI Models (Optional)
 
-### Text Tab
-- Type any question
-- Get AI response
-- Conversation history saved locally
+To enable the on-device AI assistant:
 
-### Voice Tab
-- Tap mic → Speak
-- AI processes your speech
-- AI responds with voice
-- All local, no network
+1. Open **Settings** (gear icon in top-right)
+2. Browse available models
+3. Download over WiFi — models range from 400MB to 7.5GB
+4. Once downloaded, the AI assistant works fully offline
 
-### Vision Tab
-- Take photo or select from library
-- Ask: "What's in this image?"
-- Get detailed analysis
+Recommended starting model: **Llama 3.2 1B** (~700MB) for a good balance of speed and quality.
 
-### OCR Tab
-- Point camera at receipt/document
-- Get structured data extraction
-- Works offline
+## Offline Maps
 
-### Docs Tab
-- Import PDFs, DOCX, images
-- Ask questions about your documents
-- Local RAG (retrieval augmented generation)
+For map access without connectivity:
 
-### Models Tab
-- See download status
-- Download additional models
-- Switch between models
+1. Obtain a `.pmtiles` file for your area of operations
+2. Drop it into the app's Documents directory (via Files app or Xcode)
+3. The app auto-detects and renders tiles behind the map layer
 
----
+## TAK Integration
 
-## Model Recommendations
+To connect with FreeTAK Server or ATAK peers:
 
-| Model | Size | Best For |
-|-------|------|----------|
-| Qwen3 0.6B | ~400MB | Ultra-fast, basic |
-| **Qwen3 1.7B** ⭐ | ~1GB | Best balance |
-| Qwen3 4B | ~2.5GB | Higher quality |
-| **Qwen3.5 0.8B Vision** ⭐ | ~625MB | Photo analysis |
-| Qwen3.5 2B Vision | ~1.7GB | Better accuracy |
-| **FastVLM 0.5B** ⭐ | ~1.25GB | Receipt scanning |
+1. Go to Settings > TAK Configuration
+2. Enter your server address and credentials
+3. Peers will appear as annotations on the Map tab
 
-⭐ = Recommended for iPhone 16 Pro Max
+## Mesh Networking
 
----
+For off-grid comms via Meshtastic:
+
+1. Pair a Meshtastic radio via Bluetooth
+2. The app bridges messages through the mesh network
+3. Connected peers show on the Map tab with status indicators
 
 ## Troubleshooting
 
-### "Untrusted Developer" error
-Settings → General → VPN & Device Management → Trust
+**Build fails:** Clean build (Shift+Cmd+K) and retry.
 
-### Build fails
-1. Clean build: Shift + ⌘ + K
-2. Try again: ⌘R
+**App crashes on launch:** Ensure "Increased Memory Limit" entitlement is present in ZeroDark.entitlements.
 
-### Model download stuck
-- Check WiFi connection
-- Force close app, reopen
-- Try downloading a smaller model first
+**Models won't download:** Check WiFi connection. Try a smaller model first.
 
-### App crashes on launch
-- Make sure you have the "Increased Memory Limit" entitlement (already configured)
-- Try with smaller model (Qwen3 0.6B)
-
----
-
-## Privacy
-
-- All models run locally on the A18 Pro Neural Engine
-- No data ever leaves your device
-- No API keys, no accounts, no telemetry
-- Works in airplane mode forever
-
----
-
-Built with MLXEdgeLLM • https://github.com/wangxuncaiGH/MLXEdgeLLM
+**Offline tiles not showing:** Verify the .pmtiles file is in the app's Documents directory and restart the app.
