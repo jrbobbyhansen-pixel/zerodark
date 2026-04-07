@@ -6,6 +6,7 @@ import CoreML
 import CoreLocation
 import Combine
 import simd
+import SwiftUI
 
 // MARK: - Threat Level
 
@@ -43,7 +44,7 @@ enum ThreatLevel: Int, Comparable, Codable {
 
 // MARK: - Threat Types
 
-enum ThreatCategory {
+enum ThreatCategory: Hashable {
     case environmental   // Weather, terrain hazards
     case structural      // Building/infrastructure risks
     case human           // Personnel threats
@@ -124,6 +125,41 @@ final class ThreatAnalyzer: ObservableObject {
     @Published var threatLevel: ThreatLevel = .none
     @Published var activeThreats: [Threat] = []
     @Published var alertMessage: String?
+    @Published var threatScore: Double = 0.0          // Continuous 0-10 score
+    @Published var threatScoreBreakdown: ThreatScoreBreakdown?
+
+    // MARK: - Threat Score Breakdown
+
+    struct ThreatScoreBreakdown {
+        let environmentalScore: Double   // 0-10
+        let structuralScore: Double      // 0-10
+        let humanScore: Double           // 0-10
+        let temporalScore: Double        // 0-10
+        let networkIntelScore: Double    // 0-10
+        let lidarCoverScore: Double      // 0-10
+        let overallScore: Double         // weighted average 0-10
+        let timestamp: Date
+
+        var scoreColor: Color {
+            switch overallScore {
+            case 0..<2:   return ZDDesign.successGreen
+            case 2..<4:   return ZDDesign.skyBlue
+            case 4..<6:   return ZDDesign.safetyYellow
+            case 6..<8:   return ZDDesign.warningOrange
+            default:      return ZDDesign.signalRed
+            }
+        }
+    }
+
+    // Score weights
+    private let scoreWeights: [ThreatCategory: Double] = [
+        .human: 0.30,
+        .structural: 0.25,
+        .environmental: 0.15,
+        .electronic: 0.15,
+        .temporal: 0.10,
+        .biological: 0.05
+    ]
     
     // Data sources
     private var lidarEngine: LiDARCaptureEngine { LiDARCaptureEngine.shared }
@@ -245,6 +281,11 @@ final class ThreatAnalyzer: ObservableObject {
             confidence: calculateConfidence(threats: activeThreats)
         )
         
+        // Calculate continuous 0-10 threat score
+        let breakdown = calculateThreatScoreBreakdown(threats: activeThreats, environment: envConditions)
+        threatScoreBreakdown = breakdown
+        threatScore = breakdown.overallScore
+
         // Check for alerts
         checkAlerts()
         
@@ -693,5 +734,75 @@ final class ThreatAnalyzer: ObservableObject {
             guard let threatPos = threat.position3D else { return false }
             return length(threatPos - position) <= radius
         }
+    }
+
+    // MARK: - Continuous Threat Score (0-10)
+
+    private func calculateThreatScoreBreakdown(threats: [Threat], environment: EnvironmentalConditions) -> ThreatScoreBreakdown {
+        let categoryScores = Dictionary(grouping: threats, by: { $0.category })
+
+        func scoreForCategory(_ category: ThreatCategory) -> Double {
+            let categoryThreats = categoryScores[category] ?? []
+            guard !categoryThreats.isEmpty else { return 0 }
+            // Weighted sum: severity * confidence, capped at 10
+            let raw = categoryThreats.reduce(0.0) { acc, threat in
+                let severity = Double(threat.level.rawValue) * 2.5 // 0,2.5,5,7.5,10
+                return acc + severity * Double(threat.confidence)
+            }
+            return min(10.0, raw)
+        }
+
+        let envScore = scoreForCategory(.environmental)
+        let structScore = scoreForCategory(.structural)
+        let humanScore = scoreForCategory(.human)
+        let temporalScore = scoreForCategory(.temporal)
+        let electronicScore = scoreForCategory(.electronic)
+        let bioScore = scoreForCategory(.biological)
+
+        // LiDAR cover score: inverse of available cover (more cover = lower threat)
+        let lidarScore: Double
+        if let scan = lidarEngine.lastScanResult,
+           let terrain = scan.terrainAnalysis {
+            let coverCount = terrain.coverPositions.count
+            lidarScore = max(0, 10.0 - Double(coverCount) * 2.0) // More cover = lower score
+        } else {
+            lidarScore = 5.0 // Unknown = moderate
+        }
+
+        // Weighted overall score
+        let overall = min(10.0,
+            envScore * (scoreWeights[.environmental] ?? 0.15) +
+            structScore * (scoreWeights[.structural] ?? 0.25) +
+            humanScore * (scoreWeights[.human] ?? 0.30) +
+            temporalScore * (scoreWeights[.temporal] ?? 0.10) +
+            electronicScore * (scoreWeights[.electronic] ?? 0.15) +
+            bioScore * (scoreWeights[.biological] ?? 0.05) +
+            lidarScore * 0.10 // bonus weight for spatial awareness
+        )
+
+        return ThreatScoreBreakdown(
+            environmentalScore: envScore,
+            structuralScore: structScore,
+            humanScore: humanScore,
+            temporalScore: temporalScore,
+            networkIntelScore: electronicScore,
+            lidarCoverScore: lidarScore,
+            overallScore: overall,
+            timestamp: Date()
+        )
+    }
+
+    // MARK: - Publishers for AppState sync
+
+    var threatScorePublisher: AnyPublisher<Double, Never> {
+        $threatScore.eraseToAnyPublisher()
+    }
+
+    var threatLevelPublisher: AnyPublisher<ThreatLevel, Never> {
+        $threatLevel.eraseToAnyPublisher()
+    }
+
+    var activeThreatsPublisher: AnyPublisher<[Threat], Never> {
+        $activeThreats.eraseToAnyPublisher()
     }
 }

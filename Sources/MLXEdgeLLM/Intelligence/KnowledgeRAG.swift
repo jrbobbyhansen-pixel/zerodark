@@ -1,10 +1,13 @@
+// KnowledgeRAG.swift — Hybrid BM25 + MLX Vector Search with RRF Fusion
+// ZeroDark Intel Tab v6.0
+
 import Foundation
 import SwiftUI
 
 // MARK: - Models
 
 struct KnowledgeChunk: Identifiable {
-    let id = UUID()
+    let id: UUID
     let filename: String
     let title: String
     let category: KnowledgeCategory
@@ -12,10 +15,42 @@ struct KnowledgeChunk: Identifiable {
     let keywords: [String]
     var bm25Score: Double = 0
 
+    init(id: UUID = UUID(), filename: String, title: String,
+         category: KnowledgeCategory, content: String, keywords: [String]) {
+        self.id = id
+        self.filename = filename
+        self.title = title
+        self.category = category
+        self.content = content
+        self.keywords = keywords
+    }
+
     var summary: String {
         content.components(separatedBy: "\n")
             .first { !$0.hasPrefix("#") && !$0.isEmpty }
             .map { String($0.prefix(200)) } ?? String(content.prefix(200))
+    }
+}
+
+// MARK: - Scored Chunk (hybrid search result)
+
+struct ScoredChunk: Identifiable {
+    let id: UUID
+    let chunk: KnowledgeChunk
+    let score: Double
+    let matchType: MatchType
+
+    enum MatchType: String {
+        case keyword   // BM25 only
+        case semantic  // Vector only
+        case hybrid    // Both matched
+    }
+
+    init(chunk: KnowledgeChunk, score: Double, matchType: MatchType) {
+        self.id = chunk.id
+        self.chunk = chunk
+        self.score = score
+        self.matchType = matchType
     }
 }
 
@@ -84,7 +119,7 @@ enum KnowledgeCategory: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - BM25 RAG Engine
+// MARK: - Hybrid BM25 + Vector RAG Engine
 
 @MainActor
 final class KnowledgeRAG: ObservableObject {
@@ -93,8 +128,12 @@ final class KnowledgeRAG: ObservableObject {
     @Published var isLoaded = false
     @Published var fileCount = 0
     @Published var chunkCount = 0
+    @Published var isIndexed = false
+    @Published var indexProgress: Double = 0.0
 
     private var chunks: [KnowledgeChunk] = []
+    private let vectorStore = EmbeddedVectorStore.shared
+    private let embeddingEngine = MLXEmbeddingEngine.shared
 
     // BM25 parameters
     private let k1: Double = 1.5
@@ -110,10 +149,11 @@ final class KnowledgeRAG: ObservableObject {
         Task { await loadKnowledgeBase() }
     }
 
+    // MARK: - Loading
+
     func loadKnowledgeBase() async {
         let fm = FileManager.default
-        
-        // Try Knowledge folder first, then fall back to bundle root
+
         let searchURL: URL
         if let knowledgeURL = Bundle.main.url(forResource: "Knowledge", withExtension: nil) {
             searchURL = knowledgeURL
@@ -122,7 +162,7 @@ final class KnowledgeRAG: ObservableObject {
         } else {
             return
         }
-        
+
         guard let enumerator = fm.enumerator(at: searchURL, includingPropertiesForKeys: nil) else { return }
 
         var loaded: [KnowledgeChunk] = []
@@ -149,6 +189,59 @@ final class KnowledgeRAG: ObservableObject {
         chunkCount = loaded.count
         fileCount = files
         isLoaded = true
+
+        // Build vector index if MLX server is available
+        await buildVectorIndex()
+    }
+
+    // MARK: - Vector Index Building
+
+    func buildVectorIndex() async {
+        guard !chunks.isEmpty else { return }
+
+        // Check if already indexed
+        let existingCount = vectorStore.count(for: .knowledgeBase)
+        if existingCount == chunks.count {
+            isIndexed = true
+            indexProgress = 1.0
+            return
+        }
+
+        // Clear old knowledge base vectors
+        vectorStore.removeVectors(forSourceType: .knowledgeBase)
+
+        let texts = chunks.map { $0.content }
+        guard let embeddings = await embeddingEngine.batchEmbed(
+            texts: texts,
+            batchSize: 32,
+            onProgress: { [weak self] progress in
+                self?.indexProgress = progress
+            }
+        ) else {
+            // MLX server unavailable — degrade to BM25-only
+            isIndexed = false
+            return
+        }
+
+        // Store embeddings linked to chunk IDs
+        var newVectors: [EmbeddedVector] = []
+        for (i, chunk) in chunks.enumerated() {
+            newVectors.append(EmbeddedVector(
+                data: embeddings[i],
+                documentId: chunk.id.uuidString,
+                sourceType: .knowledgeBase,
+                metadata: [
+                    "title": chunk.title,
+                    "category": chunk.category.rawValue,
+                    "filename": chunk.filename
+                ]
+            ))
+        }
+        vectorStore.addVectors(newVectors)
+        vectorStore.save()
+
+        isIndexed = true
+        indexProgress = 1.0
     }
 
     // MARK: - BM25 Search
@@ -184,15 +277,15 @@ final class KnowledgeRAG: ObservableObject {
         }
     }
 
-    /// Build context string for text LLM prompt
-    func buildContext(for query: String, maxWords: Int = 600) -> String {
+    /// Synchronous context builder (BM25 only)
+    func buildContext(for query: String) -> String {
         let results = search(query: query, topK: 5)
         guard !results.isEmpty else { return "" }
         var context = "RELEVANT KNOWLEDGE BASE CONTENT:\n\n"
         var words = 0
         for chunk in results {
             let w = chunk.content.split(separator: " ").count
-            if words + w > maxWords { break }
+            if words + w > 600 { break }
             context += "[\(chunk.title)]\n\(chunk.content)\n\n"
             words += w
         }
@@ -202,6 +295,9 @@ final class KnowledgeRAG: ObservableObject {
     func chunks(for category: KnowledgeCategory) -> [KnowledgeChunk] {
         chunks.filter { $0.category == category }
     }
+
+    /// Access all chunks (for multi-modal indexing)
+    var allChunks: [KnowledgeChunk] { chunks }
 
     // MARK: - Helpers
 
@@ -239,7 +335,6 @@ final class KnowledgeRAG: ObservableObject {
     }
 
     private func inferCategory(from pathComponents: [String]) -> KnowledgeCategory {
-        // Check both path AND filename for category keywords (handles flattened bundles)
         let path = pathComponents.joined(separator: "/").lowercased()
         let filename = pathComponents.last?.lowercased() ?? ""
         let searchText = path + " " + filename

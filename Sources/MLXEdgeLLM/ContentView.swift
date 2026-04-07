@@ -7,7 +7,7 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             TabView(selection: $appState.selectedTab) {
-                TeamMapView()
+                MapTabView()
                     .tabItem { Label("Map", systemImage: "map.fill") }
                     .tag(AppTab.map)
 
@@ -77,6 +77,10 @@ struct ContentView: View {
             // Start Phase 2 systems
             GeofenceMonitor.shared.start()
             _ = TelemetryStore.shared  // Triggers adapter registration
+
+            // Phase v6: Intel/Threat cross-tab sync
+            AppState.shared.setupThreatSync()
+            _ = IntelCorpus.shared  // Triggers multi-modal index build
         }
     }
 }

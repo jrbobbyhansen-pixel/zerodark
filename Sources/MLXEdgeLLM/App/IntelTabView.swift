@@ -1,4 +1,5 @@
-// IntelTabView.swift — Combined Knowledge Base + Vision Analysis (Phase 15)
+// IntelTabView.swift — Intel Brain: Hybrid RAG + Threat Fusion + Verify Pipeline
+// ZeroDark Intel Tab v6.0
 
 import SwiftUI
 import PhotosUI
@@ -28,7 +29,7 @@ struct IntelTabView: View {
 
                 switch intelMode {
                 case .dashboard:
-                    TelemetryDashboard()
+                    IntelDashboardView()
                 case .knowledge:
                     KnowledgeContentView()
                 case .vision:
@@ -81,23 +82,234 @@ struct IntelTabView: View {
     }
 }
 
-// MARK: - Knowledge Content View
+// MARK: - Intel Dashboard (v6 — Threat Score Gauge + Status)
+
+struct IntelDashboardView: View {
+    @StateObject private var appState = AppState.shared
+    @StateObject private var analyzer = ThreatAnalyzer.shared
+    @StateObject private var corpus = IntelCorpus.shared
+    @StateObject private var embeddingEngine = MLXEmbeddingEngine.shared
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                // Threat Score Gauge
+                threatScoreGauge
+
+                // Status Cards
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    statusCard(
+                        icon: "brain",
+                        title: "Corpus",
+                        value: "\(corpus.totalDocuments)",
+                        subtitle: corpus.isReady ? "Indexed" : "Building...",
+                        color: corpus.isReady ? ZDDesign.successGreen : ZDDesign.safetyYellow
+                    )
+                    statusCard(
+                        icon: "cpu",
+                        title: "MLX Server",
+                        value: embeddingEngine.isReady ? "Online" : "Offline",
+                        subtitle: "127.0.0.1:8800",
+                        color: embeddingEngine.isReady ? ZDDesign.successGreen : ZDDesign.signalRed
+                    )
+                    statusCard(
+                        icon: "exclamationmark.triangle.fill",
+                        title: "Active Threats",
+                        value: "\(appState.activeThreatCount)",
+                        subtitle: appState.currentThreatLevel.description,
+                        color: threatLevelColor(appState.currentThreatLevel)
+                    )
+                    statusCard(
+                        icon: "doc.text.magnifyingglass",
+                        title: "Intel Updates",
+                        value: "\(appState.intelUpdateCount)",
+                        subtitle: "This session",
+                        color: ZDDesign.skyBlue
+                    )
+                }
+                .padding(.horizontal)
+
+                // Threat Breakdown
+                if let breakdown = analyzer.threatScoreBreakdown {
+                    threatBreakdownView(breakdown)
+                }
+
+                // Latest Intel Summary
+                if !appState.latestIntelSummary.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Latest Intel")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(ZDDesign.cyanAccent)
+                        Text(appState.latestIntelSummary)
+                            .font(.caption)
+                            .foregroundColor(ZDDesign.pureWhite)
+                            .lineLimit(4)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                    .background(ZDDesign.darkSage.opacity(0.2))
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                }
+            }
+            .padding(.vertical)
+        }
+    }
+
+    @ViewBuilder
+    private var threatScoreGauge: some View {
+        let score = appState.currentThreatScore
+        let color = scoreColor(score)
+
+        VStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .stroke(ZDDesign.darkSage.opacity(0.3), lineWidth: 12)
+                    .frame(width: 120, height: 120)
+
+                Circle()
+                    .trim(from: 0, to: CGFloat(score / 10.0))
+                    .stroke(color, style: StrokeStyle(lineWidth: 12, lineCap: .round))
+                    .frame(width: 120, height: 120)
+                    .rotationEffect(.degrees(-90))
+                    .animation(.easeInOut(duration: 0.5), value: score)
+
+                VStack(spacing: 2) {
+                    Text(String(format: "%.1f", score))
+                        .font(.system(size: 32, weight: .bold, design: .monospaced))
+                        .foregroundColor(color)
+                    Text("THREAT")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundColor(ZDDesign.mediumGray)
+                }
+            }
+
+            Text(appState.currentThreatLevel.description)
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(color)
+        }
+        .padding(.top, 8)
+    }
+
+    @ViewBuilder
+    private func threatBreakdownView(_ breakdown: ThreatAnalyzer.ThreatScoreBreakdown) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Threat Breakdown")
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(ZDDesign.cyanAccent)
+
+            breakdownRow("Environmental", score: breakdown.environmentalScore, color: ZDDesign.darkSage)
+            breakdownRow("Structural", score: breakdown.structuralScore, color: ZDDesign.earthBrown)
+            breakdownRow("Human", score: breakdown.humanScore, color: ZDDesign.signalRed)
+            breakdownRow("Temporal", score: breakdown.temporalScore, color: ZDDesign.skyBlue)
+            breakdownRow("Network Intel", score: breakdown.networkIntelScore, color: ZDDesign.cyanAccent)
+            breakdownRow("LiDAR Cover", score: breakdown.lidarCoverScore, color: ZDDesign.successGreen)
+        }
+        .padding()
+        .background(ZDDesign.darkSage.opacity(0.2))
+        .cornerRadius(12)
+        .padding(.horizontal)
+    }
+
+    @ViewBuilder
+    private func breakdownRow(_ label: String, score: Double, color: Color) -> some View {
+        HStack {
+            Text(label)
+                .font(.caption2)
+                .foregroundColor(ZDDesign.mediumGray)
+                .frame(width: 90, alignment: .leading)
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Rectangle()
+                        .fill(ZDDesign.darkSage.opacity(0.3))
+                        .frame(height: 6)
+                        .cornerRadius(3)
+                    Rectangle()
+                        .fill(color)
+                        .frame(width: geo.size.width * CGFloat(score / 10.0), height: 6)
+                        .cornerRadius(3)
+                }
+            }
+            .frame(height: 6)
+            Text(String(format: "%.1f", score))
+                .font(.caption2)
+                .foregroundColor(ZDDesign.pureWhite)
+                .frame(width: 30, alignment: .trailing)
+        }
+    }
+
+    private func statusCard(icon: String, title: String, value: String,
+                            subtitle: String, color: Color) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.title3)
+                .foregroundColor(color)
+            Text(value)
+                .font(.headline)
+                .foregroundColor(ZDDesign.pureWhite)
+            Text(title)
+                .font(.caption)
+                .foregroundColor(ZDDesign.mediumGray)
+            Text(subtitle)
+                .font(.caption2)
+                .foregroundColor(color.opacity(0.8))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(12)
+        .background(ZDDesign.darkSage.opacity(0.2))
+        .cornerRadius(12)
+    }
+
+    private func scoreColor(_ score: Double) -> Color {
+        switch score {
+        case 0..<2:   return ZDDesign.successGreen
+        case 2..<4:   return ZDDesign.skyBlue
+        case 4..<6:   return ZDDesign.safetyYellow
+        case 6..<8:   return ZDDesign.warningOrange
+        default:      return ZDDesign.signalRed
+        }
+    }
+
+    private func threatLevelColor(_ level: ThreatLevel) -> Color {
+        switch level {
+        case .none:     return ZDDesign.successGreen
+        case .low:      return ZDDesign.skyBlue
+        case .medium:   return ZDDesign.safetyYellow
+        case .high:     return ZDDesign.warningOrange
+        case .critical: return ZDDesign.signalRed
+        }
+    }
+}
+
+// MARK: - Knowledge Content View (v6 — Hybrid Search + Verify)
 
 struct KnowledgeContentView: View {
     @StateObject private var rag = KnowledgeRAG.shared
+    @StateObject private var corpus = IntelCorpus.shared
     @StateObject private var inference = TextInferenceClient.shared
     @StateObject private var engine = LocalInferenceEngine.shared
     @StateObject private var protocolDB = ProtocolDatabase.shared
+    private let verifyPipeline = VerifyPipeline.shared
     @State private var mode: KnowledgeMode = .ask
     @State private var searchQuery = ""
     @State private var userQuestion = ""
-    @State private var messages: [(role: String, content: String)] = []
+    @State private var messages: [IntelMessage] = []
     @State private var isLoading = false
-    @State private var selectedChunk: KnowledgeChunk? = nil
-    @State private var selectedCategory: KnowledgeCategory? = nil
     @State private var streamTask: Task<Void, Never>? = nil
     @State private var fontSize: CGFloat = 14
     @State private var matchedProtocol: TacticalProtocol? = nil
+
+    struct IntelMessage: Identifiable {
+        let id = UUID()
+        let role: String
+        let content: String
+        var verification: VerificationResult?
+        var sources: [MultiModalResult]?
+    }
 
     enum KnowledgeMode { case ask, browse }
 
@@ -121,18 +333,17 @@ struct KnowledgeContentView: View {
         }
     }
 
-    // Quick prompts mapped to protocol keywords for instant matching
     let quickPrompts = [
-        "Sucking chest wound",           // → Sucking Chest Wound protocol
-        "Tourniquet",                     // → Tourniquet Application protocol
-        "CPR",                            // → CPR - Adult protocol
-        "Severe bleeding",                // → Severe Bleeding Control protocol
-        "Observation post setup",         // → Observation Post Setup protocol
-        "Find water",                     // → Water Procurement protocol
-        "Start fire",                     // → Fire Starting protocol
-        "Emergency shelter",              // → Emergency Shelter protocol
-        "React to contact",               // → React to Contact protocol
-        "Being followed"                  // → Surveillance Detection protocol
+        "Sucking chest wound",
+        "Tourniquet",
+        "CPR",
+        "Severe bleeding",
+        "Observation post setup",
+        "Find water",
+        "Start fire",
+        "Emergency shelter",
+        "React to contact",
+        "Being followed"
     ]
 
     var body: some View {
@@ -182,12 +393,33 @@ struct KnowledgeContentView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         if messages.isEmpty {
                             VStack(spacing: 16) {
-                                Text("Ask Survival Questions")
+                                Text("Intel Search")
                                     .font(.headline)
                                     .foregroundColor(ZDDesign.pureWhite)
-                                Text("Get AI-powered answers from the knowledge base")
+                                Text("Hybrid AI search across all intelligence sources")
                                     .font(.caption)
                                     .foregroundColor(ZDDesign.mediumGray)
+
+                                // Index status
+                                if corpus.isReady {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(ZDDesign.successGreen)
+                                        Text("\(corpus.totalDocuments) documents indexed")
+                                            .font(.caption2)
+                                            .foregroundColor(ZDDesign.mediumGray)
+                                    }
+                                } else if corpus.isIndexing {
+                                    HStack(spacing: 4) {
+                                        ProgressView()
+                                            .tint(ZDDesign.safetyYellow)
+                                            .scaleEffect(0.7)
+                                        Text("Indexing corpus...")
+                                            .font(.caption2)
+                                            .foregroundColor(ZDDesign.safetyYellow)
+                                    }
+                                }
+
                                 Divider()
                                 VStack(spacing: 8) {
                                     ForEach(quickPrompts, id: \.self) { prompt in
@@ -205,30 +437,9 @@ struct KnowledgeContentView: View {
                             }
                             .padding()
                         } else {
-                            ForEach(Array(messages.enumerated()), id: \.offset) { idx, msg in
-                                HStack(alignment: .top) {
-                                    if msg.role == "user" {
-                                        Spacer()
-                                        VStack(alignment: .trailing) {
-                                            Text(msg.content)
-                                                .font(.body)
-                                                .padding(10)
-                                                .background(ZDDesign.skyBlue.opacity(0.7))
-                                                .cornerRadius(8)
-                                        }
-                                    } else {
-                                        VStack(alignment: .leading) {
-                                            Text(msg.content)
-                                                .font(.body)
-                                                .padding(10)
-                                                .background(ZDDesign.darkSage.opacity(0.3))
-                                                .cornerRadius(8)
-                                        }
-                                        Spacer()
-                                    }
-                                }
-                                .padding(.horizontal)
-                                .id(idx)
+                            ForEach(messages) { msg in
+                                MessageBubbleView(message: msg)
+                                    .id(msg.id)
                             }
                             if isLoading {
                                 HStack {
@@ -246,7 +457,9 @@ struct KnowledgeContentView: View {
                     .padding(.vertical)
                     .onChange(of: messages.count) {
                         withAnimation {
-                            proxy.scrollTo(messages.count - 1)
+                            if let lastId = messages.last?.id {
+                                proxy.scrollTo(lastId)
+                            }
                         }
                     }
                 }
@@ -413,46 +626,92 @@ struct KnowledgeContentView: View {
         }
     }
 
+    // MARK: - Ask Question (v6 — Hybrid Search + Verify Pipeline)
+
     private func askQuestion(_ question: String) {
-        messages.append(("user", question))
-        
-        // LAYER 1: Instant Protocol Match (<100ms) — Life or death needs FAST + ACCURATE
+        messages.append(IntelMessage(role: "user", content: question))
+
+        // LAYER 1: Instant Protocol Match (<100ms)
         if let proto = protocolDB.quickMatch(query: question) {
-            // Show protocol card immediately
             matchedProtocol = proto
-            messages.append(("assistant", "PROTOCOL MATCHED — Tap to view full card"))
+            messages.append(IntelMessage(role: "assistant", content: "PROTOCOL MATCHED — Tap to view full card"))
             return
         }
-        
-        // LAYER 2: RAG Search (<500ms) — Knowledge base lookup
-        let ragResults = rag.search(query: question, topK: 3)
-        if !ragResults.isEmpty {
-            let ragAnswer = ragResults.map { chunk in
-                "**\(chunk.title)**\n\(chunk.content)"
-            }.joined(separator: "\n\n---\n\n")
-            messages.append(("assistant", ragAnswer))
-            return
-        }
-        
-        // LAYER 3: AI Synthesis (5-10s) — Only if no protocol or RAG match
+
+        // LAYER 2: Hybrid Multi-Modal RAG Search (<500ms)
         isLoading = true
         streamTask = Task {
+            let results = await corpus.search(query: question, topK: 5)
+
+            if !results.isEmpty {
+                let answer = results.map { result in
+                    "**\(result.title)** _(\(result.sourceLabel))_\n\(result.content)"
+                }.joined(separator: "\n\n---\n\n")
+
+                // Verify the answer
+                let verification = verifyPipeline.verify(
+                    response: answer, query: question, sourceResults: results
+                )
+
+                await MainActor.run {
+                    messages.append(IntelMessage(
+                        role: "assistant",
+                        content: answer,
+                        verification: verification,
+                        sources: results
+                    ))
+                    isLoading = false
+
+                    // Post intel event
+                    AppState.shared.postIntelEvent(.newSearchResult(query: question, resultCount: results.count))
+                    AppState.shared.updateIntelSummary(String(answer.prefix(200)))
+                }
+                return
+            }
+
+            // LAYER 3: AI Synthesis (5-10s) — Only if no RAG match
             do {
-                let context = rag.buildContext(for: question)
+                let context = await corpus.buildContext(for: question)
                 let stream = try await inference.ask(question: question, context: context)
-                await MainActor.run { messages.append(("assistant", "")) }
+                await MainActor.run {
+                    messages.append(IntelMessage(role: "assistant", content: ""))
+                }
+                var fullResponse = ""
                 for try await chunk in stream {
+                    fullResponse += chunk
                     await MainActor.run {
-                        if messages.last?.role == "assistant" {
-                            let updated = (messages.last?.content ?? "") + chunk
-                            messages[messages.count - 1] = ("assistant", updated)
+                        if let lastIndex = messages.indices.last,
+                           messages[lastIndex].role == "assistant" {
+                            messages[lastIndex] = IntelMessage(
+                                role: "assistant",
+                                content: fullResponse
+                            )
                         }
                     }
                 }
-                await MainActor.run { isLoading = false }
+
+                // Post-stream verify
+                let ragResults = await corpus.search(query: question, topK: 3)
+                let verification = verifyPipeline.verify(
+                    response: fullResponse, query: question, sourceResults: ragResults
+                )
+                await MainActor.run {
+                    if let lastIndex = messages.indices.last {
+                        messages[lastIndex] = IntelMessage(
+                            role: "assistant",
+                            content: fullResponse,
+                            verification: verification,
+                            sources: ragResults
+                        )
+                    }
+                    isLoading = false
+                }
             } catch {
                 await MainActor.run {
-                    messages.append(("assistant", "No information found. Try rephrasing your question."))
+                    messages.append(IntelMessage(
+                        role: "assistant",
+                        content: "No information found. Try rephrasing your question."
+                    ))
                     isLoading = false
                 }
             }
@@ -460,11 +719,104 @@ struct KnowledgeContentView: View {
     }
 }
 
-// MARK: - Vision Content View
+// MARK: - Message Bubble with Verification Badge
+
+struct MessageBubbleView: View {
+    let message: KnowledgeContentView.IntelMessage
+
+    var body: some View {
+        HStack(alignment: .top) {
+            if message.role == "user" {
+                Spacer()
+                VStack(alignment: .trailing) {
+                    Text(message.content)
+                        .font(.body)
+                        .padding(10)
+                        .background(ZDDesign.skyBlue.opacity(0.7))
+                        .cornerRadius(8)
+                }
+            } else {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(message.content)
+                        .font(.body)
+                        .padding(10)
+                        .background(ZDDesign.darkSage.opacity(0.3))
+                        .cornerRadius(8)
+
+                    // Verification badge
+                    if let verification = message.verification {
+                        HStack(spacing: 4) {
+                            Image(systemName: verificationIcon(verification))
+                                .font(.caption2)
+                                .foregroundColor(verificationColor(verification))
+                            Text(verificationLabel(verification))
+                                .font(.caption2)
+                                .foregroundColor(verificationColor(verification))
+
+                            if let disclaimer = verification.suggestedDisclaimer {
+                                Text("— \(disclaimer)")
+                                    .font(.caption2)
+                                    .foregroundColor(ZDDesign.mediumGray)
+                                    .lineLimit(1)
+                            }
+                        }
+                        .padding(.horizontal, 4)
+                    }
+
+                    // Source attribution badges
+                    if let sources = message.sources, !sources.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 6) {
+                                ForEach(Array(Set(sources.map(\.source))), id: \.rawValue) { source in
+                                    let result = sources.first { $0.source == source }!
+                                    HStack(spacing: 3) {
+                                        Image(systemName: result.sourceIcon)
+                                            .font(.system(size: 9))
+                                        Text(result.sourceLabel)
+                                            .font(.system(size: 9))
+                                    }
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 3)
+                                    .background(result.sourceColor.opacity(0.2))
+                                    .foregroundColor(result.sourceColor)
+                                    .cornerRadius(4)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 4)
+                    }
+                }
+                Spacer()
+            }
+        }
+        .padding(.horizontal)
+    }
+
+    private func verificationIcon(_ v: VerificationResult) -> String {
+        if v.isVerified && v.confidence > 0.8 { return "checkmark.shield.fill" }
+        if v.confidence > 0.5 { return "exclamationmark.shield.fill" }
+        return "xmark.shield.fill"
+    }
+
+    private func verificationColor(_ v: VerificationResult) -> Color {
+        if v.isVerified && v.confidence > 0.8 { return ZDDesign.successGreen }
+        if v.confidence > 0.5 { return ZDDesign.safetyYellow }
+        return ZDDesign.signalRed
+    }
+
+    private func verificationLabel(_ v: VerificationResult) -> String {
+        if v.isVerified && v.confidence > 0.8 { return "Verified (\(Int(v.confidence * 100))%)" }
+        if v.confidence > 0.5 { return "Partial (\(Int(v.confidence * 100))%)" }
+        return "Unverified"
+    }
+}
+
+// MARK: - Vision Content View (v6 — Auto-ingest to IntelCorpus)
 
 struct VisionContentView: View {
     @StateObject private var rag = KnowledgeRAG.shared
     @StateObject private var vision = VisionInferenceClient.shared
+    @StateObject private var corpus = IntelCorpus.shared
     @State private var selectedImage: UIImage? = nil
     @State private var selectedMode: VisionMode = .plantId
     @State private var showImagePicker = false
@@ -649,6 +1001,15 @@ struct VisionContentView: View {
                     answer = result
                     isAnalyzing = false
                 }
+                // v6: Auto-ingest analysis into IntelCorpus
+                await corpus.ingestPhotoAnalysis(
+                    photoId: UUID(),
+                    analysisText: result,
+                    metadata: [
+                        "mode": selectedMode.rawValue,
+                        "question": question
+                    ]
+                )
             } catch {
                 await MainActor.run {
                     answer = "Error analyzing image: \(error.localizedDescription)"
