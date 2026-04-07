@@ -38,16 +38,21 @@ public enum TacticalRouteType: String, CaseIterable {
 
 /// Tactical route overlay (polyline-based)
 public class TacticalRouteOverlay: MKPolyline, TacticalOverlay {
-    public let routeType: TacticalRouteType
-
-    public init(coordinates: [CLLocationCoordinate2D], type: TacticalRouteType) {
-        self.routeType = type
-        super.init(coordinates: coordinates, count: coordinates.count)
+    private static var routeTypeStorage = [ObjectIdentifier: TacticalRouteType]()
+    
+    public var routeType: TacticalRouteType {
+        Self.routeTypeStorage[ObjectIdentifier(self)] ?? .planned
     }
 
-    @available(*, unavailable)
-    public required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    public static func create(coordinates: [CLLocationCoordinate2D], type: TacticalRouteType) -> TacticalRouteOverlay {
+        var coords = coordinates
+        let overlay = TacticalRouteOverlay(coordinates: &coords, count: coords.count)
+        routeTypeStorage[ObjectIdentifier(overlay)] = type
+        return overlay
+    }
+    
+    deinit {
+        Self.routeTypeStorage.removeValue(forKey: ObjectIdentifier(self))
     }
 }
 

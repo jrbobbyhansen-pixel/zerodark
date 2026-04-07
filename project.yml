@@ -45,6 +45,9 @@ targets:
       - path: Sources/MLXEdgeLLM/Resources/Models/phi-3.5-mini.gguf
         buildPhase: resources
         type: file
+      - path: Sources/MLXEdgeLLM/Resources/Models/YOLOv8n.mlpackage
+        buildPhase: resources
+        type: folder
       - path: Sources/MLXEdgeLLM/Resources/Assets.xcassets
         type: folder
     settings:

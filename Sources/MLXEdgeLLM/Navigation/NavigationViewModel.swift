@@ -2,7 +2,7 @@
 import Foundation
 import MapKit
 
-struct Waypoint: Identifiable {
+struct NavViewWaypoint: Identifiable {
     let id = UUID()
     var name: String
     var coordinate: CLLocationCoordinate2D
@@ -14,12 +14,12 @@ struct Waypoint: Identifiable {
 
 @MainActor
 class NavigationViewModel: ObservableObject {
-    @Published var waypoints: [Waypoint] = []
+    @Published var waypoints: [NavViewWaypoint] = []
     @Published var isScanning = false
     @Published var downloadProgress: Double = 0
     @Published var selectedRegion: String = "default"
     
-    func addWaypoint(_ waypoint: Waypoint) {
+    func addNavViewWaypoint(_ waypoint: NavViewWaypoint) {
         waypoints.append(waypoint)
     }
     

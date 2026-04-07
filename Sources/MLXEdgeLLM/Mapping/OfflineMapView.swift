@@ -142,7 +142,7 @@ final class WaypointAnnotation: NSObject, MKAnnotation {
         String(format: "%.0fm", waypoint.altitude)
     }
     
-    init(waypoint: Waypoint) {
+    init(waypoint: NavWaypoint) {
         self.waypoint = waypoint
         super.init()
     }

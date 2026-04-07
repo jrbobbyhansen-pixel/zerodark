@@ -1,14 +1,44 @@
-
+# macOS
 .DS_Store
 
+# Xcode
 .build/
-
 .swiftpm/
-
-Sources/MLXEdgeLLMExample/MLXEdgeLLMExample.xcodeproj/xcuserdata/
-
-Sources/MLXEdgeLLMExample/MLXEdgeLLMExample.xcodeproj/project.xcworkspace/xcuserdata/
+xcuserdata/
+*.xcuserstate
+DerivedData/
 
 # Large model files
 *.gguf
 *.bin
+*.pt
+*.mlpackage
+*.mlmodel
+
+# Dev logs & specs (internal)
+grind-log-*.txt
+grind-summary*.json
+verify-pipeline.log
+zerodark-*.log
+specs/
+specs-mlx/
+
+# Internal dev docs
+CLAUDE_CODE_*.md
+PHASE*.md
+STACK_TO_250B.md
+BUILD_STATUS.md
+BUILD_SPEC_TEMPLATE.md
+LIDAR_PERSISTENCE_SPEC.md
+ZERODARK_COMPLETE.md
+ZERODARK_MATRIX.md
+ZERODARK_BL_STATUS.md
+ZERODARK_RL_STATUS.md
+VERIFY_STATUS.md
+TYPE_CONFLICTS.md
+
+# Disabled modules archive
+_disabled_modules/
+
+# Scripts (internal tooling)
+scripts/

@@ -4,16 +4,20 @@ import MapKit
 
 /// Threat zone overlay (circle-based)
 public class ThreatZoneOverlay: MKCircle, TacticalOverlay {
-    public let threatLevel: Int  // 1-5
-
-    public init(center: CLLocationCoordinate2D, radius: CLLocationDistance, threatLevel: Int) {
-        self.threatLevel = max(1, min(threatLevel, 5))
-        super.init(center: center, radius: radius)
+    private static var threatLevelStorage = [ObjectIdentifier: Int]()
+    
+    public var threatLevel: Int {  // 1-5
+        Self.threatLevelStorage[ObjectIdentifier(self)] ?? 1
     }
 
-    @available(*, unavailable)
-    public required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    public static func create(center: CLLocationCoordinate2D, radius: CLLocationDistance, threatLevel: Int) -> ThreatZoneOverlay {
+        let overlay = ThreatZoneOverlay(center: center, radius: radius)
+        threatLevelStorage[ObjectIdentifier(overlay)] = max(1, min(threatLevel, 5))
+        return overlay
+    }
+    
+    deinit {
+        Self.threatLevelStorage.removeValue(forKey: ObjectIdentifier(self))
     }
 }
 

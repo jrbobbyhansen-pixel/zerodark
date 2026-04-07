@@ -35,6 +35,13 @@ struct LiDARScanConfig {
         case high     // Maximum detail
         case adaptive // Based on content
     }
+
+    // Pipeline feature flags (v2.0)
+    var enableKalmanFusion: Bool = true
+    var enableYOLO: Bool = true
+    var enableRangeExtension: Bool = true
+    var enableClutterFilter: Bool = true
+    var enableHapticOverlay: Bool = true
 }
 
 // MARK: - Scan Result
@@ -378,7 +385,11 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
 
     // Configuration
     var config = LiDARScanConfig()
-    
+
+    // Enhanced LiDAR Pipeline (Kalman + ClutterFilter + YOLO + Haptics)
+    private(set) var pipeline: LiDARPipeline?
+    var pipelineConfig = LiDARPipelineConfig.recommended()
+
     // Location
     private var locationManager: CLLocationManager?
     private var currentLocation: CLLocationCoordinate2D?
@@ -454,6 +465,11 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
 
         analysisStatus = "Scanning..."
 
+        // Start enhanced pipeline (Kalman fusion, YOLO detection, haptic overlay)
+        let pipe = LiDARPipeline(config: pipelineConfig)
+        self.pipeline = pipe
+        Task { await pipe.start() }
+
         // Reset guidance tracking
         scanGuidance = .goodCoverage
         pointsPerSecond = 0
@@ -475,6 +491,8 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
     func stopScan() {
         isScanning = false
         arSession?.pause()
+        pipeline?.stop()
+        pipeline = nil
 
         guard let startTime = scanStartTime else { return }
 
@@ -1583,24 +1601,49 @@ extension LiDARCaptureEngine: ARSessionDelegate {
         let confidenceMap = depthData.confidenceMap
         let camera = frame.camera
         let transform = frame.camera.transform
-        
+        let frameTimestamp = frame.timestamp
+
+        // Capture the full ARFrame for pipeline processing (YOLO, Kalman update)
+        let capturedFrame = frame
+
         Task { @MainActor [weak self] in
             guard let self, isScanning else { return }
-            
+
+            // Feed frame to enhanced pipeline (YOLO detection + Kalman LiDAR update + haptics)
+            _ = pipeline?.processFrame(capturedFrame)
+
+            // Use fused transform if Kalman fusion is active, otherwise raw ARKit transform
+            let fusedTransform = pipeline?.fusedTransform(at: frameTimestamp) ?? transform
+
             // Snapshot config on main actor (safe), then dispatch extraction off-thread
             let capturedConfig = config
-            
+            let capturedPipeline = pipeline
+
             Task.detached(priority: .userInitiated) { [weak self] in
                 guard let self else { return }
-                
+
                 // Extract points OFF the main thread — doesn't block UI at all
                 let newPoints = self.extractPointsFromDepth(
                     depthMap: depthMap,
                     confidenceMap: confidenceMap,
                     camera: camera,
-                    transform: transform,
+                    transform: fusedTransform,
                     config: capturedConfig
                 )
+
+                // Run through pipeline: undistortion + clutter filter
+                let processed: [SIMD3<Float>]
+                if let pipeline = capturedPipeline {
+                    let result = await pipeline.processPoints(
+                        newPoints,
+                        frameStartTime: frameTimestamp - 0.033, // ~30fps
+                        frameEndTime: frameTimestamp
+                    )
+                    processed = result.filtered
+                } else {
+                    processed = newPoints
+                }
+                let newPointsFinal = processed
                 
                 // Minimal main actor hop: just append + increment + update coverage
                 await MainActor.run {
@@ -1617,8 +1660,8 @@ extension LiDARCaptureEngine: ARSessionDelegate {
                     }
 
                     // Always capture every frame for maximum quality
-                    self.streamPointsToDisk(newPoints)
-                    
+                    self.streamPointsToDisk(newPointsFinal)
+
                     // Update coverage grid based on camera look direction
                     // Extract yaw (horizontal) and pitch (vertical) from camera transform
                     let forward = SIMD3<Float>(-transform.columns.2.x, -transform.columns.2.y, -transform.columns.2.z)
@@ -1630,7 +1673,7 @@ extension LiDARCaptureEngine: ARSessionDelegate {
                     let row = Int((pitch + .pi/2) / .pi * 8) % 8
                     
                     // Increment cell density
-                    self.coverageGrid[row][col] += Float(newPoints.count) / 10000.0  // Normalize
+                    self.coverageGrid[row][col] += Float(newPointsFinal.count) / 10000.0  // Normalize
                     if self.coverageGrid[row][col] > self.maxCellDensity {
                         self.maxCellDensity = self.coverageGrid[row][col]
                     }
