@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		009F1B2E9357A4601A4701C3 /* 35-heat-injuries.md in Resources */ = {isa = PBXBuildFile; fileRef = 428A93DEE055293DB509BBC0 /* 35-heat-injuries.md */; };
+		00B3002E0B4DF0CACD584920 /* NavState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E49EA4E2F5E1B015F088E72E /* NavState.swift */; };
 		01CD9BC0A9C34877E82138F7 /* 40-infections-sepsis.md in Resources */ = {isa = PBXBuildFile; fileRef = 5D63E6E785FB6E0400A3087E /* 40-infections-sepsis.md */; };
 		021392BFE0544F5A799DD9A3 /* llmfarm_core in Frameworks */ = {isa = PBXBuildFile; productRef = E2093A3EC8DEFC1CDB8F2E3B /* llmfarm_core */; };
 		03D59C53CA5D84FF1BDE6374 /* 22-terrain-association.md in Resources */ = {isa = PBXBuildFile; fileRef = BE51EF5DA4224F5291F2F4A1 /* 22-terrain-association.md */; };
@@ -24,6 +25,7 @@
 		101155C8161E7867AFD18449 /* FreeTAKConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1236A84CA53FB933D59B17D7 /* FreeTAKConnector.swift */; };
 		1180649CB9081E301C133C3D /* 106-stress-leadership.md in Resources */ = {isa = PBXBuildFile; fileRef = 4885B2171261ADAA73226B07 /* 106-stress-leadership.md */; };
 		12DF4D8B43A1840E35E7240F /* 64-salute-reporting.md in Resources */ = {isa = PBXBuildFile; fileRef = 03074ABD965482838F946A7A /* 64-salute-reporting.md */; };
+		139F7A7B165F7B1E602D3B50 /* ProtobufHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91E7889F25A1B0A83A9D6B9 /* ProtobufHelpers.swift */; };
 		13E3CFEA2482EA123678720F /* 21-compass-basics.md in Resources */ = {isa = PBXBuildFile; fileRef = 65C898E964CB4CCDEF5CF30D /* 21-compass-basics.md */; };
 		1416BBA333A969E5AC6919C6 /* 24-breaching.md in Resources */ = {isa = PBXBuildFile; fileRef = 18C8218B6996382F3A9B69F4 /* 24-breaching.md */; };
 		160F3986FDF752C0C48A54CF /* 12-airway-management.md in Resources */ = {isa = PBXBuildFile; fileRef = 756BA45925B2332731FF74B4 /* 12-airway-management.md */; };
@@ -35,15 +37,14 @@
 		1A8349E49891422C5EF7A8C7 /* 33-burns.md in Resources */ = {isa = PBXBuildFile; fileRef = D38277423CF8071BEC3367D0 /* 33-burns.md */; };
 		1C50A89A818D96E849C7DEB8 /* DTNBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBA992FB37767A262BB3890 /* DTNBundle.swift */; };
 		1C64C3783E773BDBBC291702 /* SubmapStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79B61EBA71619273CA562AC1 /* SubmapStore.swift */; };
+		1C6C568FCE967CECA8B6B2D1 /* ReportsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE535710C34F8B3F12F6A0C /* ReportsSection.swift */; };
 		1C91003C38AF1188D7CC5AB9 /* 15-burns-treatment.md in Resources */ = {isa = PBXBuildFile; fileRef = 87E3C7A55C37F74648654CE7 /* 15-burns-treatment.md */; };
 		1D0B86A78B3C173D91F8A90D /* MeshKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E291221591463503FC08675 /* MeshKeychain.swift */; };
 		1D90F37C3F3808D8D42A6D5A /* 61-dead-drops-signals.md in Resources */ = {isa = PBXBuildFile; fileRef = 8520149AC05C658BC74C77A3 /* 61-dead-drops-signals.md */; };
 		1DDF2CEE611A4B68FAB2BB4F /* 101-field-repairs.md in Resources */ = {isa = PBXBuildFile; fileRef = 9D9883D13CD45D005E201135 /* 101-field-repairs.md */; };
-		1EEEE262623EC1AC44F8FF65 /* TacticalNavigationStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = D531DEB6CCD52410EC3A4717 /* TacticalNavigationStack.swift */; };
 		1EF8E2376E90B06BC5F87BF5 /* TeamAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80107CDDDFB56C37B087CE41 /* TeamAdapter.swift */; };
 		1F5BB9789D7A96CE565A5A36 /* 42-envenomation.md in Resources */ = {isa = PBXBuildFile; fileRef = B5D9C81FEFB9FD795047091D /* 42-envenomation.md */; };
 		1F6438726263F7005AC814C9 /* 49-defensive-positions.md in Resources */ = {isa = PBXBuildFile; fileRef = E32916B108E825CC232980F5 /* 49-defensive-positions.md */; };
-		1FEA22D207D4C574BAA7FCA4 /* TacticalNavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4198BBC900CFFAC0464A8744 /* TacticalNavigationView.swift */; };
 		20E76B0E038ED4D52DA48602 /* ThreatFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A3BDB8484E013936AC1F2DC /* ThreatFeedView.swift */; };
 		21778BD6C389C950790377DA /* 98-vehicle-recovery.md in Resources */ = {isa = PBXBuildFile; fileRef = CFE9734B320EB33B158C4DC6 /* 98-vehicle-recovery.md */; };
 		21ECBAA1A6508466E9A7AD46 /* 37-medevac-9line.md in Resources */ = {isa = PBXBuildFile; fileRef = 2FA4D5224172FF3A14A3293F /* 37-medevac-9line.md */; };
@@ -57,6 +58,7 @@
 		279D428ACADDB02EBF1CA7FC /* 96-weather-advanced.md in Resources */ = {isa = PBXBuildFile; fileRef = 9FFBCEA83A8B4F5D40F5F38D /* 96-weather-advanced.md */; };
 		28D0BBAD3B988A94BA549AC9 /* 28-opsec.md in Resources */ = {isa = PBXBuildFile; fileRef = CB330F2912EDB5E1F47E0E63 /* 28-opsec.md */; };
 		28E95C622B491D0865EBCADF /* HapticComms.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDE1912091A47874F377EE2 /* HapticComms.swift */; };
+		294830B20798E56FFFE621D0 /* MedicalSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33A33B7DAAEBA27C94E86936 /* MedicalSection.swift */; };
 		29494AEB866625B0C95E0BF6 /* 82-resistance-interrogation.md in Resources */ = {isa = PBXBuildFile; fileRef = 37642FE0C4F8737854DC4072 /* 82-resistance-interrogation.md */; };
 		29A1C3EAFD9A2C9C839E0C53 /* PTTController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F20DE55DC35C8429F49BEBD /* PTTController.swift */; };
 		29B19B89779728304EE1685A /* 105-task-organization.md in Resources */ = {isa = PBXBuildFile; fileRef = 16D3A1BEA24FA7769815DD93 /* 105-task-organization.md */; };
@@ -91,6 +93,7 @@
 		3FBF37DC84655E1C7901359C /* 62-emcon.md in Resources */ = {isa = PBXBuildFile; fileRef = 09FD18B93302ECFAC569C567 /* 62-emcon.md */; };
 		402403A7846CB3AA1BDA0D35 /* GridMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1648A7CC585943EE23962BC6 /* GridMap.swift */; };
 		40748EFEF5292178B8E7F48C /* 20-nutritional-priorities.md in Resources */ = {isa = PBXBuildFile; fileRef = 3411CEB34FB7F0CBAF482FAC /* 20-nutritional-priorities.md */; };
+		411038326FB55F5CF92BBBA4 /* OpsCommsStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = E97D5D1D2AC35F910EE2B99A /* OpsCommsStrip.swift */; };
 		422314F932947AAFCDA7571A /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175F3AE21D3981C5AA570B9A /* Errors.swift */; };
 		4229BA1877819B1408CADBB2 /* 88-urban-camouflage.md in Resources */ = {isa = PBXBuildFile; fileRef = 2089C06C6AD748D74164A6BA /* 88-urban-camouflage.md */; };
 		429A3507E4A298450DC56E5F /* 44-patrol-formations.md in Resources */ = {isa = PBXBuildFile; fileRef = 121901D1E2386E91A767BEA4 /* 44-patrol-formations.md */; };
@@ -99,7 +102,6 @@
 		44C926FE792CF12547ACD79B /* 39-improvised-medicine.md in Resources */ = {isa = PBXBuildFile; fileRef = B89E8BD8B53DF2AE91C4F8D9 /* 39-improvised-medicine.md */; };
 		451A27D18B9FD3C3731D9891 /* CursorOnTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB5B97207BFC2E0FE094AD3E /* CursorOnTarget.swift */; };
 		4614DF817F7972DED626E039 /* 29-information-collection.md in Resources */ = {isa = PBXBuildFile; fileRef = 8178819E1280B19547EDB026 /* 29-information-collection.md */; };
-		46B267946581C4988DE7E096 /* NavigationTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3B082DF4955A3A70616623 /* NavigationTypes.swift */; };
 		47D2F599E4014C5742A44D17 /* TacticalWaypointStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80FF995E84AECE23548C8D45 /* TacticalWaypointStore.swift */; };
 		47F01383A33A0EC15EA7F55B /* 80-anti-tracking-advanced.md in Resources */ = {isa = PBXBuildFile; fileRef = AF5B8A9B22C4E26C6A386BCA /* 80-anti-tracking-advanced.md */; };
 		4849EBDBDA205541CD3C1ED8 /* 04-food-procurement.md in Resources */ = {isa = PBXBuildFile; fileRef = 5A4866F478E54AFA78B1624E /* 04-food-procurement.md */; };
@@ -111,6 +113,7 @@
 		4A6C63A11AC381278E3047B4 /* 30-airway-management.md in Resources */ = {isa = PBXBuildFile; fileRef = 8CA0E00A286A79273BAC326D /* 30-airway-management.md */; };
 		4B01BB59394FDE998AA9D63A /* TileDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F819DE76DF2DE629B015041 /* TileDownloadView.swift */; };
 		4BF90C18A8341814121CA44E /* 83-isolation-procedures.md in Resources */ = {isa = PBXBuildFile; fileRef = 634AC23447A314BF7E91004B /* 83-isolation-procedures.md */; };
+		4C5ACCA71156D3A27B7A4FFA /* BreadcrumbEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2149600A31F68A82031CC037 /* BreadcrumbEngine.swift */; };
 		4DFA23CC013921B8B1C96920 /* 05-navigation-land.md in Resources */ = {isa = PBXBuildFile; fileRef = 788B09ED58675CE2713C7506 /* 05-navigation-land.md */; };
 		4E7DD8782382A33DFEEE1BBD /* MeshtasticBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10C5593F58FC6F21D22293A8 /* MeshtasticBridge.swift */; };
 		4F1FCB204D8AB3C59739DBCB /* OfflineMapEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E712FB353E8B24FD2F2B58 /* OfflineMapEngine.swift */; };
@@ -143,12 +146,13 @@
 		6B85B0A7072E4DB562AB312B /* 23-celestial-navigation.md in Resources */ = {isa = PBXBuildFile; fileRef = 964638BA53DF3A9EE11AEAB1 /* 23-celestial-navigation.md */; };
 		6BAAEDE6BC9BE026EA05C861 /* 86-urban-water-food.md in Resources */ = {isa = PBXBuildFile; fileRef = EEEC971AC9F2B89F904029A9 /* 86-urban-water-food.md */; };
 		6BAD47DE1F417F6A268B06E7 /* 76-sector-sketches.md in Resources */ = {isa = PBXBuildFile; fileRef = 83CC7191A715FD7FB722C390 /* 76-sector-sketches.md */; };
+		6BB1D286D73DE7687944C814 /* BatteryProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4E01150A1CA8C2426A5F64 /* BatteryProxy.swift */; };
 		6C206D3C64F7349DB15A47BB /* 01-procurement.md in Resources */ = {isa = PBXBuildFile; fileRef = 2014A5AE2E3BC7D68D5ED97A /* 01-procurement.md */; };
 		6C2C7E48D82483D0114780EC /* SettingsFAB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F19BC0F2CE9798A99CF0101 /* SettingsFAB.swift */; };
 		6C3ECB9EF20B570102AF803B /* 56-pace-planning.md in Resources */ = {isa = PBXBuildFile; fileRef = E1B8B2D98B8397F420D0C1DD /* 56-pace-planning.md */; };
 		6D2BE3F9AE762A5208A52900 /* 110-equipment-maintenance.md in Resources */ = {isa = PBXBuildFile; fileRef = 1E5B4A981AE6F5A5C7A31B92 /* 110-equipment-maintenance.md */; };
 		6EDEFB288EE17693E8A7F94A /* TelemetryObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04857ADF4C39F38393D8E3E0 /* TelemetryObject.swift */; };
-		6F1B32741BD5E03DE2B1884B /* NavigationInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 101ADDA0858E632C72B9A4ED /* NavigationInterface.swift */; };
+		6FBE042BE4C1E5E8E4624083 /* MissionPlannerSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B3011077DDD3F8449BF105 /* MissionPlannerSection.swift */; };
 		709E0731A559164AD56ADC55 /* ThreatZoneOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C3FDA57FBA44E5FEBF38B78 /* ThreatZoneOverlay.swift */; };
 		71428284CC51A5E10ACC80AF /* 53-tracking.md in Resources */ = {isa = PBXBuildFile; fileRef = 28FF2133F6A05ED953CC0C14 /* 53-tracking.md */; };
 		7167257A37A34A09B3B67937 /* 20-stealth-movement.md in Resources */ = {isa = PBXBuildFile; fileRef = E4298499F35F3B3AD69E0FAB /* 20-stealth-movement.md */; };
@@ -166,6 +170,7 @@
 		7C0686F86DAEBFDB3237C658 /* ReportFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE254EDEF0113E612CAAE01 /* ReportFormView.swift */; };
 		7CE0C3A0773E95F47EA017F5 /* 91-desert-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = 4A50CEFA04EB2914EFFA9A1B /* 91-desert-operations.md */; };
 		7CFF7DD9415EDB43ECE467D1 /* 17-insects-grubs.md in Resources */ = {isa = PBXBuildFile; fileRef = 2743EB55030FFE8684DEFD75 /* 17-insects-grubs.md */; };
+		7D2442514254ECF88A02B1A6 /* PlanningToolsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D2DF1EDE1FE8775CF5FDCC /* PlanningToolsSection.swift */; };
 		7EF0D06E7EA7E6DD378E58AF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 007B0CE6CBE12CB052F751AE /* Accelerate.framework */; };
 		7F71B51FEA8D0308AC775453 /* 85-urban-movement.md in Resources */ = {isa = PBXBuildFile; fileRef = 24D0D3D59B90249390A7E990 /* 85-urban-movement.md */; };
 		7FE15C099B1FA4AD511CABCD /* HAMMERAcousticModem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23ECD93496738827D5E6C8C6 /* HAMMERAcousticModem.swift */; };
@@ -209,6 +214,7 @@
 		A2C774C7DBF4D55F841D679F /* 92-jungle-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = A527FBC10C7FCC2F9868E250 /* 92-jungle-operations.md */; };
 		A2CCB3517FEADB29CE63EB60 /* 25-dead-reckoning.md in Resources */ = {isa = PBXBuildFile; fileRef = 5E5BD09654B4A566ABF0AA36 /* 25-dead-reckoning.md */; };
 		A374F66E6258DF723A5FFDD0 /* NavigationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39021A0C857CE739E0B492DF /* NavigationViewModel.swift */; };
+		A4069941982D476401606EAF /* DeadReckoningEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9020042A3AEB85633FD5BF1B /* DeadReckoningEngine.swift */; };
 		A4EB18A0189674E4F5EA4F68 /* 16-fishing.md in Resources */ = {isa = PBXBuildFile; fileRef = DC8A3C2DB8500F9938A39918 /* 16-fishing.md */; };
 		A6528CE699D3736A328305BB /* GeofenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48D929116D067AD2D2886F05 /* GeofenceManager.swift */; };
 		A678D1B2F4F506963B36AB8B /* ThreatCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C322A89479A257DF73BD56 /* ThreatCategory.swift */; };
@@ -218,17 +224,21 @@
 		AA743F3751E19178855BEB8C /* 50-perimeter-defense.md in Resources */ = {isa = PBXBuildFile; fileRef = 389BF61B395E4B1248132B1D /* 50-perimeter-defense.md */; };
 		AA9383C678D64B6A6482012D /* 67-pattern-of-life.md in Resources */ = {isa = PBXBuildFile; fileRef = 6B4A224AD46D7EB0C1B68092 /* 67-pattern-of-life.md */; };
 		AAD41DFFD27BA08D7EB2233C /* OfflineTileProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E072845538F69AEDDF73D9 /* OfflineTileProvider.swift */; };
+		ADF11E335C4F1C98C6E03286 /* TeamDashSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED97F4BF0B71451748F0DADF /* TeamDashSection.swift */; };
 		AECBC161C3FC06DCAC17CF43 /* FastLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9318C0D3C9316B3B81E7CDDC /* FastLibraryService.swift */; };
 		AED3C74457334CCCA750164E /* 75-obstacle-emplacement.md in Resources */ = {isa = PBXBuildFile; fileRef = 61CA0C1D0CE9ABBA080BA802 /* 75-obstacle-emplacement.md */; };
 		AF3E5D8FABB34CF974E873AE /* 13-shock-treatment.md in Resources */ = {isa = PBXBuildFile; fileRef = CDD6275CF2C0D9919CA46B2B /* 13-shock-treatment.md */; };
 		B11AC9883425FF87D7C2C28E /* 26-desert.md in Resources */ = {isa = PBXBuildFile; fileRef = 26F4FEDBAF246D21895A4C0E /* 26-desert.md */; };
 		B1A5509311192A284636BB6B /* 27-bleeding-control.md in Resources */ = {isa = PBXBuildFile; fileRef = E5FAC8789061A23F48390BBA /* 27-bleeding-control.md */; };
 		B22EE044C71405DA7133C0B8 /* TelemetryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE20514C3F686800A100E36D /* TelemetryStore.swift */; };
+		B47EB1726BE6C2E81122B2BD /* OpsSharedViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8FB16B72BD3903CACDAF08 /* OpsSharedViews.swift */; };
 		B62D00FF671FF53F743C1CE3 /* MultipeerKit in Frameworks */ = {isa = PBXBuildFile; productRef = 497D006DA5BE41749E4D5FA0 /* MultipeerKit */; };
 		B63705E94F3372C6858809D8 /* 41-psychological-first-aid.md in Resources */ = {isa = PBXBuildFile; fileRef = E4708B2949C84FCA70608700 /* 41-psychological-first-aid.md */; };
 		B7F0039A465C16705CB3A4A7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4C0269B5C906DC54521BCFB /* Assets.xcassets */; };
 		B85805A587AFB06FF83BB57C /* 69-target-package.md in Resources */ = {isa = PBXBuildFile; fileRef = 5CBA104D345C196B865EA4F3 /* 69-target-package.md */; };
 		B8A4B6F99E61A001136D86E6 /* CelestialNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B95391919A77B021D35AC2C /* CelestialNavigator.swift */; };
+		B97031A530F246A04A210374 /* SimsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6ECFF0D3158A5F263BFD2A /* SimsSection.swift */; };
+		BA11D674BD8D6B83CC98A24D /* OpSecSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E853E3763BE4FEC91D78748F /* OpSecSection.swift */; };
 		BB0A38F1F735FDEBDC728ACA /* 66-route-reconnaissance.md in Resources */ = {isa = PBXBuildFile; fileRef = 9F7668AC154CE3C9C27FCEF0 /* 66-route-reconnaissance.md */; };
 		BC1FF790C4D6DA6D20CEDEA5 /* TrafficCamService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F50B873F0BAD1AF8CAAC6E /* TrafficCamService.swift */; };
 		BCAA7906DCE779F08B99F825 /* 100-counter-surveillance-vehicle.md in Resources */ = {isa = PBXBuildFile; fileRef = 67CC58CD7CA55A0453E38241 /* 100-counter-surveillance-vehicle.md */; };
@@ -245,6 +255,7 @@
 		CC4DF5F2823D19E25184F7CD /* StarDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B8DA2E805861939C7EDCF2 /* StarDetector.swift */; };
 		CD3AE23A2C08880D464F694C /* ActionBoundary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78F10FC5E26AF10DEC58C25E /* ActionBoundary.swift */; };
 		CD6E20DE0FB37FC2A909DD8A /* ContourOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82E678D097302B6941637708 /* ContourOverlay.swift */; };
+		CF769679AEC8B4C8BD0BFCD9 /* AuditLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 578364AF59AA6F61D63F7CCF /* AuditLogger.swift */; };
 		D173DBB70B06958291BA0999 /* 57-brevity-codes.md in Resources */ = {isa = PBXBuildFile; fileRef = 538CD3192DF07D58DBEBB9D3 /* 57-brevity-codes.md */; };
 		D2B5CEFF328AE1F1FD822CF7 /* Geofence.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6767A26259D077FF2BB15EF /* Geofence.swift */; };
 		D35269B572523E2EB49FE402 /* 14-fracture-management.md in Resources */ = {isa = PBXBuildFile; fileRef = B4E10C4D0633F94B1E72E086 /* 14-fracture-management.md */; };
@@ -271,6 +282,7 @@
 		E58E84041AE08F377BA9E8AE /* VisionInferenceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1AC40D81B2B290261CC590D /* VisionInferenceEngine.swift */; };
 		E6186C5C2228BFBFF3B30CF0 /* InferenceClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7D0CAA187C00D36AF55796 /* InferenceClient.swift */; };
 		E67F42281411722DFD8E6438 /* 109-ammunition-management.md in Resources */ = {isa = PBXBuildFile; fileRef = E65473DB374D3FF53B4BC3EC /* 109-ammunition-management.md */; };
+		E6A644FAF862E786EF768399 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E676E83F9F6A07C7049D89BD /* ShareSheet.swift */; };
 		E6F1C2EBA03F80770BE4B4BA /* LocalInferenceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BF5DD46FDF79FD55F409E19 /* LocalInferenceEngine.swift */; };
 		E86DEB0FE91E2DBA9E9F84FB /* 10-insects.md in Resources */ = {isa = PBXBuildFile; fileRef = B09332EFBD909E42665AD67F /* 10-insects.md */; };
 		E86E049921B5F9D62A3A12EB /* 04-scarcity-extreme.md in Resources */ = {isa = PBXBuildFile; fileRef = CD4FF9F07873C64B1993FAAF /* 04-scarcity-extreme.md */; };
@@ -278,6 +290,7 @@
 		E93793AC234BA4FDD5854B1E /* SettingsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56F5221E1FB389BCB9A2A7B4 /* SettingsTabView.swift */; };
 		E95DC6FC4C14F9E39D90469E /* 58-meshtastic-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = 4EAE74E78B95989E645C113F /* 58-meshtastic-operations.md */; };
 		E9BD5312B94135BCC73C68D1 /* 36-tccc-march.md in Resources */ = {isa = PBXBuildFile; fileRef = 63821674F693DB8745526EDA /* 36-tccc-march.md */; };
+		EA7AE9DD59CE6D69EF37BBA5 /* EvalDebriefSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9224B7AACF64FF22C3AE2B70 /* EvalDebriefSection.swift */; };
 		ECE41A05D145C3981D511B88 /* 07-rope-knots.md in Resources */ = {isa = PBXBuildFile; fileRef = EFDB2E779DF353E787B2A3F6 /* 07-rope-knots.md */; };
 		ED17189D3C656A0FAF6A3C2B /* 107-load-planning.md in Resources */ = {isa = PBXBuildFile; fileRef = C2934D7BA269DC2C887394C4 /* 107-load-planning.md */; };
 		EED86600FDF5946EDB1B5305 /* 04-management.md in Resources */ = {isa = PBXBuildFile; fileRef = FBC1D6EA7E7CAF3A1939D8DF /* 04-management.md */; };
@@ -346,6 +359,7 @@
 		1FC5DEE8DCB8DDA7554AEA45 /* 07-cooking-methods.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "07-cooking-methods.md"; sourceTree = "<group>"; };
 		2014A5AE2E3BC7D68D5ED97A /* 01-procurement.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "01-procurement.md"; sourceTree = "<group>"; };
 		2089C06C6AD748D74164A6BA /* 88-urban-camouflage.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "88-urban-camouflage.md"; sourceTree = "<group>"; };
+		2149600A31F68A82031CC037 /* BreadcrumbEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BreadcrumbEngine.swift; path = Sources/MLXEdgeLLM/Navigation/BreadcrumbEngine.swift; sourceTree = "<group>"; };
 		22F1B9554587F6CFD34EB6D8 /* 114-electronic-warfare-basics.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "114-electronic-warfare-basics.md"; sourceTree = "<group>"; };
 		23ECD93496738827D5E6C8C6 /* HAMMERAcousticModem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HAMMERAcousticModem.swift; sourceTree = "<group>"; };
 		24D0D3D59B90249390A7E990 /* 85-urban-movement.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "85-urban-movement.md"; sourceTree = "<group>"; };
@@ -355,6 +369,7 @@
 		28564186BE92E8FE366E39B4 /* 15-burns-temperature.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "15-burns-temperature.md"; sourceTree = "<group>"; };
 		28FF2133F6A05ED953CC0C14 /* 53-tracking.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "53-tracking.md"; sourceTree = "<group>"; };
 		2AFAE1521C57272596036842 /* 89-safe-house-setup.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "89-safe-house-setup.md"; sourceTree = "<group>"; };
+		2B8FB16B72BD3903CACDAF08 /* OpsSharedViews.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OpsSharedViews.swift; path = Sources/MLXEdgeLLM/App/Ops/OpsSharedViews.swift; sourceTree = "<group>"; };
 		2B95391919A77B021D35AC2C /* CelestialNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CelestialNavigator.swift; sourceTree = "<group>"; };
 		2C52434E784130380BC5B58D /* 77-vbied-awareness.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "77-vbied-awareness.md"; sourceTree = "<group>"; };
 		2D1F460ED29806ECADF5D95B /* 32-fractures-spine.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "32-fractures-spine.md"; sourceTree = "<group>"; };
@@ -366,6 +381,7 @@
 		30F503DD4609E1E45331712D /* 09-site-selection.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "09-site-selection.md"; sourceTree = "<group>"; };
 		31A1D55CF128003650A2CD2D /* 22-camouflage.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "22-camouflage.md"; sourceTree = "<group>"; };
 		32CAB9E6F7437B892092F577 /* 11-snow-arctic-shelters.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "11-snow-arctic-shelters.md"; sourceTree = "<group>"; };
+		33A33B7DAAEBA27C94E86936 /* MedicalSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MedicalSection.swift; path = Sources/MLXEdgeLLM/App/Ops/MedicalSection.swift; sourceTree = "<group>"; };
 		33E35D8EB6F10AA2E82FEE00 /* EncryptedMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptedMessage.swift; sourceTree = "<group>"; };
 		3411CEB34FB7F0CBAF482FAC /* 20-nutritional-priorities.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "20-nutritional-priorities.md"; sourceTree = "<group>"; };
 		35111BFD9320488FB6DA1210 /* 12-tarp-improvised.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "12-tarp-improvised.md"; sourceTree = "<group>"; };
@@ -378,6 +394,8 @@
 		3C3FDA57FBA44E5FEBF38B78 /* ThreatZoneOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreatZoneOverlay.swift; sourceTree = "<group>"; };
 		3D573F511F6EDC04B1A28F71 /* KnowledgeRAG.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KnowledgeRAG.swift; sourceTree = "<group>"; };
 		3D6B552AED02209A99AD1327 /* 10-debris-hut.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "10-debris-hut.md"; sourceTree = "<group>"; };
+		3DE535710C34F8B3F12F6A0C /* ReportsSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ReportsSection.swift; path = Sources/MLXEdgeLLM/App/Ops/ReportsSection.swift; sourceTree = "<group>"; };
+		3F4E01150A1CA8C2426A5F64 /* BatteryProxy.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BatteryProxy.swift; path = Sources/MLXEdgeLLM/Logistics/BatteryProxy.swift; sourceTree = "<group>"; };
 		4001FA525C6D6F6A6D91BFB0 /* ScanStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanStorage.swift; sourceTree = "<group>"; };
 		4198BBC900CFFAC0464A8744 /* TacticalNavigationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalNavigationView.swift; sourceTree = "<group>"; };
 		41A3D5A770640648FE953426 /* 97-natural-disaster-response.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "97-natural-disaster-response.md"; sourceTree = "<group>"; };
@@ -399,6 +417,7 @@
 		554A951967AFE1CAEE24956C /* GeofenceEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeofenceEditorView.swift; sourceTree = "<group>"; };
 		5565DB8EF0907709E63BC3BE /* LiDARTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiDARTabView.swift; sourceTree = "<group>"; };
 		56F5221E1FB389BCB9A2A7B4 /* SettingsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTabView.swift; sourceTree = "<group>"; };
+		578364AF59AA6F61D63F7CCF /* AuditLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuditLogger.swift; path = Sources/MLXEdgeLLM/Security/AuditLogger.swift; sourceTree = "<group>"; };
 		57A42188C625C602766D7ACF /* ReconWalkEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReconWalkEngine.swift; sourceTree = "<group>"; };
 		57C0DAE424545B793832B182 /* SafetyProperty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafetyProperty.swift; sourceTree = "<group>"; };
 		598310C7C75CA57141CAE1B9 /* 51-camouflage.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "51-camouflage.md"; sourceTree = "<group>"; };
@@ -416,6 +435,7 @@
 		63E23632583E35DE6FD51CC8 /* AttitudeSolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttitudeSolver.swift; sourceTree = "<group>"; };
 		649752049A5F7FCB36BA7889 /* GeoPackageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoPackageService.swift; sourceTree = "<group>"; };
 		64B1EFDB96217FD652ACB113 /* 10-improvised-tools.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "10-improvised-tools.md"; sourceTree = "<group>"; };
+		64B3011077DDD3F8449BF105 /* MissionPlannerSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MissionPlannerSection.swift; path = Sources/MLXEdgeLLM/App/Ops/MissionPlannerSection.swift; sourceTree = "<group>"; };
 		64D9DDF9276D78A48962CD21 /* 113-drone-operations.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "113-drone-operations.md"; sourceTree = "<group>"; };
 		65C898E964CB4CCDEF5CF30D /* 21-compass-basics.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "21-compass-basics.md"; sourceTree = "<group>"; };
 		671E2D197918B5A7F7E4CDB1 /* 48-react-ambush.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "48-react-ambush.md"; sourceTree = "<group>"; };
@@ -462,6 +482,8 @@
 		8EEBF2A7A29312100674F371 /* ActivityFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityFeed.swift; sourceTree = "<group>"; };
 		8F0BDDF8C061C19F452BAAC6 /* ModelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelManager.swift; sourceTree = "<group>"; };
 		8F29F5AC50D4AD903112504B /* CoordinationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinationView.swift; sourceTree = "<group>"; };
+		9020042A3AEB85633FD5BF1B /* DeadReckoningEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeadReckoningEngine.swift; path = Sources/MLXEdgeLLM/Navigation/DeadReckoningEngine.swift; sourceTree = "<group>"; };
+		9224B7AACF64FF22C3AE2B70 /* EvalDebriefSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EvalDebriefSection.swift; path = Sources/MLXEdgeLLM/App/Ops/EvalDebriefSection.swift; sourceTree = "<group>"; };
 		92C4770F4CCAFF288A4877D4 /* 05-construction.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "05-construction.md"; sourceTree = "<group>"; };
 		9318C0D3C9316B3B81E7CDDC /* FastLibraryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FastLibraryService.swift; sourceTree = "<group>"; };
 		93313E241868535829F051E7 /* 15-hunting-trapping.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "15-hunting-trapping.md"; sourceTree = "<group>"; };
@@ -494,6 +516,7 @@
 		A8938BB7A5AE69F39B7F11B5 /* 03-starting.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "03-starting.md"; sourceTree = "<group>"; };
 		A9A2CB5F036875FCDA768BB7 /* 87-building-assessment.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "87-building-assessment.md"; sourceTree = "<group>"; };
 		ACBA992FB37767A262BB3890 /* DTNBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DTNBundle.swift; sourceTree = "<group>"; };
+		AD6ECFF0D3158A5F263BFD2A /* SimsSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SimsSection.swift; path = Sources/MLXEdgeLLM/App/Ops/SimsSection.swift; sourceTree = "<group>"; };
 		AF5B8A9B22C4E26C6A386BCA /* 80-anti-tracking-advanced.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "80-anti-tracking-advanced.md"; sourceTree = "<group>"; };
 		B09332EFBD909E42665AD67F /* 10-insects.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "10-insects.md"; sourceTree = "<group>"; };
 		B0C322A89479A257DF73BD56 /* ThreatCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreatCategory.swift; sourceTree = "<group>"; };
@@ -505,6 +528,7 @@
 		B5D9C81FEFB9FD795047091D /* 42-envenomation.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "42-envenomation.md"; sourceTree = "<group>"; };
 		B89E8BD8B53DF2AE91C4F8D9 /* 39-improvised-medicine.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "39-improvised-medicine.md"; sourceTree = "<group>"; };
 		B900C2504CDE8A403F6EDA65 /* 103-contingency-planning.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "103-contingency-planning.md"; sourceTree = "<group>"; };
+		B91E7889F25A1B0A83A9D6B9 /* ProtobufHelpers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProtobufHelpers.swift; path = Sources/MLXEdgeLLM/CommunicationCore/MeshNetworking/ProtobufHelpers.swift; sourceTree = "<group>"; };
 		BC297F512BC30B9AA5F8FD91 /* LoRaComms.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoRaComms.swift; sourceTree = "<group>"; };
 		BE20514C3F686800A100E36D /* TelemetryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryStore.swift; sourceTree = "<group>"; };
 		BE51EF5DA4224F5291F2F4A1 /* 22-terrain-association.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "22-terrain-association.md"; sourceTree = "<group>"; };
@@ -514,6 +538,7 @@
 		C1E712FB353E8B24FD2F2B58 /* OfflineMapEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineMapEngine.swift; sourceTree = "<group>"; };
 		C25FD27D86B616E5DA084208 /* 26-urban-navigation.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "26-urban-navigation.md"; sourceTree = "<group>"; };
 		C2934D7BA269DC2C887394C4 /* 107-load-planning.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "107-load-planning.md"; sourceTree = "<group>"; };
+		C4D2DF1EDE1FE8775CF5FDCC /* PlanningToolsSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PlanningToolsSection.swift; path = Sources/MLXEdgeLLM/App/Ops/PlanningToolsSection.swift; sourceTree = "<group>"; };
 		C4FF581FCF8F87821196F2B9 /* 08-weather-reading.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "08-weather-reading.md"; sourceTree = "<group>"; };
 		C6E752665F1966C07C2E41DE /* StarCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarCatalog.swift; sourceTree = "<group>"; };
 		C7F280F9435894F2A1C5DB49 /* 45-react-to-contact.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "45-react-to-contact.md"; sourceTree = "<group>"; };
@@ -557,17 +582,22 @@
 		E4298499F35F3B3AD69E0FAB /* 20-stealth-movement.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "20-stealth-movement.md"; sourceTree = "<group>"; };
 		E4708B2949C84FCA70608700 /* 41-psychological-first-aid.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "41-psychological-first-aid.md"; sourceTree = "<group>"; };
 		E489E25726D09F2BAA97C10F /* 02-fire-starting.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "02-fire-starting.md"; sourceTree = "<group>"; };
+		E49EA4E2F5E1B015F088E72E /* NavState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NavState.swift; path = Sources/MLXEdgeLLM/Navigation/NavState.swift; sourceTree = "<group>"; };
 		E5FAC8789061A23F48390BBA /* 27-bleeding-control.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "27-bleeding-control.md"; sourceTree = "<group>"; };
 		E65473DB374D3FF53B4BC3EC /* 109-ammunition-management.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "109-ammunition-management.md"; sourceTree = "<group>"; };
+		E676E83F9F6A07C7049D89BD /* ShareSheet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ShareSheet.swift; path = Sources/MLXEdgeLLM/App/ShareSheet.swift; sourceTree = "<group>"; };
 		E70351539D2F9D73FE0ABACB /* 24-mgrs-coordinates.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "24-mgrs-coordinates.md"; sourceTree = "<group>"; };
 		E79436D8BC046E680FFFA11D /* TacticalScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalScanner.swift; sourceTree = "<group>"; };
 		E84A9C29450568EE7975F94D /* 21-surveillance-detection.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "21-surveillance-detection.md"; sourceTree = "<group>"; };
+		E853E3763BE4FEC91D78748F /* OpSecSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OpSecSection.swift; path = Sources/MLXEdgeLLM/App/Ops/OpSecSection.swift; sourceTree = "<group>"; };
 		E92B2355979383AD1B3E14DF /* TelemetryAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryAdapter.swift; sourceTree = "<group>"; };
+		E97D5D1D2AC35F910EE2B99A /* OpsCommsStrip.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OpsCommsStrip.swift; path = Sources/MLXEdgeLLM/App/Ops/OpsCommsStrip.swift; sourceTree = "<group>"; };
 		EAB3F6C805B5B4D24EDEE7D1 /* 03-storage-hygiene.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "03-storage-hygiene.md"; sourceTree = "<group>"; };
 		EB7F32C80AC9259D6BEF990B /* 02-purification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "02-purification.md"; sourceTree = "<group>"; };
 		EB8FF44E930E41A3F7E790E6 /* HybridAStarPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HybridAStarPlanner.swift; sourceTree = "<group>"; };
 		EC90851DEAFE60802B98209F /* TacticalOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalOverlay.swift; sourceTree = "<group>"; };
 		ED1B4BAFB0796A70D18FA9D7 /* 65-area-reconnaissance.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "65-area-reconnaissance.md"; sourceTree = "<group>"; };
+		ED97F4BF0B71451748F0DADF /* TeamDashSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TeamDashSection.swift; path = Sources/MLXEdgeLLM/App/Ops/TeamDashSection.swift; sourceTree = "<group>"; };
 		EDEFF3D9D7A11BAB861C284D /* DTNBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DTNBuffer.swift; sourceTree = "<group>"; };
 		EEEC971AC9F2B89F904029A9 /* 86-urban-water-food.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "86-urban-water-food.md"; sourceTree = "<group>"; };
 		EFDB2E779DF353E787B2A3F6 /* 07-rope-knots.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "07-rope-knots.md"; sourceTree = "<group>"; };
@@ -1062,6 +1092,23 @@
 				A9F391AEBE4CCF7850030CE3 /* Packages */,
 				A121C3D179774B1E9649F43B /* Frameworks */,
 				1A4AAF57146BB7D27C77F518 /* Products */,
+				E97D5D1D2AC35F910EE2B99A /* OpsCommsStrip.swift */,
+				64B3011077DDD3F8449BF105 /* MissionPlannerSection.swift */,
+				ED97F4BF0B71451748F0DADF /* TeamDashSection.swift */,
+				33A33B7DAAEBA27C94E86936 /* MedicalSection.swift */,
+				C4D2DF1EDE1FE8775CF5FDCC /* PlanningToolsSection.swift */,
+				9224B7AACF64FF22C3AE2B70 /* EvalDebriefSection.swift */,
+				3DE535710C34F8B3F12F6A0C /* ReportsSection.swift */,
+				AD6ECFF0D3158A5F263BFD2A /* SimsSection.swift */,
+				E853E3763BE4FEC91D78748F /* OpSecSection.swift */,
+				2B8FB16B72BD3903CACDAF08 /* OpsSharedViews.swift */,
+				E676E83F9F6A07C7049D89BD /* ShareSheet.swift */,
+				E49EA4E2F5E1B015F088E72E /* NavState.swift */,
+				2149600A31F68A82031CC037 /* BreadcrumbEngine.swift */,
+				9020042A3AEB85633FD5BF1B /* DeadReckoningEngine.swift */,
+				578364AF59AA6F61D63F7CCF /* AuditLogger.swift */,
+				3F4E01150A1CA8C2426A5F64 /* BatteryProxy.swift */,
+				B91E7889F25A1B0A83A9D6B9 /* ProtobufHelpers.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1383,13 +1430,6 @@
 			path = Mapping;
 			sourceTree = "<group>";
 		};
-		"TEMP_F5EB9373-9E02-4DD0-AEB0-D6F3645C3E6E" /* UIFramework */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = UIFramework;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1453,9 +1493,10 @@
 				E32FA2ACF2E3F9646EF923FD /* XCRemoteSwiftPackageReference "mgrs-ios" */,
 				DA7E243DC7E0888DEC3D486F /* XCRemoteSwiftPackageReference "mlx-swift" */,
 				8A2631D37B61B8FA19C06643 /* XCRemoteSwiftPackageReference "mlx-swift-lm" */,
-				B100B9B6F7930EE0F95DA364 /* XCLocalSwiftPackageReference "/Users/bobbyhansenjr./Developer/llmfarm_core" */,
+				B100B9B6F7930EE0F95DA364 /* XCLocalSwiftPackageReference "llmfarm_core" */,
 			);
 			preferredProjectObjectVersion = 77;
+			productRefGroup = 1A4AAF57146BB7D27C77F518 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -1695,8 +1736,6 @@
 				2F19735AA48059E4354B9627 /* MilitaryGridOverlay.swift in Sources */,
 				8C7E147172F8BF929A1CAE8A /* ModelManager.swift in Sources */,
 				911D6A977277F5AA6DA79B95 /* NavigationGraph.swift in Sources */,
-				6F1B32741BD5E03DE2B1884B /* NavigationInterface.swift in Sources */,
-				46B267946581C4988DE7E096 /* NavigationTypes.swift in Sources */,
 				A374F66E6258DF723A5FFDD0 /* NavigationViewModel.swift in Sources */,
 				F4B093174D75927166FC6351 /* OfflineDataView.swift in Sources */,
 				4F1FCB204D8AB3C59739DBCB /* OfflineMapEngine.swift in Sources */,
@@ -1726,8 +1765,6 @@
 				1C64C3783E773BDBBC291702 /* SubmapStore.swift in Sources */,
 				C38611710B3D93A54317F292 /* TAKBLEBridge.swift in Sources */,
 				DB25D494682A5B86382108AD /* TacticalMapView.swift in Sources */,
-				1EEEE262623EC1AC44F8FF65 /* TacticalNavigationStack.swift in Sources */,
-				1FEA22D207D4C574BAA7FCA4 /* TacticalNavigationView.swift in Sources */,
 				2F3614DF3EC60F7CE7628849 /* TacticalOverlay.swift in Sources */,
 				8F73C1EB493C994CDE7E6623 /* TacticalReports.swift in Sources */,
 				E133E7FB8CA90C5B35C670AC /* TacticalScanner.swift in Sources */,
@@ -1758,6 +1795,23 @@
 				E57934D387C345E7076111A0 /* WeatherAdapter.swift in Sources */,
 				63DFA391B92F2DA14745F7B9 /* WeatherService.swift in Sources */,
 				C0447F9D1D4D9052FD789427 /* ZeroDarkApp.swift in Sources */,
+				411038326FB55F5CF92BBBA4 /* OpsCommsStrip.swift in Sources */,
+				6FBE042BE4C1E5E8E4624083 /* MissionPlannerSection.swift in Sources */,
+				ADF11E335C4F1C98C6E03286 /* TeamDashSection.swift in Sources */,
+				294830B20798E56FFFE621D0 /* MedicalSection.swift in Sources */,
+				7D2442514254ECF88A02B1A6 /* PlanningToolsSection.swift in Sources */,
+				EA7AE9DD59CE6D69EF37BBA5 /* EvalDebriefSection.swift in Sources */,
+				1C6C568FCE967CECA8B6B2D1 /* ReportsSection.swift in Sources */,
+				B97031A530F246A04A210374 /* SimsSection.swift in Sources */,
+				BA11D674BD8D6B83CC98A24D /* OpSecSection.swift in Sources */,
+				B47EB1726BE6C2E81122B2BD /* OpsSharedViews.swift in Sources */,
+				E6A644FAF862E786EF768399 /* ShareSheet.swift in Sources */,
+				00B3002E0B4DF0CACD584920 /* NavState.swift in Sources */,
+				4C5ACCA71156D3A27B7A4FFA /* BreadcrumbEngine.swift in Sources */,
+				A4069941982D476401606EAF /* DeadReckoningEngine.swift in Sources */,
+				CF769679AEC8B4C8BD0BFCD9 /* AuditLogger.swift in Sources */,
+				6BB1D286D73DE7687944C814 /* BatteryProxy.swift in Sources */,
+				139F7A7B165F7B1E602D3B50 /* ProtobufHelpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1969,7 +2023,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		B100B9B6F7930EE0F95DA364 /* XCLocalSwiftPackageReference "/Users/bobbyhansenjr./Developer/llmfarm_core" */ = {
+		B100B9B6F7930EE0F95DA364 /* XCLocalSwiftPackageReference "llmfarm_core" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = /Users/bobbyhansenjr./Developer/llmfarm_core;
 		};
