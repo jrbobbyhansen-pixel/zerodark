@@ -695,7 +695,6 @@
 		E60D2E7E4E3BF406F4329BC9 /* MissionLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE32BDF3B19C8996C8B9FBAE /* MissionLog.swift */; };
 		E6186C5C2228BFBFF3B30CF0 /* InferenceClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7D0CAA187C00D36AF55796 /* InferenceClient.swift */; };
 		E67F42281411722DFD8E6438 /* 109-ammunition-management.md in Resources */ = {isa = PBXBuildFile; fileRef = E65473DB374D3FF53B4BC3EC /* 109-ammunition-management.md */; };
-		E6A644FAF862E786EF768399 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E676E83F9F6A07C7049D89BD /* ShareSheet.swift */; };
 		E6CB98AEFE3876515CBD800F /* SatelliteMessageQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2670B8DA4638DE1351B7DD80 /* SatelliteMessageQueue.swift */; };
 		E6F1C2EBA03F80770BE4B4BA /* LocalInferenceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BF5DD46FDF79FD55F409E19 /* LocalInferenceEngine.swift */; };
 		E6F68BE7E7E6157BA1426284 /* ContingencyMatrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5707880910599D296F1B2A25 /* ContingencyMatrix.swift */; };
@@ -3235,7 +3234,6 @@
 				B97031A530F246A04A210374 /* SimsSection.swift in Sources */,
 				BA11D674BD8D6B83CC98A24D /* OpSecSection.swift in Sources */,
 				B47EB1726BE6C2E81122B2BD /* OpsSharedViews.swift in Sources */,
-				E6A644FAF862E786EF768399 /* ShareSheet.swift in Sources */,
 				00B3002E0B4DF0CACD584920 /* NavState.swift in Sources */,
 				4C5ACCA71156D3A27B7A4FFA /* BreadcrumbEngine.swift in Sources */,
 				A4069941982D476401606EAF /* DeadReckoningEngine.swift in Sources */,
