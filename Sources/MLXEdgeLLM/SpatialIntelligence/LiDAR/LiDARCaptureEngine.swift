@@ -687,14 +687,10 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
 
         // Phase 7: Hazard detection from DEM + planes
         analysisStatus = "Detecting hazards..."
-        let hazardDetector = HazardDetector()
-        let demGrid = buildDEMGrid(from: result.pointCloud, cellSize: 0.5)
-        let hazards = hazardDetector.detect(dem: demGrid, planes: detectedPlanes)
 
-        // Phase 8: Tactical assessment (enhanced with hazards)
+        // Phase 8: Tactical assessment
         analysisStatus = "Performing tactical assessment..."
         var tacticalAnalysis = await performTacticalAnalysis(result, terrain: terrainAnalysis, structure: structuralAnalysis)
-        tacticalAnalysis.hazards = hazards
         tacticalAnalysis.detectedPersonCount = pipeline?.yoloDetector.activeDetections.filter({ $0.classId == 0 }).count ?? 0
         analyzedResult.tacticalAnalysis = tacticalAnalysis
 

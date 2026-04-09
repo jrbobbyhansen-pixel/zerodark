@@ -367,7 +367,7 @@ final class ThreatAnalyzer: ObservableObject {
     
     private func processLiDARResult(_ result: LiDARScanResult) async {
         // Extract YOLO detections from the latest SceneTag for richer threat data
-        if let sceneTag = AppState.shared.latestSceneTag, sceneTag.id == result.id {
+        if let sceneTag = AppState.shared.latestSceneTag as? SceneTag, sceneTag.id == result.id {
             for taggedThreat in sceneTag.threats where taggedThreat.level >= 2 {
                 let threat = Threat(
                     category: threatCategory(from: taggedThreat.category),
