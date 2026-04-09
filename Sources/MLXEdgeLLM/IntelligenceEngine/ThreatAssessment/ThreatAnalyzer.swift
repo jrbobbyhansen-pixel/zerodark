@@ -366,24 +366,8 @@ final class ThreatAnalyzer: ObservableObject {
     }
     
     private func processLiDARResult(_ result: LiDARScanResult) async {
-        // Extract YOLO detections from the latest SceneTag for richer threat data
-        if let sceneTag = AppState.shared.latestSceneTag as? SceneTag, sceneTag.id == result.id {
-            for taggedThreat in sceneTag.threats where taggedThreat.level >= 2 {
-                let threat = Threat(
-                    category: threatCategory(from: taggedThreat.category),
-                    level: threatLevel(from: taggedThreat.level),
-                    description: "LiDAR detection: \(taggedThreat.className) (\(String(format: "%.0f%%", taggedThreat.confidence * 100)) conf)",
-                    location: result.location,
-                    position3D: taggedThreat.position?.simd,
-                    confidence: Double(taggedThreat.confidence),
-                    timestamp: Date(),
-                    expiresAt: Date().addingTimeInterval(120),
-                    mitigation: ["Monitor detected object", "Maintain distance"],
-                    source: .lidarAnalysis
-                )
-                activeThreats.append(threat)
-            }
-        }
+        // SceneTag integration disabled — requires YOLODetection compile target
+        // When SceneTag is available, cast AppState.shared.latestSceneTag and extract threats
 
         // Trigger full reassessment
         await performAssessment()
