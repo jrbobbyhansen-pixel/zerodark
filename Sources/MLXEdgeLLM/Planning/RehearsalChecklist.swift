@@ -150,7 +150,7 @@ struct RehearsalChecklistView: View {
     @State private var showTemplates = false
 
     var body: some View {
-        Form {
+        Form { _ in
             // Active checklists
             if !vm.checklists.isEmpty {
                 ForEach(vm.checklists) { checklist in

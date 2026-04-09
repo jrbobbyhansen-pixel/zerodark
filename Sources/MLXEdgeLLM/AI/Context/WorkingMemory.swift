@@ -7,7 +7,7 @@ import ARKit
 
 class WorkingMemory: ObservableObject {
     @Published var activeEntities: [Entity] = []
-    @Published var goals: [Goal] = []
+    @Published var goals: [WorkingMemoryGoal] = []
     @Published var constraints: [Constraint] = []
     @Published var context: Context = Context()
 
@@ -37,7 +37,7 @@ struct Entity: Identifiable {
 
 // MARK: - Goal
 
-struct Goal: Identifiable {
+struct WorkingMemoryGoal: Identifiable {
     let id: UUID
     let description: String
     let priority: Int

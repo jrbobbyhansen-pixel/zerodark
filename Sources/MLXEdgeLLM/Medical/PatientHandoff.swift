@@ -136,7 +136,7 @@ struct PatientHandoffView: View {
     @State private var newTreatment = ""
 
     var body: some View {
-        Form {
+        Form { _ in
             Section("Patient Info") {
                 TextField("Name / ID", text: $vm.patientName)
                 HStack {

@@ -115,10 +115,11 @@ public class DTNBuffer: ObservableObject {
     /// Mark a bundle as delivered
     public func markDelivered(_ bundleID: UUID) async throws {
         let allBundles = await io.readAllBundles()
-        guard let (_, var bundle) = allBundles.first(where: { $0.1.id == bundleID }) else {
+        guard let match = allBundles.first(where: { $0.1.id == bundleID }) else {
             return
         }
 
+        var bundle = match.1
         bundle.deliveredAt = Date()
         try await io.updateBundle(bundle)
         await refreshCounts()
@@ -127,10 +128,11 @@ public class DTNBuffer: ObservableObject {
     /// Record a delivery attempt
     public func recordAttempt(_ bundleID: UUID) async throws {
         let allBundles = await io.readAllBundles()
-        guard let (_, var bundle) = allBundles.first(where: { $0.1.id == bundleID }) else {
+        guard let match = allBundles.first(where: { $0.1.id == bundleID }) else {
             return
         }
 
+        var bundle = match.1
         bundle.deliveryAttempts += 1
         bundle.lastAttemptAt = Date()
         try await io.updateBundle(bundle)

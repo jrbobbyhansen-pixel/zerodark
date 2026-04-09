@@ -113,7 +113,7 @@ struct TimelinePlannerView: View {
     @State private var newNotes = ""
 
     var body: some View {
-        Form {
+        List {
             if !vm.phases.isEmpty {
                 Section("Phases (\(vm.phases.count))") {
                     ForEach(vm.phases) { phase in

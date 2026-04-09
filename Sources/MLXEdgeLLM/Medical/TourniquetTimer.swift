@@ -145,7 +145,7 @@ struct TourniquetTimerView: View {
     @State private var selectedLimb: Limb = .leftArm
 
     var body: some View {
-        Form {
+        Form { _ in
             Section("Apply Tourniquet") {
                 Picker("Limb", selection: $selectedLimb) {
                     ForEach(Limb.allCases) { limb in

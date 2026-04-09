@@ -253,12 +253,12 @@ struct OpOrderBuilderView: View {
     @State private var objectiveType: Objective.ObjectiveType = .primary
 
     var body: some View {
-        Form {
+        List {
             Section("Order Identity") {
                 LabeledContent("Order #", value: vm.order.orderNumber)
                     .font(.caption.monospaced())
                 Picker("Mission Type", selection: $vm.order.missionType) {
-                    ForEach(MissionType.allCases, id: \.self) { Text($0.rawValue) }
+                    ForEach(MissionType.allCases, id: \.self) { type in Text(type.rawValue) }
                 }
             }
 
@@ -285,7 +285,7 @@ struct OpOrderBuilderView: View {
                 HStack {
                     TextField("New objective", text: $newObjective)
                     Picker("", selection: $objectiveType) {
-                        ForEach(Objective.ObjectiveType.allCases, id: \.self) { Text($0.rawValue.prefix(3)) }
+                        ForEach(Objective.ObjectiveType.allCases, id: \.self) { t in Text(t.rawValue.prefix(3)) }
                     }
                     .pickerStyle(.segmented)
                     .frame(width: 100)

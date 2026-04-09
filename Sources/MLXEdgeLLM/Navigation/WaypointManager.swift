@@ -229,9 +229,16 @@ struct UTMConverter {
         let R1 = a * (1 - e2) / pow(1 - e2 * sin(phi1) * sin(phi1), 1.5)
         let D = (easting - 500000) / (N1 * k0)
 
-        let lat = phi1 - (N1*tan(phi1)/R1)*(D*D/2-(5+3*T1+10*C1-4*C1*C1-9*(e2/(1-e2)))*D*D*D*D/24
-                    +(61+90*T1+298*C1+45*T1*T1-252*(e2/(1-e2))-3*C1*C1)*D*D*D*D*D*D/720)
-        let lon = (D-(1+2*T1+C1)*D*D*D/6+(5-2*C1+28*T1-3*C1*C1+8*(e2/(1-e2))+24*T1*T1)*D*D*D*D*D/120) / cos(phi1)
+        let ep2 = e2 / (1 - e2)
+        let latTerm1 = D * D / 2
+        let latTerm2 = (5 + 3*T1 + 10*C1 - 4*C1*C1 - 9*ep2) * pow(D, 4) / 24
+        let latTerm3 = (61 + 90*T1 + 298*C1 + 45*T1*T1 - 252*ep2 - 3*C1*C1) * pow(D, 6) / 720
+        let lat = phi1 - (N1 * tan(phi1) / R1) * (latTerm1 - latTerm2 + latTerm3)
+
+        let lonTerm1 = D
+        let lonTerm2 = (1 + 2*T1 + C1) * pow(D, 3) / 6
+        let lonTerm3 = (5 - 2*C1 + 28*T1 - 3*C1*C1 + 8*ep2 + 24*T1*T1) * pow(D, 5) / 120
+        let lon = (lonTerm1 - lonTerm2 + lonTerm3) / cos(phi1)
 
         return CLLocationCoordinate2D(latitude: lat * 180 / .pi, longitude: (lonOrigin + lon) * 180 / .pi)
     }

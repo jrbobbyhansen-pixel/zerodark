@@ -28,7 +28,7 @@ struct ScenarioBuilder: View {
 
 class ScenarioBuilderViewModel: ObservableObject {
     @Published var location: CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194)
-    @Published var events: [Event] = []
+    @Published var events: [ScenarioEvent] = []
     
     func saveScenario() {
         // Implementation to save the scenario
@@ -37,7 +37,7 @@ class ScenarioBuilderViewModel: ObservableObject {
 
 // MARK: - Event
 
-struct Event: Identifiable {
+struct ScenarioEvent: Identifiable {
     let id = UUID()
     var name: String
     var type: EventType
@@ -92,7 +92,7 @@ struct ScenarioMapSnippet: UIViewRepresentable {
 // MARK: - TimelineEditor
 
 struct TimelineEditor: View {
-    @Binding var events: [Event]
+    @Binding var events: [ScenarioEvent]
     
     var body: some View {
         List($events) { $event in

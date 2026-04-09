@@ -126,7 +126,7 @@ struct ContingencyMatrixView: View {
     @State private var newPriority: ContingencyPriority = .standard
 
     var body: some View {
-        Form {
+        List {
             if !matrix.plans.isEmpty {
                 Section("Contingencies (\(matrix.plans.count))") {
                     ForEach(matrix.plans) { plan in

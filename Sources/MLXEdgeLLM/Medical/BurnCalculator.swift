@@ -92,7 +92,7 @@ struct BurnCalculatorView: View {
     @State private var useRuleOfNines = true
 
     var body: some View {
-        Form {
+        Form { _ in
             Section("Method") {
                 Picker("Assessment", selection: $useRuleOfNines) {
                     Text("Rule of Nines (Adult)").tag(true)

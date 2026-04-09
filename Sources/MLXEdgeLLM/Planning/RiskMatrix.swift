@@ -142,7 +142,7 @@ struct RiskMatrixView: View {
     @State private var newMit = ""
 
     var body: some View {
-        Form {
+        List {
             if !vm.risks.isEmpty {
                 Section("Identified Risks (\(vm.risks.count))") {
                     ForEach(vm.risks) { risk in

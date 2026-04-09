@@ -181,7 +181,7 @@ struct MedevacView: View {
     @StateObject private var vm = MedevacViewModel()
 
     var body: some View {
-        Form {
+        Form { _ in
             Section("Line 1 — Pickup Location") {
                 TextField("MGRS / coordinates", text: $vm.request.line1Location)
                     .font(.system(.body, design: .monospaced))

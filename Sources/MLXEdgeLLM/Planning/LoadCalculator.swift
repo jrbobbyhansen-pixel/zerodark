@@ -6,7 +6,7 @@ import SwiftUI
 
 // MARK: - Models
 
-struct TeamMember: Identifiable, Equatable {
+struct LoadCarrier: Identifiable, Equatable {
     let id: UUID
     var name: String
     var loadKg: Double
@@ -36,16 +36,16 @@ struct RedistributionSuggestion: Identifiable {
 
 @MainActor
 final class LoadCalculator: ObservableObject {
-    @Published var members: [TeamMember] = []
+    @Published var members: [LoadCarrier] = []
     @Published var suggestions: [RedistributionSuggestion] = []
 
-    var overloadedMembers: [TeamMember] { members.filter { $0.isOverloaded } }
+    var overloadedMembers: [LoadCarrier] { members.filter { $0.isOverloaded } }
     var totalLoad: Double { members.reduce(0) { $0 + $1.loadKg } }
     var totalCapacity: Double { members.reduce(0) { $0 + $1.maxLoadKg } }
 
     func addMember(name: String, loadKg: Double, maxLoadKg: Double) {
         guard !name.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-        members.append(TeamMember(name: name, loadKg: max(0, loadKg), maxLoadKg: max(1, maxLoadKg)))
+        members.append(LoadCarrier(name: name, loadKg: max(0, loadKg), maxLoadKg: max(1, maxLoadKg)))
     }
 
     func removeMember(at offsets: IndexSet) {
@@ -99,7 +99,7 @@ struct LoadCalculatorView: View {
     @State private var newMax = "30"
 
     var body: some View {
-        Form {
+        List {
             Section("Team Members") {
                 ForEach(calc.members) { member in
                     HStack {

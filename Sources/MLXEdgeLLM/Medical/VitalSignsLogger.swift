@@ -191,7 +191,7 @@ struct VitalSignsLoggerView: View {
     @State private var showAddSheet = false
 
     var body: some View {
-        Form {
+        Form { _ in
             Section("Patient") {
                 TextField("Patient Label", text: $logger.patientLabel)
             }

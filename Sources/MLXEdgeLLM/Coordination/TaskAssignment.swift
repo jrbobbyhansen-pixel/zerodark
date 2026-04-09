@@ -4,7 +4,7 @@ import CoreLocation
 
 // MARK: - Task Model
 
-struct Task: Identifiable, Codable {
+struct AssignedTask: Identifiable, Codable {
     let id: UUID
     var title: String
     var description: String
@@ -21,7 +21,7 @@ enum TaskPriority: String, Codable {
 // MARK: - Task Assignment Service
 
 class TaskAssignmentService: ObservableObject {
-    @Published private(set) var tasks: [Task] = []
+    @Published private(set) var tasks: [AssignedTask] = []
     
     func addTask(title: String, description: String, priority: TaskPriority, dueDate: Date, location: CLLocationCoordinate2D) {
         let newTask = Task(id: UUID(), title: title, description: description, priority: priority, dueDate: dueDate, location: location)
@@ -42,7 +42,7 @@ class TaskAssignmentService: ObservableObject {
 // MARK: - Task Assignment View Model
 
 class TaskAssignmentViewModel: ObservableObject {
-    @Published var tasks: [Task] = []
+    @Published var tasks: [AssignedTask] = []
     @Published var newTaskTitle: String = ""
     @Published var newTaskDescription: String = ""
     @Published var newTaskPriority: TaskPriority = .medium
@@ -122,7 +122,7 @@ struct TaskFormView: View {
 }
 
 struct TaskListView: View {
-    let tasks: [Task]
+    let tasks: [AssignedTask]
     @ObservedObject var viewModel: TaskAssignmentViewModel
     
     var body: some View {

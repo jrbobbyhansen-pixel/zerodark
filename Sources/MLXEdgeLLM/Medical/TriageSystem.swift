@@ -255,7 +255,7 @@ struct TriageView: View {
     @State private var access = ""
 
     var body: some View {
-        Form {
+        Form { _ in
             // Summary counts
             Section("Casualty Count") {
                 HStack(spacing: 0) {
