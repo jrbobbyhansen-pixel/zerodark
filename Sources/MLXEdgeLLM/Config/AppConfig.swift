@@ -15,9 +15,15 @@ enum AppConfig {
 
     // Device identity
     static var deviceCallsign: String {
-        UIDevice.current.name
-            .replacingOccurrences(of: " ", with: "-")
-            .filter { $0.isLetter || $0.isNumber || $0 == "-" }
+        get {
+            UserDefaults.standard.string(forKey: "deviceCallsign") ??
+            UIDevice.current.name
+                .replacingOccurrences(of: " ", with: "-")
+                .filter { $0.isLetter || $0.isNumber || $0 == "-" }
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: "deviceCallsign")
+        }
     }
 
     // OSM tile server

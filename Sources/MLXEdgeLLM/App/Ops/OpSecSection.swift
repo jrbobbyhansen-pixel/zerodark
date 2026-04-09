@@ -425,7 +425,7 @@ struct OpSecSection: View {
 struct OpSecModuleDetailView: View {
     let module: OpSecModule
     @Binding var completedLessonsData: Data
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     private var completedLessonIDs: Set<String> {
         (try? JSONDecoder().decode(Set<String>.self, from: completedLessonsData)) ?? []

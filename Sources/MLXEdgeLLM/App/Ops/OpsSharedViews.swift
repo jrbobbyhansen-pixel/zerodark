@@ -188,7 +188,7 @@ struct JoinMeshSheet: View {
     @State private var rememberNetwork = true
     @State private var editingNickname: ZDPeer?
     @State private var nicknameText = ""
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     var body: some View {
         NavigationStack {
@@ -484,7 +484,7 @@ struct JoinMeshSheet: View {
 // MARK: - SARToolsSheet
 
 struct SARToolsSheet: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     @StateObject private var mesh = MeshService.shared
     @StateObject private var activity = ActivityFeed.shared
     @State private var selectedType: String = "expandingSquare"

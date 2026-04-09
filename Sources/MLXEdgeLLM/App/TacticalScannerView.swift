@@ -24,7 +24,7 @@ struct TacticalScannerView: View {
     @StateObject private var scanner = TacticalScanner()
     @State private var selectedMode: ScanMode = .qr
     @State private var showResult = false
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
 
     var body: some View {
         ZStack {

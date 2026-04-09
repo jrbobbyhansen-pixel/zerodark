@@ -129,7 +129,7 @@ final class TriageSystem: ObservableObject {
 // MARK: - START Triage Flow View
 
 struct StartTriageFlowView: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @ObservedObject var system: TriageSystem
 
     @State private var step: StartTriageStep = .canWalk
@@ -255,7 +255,7 @@ struct TriageView: View {
     @State private var access = ""
 
     var body: some View {
-        Form { _ in
+        Form {
             // Summary counts
             Section("Casualty Count") {
                 HStack(spacing: 0) {
@@ -331,7 +331,7 @@ struct TriageView: View {
 
 private struct METHANEReportSheet: View {
     @ObservedObject var system: TriageSystem
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @State private var incidentType = ""
     @State private var location = ""
     @State private var hazards = ""

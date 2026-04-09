@@ -154,7 +154,7 @@ struct MeasurementOverlayView: View {
 
 struct MeasurementListView: View {
     @ObservedObject var manager: MeasurementManager
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
 
     var body: some View {
         NavigationStack {

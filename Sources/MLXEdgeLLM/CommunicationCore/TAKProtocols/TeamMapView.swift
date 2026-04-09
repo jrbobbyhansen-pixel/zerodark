@@ -6,7 +6,7 @@ import MapKit
 import CoreLocation
 
 struct TeamMapView: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     @ObservedObject var tak = FreeTAKConnector.shared
     @ObservedObject var takBle = TAKBLEBridge.shared
     @State private var selectedPeer: CoTEvent?
@@ -297,7 +297,7 @@ struct TeamMapView: View {
 }
 
 struct PeerDetailsView: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     let event: CoTEvent
 
     var body: some View {
@@ -758,7 +758,7 @@ class TacticalAnnotation: MKPointAnnotation {
 struct WaypointPickerSheet: View {
     let coordinate: CLLocationCoordinate2D
     @StateObject private var store = TacticalWaypointStore.shared
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     @State private var selectedType: TacticalMarker = .cache
     @State private var tacticalNotes = ""
     @State private var publicDescription = ""
@@ -814,7 +814,7 @@ struct WaypointPickerSheet: View {
 
 struct CelestialNavStatusView: View {
     @StateObject private var celestial = CelestialNavigator()
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     var body: some View {
         NavigationStack {

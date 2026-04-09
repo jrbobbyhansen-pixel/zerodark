@@ -82,7 +82,6 @@ struct ContentView: View {
             SettingsFAB()
         }
         .environmentObject(appState)
-        .environmentObject(NavigationViewModel())
     }
 }
 

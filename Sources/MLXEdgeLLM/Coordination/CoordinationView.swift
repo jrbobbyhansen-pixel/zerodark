@@ -5,7 +5,7 @@ import SwiftUI
 import CoreLocation
 
 struct CoordinationView: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     @EnvironmentObject var navViewModel: NavigationViewModel
     @ObservedObject var store = IncidentStore.shared
     @StateObject private var sarModel = LandSARSearchModel()
@@ -266,7 +266,7 @@ struct UnitStatusBadge: View {
 }
 
 struct NewIncidentSheet: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     @ObservedObject var store = IncidentStore.shared
     @State private var title = ""
     @State private var summary = ""
@@ -329,7 +329,7 @@ struct NewIncidentSheet: View {
 }
 
 struct IncidentDetailView: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     @ObservedObject var store = IncidentStore.shared
     let incident: Incident
     @State private var showAssignSheet = false
@@ -411,7 +411,7 @@ struct IncidentDetailView: View {
 }
 
 struct AssignUnitSheet: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     @ObservedObject var store = IncidentStore.shared
     let incidentId: UUID
     @State private var selectedUnitId: UUID?
@@ -455,7 +455,7 @@ struct AssignUnitSheet: View {
 }
 
 struct PatternGeneratorView: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     @EnvironmentObject var navViewModel: NavigationViewModel
     @State private var patternType: SearchPattern.PatternType = .expandingSquare
     @State private var trackSpacing: Double = 100

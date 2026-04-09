@@ -85,6 +85,18 @@ final class MedicationTracker: ObservableObject {
         lastAlert = nil
     }
 
+    /// Non-throwing wrapper: returns MedicationError if safety check fails, nil on success
+    func tryAddMedication(drug: String, dose: String, route: String, patient: String) -> MedicationError? {
+        do {
+            try addMedication(drug: drug, dose: dose, route: route, patient: patient)
+            return nil
+        } catch let err as MedicationError {
+            return err
+        } catch {
+            return nil
+        }
+    }
+
     /// Force-add bypassing safety checks — requires explicit user override confirmation
     func forceAddMedication(drug: String, dose: String, route: String, time: Date = Date(), patient: String) {
         let normalized = drug.lowercased().trimmingCharacters(in: .whitespaces)
@@ -244,12 +256,11 @@ struct MedicationTrackerView: View {
             }
             .sheet(isPresented: $showAddSheet) {
                 AddMedicationSheet { drug, dose, route, patient in
-                    do {
-                        try tracker.addMedication(drug: drug, dose: dose, route: route, patient: patient)
-                        showAddSheet = false
-                    } catch let err as MedicationError {
+                    if let err = tracker.tryAddMedication(drug: drug, dose: dose, route: route, patient: patient) {
                         pendingMedication = PendingMed(drug: drug, dose: dose, route: route, patient: patient)
                         alertError = err
+                    } else {
+                        showAddSheet = false
                     }
                 }
             }
@@ -317,7 +328,7 @@ struct AddMedicationSheet: View {
     @State private var dose = ""
     @State private var route = "IV"
     @State private var patient = ""
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     private let routes = ["IV", "IM", "PO", "SQ", "IN", "IO", "SL", "TD"]
 

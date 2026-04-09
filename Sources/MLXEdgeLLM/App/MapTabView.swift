@@ -15,8 +15,6 @@ struct MapTabView: View {
     @StateObject var mesh = MeshService.shared
     @StateObject var camService = TrafficCamService.shared
     @StateObject var breadcrumb = BreadcrumbEngine.shared
-    @StateObject var gisOverlays = GISOverlayProvider.shared
-    @StateObject var hotZone = HotZoneClassifier.shared
     @EnvironmentObject var appState: AppState
 
     // Map state
@@ -29,7 +27,7 @@ struct MapTabView: View {
     @State private var selectedCam: TrafficCamera?
     @State private var showCelestialNav = false
     @State private var contourLines: [ContourLineData] = []
-    @State private var mapSelection: MapSelection<MKMapItem>?
+    @State private var mapSelection: MKMapItem?
     @State private var losResult: LOSResult?
     @State private var losTarget: CLLocationCoordinate2D?
     @State private var losMode = false
@@ -152,25 +150,6 @@ struct MapTabView: View {
                             }
                         }
 
-                        // GIS overlays (KML/Shapefile)
-                        if appState.mapLayerConfig.showGISOverlays {
-                            ForEach(gisOverlays.overlays) { overlay in
-                                switch overlay {
-                                case .polygon(_, let name, let coords, let color):
-                                    MapPolygon(coordinates: coords)
-                                        .foregroundStyle(color.opacity(0.3))
-                                        .stroke(color, lineWidth: 2)
-                                case .polyline(_, let name, let coords, let color):
-                                    MapPolyline(coordinates: coords)
-                                        .stroke(color, lineWidth: 2)
-                                case .point(_, let name, let coord):
-                                    Annotation(name, coordinate: coord) {
-                                        Image(systemName: "mappin.circle.fill")
-                                            .foregroundStyle(.purple)
-                                    }
-                                }
-                            }
-                        }
 
                         // LOS raycast segments
                         if let result = losResult {
@@ -189,18 +168,6 @@ struct MapTabView: View {
                             }
                         }
 
-                        // HotZone classification overlays
-                        ForEach(hotZone.classifications) { zone in
-                            MapCircle(center: zone.center, radius: zone.radiusMeters)
-                                .foregroundStyle(
-                                    Color(red: zone.type.color.r, green: zone.type.color.g, blue: zone.type.color.b)
-                                        .opacity(zone.type.color.a)
-                                )
-                                .stroke(
-                                    Color(red: zone.type.color.r, green: zone.type.color.g, blue: zone.type.color.b),
-                                    lineWidth: 2
-                                )
-                        }
                     }
                     .mapStyle(currentMapStyle)
                     .mapControls {
@@ -254,7 +221,6 @@ struct MapTabView: View {
                 .ignoresSafeArea()
                 .onAppear {
                     offlineTiles.scanForMaps()
-                    gisOverlays.scanForGISFiles()
                     if !breadcrumb.isRecording {
                         breadcrumb.startRecording()
                     }
@@ -352,21 +318,6 @@ struct MapTabView: View {
                             Label("Star Navigation", systemImage: "star.circle")
                         }
                         Button("Export Waypoints") { shareWaypoints() }
-                        Button("Mark HotZone") {
-                            if let loc = appState.currentLocation {
-                                Task {
-                                    let reading = HazmatSensorReading(
-                                        timestamp: Date(),
-                                        coordinate: loc,
-                                        gasConcentrationPPM: nil,
-                                        radiationUSvH: nil,
-                                        temperatureCelsius: nil,
-                                        oxygenPercent: nil
-                                    )
-                                    _ = await hotZone.classify(reading)
-                                }
-                            }
-                        }
                         if breadcrumb.isRecording {
                             Button("Stop Breadcrumbs") { breadcrumb.stopRecording() }
                         } else {

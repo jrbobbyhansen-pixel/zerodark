@@ -38,26 +38,11 @@ final class SitrepGenerator: ObservableObject {
         }
 
         // Team status
-        let checkIns = CheckInSystem.shared.checkIns
-        let overdue = CheckInSystem.shared.overdueCheckIns
-        let teamLine: String
-        if checkIns.isEmpty {
-            teamLine = "No check-ins recorded"
-        } else {
-            let total = checkIns.count
-            let overdueCount = overdue.count
-            if overdueCount > 0 {
-                let names = overdue.map { $0.callsign }.joined(separator: ", ")
-                teamLine = "\(total) total, \(overdueCount) OVERDUE: \(names)"
-            } else {
-                teamLine = "\(total) check-ins, all current"
-            }
-        }
+        let meshPeers = MeshRelay.shared.relayedPeers
+        let teamLine = "Mesh peers: \(meshPeers.count)"
 
         // Comms
-        let meshPeers = MeshRelay.shared.relayedPeers
-        let channel = ChannelManager.shared.selectedChannel
-        let commsLine = "Mesh peers: \(meshPeers.count), Channel: \(channel?.name ?? "None")"
+        let commsLine = "Mesh peers: \(meshPeers.count)"
 
         // Weather (cached)
         let weatherLine = WeatherService.shared.currentConditions?.description ?? "No weather data"

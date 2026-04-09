@@ -5,7 +5,7 @@ import SceneKit
 
 struct ScanGalleryView: View {
     @StateObject private var storage = ScanStorage.shared
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     @State private var scanToAlert: SavedScan?
     @State private var showBrokenAlert = false
 

@@ -5,9 +5,9 @@ import Foundation
 import SwiftUI
 import CoreLocation
 
-// MARK: - Observation
+// MARK: - FieldObservation
 
-struct Observation: Identifiable, Codable {
+struct FieldObservation: Identifiable, Codable {
     let id: UUID
     let timestamp: Date
     let latitude: Double
@@ -42,20 +42,20 @@ struct Observation: Identifiable, Codable {
     }
 }
 
-// MARK: - ObservationLogger
+// MARK: - FieldObservationLogger
 
 @MainActor
 final class ObservationLogger: ObservableObject {
     static let shared = ObservationLogger()
 
-    @Published var observations: [Observation] = []
+    @Published var observations: [FieldObservation] = []
 
     private init() { load() }
 
-    func logObservation(bearing: Double, distance: Double, description: String, category: Observation.ObservationCategory = .general) {
+    func logObservation(bearing: Double, distance: Double, description: String, category: FieldObservation.ObservationCategory = .general) {
         let location = LocationManager.shared.lastKnownLocation
             ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)
-        let obs = Observation(location: location, bearing: bearing, distance: distance, description: description, category: category)
+        let obs = FieldObservation(location: location, bearing: bearing, distance: distance, description: description, category: category)
         observations.append(obs)
         save()
         AuditLogger.shared.log(.observationLogged, detail: category.rawValue)
@@ -106,12 +106,12 @@ final class ObservationLogger: ObservableObject {
 
     private func load() {
         guard let data = try? Data(contentsOf: persistURL),
-              let loaded = try? JSONDecoder().decode([Observation].self, from: data) else { return }
+              let loaded = try? JSONDecoder().decode([FieldObservation].self, from: data) else { return }
         observations = loaded
     }
 }
 
-// MARK: - ObservationLoggerView
+// MARK: - FieldObservationLoggerView
 
 struct ObservationLoggerView: View {
     @StateObject private var logger = ObservationLogger.shared
@@ -119,7 +119,7 @@ struct ObservationLoggerView: View {
     @State private var newDesc = ""
     @State private var newBearing = ""
     @State private var newDistance = ""
-    @State private var newCategory: Observation.ObservationCategory = .general
+    @State private var newCategory: FieldObservation.ObservationCategory = .general
 
     var body: some View {
         Form {
@@ -130,7 +130,7 @@ struct ObservationLoggerView: View {
                     TextField("Distance (m)", text: $newDistance).keyboardType(.decimalPad)
                 }
                 Picker("Category", selection: $newCategory) {
-                    ForEach(Observation.ObservationCategory.allCases, id: \.self) { Text($0.rawValue) }
+                    ForEach(FieldObservation.ObservationCategory.allCases, id: \.self) { Text($0.rawValue) }
                 }
                 Button {
                     logger.logObservation(

@@ -1,6 +1,5 @@
 // TeamDashSection.swift — Ops > Team sub-section
-// Composes: ParticipantTracker + SafetyOfficer + PropsManager + CheckIn + TaskAssignment
-// Plus migrated: team status, weather/conditions, safety monitor
+// Composes: Team status, weather/conditions, safety monitor, check-in
 
 import SwiftUI
 
@@ -24,60 +23,13 @@ struct TeamDashSection: View {
                 OpsSectionHeader(icon: "person.3.fill", title: "TEAM MANAGEMENT", color: ZDDesign.cyanAccent)
 
                 NavigationLink {
-                    ParticipantTrackerView()
+                    Text("Team Coordination — Coming Soon").padding()
                 } label: {
                     OpsSectionCard(
-                        icon: "location.circle.fill",
-                        title: "Participant Tracker",
-                        subtitle: "Location tracking, check-in/out & emergency recall",
+                        icon: "person.2.wave.2.fill",
+                        title: "Coordination",
+                        subtitle: "Incident management, unit tracking & search patterns",
                         color: ZDDesign.cyanAccent
-                    )
-                }
-
-                NavigationLink {
-                    CheckInView()
-                } label: {
-                    OpsSectionCard(
-                        icon: "checkmark.circle.fill",
-                        title: "Check-In System",
-                        subtitle: "Team check-ins with location & scheduled notifications",
-                        color: ZDDesign.successGreen
-                    )
-                }
-
-                NavigationLink {
-                    TaskAssignmentView()
-                } label: {
-                    OpsSectionCard(
-                        icon: "checklist",
-                        title: "Task Assignment",
-                        subtitle: "Tasks with priority, deadlines & status tracking",
-                        color: ZDDesign.safetyYellow
-                    )
-                }
-
-                // Safety & Support
-                OpsSectionHeader(icon: "shield.fill", title: "SAFETY & SUPPORT", color: ZDDesign.safetyYellow)
-
-                NavigationLink {
-                    SafetyOfficerView()
-                } label: {
-                    OpsSectionCard(
-                        icon: "cross.case.fill",
-                        title: "Safety Officer",
-                        subtitle: "Risk assessment, incident reporting & emergency procedures",
-                        color: ZDDesign.signalRed
-                    )
-                }
-
-                NavigationLink {
-                    PropsManagerView()
-                } label: {
-                    OpsSectionCard(
-                        icon: "shippingbox.fill",
-                        title: "Props Manager",
-                        subtitle: "Victim cards, moulage & equipment inventory",
-                        color: ZDDesign.earthBrown
                     )
                 }
 

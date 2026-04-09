@@ -96,7 +96,7 @@ struct ReportsSection: View {
 
 struct AARReportSheet: View {
     @StateObject private var mesh = MeshService.shared
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @State private var summary = ""
     @State private var finding = ""
     @State private var findings: [String] = []

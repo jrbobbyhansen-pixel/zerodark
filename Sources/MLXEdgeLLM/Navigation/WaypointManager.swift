@@ -81,7 +81,7 @@ class WaypointManager: ObservableObject {
 
 // MARK: - GPXParser — Real GPX 1.1 XML Parsing
 
-struct GPXParser: NSObject, XMLParserDelegate {
+class GPXParser: NSObject, XMLParserDelegate {
 
     static func parse(data: Data) throws -> [NavWaypoint] {
         let parser = GPXParser()

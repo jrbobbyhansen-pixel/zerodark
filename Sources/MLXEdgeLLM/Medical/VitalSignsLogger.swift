@@ -191,7 +191,7 @@ struct VitalSignsLoggerView: View {
     @State private var showAddSheet = false
 
     var body: some View {
-        Form { _ in
+        Form {
             Section("Patient") {
                 TextField("Patient Label", text: $logger.patientLabel)
             }
@@ -299,7 +299,7 @@ private struct VitalCard: View {
 
 private struct AddVitalsSheet: View {
     @ObservedObject var logger: VitalSignsLogger
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @State private var pulse = ""
     @State private var resp = ""
     @State private var systolic = ""

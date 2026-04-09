@@ -4,7 +4,7 @@ import RealityKit
 
 struct ReconWalkActiveView: View {
     @StateObject private var engine = ReconWalkEngine.shared
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     @State private var covertMode: ReconWalkConfig.CovertMode = .none
 
     var body: some View {

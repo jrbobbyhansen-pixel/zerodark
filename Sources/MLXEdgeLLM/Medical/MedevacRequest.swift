@@ -133,9 +133,7 @@ final class MedevacViewModel: ObservableObject {
 
     private func autoFillCallsign() {
         let callsign = AppConfig.deviceCallsign
-        let channel = ChannelManager.shared.selectedChannel
-        let freq = channel?.frequency ?? "MESH"
-        request.line2Frequency = "\(freq) / \(callsign)"
+        request.line2Frequency = "MESH / \(callsign)"
     }
 
     func transmit() {
@@ -181,7 +179,7 @@ struct MedevacView: View {
     @StateObject private var vm = MedevacViewModel()
 
     var body: some View {
-        Form { _ in
+        Form {
             Section("Line 1 — Pickup Location") {
                 TextField("MGRS / coordinates", text: $vm.request.line1Location)
                     .font(.system(.body, design: .monospaced))

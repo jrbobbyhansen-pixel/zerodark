@@ -11,7 +11,7 @@ enum CameraError: Error {
 
 struct CameraFeedView: View {
     let camera: TrafficCamera
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     @StateObject private var camService = TrafficCamService.shared
 
     @State private var currentFrame: UIImage?

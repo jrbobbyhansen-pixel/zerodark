@@ -4,7 +4,7 @@ import SwiftUI
 
 struct CelestialNavSheet: View {
     @StateObject private var celestial = CelestialNavigator()
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     var body: some View {
         NavigationStack {

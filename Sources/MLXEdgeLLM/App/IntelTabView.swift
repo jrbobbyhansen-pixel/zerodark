@@ -1042,7 +1042,7 @@ struct VisionContentView: View {
 
 struct ImagePickerView: UIViewControllerRepresentable {
     @Binding var selectedImage: UIImage?
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
 
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()

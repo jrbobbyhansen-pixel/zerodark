@@ -251,7 +251,7 @@ struct DocumentRow: View {
 struct PDFReaderSheet: View {
     let document: LibraryDocument
     let initialPage: Int?
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
 
     var body: some View {
         NavigationStack {

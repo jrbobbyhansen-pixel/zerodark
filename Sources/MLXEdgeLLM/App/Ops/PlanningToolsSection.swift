@@ -36,7 +36,7 @@ struct PlanningToolsSection: View {
                     subtitle: "Naismith's rule with terrain and weather modifiers",
                     icon: "figure.hiking",
                     color: .green,
-                    destination: PaceCalculatorView()
+                    destination: Text("Pace Calculator — Coming Soon").padding()
                 )
 
                 PlanningCard(

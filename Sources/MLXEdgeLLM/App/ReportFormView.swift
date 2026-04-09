@@ -3,7 +3,7 @@
 import SwiftUI
 
 struct ReportFormView: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     let reportType: ReportType
 
     // Report data

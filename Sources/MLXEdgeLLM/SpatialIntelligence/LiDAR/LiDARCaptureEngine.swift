@@ -405,8 +405,8 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
     var config = LiDARScanConfig()
 
     // Enhanced LiDAR Pipeline (Kalman + ClutterFilter + YOLO + Haptics)
-    private(set) var pipeline: LiDARPipeline?
-    var pipelineConfig = LiDARPipelineConfig.recommended()
+    // LiDARPipeline integration deferred — uses core scan engine directly
+    private(set) var pipeline: Any?
 
     // Location
     private var locationManager: CLLocationManager?
@@ -483,10 +483,8 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
 
         analysisStatus = "Scanning..."
 
-        // Start enhanced pipeline (Kalman fusion, YOLO detection, haptic overlay)
-        let pipe = LiDARPipeline(config: pipelineConfig)
-        self.pipeline = pipe
-        Task { await pipe.start() }
+        // Enhanced pipeline deferred — scan uses core ARKit mesh directly
+        self.pipeline = nil
 
         // Reset guidance tracking
         scanGuidance = .goodCoverage

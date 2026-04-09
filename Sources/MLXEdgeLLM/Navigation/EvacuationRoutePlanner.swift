@@ -236,7 +236,7 @@ struct EvacuationRoutePlannerView: View {
     @State private var destLon = ""
 
     var body: some View {
-        Form { _ in
+        Form {
             Section("Destination") {
                 HStack {
                     TextField("Latitude", text: $destLat).keyboardType(.decimalPad)

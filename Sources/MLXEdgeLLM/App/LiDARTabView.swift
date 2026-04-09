@@ -456,7 +456,7 @@ struct LiDARARView: UIViewRepresentable {
 
 struct LiDARResultsView: View {
     let result: LiDARScanResult
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     @State private var selectedTab = 0
 
     var body: some View {
@@ -727,7 +727,7 @@ struct LiDARResultsView: View {
 
 struct LiDARHistoryView: View {
     @StateObject private var engine = LiDARCaptureEngine.shared
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
 
     var body: some View {
         NavigationStack {

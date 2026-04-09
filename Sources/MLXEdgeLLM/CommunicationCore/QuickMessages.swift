@@ -86,27 +86,4 @@ struct QuickMessageView: View {
     }
 }
 
-// MARK: - LocationManager
-
-class LocationManager: ObservableObject {
-    @Published var currentLocation: CLLocationCoordinate2D?
-
-    init() {
-        fetchLocation()
-    }
-
-    private func fetchLocation() {
-        let locationManager = CLLocationManager()
-        locationManager.delegate = self
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
-    }
-}
-
-extension LocationManager: CLLocationManagerDelegate {
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
-        currentLocation = location.coordinate
-        manager.stopUpdatingLocation()
-    }
-}
+// Uses LocationManager from Services/LocationManager.swift

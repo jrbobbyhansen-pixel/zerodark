@@ -10,7 +10,6 @@ struct OpsCommsStrip: View {
     @StateObject private var hapticPTT = HapticPTTController.shared
     @StateObject private var activity = ActivityFeed.shared
     @StateObject private var dtnBuffer = DTNBuffer.shared
-    @StateObject private var incidents = IncidentStore.shared
     @StateObject private var relay = MeshRelay.shared
 
     @State private var isExpanded = false
@@ -320,9 +319,6 @@ struct OpsCommsStrip: View {
         }
         if let code = haptic.lastReceivedCode, code == .danger {
             result.append(OpsAlert(type: .danger, message: "DANGER from \(haptic.lastSender ?? "Unknown")", timestamp: Date()))
-        }
-        for incident in incidents.incidents where incident.status == .active && incident.priority == .critical {
-            result.append(OpsAlert(type: .incident, message: incident.title, timestamp: incident.timestamp))
         }
         return result
     }

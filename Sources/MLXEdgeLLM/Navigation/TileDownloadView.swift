@@ -245,7 +245,7 @@ struct TileDownloadView: View {
 
 private struct RegionPresetsSheet: View {
     let onSelect: (RegionPreset) -> Void
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     var body: some View {
         NavigationStack {

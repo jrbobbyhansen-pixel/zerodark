@@ -8,7 +8,7 @@ import CoreLocation
 struct NavTabView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var breadcrumb = BreadcrumbEngine.shared
-    @StateObject private var deadReckoning = DeadReckoningEngine()
+    @StateObject private var deadReckoning = DeadReckoningEngine.shared
     @StateObject private var celestial = CelestialNavigator()
     @StateObject private var weather = WeatherForecaster.shared
 
