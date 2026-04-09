@@ -1,8 +1,6 @@
 import Foundation
 import SwiftUI
 import CoreLocation
-import ARKit
-import AVFoundation
 
 class FlashFloodMonitor: ObservableObject {
     @Published var flashFloodRisk: RiskLevel = .low

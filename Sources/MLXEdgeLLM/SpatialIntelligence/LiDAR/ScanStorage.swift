@@ -2,7 +2,6 @@
 
 import Foundation
 import UIKit
-import CoreLocation
 
 enum ScanType {
     case quickScan

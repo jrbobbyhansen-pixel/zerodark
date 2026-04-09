@@ -1,7 +1,5 @@
 import SwiftUI
 import MetalKit
-import ARKit
-import CoreLocation
 
 struct PointCloudViewer: View {
     @StateObject private var viewModel = PointCloudViewModel()

@@ -1,8 +1,6 @@
 import Foundation
 import SwiftUI
 import CoreLocation
-import ARKit
-import AVFoundation
 
 // MARK: - Scenario Types
 enum ScenarioType: String, CaseIterable {

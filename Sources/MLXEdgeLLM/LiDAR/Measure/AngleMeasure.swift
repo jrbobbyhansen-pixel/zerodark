@@ -1,6 +1,5 @@
 import SwiftUI
 import ARKit
-import CoreLocation
 
 // MARK: - AngleMeasureView
 

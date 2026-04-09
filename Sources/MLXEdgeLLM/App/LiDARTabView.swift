@@ -7,10 +7,15 @@ import AVFoundation
 
 struct LiDARTabView: View {
     @StateObject private var engine = LiDARCaptureEngine.shared
+    @StateObject private var analyzer = TacticalRoomAnalyzer.shared
     @State private var showingResults = false
     @StateObject private var reconEngine = ReconWalkEngine.shared
     @State private var showReconWalk = false
     @State private var lidarMode: LiDARMode = .full
+    @State private var scanSpeedMode: ScanSpeedMode = .standard
+    @State private var showPermissionAlert = false
+    @State private var showRoomIntelReport = false
+    @State private var roomIntelReport: RoomIntelReport? = nil
 
     var body: some View {
         NavigationStack {
@@ -49,14 +54,44 @@ struct LiDARTabView: View {
                 ReconWalkActiveView()
             }
             .onChange(of: engine.isScanning) { _, scanning in
-                if !scanning && engine.lastScanResult != nil {
+                if !scanning, let result = engine.lastScanResult {
+                    // Generate tactical room report from scan
+                    Task {
+                        let report = await analyzer.analyzeRoom(
+                            meshAnchors: result.meshAnchors,
+                            pointCloud: result.pointCloud,
+                            scanDuration: result.scanDuration,
+                            speedMode: scanSpeedMode
+                        )
+                        roomIntelReport = report
+                        showRoomIntelReport = true
+                    }
                     showingResults = true
                 }
             }
-            .onAppear {
-                // Request camera permission upfront so AR session can start when user taps scan
-                if AVCaptureDevice.authorizationStatus(for: .video) == .notDetermined {
-                    AVCaptureDevice.requestAccess(for: .video) { _ in }
+            .onAppear { checkCameraPermission() }
+            .alert("Camera Access Required", isPresented: $showPermissionAlert) {
+                Button("Open Settings") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("ZeroDark needs camera access to perform LiDAR scanning. Enable it in Settings → Privacy → Camera.")
+            }
+            .sheet(isPresented: $showRoomIntelReport) {
+                if let report = roomIntelReport {
+                    RoomIntelReportView(report: report) { text in
+                        let url = FileManager.default.temporaryDirectory
+                            .appendingPathComponent("room-intel-\(Int(Date().timeIntervalSince1970)).txt")
+                        try? text.write(to: url, atomically: true, encoding: .utf8)
+                        let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+                        UIApplication.shared.connectedScenes
+                            .compactMap { $0 as? UIWindowScene }
+                            .first?.windows.first?.rootViewController?
+                            .present(av, animated: true)
+                    }
                 }
             }
         }
@@ -199,10 +234,74 @@ struct LiDARTabView: View {
         }
     }
 
+    // MARK: - Permission Check
+
+    private func checkCameraPermission() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                if !granted { DispatchQueue.main.async { showPermissionAlert = true } }
+            }
+        case .denied, .restricted:
+            showPermissionAlert = true
+        case .authorized:
+            break
+        @unknown default:
+            break
+        }
+    }
+
     // MARK: - Scan Controls (always at bottom)
 
     private var scanControls: some View {
         VStack(spacing: 12) {
+            // Speed mode selector (only when not scanning)
+            if !engine.isScanning {
+                HStack(spacing: 8) {
+                    ForEach(ScanSpeedMode.allCases) { mode in
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) { scanSpeedMode = mode }
+                        } label: {
+                            VStack(spacing: 2) {
+                                Image(systemName: mode.icon)
+                                    .font(.caption)
+                                Text(mode.rawValue)
+                                    .font(.caption2.bold())
+                                Text(mode.description)
+                                    .font(.system(size: 8))
+                                    .multilineTextAlignment(.center)
+                                    .lineLimit(2)
+                            }
+                            .padding(.vertical, 6)
+                            .padding(.horizontal, 8)
+                            .frame(maxWidth: .infinity)
+                            .background(scanSpeedMode == mode ? mode.color.opacity(0.25) : ZDDesign.darkCard)
+                            .foregroundColor(scanSpeedMode == mode ? mode.color : .secondary)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(scanSpeedMode == mode ? mode.color : Color.clear, lineWidth: 1)
+                            )
+                        }
+                        .accessibilityLabel("\(mode.rawValue) scan mode: \(mode.description)")
+                    }
+                }
+                .padding(.horizontal)
+            }
+
+            // Live tactical counts during scan
+            if engine.isScanning {
+                HStack(spacing: 16) {
+                    Label("\(analyzer.liveEntryCount) entries", systemImage: "door.right.hand.closed")
+                        .font(.caption.monospaced())
+                        .foregroundColor(.orange)
+                    Label("\(analyzer.liveCoverCount) cover", systemImage: "shield.fill")
+                        .font(.caption.monospaced())
+                        .foregroundColor(.green)
+                }
+                .padding(.horizontal)
+            }
+
             // Mode picker: Depth / Mesh / Full
             Picker("Mode", selection: $lidarMode) {
                 ForEach(LiDARMode.allCases) { mode in
@@ -217,18 +316,25 @@ struct LiDARTabView: View {
 
             // Two-button row: Quick Scan + Recon Walk
             HStack(spacing: 12) {
-                // Quick Scan — always captures at max quality, analysis choice comes after
+                // Quick Scan — speed mode configures capture parameters
                 Button {
                     if engine.isScanning {
                         engine.stopScan()
                     } else {
-                        engine.startScan(config: LiDARScanConfig())
+                        var config = LiDARScanConfig()
+                        // Apply LOD parameters based on speed mode
+                        switch scanSpeedMode {
+                        case .fast:     config.meshDetail = .low
+                        case .standard: config.meshDetail = .medium
+                        case .detailed: config.meshDetail = .high
+                        }
+                        engine.startScan(config: config)
                     }
                 } label: {
                     HStack {
                         Image(systemName: engine.isScanning ? "stop.circle.fill" : "viewfinder.circle.fill")
                             .font(.title2)
-                        Text(engine.isScanning ? "STOP" : "QUICK SCAN")
+                        Text(engine.isScanning ? "STOP" : "\(scanSpeedMode.rawValue.uppercased()) SCAN")
                             .font(.headline.bold())
                     }
                     .foregroundColor(ZDDesign.pureWhite)

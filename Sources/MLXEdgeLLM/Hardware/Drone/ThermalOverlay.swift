@@ -1,7 +1,5 @@
 import SwiftUI
 import AVFoundation
-import CoreLocation
-import ARKit
 
 // MARK: - ThermalOverlayView
 

@@ -2,7 +2,6 @@
 // Extracted from OpsTabView.swift for Deep Pack v7.0
 
 import SwiftUI
-import CoreLocation
 
 // MARK: - Tool Button
 

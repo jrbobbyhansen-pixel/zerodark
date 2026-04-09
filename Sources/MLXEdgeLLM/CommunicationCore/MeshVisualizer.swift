@@ -2,7 +2,6 @@ import SwiftUI
 import Foundation
 import CoreLocation
 import ARKit
-import AVFoundation
 
 // MARK: - MeshVisualizer
 

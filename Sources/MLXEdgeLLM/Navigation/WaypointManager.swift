@@ -1,8 +1,6 @@
 import Foundation
 import SwiftUI
 import CoreLocation
-import ARKit
-import AVFoundation
 
 // MARK: - Waypoint Types
 enum WaypointType: String, Codable {

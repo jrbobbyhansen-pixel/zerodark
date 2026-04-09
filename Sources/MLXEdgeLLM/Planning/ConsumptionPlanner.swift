@@ -1,8 +1,5 @@
 import Foundation
 import SwiftUI
-import CoreLocation
-import ARKit
-import AVFoundation
 
 // MARK: - ConsumptionPlanner
 
@@ -34,6 +31,17 @@ class ConsumptionPlanner: ObservableObject {
         return resupply
     }
     
+    func unitFor(key: String) -> String {
+        switch key {
+        case "Water": return water.unit
+        case "Food": return food.unit
+        case "Batteries": return batteries.unit
+        case "Fuel": return fuel.unit
+        case "Ammo": return ammo.unit
+        default: return ""
+        }
+    }
+
     private func calculateResupply(for consumable: Consumable) -> Double {
         let totalConsumption = consumable.dailyConsumption * (missionDuration / 86400) // Convert seconds to days
         let resupplyNeeded = totalConsumption - consumable.dailyConsumption * (resupplyInterval / 86400)
@@ -68,71 +76,58 @@ class ConsumableTracker: ObservableObject {
     }
 }
 
-// MARK: - ContentView
+// MARK: - ConsumptionPlannerView
 
-struct ContentView: View {
+struct ConsumptionPlannerView: View {
     @StateObject private var planner = ConsumptionPlanner()
     @StateObject private var tracker = ConsumableTracker()
-    
+
     var body: some View {
-        VStack {
-            Text("Mission Duration: \(planner.missionDuration, specifier: "%.0f") seconds")
-            Slider(value: $planner.missionDuration, in: 0...86400 * 7) // 7 days
-                .padding()
-            
-            Text("Resupply Interval: \(planner.resupplyInterval, specifier: "%.0f") seconds")
-            Slider(value: $planner.resupplyInterval, in: 0...86400 * 1) // 1 day
-                .padding()
-            
-            Text("Resupply Requirements:")
-            ForEach(planner.calculateResupplyRequirements().sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
-                Text("\(key): \(value, specifier: "%.2f") \(planner.water.unit)")
+        Form {
+            Section("Mission Parameters") {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Duration: \(Int(planner.missionDuration / 3600))h \(Int(planner.missionDuration.truncatingRemainder(dividingBy: 3600) / 60))m")
+                        .font(.caption).foregroundColor(.secondary)
+                    Slider(value: $planner.missionDuration, in: 0...86400 * 7)
+                }
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Resupply every: \(Int(planner.resupplyInterval / 3600))h")
+                        .font(.caption).foregroundColor(.secondary)
+                    Slider(value: $planner.resupplyInterval, in: 0...86400)
+                }
             }
-            
-            Text("Track Actual Consumption:")
-            HStack {
-                Text("Water:")
-                TextField("0.0", value: $tracker.water, formatter: NumberFormatter())
-                    .keyboardType(.decimalPad)
+
+            Section("Resupply Requirements") {
+                ForEach(planner.calculateResupplyRequirements().sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+                    HStack {
+                        Text(key)
+                        Spacer()
+                        Text(String(format: "%.2f %@", value, planner.unitFor(key: key)))
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
-            HStack {
-                Text("Food:")
-                TextField("0.0", value: $tracker.food, formatter: NumberFormatter())
-                    .keyboardType(.decimalPad)
+
+            Section("Track Actual Usage") {
+                HStack { Text("Water"); Spacer(); TextField("0.0", value: $tracker.water, formatter: NumberFormatter()).keyboardType(.decimalPad).multilineTextAlignment(.trailing) }
+                HStack { Text("Food"); Spacer(); TextField("0.0", value: $tracker.food, formatter: NumberFormatter()).keyboardType(.decimalPad).multilineTextAlignment(.trailing) }
+                HStack { Text("Batteries"); Spacer(); TextField("0.0", value: $tracker.batteries, formatter: NumberFormatter()).keyboardType(.decimalPad).multilineTextAlignment(.trailing) }
+                HStack { Text("Fuel"); Spacer(); TextField("0.0", value: $tracker.fuel, formatter: NumberFormatter()).keyboardType(.decimalPad).multilineTextAlignment(.trailing) }
+                HStack { Text("Ammo"); Spacer(); TextField("0.0", value: $tracker.ammo, formatter: NumberFormatter()).keyboardType(.decimalPad).multilineTextAlignment(.trailing) }
+
+                Button("Log Consumption") {
+                    planner.actualWaterConsumption = tracker.water
+                    planner.actualFoodConsumption = tracker.food
+                    planner.actualBatteriesConsumption = tracker.batteries
+                    planner.actualFuelConsumption = tracker.fuel
+                    planner.actualAmmoConsumption = tracker.ammo
+                }
             }
-            HStack {
-                Text("Batteries:")
-                TextField("0.0", value: $tracker.batteries, formatter: NumberFormatter())
-                    .keyboardType(.decimalPad)
-            }
-            HStack {
-                Text("Fuel:")
-                TextField("0.0", value: $tracker.fuel, formatter: NumberFormatter())
-                    .keyboardType(.decimalPad)
-            }
-            HStack {
-                Text("Ammo:")
-                TextField("0.0", value: $tracker.ammo, formatter: NumberFormatter())
-                    .keyboardType(.decimalPad)
-            }
-            
-            Button("Track") {
-                planner.actualWaterConsumption = tracker.water
-                planner.actualFoodConsumption = tracker.food
-                planner.actualBatteriesConsumption = tracker.batteries
-                planner.actualFuelConsumption = tracker.fuel
-                planner.actualAmmoConsumption = tracker.ammo
-            }
-            .padding()
         }
-        .padding()
+        .navigationTitle("Consumption Planner")
     }
 }
 
-// MARK: - Preview
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
+#Preview {
+    NavigationStack { ConsumptionPlannerView() }
 }

@@ -1,7 +1,6 @@
 import Foundation
 import SwiftUI
 import AVFoundation
-import CoreLocation
 
 // MARK: - RadioScanner
 

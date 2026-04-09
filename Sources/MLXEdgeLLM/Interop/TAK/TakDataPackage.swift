@@ -1,8 +1,6 @@
 import Foundation
 import SwiftUI
 import CoreLocation
-import ARKit
-import AVFoundation
 import ZIPFoundation
 
 // MARK: - TAK Data Package Handler

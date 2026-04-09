@@ -1,8 +1,6 @@
 import SwiftUI
 import MapKit
 import CoreLocation
-import ARKit
-import AVFoundation
 
 // MARK: - Models
 

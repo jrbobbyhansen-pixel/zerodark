@@ -1,134 +1,181 @@
+// SitrepGenerator.swift — Structured SITREP from live system state
+// Pulls real data from LocationManager, CheckInSystem, MeshRelay, WeatherService
+
 import Foundation
 import SwiftUI
-import CoreLocation
-import ARKit
-import AVFoundation
 
 // MARK: - SitrepGenerator
 
-class SitrepGenerator: ObservableObject {
-    @Published var sitrep: String = ""
-    @Published var isGenerating: Bool = false
-    
-    private let locationManager = CLLocationManager()
-    private let arSession = ARSession()
-    private let audioRecorder = AVAudioRecorder()
-    
-    init() {
-        locationManager.delegate = self
-        arSession.delegate = self
-        setupAudioRecorder()
-    }
-    
-    func generateSitrep() async {
+@MainActor
+final class SitrepGenerator: ObservableObject {
+    static let shared = SitrepGenerator()
+
+    @Published var currentSitrep: String = ""
+    @Published var isGenerating = false
+    @Published var lastGenerated: Date?
+
+    private init() {}
+
+    // MARK: - Generate SITREP from Live Data
+
+    func generateSitrep() {
         isGenerating = true
-        let location = await getCurrentLocation()
-        let environmentData = await getEnvironmentData()
-        let teamStatus = await getTeamStatus()
-        
-        sitrep = "SITREP:\nLocation: \(location)\nEnvironment: \(environmentData)\nTeam Status: \(teamStatus)"
-        isGenerating = false
-    }
-    
-    private func getCurrentLocation() async -> String {
-        return "Latitude: \(locationManager.location?.coordinate.latitude ?? 0), Longitude: \(locationManager.location?.coordinate.longitude ?? 0)"
-    }
-    
-    private func getEnvironmentData() async -> String {
-        return "AR Session: \(arSession.currentFrame?.camera.transform.description ?? "N/A")"
-    }
-    
-    private func getTeamStatus() async -> String {
-        return "All team members are accounted for."
-    }
-    
-    private func setupAudioRecorder() {
-        let audioSession = AVAudioSession.sharedInstance()
-        do {
-            try audioSession.setCategory(.playAndRecord, mode: .default)
-            try audioSession.setActive(true)
-        } catch {
-            print("Failed to set up audio session: \(error)")
+        defer {
+            isGenerating = false
+            lastGenerated = Date()
         }
-        
-        let settings: [String: Any] = [
-            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-            AVSampleRateKey: 12000,
-            AVNumberOfChannelsKey: 1,
-            AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
-        ]
-        
-        do {
-            audioRecorder = try AVAudioRecorder(url: getDocumentsDirectory().appendingPathComponent("recording.m4a"), settings: settings)
-            audioRecorder.delegate = self
-        } catch {
-            print("Failed to initialize audio recorder: \(error)")
+
+        let dtg = formatDTG(Date())
+        let callsign = AppConfig.deviceCallsign
+
+        // Location
+        let locationLine: String
+        if let loc = LocationService.shared.lastKnownLocation {
+            let mgrs = formatMGRS(lat: loc.coordinate.latitude, lon: loc.coordinate.longitude)
+            locationLine = "\(mgrs) (±\(Int(loc.horizontalAccuracy))m)"
+        } else {
+            locationLine = "GPS UNAVAILABLE"
         }
+
+        // Team status
+        let checkIns = CheckInSystem.shared.checkIns
+        let overdue = CheckInSystem.shared.overdueCheckIns
+        let teamLine: String
+        if checkIns.isEmpty {
+            teamLine = "No check-ins recorded"
+        } else {
+            let total = checkIns.count
+            let overdueCount = overdue.count
+            if overdueCount > 0 {
+                let names = overdue.map { $0.callsign }.joined(separator: ", ")
+                teamLine = "\(total) total, \(overdueCount) OVERDUE: \(names)"
+            } else {
+                teamLine = "\(total) check-ins, all current"
+            }
+        }
+
+        // Comms
+        let meshPeers = MeshRelay.shared.connectedPeers
+        let channel = ChannelManager.shared.selectedChannel
+        let commsLine = "Mesh peers: \(meshPeers.count), Channel: \(channel?.name ?? "None")"
+
+        // Weather (cached)
+        let weatherLine = WeatherService.shared.cachedConditions ?? "No weather data"
+
+        // Assemble SITREP
+        var sitrep = """
+        ═══════════════════════════════════
+        SITUATION REPORT (SITREP)
+        ═══════════════════════════════════
+        DTG: \(dtg)
+        FROM: \(callsign)
+
+        1. SITUATION
+           Location: \(locationLine)
+           Weather: \(weatherLine)
+
+        2. PERSONNEL
+           \(teamLine)
+
+        3. COMMUNICATIONS
+           \(commsLine)
+
+        4. LOGISTICS
+           Device battery: \(batteryLevel())%
+
+        5. COMMANDER'S ASSESSMENT
+           (Enter assessment)
+        ═══════════════════════════════════
+        """
+
+        currentSitrep = sitrep
+        AuditLogger.shared.log(.reportExported, detail: "SITREP generated")
     }
-    
-    private func getDocumentsDirectory() -> URL {
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        return paths[0]
+
+    // MARK: - Helpers
+
+    private func formatDTG(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "ddHHmm'Z' MMM yy"
+        formatter.timeZone = TimeZone(abbreviation: "UTC")
+        return formatter.string(from: date).uppercased()
     }
-}
 
-// MARK: - CLLocationManagerDelegate
-
-extension SitrepGenerator: CLLocationManagerDelegate {
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        // Handle location updates if needed
+    private func formatMGRS(lat: Double, lon: Double) -> String {
+        // Simplified MGRS-like format — full conversion requires UTM library
+        let latDir = lat >= 0 ? "N" : "S"
+        let lonDir = lon >= 0 ? "E" : "W"
+        return String(format: "%@%.4f %@%.4f", latDir, abs(lat), lonDir, abs(lon))
     }
-}
 
-// MARK: - ARSessionDelegate
-
-extension SitrepGenerator: ARSessionDelegate {
-    func session(_ session: ARSession, didUpdate frame: ARFrame) {
-        // Handle AR frame updates if needed
+    private func batteryLevel() -> Int {
+        UIDevice.current.isBatteryMonitoringEnabled = true
+        let level = UIDevice.current.batteryLevel
+        return level >= 0 ? Int(level * 100) : -1
     }
-}
 
-// MARK: - AVAudioRecorderDelegate
+    func exportSitrep() {
+        guard !currentSitrep.isEmpty else { return }
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("SITREP-\(Int(Date().timeIntervalSince1970)).txt")
+        try? currentSitrep.write(to: tempURL, atomically: true, encoding: .utf8)
 
-extension SitrepGenerator: AVAudioRecorderDelegate {
-    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
-        // Handle audio recording completion if needed
+        let av = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.windows.first?.rootViewController?
+            .present(av, animated: true)
     }
 }
 
 // MARK: - SitrepView
 
 struct SitrepView: View {
-    @StateObject private var sitrepGenerator = SitrepGenerator()
-    
+    @StateObject private var gen = SitrepGenerator.shared
+
     var body: some View {
-        VStack {
-            Text(sitrepGenerator.sitrep)
-                .padding()
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(10)
-            
-            Button(action: {
-                Task {
-                    await sitrepGenerator.generateSitrep()
+        Form {
+            Section {
+                Button {
+                    gen.generateSitrep()
+                } label: {
+                    Label("Generate SITREP", systemImage: "doc.text.fill")
+                        .frame(maxWidth: .infinity)
                 }
-            }) {
-                Text("Generate SITREP")
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+                .buttonStyle(.borderedProminent)
+                .tint(ZDDesign.cyanAccent)
+                .disabled(gen.isGenerating)
             }
-            .disabled(sitrepGenerator.isGenerating)
+
+            if !gen.currentSitrep.isEmpty {
+                Section("Current SITREP") {
+                    Text(gen.currentSitrep)
+                        .font(.system(.caption, design: .monospaced))
+                        .textSelection(.enabled)
+                }
+
+                if let last = gen.lastGenerated {
+                    Section {
+                        LabeledContent("Generated", value: last, format: .dateTime)
+                            .font(.caption)
+                    }
+                }
+
+                Section {
+                    Button {
+                        gen.exportSitrep()
+                    } label: {
+                        Label("Export SITREP", systemImage: "square.and.arrow.up")
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+            }
         }
-        .padding()
+        .navigationTitle("SITREP Generator")
+        .navigationBarTitleDisplayMode(.large)
     }
 }
 
-// MARK: - Preview
-
-struct SitrepView_Previews: PreviewProvider {
-    static var previews: some View {
-        SitrepView()
-    }
+#Preview {
+    NavigationStack { SitrepView() }
 }

@@ -1,35 +1,79 @@
+// SettingsTabView.swift — App Settings + TAK/AI Configuration
+// Credentials stored in Keychain (not @State/UserDefaults)
+// Form validation enforced before connect attempts
+
 import SwiftUI
 
 struct SettingsTabView: View {
-    @State private var callsign = AppConfig.deviceCallsign
-    @State private var takHost = ""
-    @State private var takPort = "\(AppConfig.defaultTAKPort)"
+    // Identity
+    @State private var callsign: String = ZDKeychain.load(key: ZDKeychain.Keys.callsign) ?? AppConfig.deviceCallsign
+    @State private var isEditingCallsign = false
+
+    // TAK — loaded from Keychain on appear
+    @State private var takHost    = ""
+    @State private var takPort    = "\(AppConfig.defaultTAKPort)"
     @State private var takTLSPort = "\(AppConfig.defaultTAKTLSPort)"
+    @State private var takHostValid = true
+    @State private var takPortValid = true
+
     @StateObject private var takConnector = FreeTAKConnector.shared
-    @StateObject private var engine = LocalInferenceEngine.shared
-    @StateObject private var modelMgr = ModelManager.shared
-    @State private var showCopiedToast = false
+    @StateObject private var engine       = LocalInferenceEngine.shared
+    @StateObject private var modelMgr     = ModelManager.shared
+
+    @State private var toast: ToastMessage? = nil
+    @State private var showAuditLog = false
 
     var body: some View {
         NavigationStack {
             Form {
+
+                // MARK: Identity
                 Section("Identity") {
-                    LabeledContent("Callsign", value: callsign)
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
+                    if isEditingCallsign {
+                        HStack {
+                            TextField("Callsign", text: $callsign)
+                                .autocapitalization(.allCharacters)
+                                .disableAutocorrection(true)
+                            Button("Save") {
+                                AppConfig.deviceCallsign = callsign
+                                ZDKeychain.save(callsign, key: ZDKeychain.Keys.callsign)
+                                isEditingCallsign = false
+                                showToast("Callsign saved", symbol: "checkmark.circle.fill", color: .green)
+                                AuditLogger.shared.log(.credentialUpdated, detail: "callsign updated")
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint(ZDDesign.cyanAccent)
+                        }
+                    } else {
+                        HStack {
+                            LabeledContent("Callsign", value: callsign)
+                                .font(.subheadline)
+                            Spacer()
+                            Button("Edit") { isEditingCallsign = true }
+                                .font(.caption)
+                                .foregroundColor(ZDDesign.cyanAccent)
+                        }
+                    }
                 }
 
+                // MARK: TAK Server
                 Section("TAK Server") {
-                    TextField("Host", text: $takHost)
-                        .keyboardType(.default)
-                    TextField("TCP Port", text: $takPort)
-                        .keyboardType(.numberPad)
-                    TextField("TLS Port", text: $takTLSPort)
-                        .keyboardType(.numberPad)
+                    ValidatedTextField("Host / IP", text: $takHost, isValid: $takHostValid) {
+                        isValidHost($0)
+                    }
+                    ValidatedTextField("TCP Port", text: $takPort, isValid: $takPortValid) {
+                        isValidPort($0)
+                    }
+                    .keyboardType(.numberPad)
+                    ValidatedTextField("TLS Port", text: $takTLSPort, isValid: .constant(true)) {
+                        isValidPort($0)
+                    }
+                    .keyboardType(.numberPad)
 
                     if takConnector.isConnected {
                         Label("Connected", systemImage: "checkmark.circle.fill")
                             .foregroundColor(ZDDesign.successGreen)
+                            .accessibilityLabel("TAK server connected")
                     } else if let error = takConnector.lastError {
                         Label(error, systemImage: "xmark.circle.fill")
                             .foregroundColor(ZDDesign.signalRed)
@@ -38,151 +82,169 @@ struct SettingsTabView: View {
 
                     VStack(spacing: 8) {
                         Button("Connect (TCP)") {
+                            saveTAKCredentials()
                             if let port = UInt16(takPort) {
                                 takConnector.connect(host: takHost, port: port)
+                                AuditLogger.shared.log(.peerConnected, detail: "TAK TCP \(takHost):\(port)")
                             }
                         }
-                        .disabled(takHost.isEmpty)
+                        .disabled(!canConnect)
+                        .frame(maxWidth: .infinity)
+                        .accessibilityHint("Connect to TAK server over TCP")
 
                         Button("Connect (TLS)") {
+                            saveTAKCredentials()
                             if let port = UInt16(takTLSPort) {
                                 takConnector.connectTLS(host: takHost, port: port)
+                                AuditLogger.shared.log(.peerConnected, detail: "TAK TLS \(takHost):\(port)")
                             }
                         }
-                        .disabled(takHost.isEmpty)
+                        .disabled(!canConnect)
+                        .frame(maxWidth: .infinity)
+                        .accessibilityHint("Connect to TAK server over TLS (encrypted)")
 
                         if takConnector.isConnected {
                             Button("Disconnect", role: .destructive) {
                                 takConnector.disconnect()
+                                AuditLogger.shared.log(.peerDisconnected, detail: "TAK disconnect")
                             }
+                            .frame(maxWidth: .infinity)
                         }
                     }
+
+                    Text("Host must be an IP or hostname. Ports 1–65535.")
+                        .font(.caption2)
+                        .foregroundColor(ZDDesign.mediumGray)
                 }
 
+                // MARK: Local AI Model
                 Section("Local AI Model") {
                     switch engine.modelState {
                     case .notLoaded:
-                        HStack {
+                        HStack(alignment: .top, spacing: 10) {
                             Image(systemName: "exclamationmark.circle.fill")
                                 .foregroundColor(ZDDesign.signalRed)
+                                .padding(.top, 2)
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Phi-3.5-mini Not Installed")
-                                    .font(.subheadline)
-                                    .foregroundColor(ZDDesign.pureWhite)
-                                Text("The on-device model enables fully offline AI responses.\nModel: Phi-3.5-mini (2.2GB) — no internet required after install")
-                                    .font(.caption2)
-                                    .foregroundColor(ZDDesign.mediumGray)
+                                Text("Model Not Installed")
+                                    .font(.subheadline).foregroundColor(ZDDesign.pureWhite)
+                                Text("On-device model enables fully offline AI. Phi-3.5-mini (2.2GB) — no internet required after install.")
+                                    .font(.caption2).foregroundColor(ZDDesign.mediumGray)
                             }
                         }
-                        Button(action: { Task { await modelMgr.installFromBundle() } }) {
+                        Button { Task { await modelMgr.installFromBundle() } } label: {
                             Label("Install from Bundle", systemImage: "arrow.down.circle.fill")
                                 .frame(maxWidth: .infinity)
                         }
                         .disabled(!modelMgr.modelInstalled)
                         .buttonStyle(.bordered)
-                        Button(action: {
+
+                        Button {
                             UIPasteboard.general.string = """
                             ZeroDark Model Setup:
                             1. Download phi-3.5-mini.gguf from HuggingFace
                             2. Connect iPhone via USB
                             3. Open Finder → iPhone → Files → ZeroDark
-                            4. Copy model file to Models folder
+                            4. Copy model to Models folder
                             5. Restart app
                             """
-                            showCopiedToast = true
-                        }) {
-                            Label("Copy Instructions", systemImage: "doc.on.doc.fill")
+                            showToast("Instructions copied", symbol: "doc.on.doc.fill", color: ZDDesign.cyanAccent)
+                        } label: {
+                            Label("Copy Setup Instructions", systemImage: "doc.on.doc.fill")
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.bordered)
+
                     case .loading:
                         HStack {
-                            ProgressView()
-                                .tint(ZDDesign.safetyYellow)
-                            Text("Loading Phi-3.5-mini...")
-                                .font(.caption)
-                                .foregroundColor(ZDDesign.mediumGray)
+                            ProgressView().tint(ZDDesign.safetyYellow)
+                            Text("Loading model…").font(.caption).foregroundColor(ZDDesign.mediumGray)
                         }
-                        ProgressView(value: engine.loadProgress)
-                            .tint(ZDDesign.safetyYellow)
+                        ProgressView(value: engine.loadProgress).tint(ZDDesign.safetyYellow)
+
                     case .ready:
-                        HStack {
+                        HStack(alignment: .top, spacing: 10) {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundColor(ZDDesign.successGreen)
+                                .padding(.top, 2)
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Phi-3.5-mini — On Device")
-                                    .font(.subheadline)
-                                    .foregroundColor(ZDDesign.pureWhite)
-                                Text("\(modelMgr.installedModelSize) • Running on A18 Pro • CPU/NEON")
-                                    .font(.caption2)
-                                    .foregroundColor(ZDDesign.mediumGray)
+                                    .font(.subheadline).foregroundColor(ZDDesign.pureWhite)
+                                Text("\(modelMgr.installedModelSize) • A18 Pro • CPU/NEON")
+                                    .font(.caption2).foregroundColor(ZDDesign.mediumGray)
                             }
                         }
-                        Button(action: { engine.unloadModel() }) {
-                            Label("Unload Model", systemImage: "trash.fill")
-                                .frame(maxWidth: .infinity)
+                        Button { engine.unloadModel() } label: {
+                            Label("Unload Model", systemImage: "trash.fill").frame(maxWidth: .infinity)
                         }
-                        .buttonStyle(.bordered)
-                        .tint(ZDDesign.signalRed)
+                        .buttonStyle(.bordered).tint(ZDDesign.signalRed)
+
                     case .error(let msg):
-                        HStack {
+                        HStack(alignment: .top, spacing: 10) {
                             Image(systemName: "exclamationmark.circle.fill")
-                                .foregroundColor(ZDDesign.signalRed)
+                                .foregroundColor(ZDDesign.signalRed).padding(.top, 2)
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Model Error")
-                                    .font(.subheadline)
-                                    .foregroundColor(ZDDesign.pureWhite)
-                                Text(msg)
-                                    .font(.caption2)
-                                    .foregroundColor(ZDDesign.mediumGray)
+                                Text("Model Error").font(.subheadline).foregroundColor(ZDDesign.pureWhite)
+                                Text(msg).font(.caption2).foregroundColor(ZDDesign.mediumGray)
                             }
                         }
-                        Button(action: { Task { await engine.loadModel() } }) {
-                            Label("Retry", systemImage: "arrow.counterclockwise")
-                                .frame(maxWidth: .infinity)
+                        Button { Task { await engine.loadModel() } } label: {
+                            Label("Retry", systemImage: "arrow.counterclockwise").frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.bordered)
                     }
                 }
 
+                // MARK: Remote AI Servers
                 Section("Remote AI Servers") {
-                    Text("Used when on-device model is unavailable or for vision analysis.")
-                        .font(.caption2)
-                        .foregroundColor(ZDDesign.mediumGray)
-                    HStack {
-                        Circle().fill(TextInferenceClient.shared.isConnected ? ZDDesign.successGreen : ZDDesign.warmGray)
-                            .frame(width: 8, height: 8)
-                        Text("Phi-3.5-mini (Text)").font(.caption).foregroundColor(TextInferenceClient.shared.isConnected ? ZDDesign.successGreen : .secondary)
+                    Text("Used when on-device model is unavailable or for vision tasks.")
+                        .font(.caption2).foregroundColor(ZDDesign.mediumGray)
+
+                    serverRow(label: "Text (Phi-3.5)", client: TextInferenceClient.shared) {
+                        TextField("Text Server URL", text: Binding(
+                            get: { TextInferenceClient.shared.serverURL },
+                            set: { TextInferenceClient.shared.serverURL = $0 }
+                        )).keyboardType(.URL).autocapitalization(.none)
+                        Button("Test") { Task { await TextInferenceClient.shared.checkConnection() } }
                     }
-                    TextField("Text Server URL", text: Binding(
-                        get: { TextInferenceClient.shared.serverURL },
-                        set: { TextInferenceClient.shared.serverURL = $0 }
-                    )).keyboardType(.URL).autocapitalization(.none)
-                    Button("Test Text Connection") { Task { await TextInferenceClient.shared.checkConnection() } }
 
                     Divider()
 
-                    HStack {
-                        Circle().fill(VisionInferenceClient.shared.isConnected ? ZDDesign.successGreen : ZDDesign.warmGray)
-                            .frame(width: 8, height: 8)
-                        Text("moondream2 (Vision)").font(.caption).foregroundColor(VisionInferenceClient.shared.isConnected ? ZDDesign.successGreen : .secondary)
+                    serverRow(label: "Vision (moondream2)", client: VisionInferenceClient.shared) {
+                        TextField("Vision Server URL", text: Binding(
+                            get: { VisionInferenceClient.shared.serverURL },
+                            set: { VisionInferenceClient.shared.serverURL = $0 }
+                        )).keyboardType(.URL).autocapitalization(.none)
+                        Button("Test") { Task { await VisionInferenceClient.shared.checkConnection() } }
                     }
-                    TextField("Vision Server URL", text: Binding(
-                        get: { VisionInferenceClient.shared.serverURL },
-                        set: { VisionInferenceClient.shared.serverURL = $0 }
-                    )).keyboardType(.URL).autocapitalization(.none)
-                    Button("Test Vision Connection") { Task { await VisionInferenceClient.shared.checkConnection() } }
 
-                    Text("Start servers on Mac: see ~/Desktop/start-bitnet-server.sh")
+                    Text("Mac server scripts: ~/Desktop/start-bitnet-server.sh")
                         .font(.caption2).foregroundColor(ZDDesign.mediumGray)
                 }
 
+                // MARK: Maps
                 Section("Maps") {
-                    NavigationLink("Offline Map Downloads") {
-                        TileDownloadView()
-                    }
+                    NavigationLink("Offline Map Downloads") { TileDownloadView() }
                 }
 
+                // MARK: Security
+                Section("Security") {
+                    Button("Export Audit Log") {
+                        AuditLogger.shared.log(.logsExported, detail: "audit CSV export")
+                        if let url = AuditLogger.shared.exportCSVToFile() {
+                            // Present share sheet
+                            let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+                            UIApplication.shared.connectedScenes
+                                .compactMap { $0 as? UIWindowScene }
+                                .first?.windows.first?.rootViewController?
+                                .present(av, animated: true)
+                        }
+                    }
+                    .foregroundColor(ZDDesign.cyanAccent)
+                    NavigationLink("View Audit Log") { AuditLogView() }
+                }
+
+                // MARK: Device Info
                 Section("Device Info") {
                     LabeledContent("Device", value: UIDevice.current.name)
                     LabeledContent("OS", value: UIDevice.current.systemVersion)
@@ -191,38 +253,164 @@ struct SettingsTabView: View {
 
                 Section("About") {
                     LabeledContent("Version", value: "1.0.0")
-                    LabeledContent("Bundle ID", value: "com.bobbyhansen.zerodark")
+                    LabeledContent("Build", value: "government-ready")
                 }
             }
             .navigationTitle("Settings")
+            .onAppear { loadTAKCredentials() }
             .overlay(alignment: .bottom) {
-                if showCopiedToast {
-                    Text("Copied to clipboard")
-                        .font(.caption)
-                        .padding(8)
-                        .background(ZDDesign.darkCard)
-                        .cornerRadius(8)
-                        .transition(.opacity)
+                if let toast {
+                    ToastView(toast: toast)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
                         .onAppear {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                withAnimation { showCopiedToast = false }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                                withAnimation(.easeOut(duration: 0.3)) { self.toast = nil }
                             }
                         }
-                        .padding()
+                        .padding(.bottom, 20)
                 }
+            }
+            .animation(.easeInOut(duration: 0.3), value: toast?.id)
+        }
+    }
+
+    // MARK: - Helpers
+
+    private var canConnect: Bool {
+        !takHost.isEmpty && takHostValid && takPortValid
+    }
+
+    private func isValidHost(_ host: String) -> Bool {
+        !host.isEmpty && host.count <= 253
+    }
+
+    private func isValidPort(_ port: String) -> Bool {
+        guard let p = Int(port) else { return false }
+        return p >= 1 && p <= 65535
+    }
+
+    private func saveTAKCredentials() {
+        ZDKeychain.save(takHost, key: ZDKeychain.Keys.takHost)
+        ZDKeychain.save(takPort, key: ZDKeychain.Keys.takPort)
+        ZDKeychain.save(takTLSPort, key: ZDKeychain.Keys.takTLSPort)
+        AuditLogger.shared.log(.credentialUpdated, detail: "TAK credentials saved to Keychain")
+    }
+
+    private func loadTAKCredentials() {
+        takHost    = ZDKeychain.load(key: ZDKeychain.Keys.takHost) ?? ""
+        takPort    = ZDKeychain.load(key: ZDKeychain.Keys.takPort) ?? "\(AppConfig.defaultTAKPort)"
+        takTLSPort = ZDKeychain.load(key: ZDKeychain.Keys.takTLSPort) ?? "\(AppConfig.defaultTAKTLSPort)"
+    }
+
+    private func showToast(_ message: String, symbol: String, color: Color) {
+        withAnimation(.spring()) {
+            toast = ToastMessage(message: message, symbol: symbol, color: color)
+        }
+    }
+
+    @ViewBuilder
+    private func serverRow<Content: View>(label: String, client: some AnyObject, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Circle().fill((client as? TextInferenceClient)?.isConnected == true || (client as? VisionInferenceClient)?.isConnected == true ? ZDDesign.successGreen : ZDDesign.warmGray)
+                    .frame(width: 8, height: 8)
+                Text(label).font(.caption)
+            }
+            content()
+        }
+    }
+}
+
+// MARK: - ValidatedTextField
+
+private struct ValidatedTextField: View {
+    let placeholder: String
+    @Binding var text: String
+    @Binding var isValid: Bool
+    let validate: (String) -> Bool
+
+    init(_ placeholder: String, text: Binding<String>, isValid: Binding<Bool>, validate: @escaping (String) -> Bool) {
+        self.placeholder = placeholder
+        self._text = text
+        self._isValid = isValid
+        self.validate = validate
+    }
+
+    var body: some View {
+        HStack {
+            TextField(placeholder, text: $text)
+                .onChange(of: text) { _, new in isValid = validate(new) }
+            if !text.isEmpty && !isValid {
+                Image(systemName: "exclamationmark.circle.fill")
+                    .foregroundColor(ZDDesign.signalRed)
+                    .font(.caption)
             }
         }
     }
 }
+
+// MARK: - ToastMessage
+
+struct ToastMessage: Identifiable, Equatable {
+    let id = UUID()
+    let message: String
+    let symbol: String
+    let color: Color
+}
+
+// MARK: - ToastView
+
+struct ToastView: View {
+    let toast: ToastMessage
+    var body: some View {
+        Label(toast.message, systemImage: toast.symbol)
+            .font(.subheadline.weight(.medium))
+            .foregroundColor(toast.color)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+            .shadow(radius: 4)
+    }
+}
+
+// MARK: - AuditLogView
+
+struct AuditLogView: View {
+    @State private var entries: [AuditEntry] = []
+    var body: some View {
+        List(entries) { entry in
+            VStack(alignment: .leading, spacing: 2) {
+                HStack {
+                    Text(entry.type.rawValue)
+                        .font(.caption.monospaced())
+                        .foregroundColor(ZDDesign.cyanAccent)
+                    Spacer()
+                    Text(entry.timestamp, style: .time)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                if !entry.detail.isEmpty {
+                    Text(entry.detail)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .navigationTitle("Audit Log")
+        .onAppear { entries = AuditLogger.shared.recentEntries(limit: 500) }
+    }
+}
+
+// MARK: - UIDevice Extension
 
 extension UIDevice {
     var modelName: String {
         var systemInfo = utsname()
         uname(&systemInfo)
         let machineMirror = Mirror(reflecting: systemInfo.machine)
-        let identifier = machineMirror.children.reduce("") { identifier, element in
-            guard let value = element.value as? Int8, value != 0 else { return identifier }
-            return identifier + String(UnicodeScalar(UInt8(value)))
+        let identifier = machineMirror.children.reduce("") { id, element in
+            guard let value = element.value as? Int8, value != 0 else { return id }
+            return id + String(UnicodeScalar(UInt8(value)))
         }
         return identifier
     }

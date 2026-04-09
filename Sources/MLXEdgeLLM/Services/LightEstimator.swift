@@ -2,7 +2,6 @@ import Foundation
 import SwiftUI
 import CoreLocation
 import ARKit
-import AVFoundation
 
 class LightEstimator: ObservableObject {
     @Published var ambientLightLevel: CGFloat = 0.5

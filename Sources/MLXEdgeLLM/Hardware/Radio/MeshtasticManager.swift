@@ -1,9 +1,6 @@
 import Foundation
 import SwiftUI
 import CoreBluetooth
-import CoreLocation
-import ARKit
-import AVFoundation
 
 class MeshtasticManager: ObservableObject {
     @Published var isScanning = false

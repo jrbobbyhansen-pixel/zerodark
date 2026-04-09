@@ -7,9 +7,11 @@ struct OpsCommsStrip: View {
     @StateObject private var mesh = MeshService.shared
     @StateObject private var ptt = PTTController.shared
     @StateObject private var haptic = HapticComms.shared
+    @StateObject private var hapticPTT = HapticPTTController.shared
     @StateObject private var activity = ActivityFeed.shared
     @StateObject private var dtnBuffer = DTNBuffer.shared
     @StateObject private var incidents = IncidentStore.shared
+    @StateObject private var relay = MeshRelay.shared
 
     @State private var isExpanded = false
     @State private var showJoinSheet = false
@@ -87,38 +89,57 @@ struct OpsCommsStrip: View {
                         .cornerRadius(8)
                 }
 
-                // Haptic
+                // Comms mode toggle (PTT/Haptic/Silent)
                 Button {
-                    showHapticPicker = true
+                    hapticPTT.cycleMode()
                 } label: {
-                    Image(systemName: "hand.tap.fill")
+                    Image(systemName: hapticPTT.mode.icon)
                         .font(.caption)
-                        .foregroundColor(ZDDesign.cyanAccent)
+                        .foregroundColor(commsModeTint)
                         .frame(width: 32, height: 32)
                         .background(ZDDesign.darkBackground)
                         .cornerRadius(8)
-                }
-
-                // Compact PTT
-                Button {} label: {
-                    Image(systemName: ptt.isTransmitting ? "mic.fill" : "mic")
-                        .font(.caption)
-                        .foregroundColor(ptt.isTransmitting ? ZDDesign.signalRed : ZDDesign.cyanAccent)
-                        .frame(width: 32, height: 32)
-                        .background(ptt.isTransmitting ? ZDDesign.signalRed.opacity(0.3) : ZDDesign.darkBackground)
-                        .cornerRadius(8)
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(ptt.isTransmitting ? ZDDesign.signalRed : Color.clear, lineWidth: 1)
+                                .stroke(commsModeTint.opacity(0.5), lineWidth: 1)
                         )
                 }
-                .simultaneousGesture(
-                    DragGesture(minimumDistance: 0)
-                        .onChanged { _ in
-                            if !ptt.isTransmitting { ptt.startTransmit() }
-                        }
-                        .onEnded { _ in ptt.stopTransmit() }
-                )
+
+                // Context-aware comms button
+                if hapticPTT.mode == .ptt {
+                    // PTT press-and-hold
+                    Button {} label: {
+                        Image(systemName: ptt.isTransmitting ? "mic.fill" : "mic")
+                            .font(.caption)
+                            .foregroundColor(ptt.isTransmitting ? ZDDesign.signalRed : ZDDesign.cyanAccent)
+                            .frame(width: 32, height: 32)
+                            .background(ptt.isTransmitting ? ZDDesign.signalRed.opacity(0.3) : ZDDesign.darkBackground)
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(ptt.isTransmitting ? ZDDesign.signalRed : Color.clear, lineWidth: 1)
+                            )
+                    }
+                    .simultaneousGesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { _ in
+                                if !ptt.isTransmitting { hapticPTT.startTransmit() }
+                            }
+                            .onEnded { _ in hapticPTT.stopTransmit() }
+                    )
+                } else if hapticPTT.mode == .haptic {
+                    // Haptic picker
+                    Button {
+                        showHapticPicker = true
+                    } label: {
+                        Image(systemName: "hand.tap.fill")
+                            .font(.caption)
+                            .foregroundColor(ZDDesign.cyanAccent)
+                            .frame(width: 32, height: 32)
+                            .background(ZDDesign.darkBackground)
+                            .cornerRadius(8)
+                    }
+                }
 
                 // SOS
                 Button {
@@ -283,6 +304,14 @@ struct OpsCommsStrip: View {
     }
 
     // MARK: - Computed
+
+    private var commsModeTint: Color {
+        switch hapticPTT.mode {
+        case .ptt: return ZDDesign.cyanAccent
+        case .haptic: return ZDDesign.safetyYellow
+        case .silent: return ZDDesign.mediumGray
+        }
+    }
 
     private var alerts: [OpsAlert] {
         var result: [OpsAlert] = []

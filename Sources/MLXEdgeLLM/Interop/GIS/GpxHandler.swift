@@ -1,5 +1,4 @@
 import Foundation
-import CoreLocation
 
 // MARK: - GPX Handler
 

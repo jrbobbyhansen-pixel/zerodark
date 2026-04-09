@@ -1,7 +1,6 @@
 // ReportFormView.swift — Report Form UI for all tactical report types
 
 import SwiftUI
-import CoreLocation
 
 struct ReportFormView: View {
     @Environment(\.dismiss) var dismiss

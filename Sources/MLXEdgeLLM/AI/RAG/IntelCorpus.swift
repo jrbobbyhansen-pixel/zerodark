@@ -1,7 +1,7 @@
 // IntelCorpus.swift — Multi-Modal RAG Fusion Coordinator
 // ZeroDark Intel Tab v6.0
 //
-// Fuses: KnowledgeRAG + TacticalCorpus + LessonsLearnedDb + PhotoIntel
+// Fuses: KnowledgeRAG + TacticalCorpus + LessonsLearnedDb
 // into a unified hybrid search across all intelligence sources.
 
 import Foundation

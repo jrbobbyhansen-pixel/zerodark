@@ -1,6 +1,5 @@
 import Foundation
 import SwiftUI
-import CoreLocation
 
 // MARK: - HazmatData
 

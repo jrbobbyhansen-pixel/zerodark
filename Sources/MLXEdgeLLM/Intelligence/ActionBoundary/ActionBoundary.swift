@@ -1,7 +1,6 @@
 // ActionBoundary.swift — Validates AI outputs against allowed action schema (DoD combee pattern)
 
 import Foundation
-import CoreLocation
 
 /// Validates AI outputs against allowed action schema (combee pattern)
 public actor ActionBoundary {

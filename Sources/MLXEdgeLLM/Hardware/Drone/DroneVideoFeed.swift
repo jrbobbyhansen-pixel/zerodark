@@ -1,6 +1,5 @@
 import SwiftUI
 import AVFoundation
-import CoreLocation
 
 // MARK: - DroneVideoFeedView
 

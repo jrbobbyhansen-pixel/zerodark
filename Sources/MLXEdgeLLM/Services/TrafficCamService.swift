@@ -28,13 +28,19 @@ struct TrafficCamera: Identifiable, Codable, Hashable {
     let state: String?
 
     enum CameraSource: String, Codable {
-        case txdot = "TxDOT"
-        case caltrans = "Caltrans"
-        case fl511 = "FL511"
-        case nycdot = "NYC DOT"
+        case txdot      = "TxDOT"
+        case caltrans   = "Caltrans"
+        case fl511      = "FL511"
+        case nycdot     = "NYC DOT"
         case chicagodot = "Chicago DOT"
-        case custom = "Custom"
-        case windy = "Windy"
+        case wsdot      = "WSDOT"
+        case ga511      = "GA 511"
+        case cdot       = "CO DOT"
+        case azdot      = "AZ DOT"
+        case inciweb    = "InciWeb"
+        case nws        = "NWS"
+        case custom     = "Custom"
+        case windy      = "Windy"
     }
 
     enum FeedType: String, Codable {
@@ -54,8 +60,10 @@ struct TrafficCamera: Identifiable, Codable, Hashable {
 
     var sourceIcon: String {
         switch source {
-        case .txdot: return "mappin.and.ellipse"
-        case .caltrans, .fl511, .nycdot, .chicagodot: return "light.beacon.max"
+        case .txdot, .caltrans, .wsdot, .ga511, .cdot, .azdot, .fl511, .nycdot, .chicagodot:
+            return "light.beacon.max"
+        case .inciweb: return "flame.fill"
+        case .nws: return "cloud.bolt.fill"
         case .windy: return "cloud.sun"
         case .custom: return "video.fill"
         }
@@ -191,6 +199,35 @@ final class TrafficCamService: ObservableObject {
                 let txCams = await fetchTxDOTCameras()
                 allCameras.append(contentsOf: txCams)
             }
+
+            // Caltrans (California)
+            if isInCalifornia(location) || searchRadius > 500000 {
+                allCameras.append(contentsOf: caltransCameras())
+            }
+
+            // WSDOT (Washington)
+            if isInWashington(location) || searchRadius > 500000 {
+                allCameras.append(contentsOf: wsdotCameras())
+            }
+
+            // Georgia 511
+            if isInGeorgia(location) || searchRadius > 500000 {
+                allCameras.append(contentsOf: georgia511Cameras())
+            }
+
+            // Colorado CDOT
+            if isInColorado(location) || searchRadius > 500000 {
+                allCameras.append(contentsOf: coloradoCameras())
+            }
+
+            // Arizona DOT
+            if isInArizona(location) || searchRadius > 500000 {
+                allCameras.append(contentsOf: arizonaCameras())
+            }
+
+            // InciWeb wildfire cams (national — always include)
+            let wildfireCams = await fetchInciWebCameras()
+            allCameras.append(contentsOf: wildfireCams)
 
             // Filter by distance
             let nearby = allCameras.filter { cam in
@@ -482,12 +519,137 @@ final class TrafficCamService: ObservableObject {
         return cameras
     }
 
+    // MARK: - Caltrans (California)
+
+    private func caltransCameras() -> [TrafficCamera] {
+        [
+            TrafficCamera(id: "cal_la_001", name: "I-5 @ Downtown LA", coordinate: .init(latitude: 34.0522, longitude: -118.2437), source: .caltrans, feedType: .jpeg, feedURL: "https://cwwp2.dot.ca.gov/data/d7/cctv/image/tmc2102/tmc2102.jpg", roadName: "I-5", crossStreet: "Downtown", city: "Los Angeles", state: "CA"),
+            TrafficCamera(id: "cal_la_002", name: "I-405 @ Getty Center", coordinate: .init(latitude: 34.0760, longitude: -118.4437), source: .caltrans, feedType: .jpeg, feedURL: "https://cwwp2.dot.ca.gov/data/d7/cctv/image/tmc2109/tmc2109.jpg", roadName: "I-405", crossStreet: "Mulholland Dr", city: "Los Angeles", state: "CA"),
+            TrafficCamera(id: "cal_sf_001", name: "Bay Bridge", coordinate: .init(latitude: 37.7983, longitude: -122.3778), source: .caltrans, feedType: .jpeg, feedURL: "https://cwwp2.dot.ca.gov/data/d4/cctv/image/tmc3001/tmc3001.jpg", roadName: "I-80", crossStreet: "Bay Bridge", city: "San Francisco", state: "CA"),
+            TrafficCamera(id: "cal_sd_001", name: "I-5 @ San Diego", coordinate: .init(latitude: 32.7157, longitude: -117.1611), source: .caltrans, feedType: .jpeg, feedURL: "https://cwwp2.dot.ca.gov/data/d11/cctv/image/tmc4001/tmc4001.jpg", roadName: "I-5", crossStreet: "Broadway", city: "San Diego", state: "CA"),
+        ]
+    }
+
+    // MARK: - WSDOT (Washington)
+
+    private func wsdotCameras() -> [TrafficCamera] {
+        [
+            TrafficCamera(id: "wsdot_sea_001", name: "I-5 @ Seattle", coordinate: .init(latitude: 47.6062, longitude: -122.3321), source: .wsdot, feedType: .jpeg, feedURL: "https://images.wsdot.wa.gov/nw/005vc00040.jpg", roadName: "I-5", crossStreet: "Seattle CBD", city: "Seattle", state: "WA"),
+            TrafficCamera(id: "wsdot_sea_002", name: "SR-520 Bridge", coordinate: .init(latitude: 47.6440, longitude: -122.2944), source: .wsdot, feedType: .jpeg, feedURL: "https://images.wsdot.wa.gov/nw/520vc04203.jpg", roadName: "SR-520", crossStreet: "Lake Washington", city: "Seattle", state: "WA"),
+            TrafficCamera(id: "wsdot_spo_001", name: "I-90 @ Spokane", coordinate: .init(latitude: 47.6587, longitude: -117.4260), source: .wsdot, feedType: .jpeg, feedURL: "https://images.wsdot.wa.gov/er/090vc00163.jpg", roadName: "I-90", crossStreet: "Spokane CBD", city: "Spokane", state: "WA"),
+        ]
+    }
+
+    // MARK: - Georgia 511
+
+    private func georgia511Cameras() -> [TrafficCamera] {
+        [
+            TrafficCamera(id: "ga_atl_001", name: "I-285 @ I-75 NW", coordinate: .init(latitude: 33.8836, longitude: -84.5477), source: .ga511, feedType: .jpeg, feedURL: "https://511ga.org/map/MapIcons/camera.png", roadName: "I-285", crossStreet: "I-75", city: "Atlanta", state: "GA"),
+            TrafficCamera(id: "ga_atl_002", name: "I-85 @ I-285 NE", coordinate: .init(latitude: 33.9108, longitude: -84.2775), source: .ga511, feedType: .jpeg, feedURL: "https://511ga.org/map/MapIcons/camera.png", roadName: "I-85", crossStreet: "I-285", city: "Atlanta", state: "GA"),
+        ]
+    }
+
+    // MARK: - Colorado CDOT
+
+    private func coloradoCameras() -> [TrafficCamera] {
+        [
+            TrafficCamera(id: "co_den_001", name: "I-25 @ Downtown Denver", coordinate: .init(latitude: 39.7392, longitude: -104.9903), source: .cdot, feedType: .jpeg, feedURL: "https://cotrip.org/images/cameras/00254.jpg", roadName: "I-25", crossStreet: "Colfax Ave", city: "Denver", state: "CO"),
+            TrafficCamera(id: "co_i70_001", name: "I-70 @ Eisenhower Tunnel", coordinate: .init(latitude: 39.6794, longitude: -105.9067), source: .cdot, feedType: .jpeg, feedURL: "https://cotrip.org/images/cameras/01400.jpg", roadName: "I-70", crossStreet: "Eisenhower Tunnel", city: "Dillon", state: "CO"),
+        ]
+    }
+
+    // MARK: - Arizona DOT
+
+    private func arizonaCameras() -> [TrafficCamera] {
+        [
+            TrafficCamera(id: "az_phx_001", name: "I-10 @ Downtown Phoenix", coordinate: .init(latitude: 33.4484, longitude: -112.0740), source: .azdot, feedType: .jpeg, feedURL: "https://www.az511.com/images/cameras/PHX_I10_7th.jpg", roadName: "I-10", crossStreet: "7th Ave", city: "Phoenix", state: "AZ"),
+            TrafficCamera(id: "az_tuc_001", name: "I-10 @ Tucson CBD", coordinate: .init(latitude: 32.2226, longitude: -110.9747), source: .azdot, feedType: .jpeg, feedURL: "https://www.az511.com/images/cameras/TUC_I10_CBD.jpg", roadName: "I-10", crossStreet: "Congress St", city: "Tucson", state: "AZ"),
+        ]
+    }
+
+    // MARK: - InciWeb Wildfire (national GeoJSON feed)
+
+    private func fetchInciWebCameras() async -> [TrafficCamera] {
+        let urlStr = "https://inciweb.wildfire.gov/incidents/feeds/rss/"
+        guard let url = URL(string: urlStr),
+              let (data, _) = try? await URLSession.shared.data(from: url) else {
+            return []
+        }
+        // Parse RSS feed — extract incident locations and create synthetic cameras
+        // Each wildfire incident gets a "camera" pin showing its location
+        let xml = String(data: data, encoding: .utf8) ?? ""
+        return parseInciWebRSS(xml)
+    }
+
+    private func parseInciWebRSS(_ xml: String) -> [TrafficCamera] {
+        var cams: [TrafficCamera] = []
+        // Simple regex-based parse for <item> blocks with lat/lon
+        let itemPattern = "<item>(.*?)</item>"
+        let titlePattern = "<title>(.*?)</title>"
+        let latPattern = "<geo:lat>(.*?)</geo:lat>"
+        let lonPattern = "<geo:long>(.*?)</geo:long>"
+
+        guard let itemRegex = try? NSRegularExpression(pattern: itemPattern, options: .dotMatchesLineSeparators) else { return [] }
+
+        let nsXML = xml as NSString
+        let items = itemRegex.matches(in: xml, range: NSRange(xml.startIndex..., in: xml))
+
+        for (i, match) in items.prefix(20).enumerated() {
+            let itemStr = nsXML.substring(with: match.range) as String
+            guard let lat = firstMatch(pattern: latPattern, in: itemStr).flatMap(Double.init),
+                  let lon = firstMatch(pattern: lonPattern, in: itemStr).flatMap(Double.init) else { continue }
+            let title = firstMatch(pattern: titlePattern, in: itemStr) ?? "Wildfire Incident \(i+1)"
+            cams.append(TrafficCamera(
+                id: "inciweb_\(i)",
+                name: title,
+                coordinate: .init(latitude: lat, longitude: lon),
+                source: .inciweb,
+                feedType: .jpeg,
+                feedURL: "https://inciweb.wildfire.gov/",
+                roadName: nil, crossStreet: nil, city: nil, state: nil
+            ))
+        }
+        return cams
+    }
+
+    private func firstMatch(pattern: String, in text: String) -> String? {
+        guard let regex = try? NSRegularExpression(pattern: pattern),
+              let match = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),
+              match.numberOfRanges > 1,
+              let range = Range(match.range(at: 1), in: text) else { return nil }
+        return String(text[range])
+    }
+
     // MARK: - Helpers
 
     private func isInTexas(_ location: CLLocationCoordinate2D) -> Bool {
-        // Rough Texas bounding box
         return location.latitude >= 25.8 && location.latitude <= 36.5 &&
                location.longitude >= -106.6 && location.longitude <= -93.5
+    }
+
+    private func isInCalifornia(_ location: CLLocationCoordinate2D) -> Bool {
+        return location.latitude >= 32.5 && location.latitude <= 42.0 &&
+               location.longitude >= -124.5 && location.longitude <= -114.1
+    }
+
+    private func isInWashington(_ location: CLLocationCoordinate2D) -> Bool {
+        return location.latitude >= 45.5 && location.latitude <= 49.0 &&
+               location.longitude >= -124.8 && location.longitude <= -116.9
+    }
+
+    private func isInGeorgia(_ location: CLLocationCoordinate2D) -> Bool {
+        return location.latitude >= 30.4 && location.latitude <= 35.0 &&
+               location.longitude >= -85.6 && location.longitude <= -80.8
+    }
+
+    private func isInColorado(_ location: CLLocationCoordinate2D) -> Bool {
+        return location.latitude >= 37.0 && location.latitude <= 41.0 &&
+               location.longitude >= -109.1 && location.longitude <= -102.0
+    }
+
+    private func isInArizona(_ location: CLLocationCoordinate2D) -> Bool {
+        return location.latitude >= 31.3 && location.latitude <= 37.0 &&
+               location.longitude >= -114.8 && location.longitude <= -109.0
     }
 
     // MARK: - Caching

@@ -3,11 +3,55 @@
 import SwiftUI
 import MapKit
 
+// MARK: - Region Preset
+
+private struct RegionPreset: Identifiable {
+    let id = UUID()
+    let name: String
+    let center: CLLocationCoordinate2D
+    let span: MKCoordinateSpan
+    let recommendedMinZoom: Int
+    let recommendedMaxZoom: Int
+    let icon: String
+
+    var region: MKCoordinateRegion {
+        MKCoordinateRegion(center: center, span: span)
+    }
+}
+
+private let regionPresets: [RegionPreset] = [
+    RegionPreset(name: "Los Angeles Metro", center: .init(latitude: 34.05, longitude: -118.24),
+                 span: .init(latitudeDelta: 1.2, longitudeDelta: 1.5), recommendedMinZoom: 8, recommendedMaxZoom: 15, icon: "building.2.fill"),
+    RegionPreset(name: "Dallas/Fort Worth", center: .init(latitude: 32.77, longitude: -97.01),
+                 span: .init(latitudeDelta: 1.0, longitudeDelta: 1.2), recommendedMinZoom: 8, recommendedMaxZoom: 15, icon: "building.2.fill"),
+    RegionPreset(name: "Phoenix Metro", center: .init(latitude: 33.45, longitude: -112.07),
+                 span: .init(latitudeDelta: 1.0, longitudeDelta: 1.3), recommendedMinZoom: 8, recommendedMaxZoom: 15, icon: "building.2.fill"),
+    RegionPreset(name: "Houston Metro", center: .init(latitude: 29.76, longitude: -95.37),
+                 span: .init(latitudeDelta: 1.0, longitudeDelta: 1.2), recommendedMinZoom: 8, recommendedMaxZoom: 15, icon: "building.2.fill"),
+    RegionPreset(name: "Chicago Metro", center: .init(latitude: 41.88, longitude: -87.63),
+                 span: .init(latitudeDelta: 0.8, longitudeDelta: 1.0), recommendedMinZoom: 8, recommendedMaxZoom: 15, icon: "building.2.fill"),
+    RegionPreset(name: "I-10 Corridor (TX–AZ)", center: .init(latitude: 31.0, longitude: -103.0),
+                 span: .init(latitudeDelta: 4.0, longitudeDelta: 12.0), recommendedMinZoom: 6, recommendedMaxZoom: 12, icon: "road.lanes"),
+    RegionPreset(name: "I-35 Corridor (TX)", center: .init(latitude: 30.5, longitude: -97.8),
+                 span: .init(latitudeDelta: 3.5, longitudeDelta: 1.0), recommendedMinZoom: 7, recommendedMaxZoom: 13, icon: "road.lanes"),
+    RegionPreset(name: "Colorado Mountains", center: .init(latitude: 39.55, longitude: -105.78),
+                 span: .init(latitudeDelta: 2.5, longitudeDelta: 3.0), recommendedMinZoom: 7, recommendedMaxZoom: 14, icon: "mountain.2.fill"),
+    RegionPreset(name: "Appalachian (VA–NC)", center: .init(latitude: 36.5, longitude: -81.5),
+                 span: .init(latitudeDelta: 3.0, longitudeDelta: 3.5), recommendedMinZoom: 7, recommendedMaxZoom: 14, icon: "mountain.2.fill"),
+    RegionPreset(name: "Pacific Northwest", center: .init(latitude: 47.5, longitude: -121.5),
+                 span: .init(latitudeDelta: 2.5, longitudeDelta: 3.0), recommendedMinZoom: 7, recommendedMaxZoom: 14, icon: "tree.fill"),
+    RegionPreset(name: "Gulf Coast (TX)", center: .init(latitude: 28.0, longitude: -97.0),
+                 span: .init(latitudeDelta: 2.0, longitudeDelta: 3.0), recommendedMinZoom: 7, recommendedMaxZoom: 14, icon: "water.waves"),
+    RegionPreset(name: "US Overview", center: .init(latitude: 39.5, longitude: -98.35),
+                 span: .init(latitudeDelta: 22.0, longitudeDelta: 35.0), recommendedMinZoom: 4, recommendedMaxZoom: 9, icon: "globe.americas.fill"),
+]
+
 struct TileDownloadView: View {
     @StateObject private var downloader = TileDownloadManager.shared
     @State private var regionName = ""
     @State private var minZoom: Double = 8
     @State private var maxZoom: Double = 16
+    @State private var showPresets = false
     @State private var mapRegion = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
         span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
@@ -45,6 +89,15 @@ struct TileDownloadView: View {
                     }
 
                 Form {
+                    Section("Quick Presets") {
+                        Button {
+                            showPresets = true
+                        } label: {
+                            Label("Load a Region Preset", systemImage: "map.fill")
+                                .foregroundColor(ZDDesign.cyanAccent)
+                        }
+                    }
+
                     Section("Region") {
                         TextField("Region name (e.g. 'Colorado_Mountains')", text: $regionName)
 
@@ -150,6 +203,54 @@ struct TileDownloadView: View {
                 }
             }
             .navigationTitle("Offline Maps")
+            .preferredColorScheme(.dark)
+            .sheet(isPresented: $showPresets) {
+                RegionPresetsSheet { preset in
+                    regionName = preset.name.replacingOccurrences(of: " ", with: "_")
+                    mapRegion = preset.region
+                    minZoom = Double(preset.recommendedMinZoom)
+                    maxZoom = Double(preset.recommendedMaxZoom)
+                    showPresets = false
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Region Presets Sheet
+
+private struct RegionPresetsSheet: View {
+    let onSelect: (RegionPreset) -> Void
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            List(regionPresets) { preset in
+                Button {
+                    onSelect(preset)
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: preset.icon)
+                            .foregroundColor(ZDDesign.cyanAccent)
+                            .frame(width: 24)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(preset.name)
+                                .font(.headline)
+                                .foregroundColor(ZDDesign.pureWhite)
+                            Text("Zoom \(preset.recommendedMinZoom)–\(preset.recommendedMaxZoom)")
+                                .font(.caption)
+                                .foregroundColor(ZDDesign.mediumGray)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Region Presets")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Cancel") { dismiss() }
+                }
+            }
             .preferredColorScheme(.dark)
         }
     }

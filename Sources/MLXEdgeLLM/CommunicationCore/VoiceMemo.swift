@@ -2,7 +2,6 @@ import Foundation
 import SwiftUI
 import CoreLocation
 import AVFoundation
-import ARKit
 
 // MARK: - VoiceMemo
 

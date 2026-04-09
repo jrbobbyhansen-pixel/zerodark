@@ -2,7 +2,6 @@ import Foundation
 import SwiftUI
 import CoreLocation
 import ARKit
-import AVFoundation
 
 class SolarChargerOptimizer: ObservableObject {
     @Published var solarPanelPosition: CLLocationCoordinate2D?

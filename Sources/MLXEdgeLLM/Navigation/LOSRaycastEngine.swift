@@ -203,6 +203,83 @@ final class LOSRaycastEngine {
         return results
     }
 
+    // MARK: - Reciprocal Viewshed (Counter-Surveillance)
+
+    /// Compute reciprocal viewshed — which points in the area can see the observer
+    /// Critical for counter-surveillance: shows exposure zones the operator must avoid
+    /// - Parameters:
+    ///   - observer: Position to evaluate exposure for
+    ///   - radius: Analysis radius in meters
+    ///   - resolution: Angular resolution (default 360 — every 1°)
+    /// - Returns: Array of (coordinate, canSeeObserver) — canSeeObserver=true means those
+    ///            positions have LOS to the observer, i.e. the observer is exposed to them
+    func computeReciprocalViewshed(
+        observer: CLLocationCoordinate2D,
+        radius: Double = 1500,
+        resolution: Int = 360
+    ) -> [(coordinate: CLLocationCoordinate2D, canSeeObserver: Bool)] {
+        // Reciprocal viewshed = viewshed from observer, but semantics inverted:
+        // "can see" means that location is visible FROM observer = observer is also
+        // visible FROM that location (LOS is symmetric for terrain occlusion).
+        // We compute normally and return the same data with the semantic label flipped.
+        let viewshed = computeViewshed(from: observer, radius: radius, observerHeight: defaultObserverHeight, resolution: resolution)
+        return viewshed.map { (coordinate: $0.coordinate, canSeeObserver: $0.isVisible) }
+    }
+
+    /// Compute combined viewshed for multiple observers — merged visibility
+    /// - Parameters:
+    ///   - observers: Array of observer positions (max 4 for performance)
+    ///   - radius: Analysis radius in meters
+    ///   - mode: .union (any observer can see) or .intersection (all observers can see)
+    func computeMultiObserverViewshed(
+        observers: [CLLocationCoordinate2D],
+        radius: Double = 2000,
+        mode: MultiObserverMode = .union
+    ) async -> [(coordinate: CLLocationCoordinate2D, isVisible: Bool)] {
+        let clamped = Array(observers.prefix(4))
+        guard !clamped.isEmpty else { return [] }
+
+        // Run all viewsheds concurrently
+        var allViewsheds: [[(coordinate: CLLocationCoordinate2D, isVisible: Bool)]] = []
+
+        await withTaskGroup(of: [(CLLocationCoordinate2D, Bool)].self) { group in
+            for obs in clamped {
+                group.addTask { [self] in
+                    self.computeViewshed(from: obs, radius: radius, observerHeight: self.defaultObserverHeight)
+                }
+            }
+            for await result in group {
+                allViewsheds.append(result)
+            }
+        }
+
+        guard let first = allViewsheds.first else { return [] }
+
+        // Merge: build coordinate-keyed visibility
+        // Using first viewshed's coordinates as the reference grid
+        var merged: [(coordinate: CLLocationCoordinate2D, isVisible: Bool)] = []
+        for (i, entry) in first.enumerated() {
+            let coord = entry.coordinate
+            let visibilities = allViewsheds.compactMap { vs -> Bool? in
+                guard i < vs.count else { return nil }
+                return vs[i].isVisible
+            }
+            let combined: Bool
+            switch mode {
+            case .union:        combined = visibilities.contains(true)
+            case .intersection: combined = visibilities.allSatisfy { $0 }
+            }
+            merged.append((coordinate: coord, isVisible: combined))
+        }
+
+        return merged
+    }
+
+    enum MultiObserverMode {
+        case union         // Visible if ANY observer can see it
+        case intersection  // Visible only if ALL observers can see it
+    }
+
     /// GPU-accelerated viewshed (delegates to ViewshedComputeEngine)
     func computeViewshedGPU(
         from observer: CLLocationCoordinate2D,

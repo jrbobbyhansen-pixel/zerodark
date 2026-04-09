@@ -22,6 +22,10 @@ enum ActivityType: String, Codable {
     case reportCreated
     case incidentCreated
     case patternGenerated
+    case geofenceDeny
+    case cotRelayed
+    case aarCreated
+    case dtnDelivered
 }
 
 struct ActivityItem: Identifiable, Codable {
@@ -43,6 +47,10 @@ struct ActivityItem: Identifiable, Codable {
         case .reportCreated: return "doc.text.fill"
         case .incidentCreated: return "exclamationmark.circle.fill"
         case .patternGenerated: return "map.fill"
+        case .geofenceDeny: return "shield.slash.fill"
+        case .cotRelayed: return "arrow.triangle.branch"
+        case .aarCreated: return "doc.badge.clock.fill"
+        case .dtnDelivered: return "checkmark.circle.fill"
         }
     }
 
@@ -51,6 +59,8 @@ struct ActivityItem: Identifiable, Codable {
         case .sosTriggered, .sosReceived: return ZDDesign.signalRed
         case .hapticReceived: return .orange
         case .peerDisconnected, .meshLeft: return ZDDesign.mediumGray
+        case .geofenceDeny: return ZDDesign.signalRed
+        case .dtnDelivered: return ZDDesign.successGreen
         default: return ZDDesign.cyanAccent
         }
     }

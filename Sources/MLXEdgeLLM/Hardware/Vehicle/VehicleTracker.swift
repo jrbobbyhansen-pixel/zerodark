@@ -2,7 +2,6 @@ import Foundation
 import SwiftUI
 import CoreLocation
 import ARKit
-import AVFoundation
 
 class VehicleTracker: ObservableObject {
     @Published var vehiclePositions: [VehiclePosition] = []

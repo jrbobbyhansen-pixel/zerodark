@@ -1,7 +1,6 @@
 import SwiftUI
 import CoreLocation
 import ARKit
-import AVFoundation
 
 // MARK: - SearchMarkingViewModel
 

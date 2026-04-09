@@ -266,7 +266,114 @@ final class TerrainEngine {
         return aspect < 0 ? aspect + 360 : aspect
     }
 
-    /// Import HGT file from disk
+    // MARK: - Tactical Terrain Analysis
+
+    /// Route difficulty score — 0 (easy) to 10 (extreme)
+    /// Based on cumulative slope severity and total elevation gain
+    func routeDifficultyScore(route: [CLLocationCoordinate2D]) -> RouteDifficulty {
+        guard route.count >= 2 else { return RouteDifficulty(score: 0, elevationGainM: 0, maxSlopeDeg: 0, classification: .easy) }
+
+        var totalGain: Double = 0
+        var maxSlope: Double = 0
+        var steepSegments = 0
+        var prevElev: Double? = nil
+
+        for coord in route {
+            guard let elev = elevationAt(coordinate: coord) else { continue }
+            if let prev = prevElev {
+                let gain = elev - prev
+                if gain > 0 { totalGain += gain }
+            }
+            prevElev = elev
+            if let slope = slopeAt(coordinate: coord) {
+                maxSlope = max(maxSlope, slope)
+                if slope > 20 { steepSegments += 1 }
+            }
+        }
+
+        // Scoring: 0-10 scale
+        let gainScore = min(totalGain / 500.0, 5.0)          // 500m gain = 5 pts
+        let slopeScore = min(maxSlope / 45.0 * 4.0, 4.0)    // 45° slope = 4 pts
+        let steepScore = min(Double(steepSegments) / 10.0, 1.0) // 10 steep segments = 1 pt
+        let score = gainScore + slopeScore + steepScore
+
+        let classification: RouteDifficulty.Classification
+        switch score {
+        case ..<2: classification = .easy
+        case 2..<4: classification = .moderate
+        case 4..<6: classification = .difficult
+        case 6..<8: classification = .veryDifficult
+        default:   classification = .extreme
+        }
+
+        return RouteDifficulty(score: score, elevationGainM: totalGain, maxSlopeDeg: maxSlope, classification: classification)
+    }
+
+    /// HLZ (Helicopter Landing Zone) feasibility score — 0 (unusable) to 100 (ideal)
+    /// Evaluates a circular area around the center for slope, flatness, and approach clearance
+    /// - Parameters:
+    ///   - center: Center of candidate LZ
+    ///   - radiusMeters: LZ radius (default 20m — minimum for most rotary-wing)
+    func hlzScore(center: CLLocationCoordinate2D, radiusMeters: Double = 20.0) -> HLZAssessment {
+        let earthRadius = 6_371_000.0
+        let offsetDeg = radiusMeters / earthRadius * (180.0 / .pi)
+
+        // Sample 8 points around perimeter + center
+        let samplePoints: [CLLocationCoordinate2D] = [
+            center,
+            CLLocationCoordinate2D(latitude: center.latitude + offsetDeg, longitude: center.longitude),
+            CLLocationCoordinate2D(latitude: center.latitude - offsetDeg, longitude: center.longitude),
+            CLLocationCoordinate2D(latitude: center.latitude, longitude: center.longitude + offsetDeg),
+            CLLocationCoordinate2D(latitude: center.latitude, longitude: center.longitude - offsetDeg),
+            CLLocationCoordinate2D(latitude: center.latitude + offsetDeg * 0.707, longitude: center.longitude + offsetDeg * 0.707),
+            CLLocationCoordinate2D(latitude: center.latitude - offsetDeg * 0.707, longitude: center.longitude - offsetDeg * 0.707),
+            CLLocationCoordinate2D(latitude: center.latitude + offsetDeg * 0.707, longitude: center.longitude - offsetDeg * 0.707),
+            CLLocationCoordinate2D(latitude: center.latitude - offsetDeg * 0.707, longitude: center.longitude + offsetDeg * 0.707),
+        ]
+
+        let slopes = samplePoints.compactMap { slopeAt(coordinate: $0) }
+        guard !slopes.isEmpty else {
+            return HLZAssessment(score: 0, maxSlopeDeg: 0, elevationRangeM: 0, isFeasible: false, limitingFactor: "No terrain data")
+        }
+
+        let maxSlope = slopes.max() ?? 0
+        let elevations = samplePoints.compactMap { elevationAt(coordinate: $0) }
+        let elevRange = (elevations.max() ?? 0) - (elevations.min() ?? 0)
+
+        // Score: starts at 100, deductions for slope and roughness
+        var score = 100.0
+        score -= min(maxSlope * 5.0, 50.0)        // -5 pts per degree slope (max -50)
+        score -= min(elevRange * 2.0, 30.0)        // -2 pts per meter elevation range
+        let avgSlope = slopes.reduce(0, +) / Double(slopes.count)
+        score -= min(avgSlope * 2.0, 20.0)         // -2 pts per degree average slope
+
+        let isFeasible = maxSlope < 7.0 && elevRange < 3.0  // FM 3-04.301: <7° slope for HLZ
+
+        let limitingFactor: String?
+        if maxSlope >= 15 { limitingFactor = "Slope \(String(format: "%.0f", maxSlope))° — unsafe for any rotary-wing" }
+        else if maxSlope >= 7 { limitingFactor = "Slope \(String(format: "%.0f", maxSlope))° — marginal, experienced pilots only" }
+        else if elevRange >= 3 { limitingFactor = "Terrain roughness \(String(format: "%.1f", elevRange))m — may damage landing gear" }
+        else { limitingFactor = nil }
+
+        return HLZAssessment(score: max(0, score), maxSlopeDeg: maxSlope, elevationRangeM: elevRange, isFeasible: isFeasible, limitingFactor: limitingFactor)
+    }
+
+    /// Terrain cover classification for a coordinate
+    /// Returns tactical utility classification based on elevation context
+    func coverTerrainClassification(at coordinate: CLLocationCoordinate2D) -> TerrainCoverType {
+        guard let slope = slopeAt(coordinate: coordinate),
+              let elevation = elevationAt(coordinate: coordinate) else { return .unknown }
+
+        // High slope = rocky/cliff — limited movement, good cover
+        if slope > 30 { return .rocky }
+        // Very flat low elevation could be open field or urban — can't distinguish without OSM
+        if slope < 3 && elevation < 500 { return .openGround }
+        // Moderate slope at mid elevation = typical woodland/scrub
+        if slope < 15 { return .woodland }
+        return .rugged
+    }
+
+    // MARK: - Import HGT file from disk
     func importHGTFile(at path: URL) throws {
         let filename = path.lastPathComponent
         let destinationPath = srtmDirectory.appendingPathComponent(filename)
@@ -479,6 +586,93 @@ final class TerrainEngine {
             distance += route[i - 1].distance(to: route[i])
         }
         return distance
+    }
+}
+
+// MARK: - Tactical Terrain Analysis Results
+
+struct RouteDifficulty {
+    enum Classification: String {
+        case easy         = "Easy"
+        case moderate     = "Moderate"
+        case difficult    = "Difficult"
+        case veryDifficult = "Very Difficult"
+        case extreme      = "Extreme"
+
+        var color: String {
+            switch self {
+            case .easy:         return "successGreen"
+            case .moderate:     return "forestGreen"
+            case .difficult:    return "safetyYellow"
+            case .veryDifficult: return "sunsetOrange"
+            case .extreme:      return "signalRed"
+            }
+        }
+
+        var icon: String {
+            switch self {
+            case .easy:          return "figure.walk"
+            case .moderate:      return "figure.hiking"
+            case .difficult:     return "mountain.2.fill"
+            case .veryDifficult: return "exclamationmark.triangle.fill"
+            case .extreme:       return "xmark.octagon.fill"
+            }
+        }
+    }
+
+    let score: Double         // 0–10
+    let elevationGainM: Double
+    let maxSlopeDeg: Double
+    let classification: Classification
+
+    var summary: String {
+        "\(classification.rawValue) — \(String(format: "%.0f", elevationGainM))m gain, max slope \(String(format: "%.0f", maxSlopeDeg))°"
+    }
+}
+
+struct HLZAssessment {
+    let score: Double          // 0–100
+    let maxSlopeDeg: Double
+    let elevationRangeM: Double
+    let isFeasible: Bool
+    let limitingFactor: String?
+
+    var scoreDescription: String {
+        switch score {
+        case 80...:  return "Excellent LZ"
+        case 60..<80: return "Good LZ"
+        case 40..<60: return "Marginal LZ"
+        case 20..<40: return "Poor LZ"
+        default:      return "Unusable"
+        }
+    }
+}
+
+enum TerrainCoverType: String {
+    case openGround = "Open Ground"
+    case woodland   = "Woodland"
+    case rocky      = "Rocky/Cliff"
+    case rugged     = "Rugged"
+    case unknown    = "Unknown"
+
+    var tacticalNotes: String {
+        switch self {
+        case .openGround: return "Limited cover. Maximize speed, use defilade."
+        case .woodland:   return "Good concealment. Noise discipline critical."
+        case .rocky:      return "Excellent cover. Slow movement. Channelized approaches."
+        case .rugged:     return "Moderate cover. Careful footing required."
+        case .unknown:    return "No terrain data available."
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .openGround: return "sun.max.fill"
+        case .woodland:   return "tree.fill"
+        case .rocky:      return "mountain.2.fill"
+        case .rugged:     return "map.fill"
+        case .unknown:    return "questionmark.circle"
+        }
     }
 }
 

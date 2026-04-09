@@ -8,6 +8,8 @@ struct TeamDashSection: View {
     @StateObject private var mesh = MeshService.shared
     @StateObject private var weather = WeatherService.shared
     @StateObject private var safetyMonitor = RuntimeSafetyMonitor.shared
+    @StateObject private var teamPack = TeamPackStore.shared
+    @State private var showPaywall = false
 
     var body: some View {
         ScrollView {
@@ -84,6 +86,9 @@ struct TeamDashSection: View {
             }
             .padding(.horizontal)
         }
+        .sheet(isPresented: $showPaywall) {
+            TeamPackPaywall()
+        }
     }
 
     // MARK: - Team Status Card
@@ -105,13 +110,35 @@ struct TeamDashSection: View {
                     .foregroundColor(ZDDesign.mediumGray)
                     .padding(.vertical, 8)
             } else {
-                ForEach(mesh.peers) { peer in
+                let visiblePeers = teamPack.hasUnlimitedRoster
+                    ? mesh.peers
+                    : Array(mesh.peers.prefix(TeamPackStore.freeRosterLimit))
+
+                ForEach(visiblePeers) { peer in
                     TeamMemberRow(
                         name: peer.name,
                         status: peer.status,
                         batteryLevel: peer.batteryLevel,
                         lastSeen: peer.lastSeen
                     )
+                }
+
+                if !teamPack.hasUnlimitedRoster && mesh.peers.count > TeamPackStore.freeRosterLimit {
+                    Button {
+                        showPaywall = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "lock.fill")
+                            Text("+\(mesh.peers.count - TeamPackStore.freeRosterLimit) more — Unlock TeamPack")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundColor(ZDDesign.cyanAccent)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(ZDDesign.cyanAccent.opacity(0.1))
+                        .cornerRadius(8)
+                    }
                 }
             }
         }

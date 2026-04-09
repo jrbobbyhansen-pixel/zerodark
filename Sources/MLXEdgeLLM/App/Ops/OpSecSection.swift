@@ -26,6 +26,8 @@ struct OpSecLesson: Identifiable {
 
 struct OpSecSection: View {
     @AppStorage("opsec_completed") private var completedLessonsData: Data = Data()
+    @StateObject private var relay = MeshRelay.shared
+    @StateObject private var geofences = GeofenceManager.shared
 
     private var completedLessonIDs: Set<String> {
         (try? JSONDecoder().decode(Set<String>.self, from: completedLessonsData)) ?? []
@@ -34,6 +36,9 @@ struct OpSecSection: View {
     var body: some View {
         ScrollView {
             VStack(spacing: ZDDesign.spacing16) {
+                // Geofence Deny Status (v6.2)
+                geofenceDenyCard
+
                 progressCard
 
                 OpsSectionHeader(icon: "lock.shield.fill", title: "TRAINING MODULES", color: ZDDesign.cyanAccent)
@@ -51,6 +56,85 @@ struct OpSecSection: View {
             }
             .padding(.horizontal)
         }
+    }
+
+    // MARK: - Geofence Deny Card (v6.2)
+
+    private var geofenceDenyCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: "shield.checkered")
+                    .foregroundColor(relay.deniedPeerIDs.isEmpty ? ZDDesign.successGreen : ZDDesign.signalRed)
+                Text("GEOFENCE ENFORCEMENT")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(ZDDesign.mediumGray)
+                Spacer()
+                Circle()
+                    .fill(relay.deniedPeerIDs.isEmpty ? ZDDesign.successGreen : ZDDesign.signalRed)
+                    .frame(width: 8, height: 8)
+            }
+
+            HStack(spacing: 20) {
+                VStack {
+                    Text("\(geofences.geofences.count)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(ZDDesign.pureWhite)
+                    Text("Zones")
+                        .font(.caption)
+                        .foregroundColor(ZDDesign.mediumGray)
+                }
+
+                Divider().frame(height: 30).background(ZDDesign.mediumGray)
+
+                VStack {
+                    Text("\(relay.deniedPeerIDs.count)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(relay.deniedPeerIDs.isEmpty ? ZDDesign.successGreen : ZDDesign.signalRed)
+                    Text("Denied")
+                        .font(.caption)
+                        .foregroundColor(ZDDesign.mediumGray)
+                }
+
+                Divider().frame(height: 30).background(ZDDesign.mediumGray)
+
+                VStack {
+                    Text("\(relay.relayedPeers.count)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(ZDDesign.cyanAccent)
+                    Text("Relayed")
+                        .font(.caption)
+                        .foregroundColor(ZDDesign.mediumGray)
+                }
+            }
+
+            if geofences.geofences.isEmpty {
+                HStack {
+                    Image(systemName: "info.circle")
+                        .foregroundColor(ZDDesign.safetyYellow)
+                    Text("No geofences configured — all peers allowed")
+                        .font(.caption)
+                        .foregroundColor(ZDDesign.safetyYellow)
+                }
+            }
+
+            NavigationLink {
+                GeofenceEditorView()
+            } label: {
+                HStack {
+                    Image(systemName: "plus.circle")
+                    Text("Manage Geofences")
+                        .font(.caption)
+                }
+                .foregroundColor(ZDDesign.cyanAccent)
+            }
+        }
+        .padding()
+        .background(ZDDesign.darkCard)
+        .cornerRadius(ZDDesign.radiusMedium)
     }
 
     // MARK: - Progress Card

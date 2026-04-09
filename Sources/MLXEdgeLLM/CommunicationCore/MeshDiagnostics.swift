@@ -1,8 +1,6 @@
 import Foundation
 import SwiftUI
-import CoreLocation
-import ARKit
-import AVFoundation
+import Combine
 
 // MARK: - MeshDiagnostics
 
@@ -14,6 +12,7 @@ class MeshDiagnostics: ObservableObject {
     @Published var historicalPerformance: [String: [PerformanceRecord]] = [:]
 
     private let networkManager: NetworkManager
+    private var cancellables = Set<AnyCancellable>()
 
     init(networkManager: NetworkManager) {
         self.networkManager = networkManager
@@ -25,12 +24,12 @@ class MeshDiagnostics: ObservableObject {
             self?.updatePacketLoss(loss)
         }.store(in: &cancellables)
 
-        networkManager.$latency.sink { [weak self] latency in
-            self?.updateLatency(latency)
+        networkManager.$latency.sink { [weak self] newLatency in
+            self?.updateLatency(newLatency)
         }.store(in: &cancellables)
 
-        networkManager.$throughput.sink { [weak self] throughput in
-            self?.updateThroughput(throughput)
+        networkManager.$throughput.sink { [weak self] newThroughput in
+            self?.updateThroughput(newThroughput)
         }.store(in: &cancellables)
     }
 
@@ -39,13 +38,13 @@ class MeshDiagnostics: ObservableObject {
         identifyFailingNodes()
     }
 
-    private func updateLatency(_ latency: [String: Double]) {
-        latency = latency
+    private func updateLatency(_ newLatency: [String: Double]) {
+        latency = newLatency
         identifyFailingNodes()
     }
 
-    private func updateThroughput(_ throughput: [String: Double]) {
-        throughput = throughput
+    private func updateThroughput(_ newThroughput: [String: Double]) {
+        throughput = newThroughput
         identifyFailingNodes()
     }
 

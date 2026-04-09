@@ -1,7 +1,6 @@
 import SwiftUI
 import Foundation
 import CoreLocation
-import AVFoundation
 
 // MARK: - Models
 

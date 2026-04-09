@@ -1,8 +1,6 @@
 import Foundation
 import CoreLocation
-import ARKit
 import SwiftUI
-import AVFoundation
 
 // MARK: - GeotiffExporter
 

@@ -2,7 +2,6 @@
 // SITREP, 9-Line MEDEVAC, SALUTE, Contact Report
 
 import Foundation
-import CoreLocation
 import SwiftUI
 
 enum ReportType: String, Identifiable, CaseIterable {

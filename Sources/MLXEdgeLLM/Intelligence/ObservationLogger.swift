@@ -1,117 +1,181 @@
+// ObservationLogger.swift — Field observation logging with location and bearing
+// Records observations with GPS coordinates for pattern analysis
+
 import Foundation
 import SwiftUI
 import CoreLocation
-import ARKit
-import AVFoundation
-
-// MARK: - ObservationLogger
-
-class ObservationLogger: ObservableObject {
-    @Published private(set) var observations: [Observation] = []
-    
-    private let locationManager = CLLocationManager()
-    private let arSession = ARSession()
-    
-    init() {
-        locationManager.delegate = self
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
-        
-        arSession.run(ARWorldTrackingConfiguration())
-    }
-    
-    func logObservation(bearing: Double, distance: Double, description: String) {
-        guard let location = locationManager.location else { return }
-        let observation = Observation(
-            timestamp: Date(),
-            location: location.coordinate,
-            bearing: bearing,
-            distance: distance,
-            description: description
-        )
-        observations.append(observation)
-    }
-    
-    func analyzePatterns() {
-        // Placeholder for pattern analysis logic
-    }
-}
 
 // MARK: - Observation
 
 struct Observation: Identifiable, Codable {
-    let id = UUID()
+    let id: UUID
     let timestamp: Date
-    let location: CLLocationCoordinate2D
+    let latitude: Double
+    let longitude: Double
     let bearing: Double
     let distance: Double
     let description: String
+    let category: ObservationCategory
+
+    var coordinate: CLLocationCoordinate2D {
+        CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+
+    init(location: CLLocationCoordinate2D, bearing: Double, distance: Double, description: String, category: ObservationCategory = .general) {
+        self.id = UUID()
+        self.timestamp = Date()
+        self.latitude = location.latitude
+        self.longitude = location.longitude
+        self.bearing = bearing
+        self.distance = distance
+        self.description = description
+        self.category = category
+    }
+
+    enum ObservationCategory: String, CaseIterable, Codable {
+        case general    = "General"
+        case movement   = "Movement"
+        case structure  = "Structure"
+        case hazard     = "Hazard"
+        case resource   = "Resource"
+        case personnel  = "Personnel"
+    }
 }
 
-// MARK: - CLLocationManagerDelegate
+// MARK: - ObservationLogger
 
-extension ObservationLogger: CLLocationManagerDelegate {
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        // Handle location updates if needed
+@MainActor
+final class ObservationLogger: ObservableObject {
+    static let shared = ObservationLogger()
+
+    @Published var observations: [Observation] = []
+
+    private init() { load() }
+
+    func logObservation(bearing: Double, distance: Double, description: String, category: Observation.ObservationCategory = .general) {
+        let location = LocationService.shared.lastKnownLocation?.coordinate
+            ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)
+        let obs = Observation(location: location, bearing: bearing, distance: distance, description: description, category: category)
+        observations.append(obs)
+        save()
+        AuditLogger.shared.log(.credentialAccess, detail: "observation_logged:\(category.rawValue)")
+    }
+
+    func remove(at offsets: IndexSet) {
+        observations.remove(atOffsets: offsets)
+        save()
+    }
+
+    func exportText() -> String {
+        let fmt = DateFormatter()
+        fmt.dateStyle = .short
+        fmt.timeStyle = .short
+
+        var text = "OBSERVATION LOG\n═══════════════\n\n"
+        for (i, obs) in observations.enumerated() {
+            text += "\(i+1). [\(obs.category.rawValue)] \(fmt.string(from: obs.timestamp))\n"
+            text += "   \(obs.description)\n"
+            text += "   Bearing: \(String(format: "%.0f", obs.bearing))° | Distance: \(String(format: "%.0f", obs.distance))m\n"
+            text += "   Location: \(String(format: "%.5f", obs.latitude)), \(String(format: "%.5f", obs.longitude))\n\n"
+        }
+        return text
+    }
+
+    func share() {
+        let text = exportText()
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("ObservationLog.txt")
+        try? text.write(to: url, atomically: true, encoding: .utf8)
+        let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.windows.first?.rootViewController?
+            .present(av, animated: true)
+    }
+
+    // MARK: - Persistence
+
+    private let persistURL: URL = {
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        return docs.appendingPathComponent("observations.json")
+    }()
+
+    private func save() {
+        guard let data = try? JSONEncoder().encode(observations) else { return }
+        try? data.write(to: persistURL, options: .atomic)
+    }
+
+    private func load() {
+        guard let data = try? Data(contentsOf: persistURL),
+              let loaded = try? JSONDecoder().decode([Observation].self, from: data) else { return }
+        observations = loaded
     }
 }
 
 // MARK: - ObservationLoggerView
 
 struct ObservationLoggerView: View {
-    @StateObject private var logger = ObservationLogger()
-    
+    @StateObject private var logger = ObservationLogger.shared
+    @State private var showAdd = false
+    @State private var newDesc = ""
+    @State private var newBearing = ""
+    @State private var newDistance = ""
+    @State private var newCategory: Observation.ObservationCategory = .general
+
     var body: some View {
-        VStack {
-            Text("Observation Logger")
-                .font(.largeTitle)
-                .padding()
-            
-            List(logger.observations) { observation in
-                ObservationRow(observation: observation)
+        Form {
+            Section("Log Observation") {
+                TextField("Description", text: $newDesc)
+                HStack {
+                    TextField("Bearing (°)", text: $newBearing).keyboardType(.decimalPad).frame(maxWidth: 100)
+                    TextField("Distance (m)", text: $newDistance).keyboardType(.decimalPad)
+                }
+                Picker("Category", selection: $newCategory) {
+                    ForEach(Observation.ObservationCategory.allCases, id: \.self) { Text($0.rawValue) }
+                }
+                Button {
+                    logger.logObservation(
+                        bearing: Double(newBearing) ?? 0,
+                        distance: Double(newDistance) ?? 0,
+                        description: newDesc,
+                        category: newCategory
+                    )
+                    newDesc = ""; newBearing = ""; newDistance = ""
+                } label: {
+                    Label("Log", systemImage: "plus.circle.fill").frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent).tint(ZDDesign.cyanAccent)
+                .disabled(newDesc.isEmpty)
             }
-            
-            Button(action: {
-                logger.logObservation(bearing: 45.0, distance: 100.0, description: "Enemy spotted")
-            }) {
-                Text("Log Observation")
+
+            if !logger.observations.isEmpty {
+                Section("Observations (\(logger.observations.count))") {
+                    ForEach(logger.observations.reversed()) { obs in
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text("[\(obs.category.rawValue)]").font(.caption.bold()).foregroundColor(ZDDesign.cyanAccent)
+                                Spacer()
+                                Text(obs.timestamp, style: .time).font(.caption).foregroundColor(.secondary)
+                            }
+                            Text(obs.description).font(.subheadline)
+                            Text("Bearing \(String(format: "%.0f", obs.bearing))° | \(String(format: "%.0f", obs.distance))m")
+                                .font(.caption).foregroundColor(.secondary)
+                        }
+                    }
+                    .onDelete { logger.remove(at: $0) }
+                }
+
+                Section {
+                    Button { logger.share() } label: {
+                        Label("Export Log", systemImage: "square.and.arrow.up").frame(maxWidth: .infinity)
+                    }
+                }
             }
-            .padding()
         }
-        .padding()
+        .navigationTitle("Observation Log")
+        .navigationBarTitleDisplayMode(.large)
     }
 }
 
-// MARK: - ObservationRow
-
-struct ObservationRow: View {
-    let observation: Observation
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            Text(observation.description)
-                .font(.headline)
-            
-            Text("Timestamp: \(observation.timestamp, formatter: dateFormatter)")
-                .font(.subheadline)
-            
-            Text("Location: \(observation.location.latitude), \(observation.location.longitude)")
-                .font(.subheadline)
-            
-            Text("Bearing: \(observation.bearing)°, Distance: \(observation.distance)m")
-                .font(.subheadline)
-        }
-        .padding()
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(8)
-    }
+#Preview {
+    NavigationStack { ObservationLoggerView() }
 }
-
-// MARK: - DateFormatter
-
-private let dateFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .medium
-    formatter.timeStyle = .short
-    return formatter
-}()

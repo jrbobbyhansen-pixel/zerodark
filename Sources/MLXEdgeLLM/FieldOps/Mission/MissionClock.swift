@@ -1,7 +1,6 @@
 import SwiftUI
 import Foundation
 import AVFoundation
-import CoreLocation
 
 // MARK: - MissionClock
 

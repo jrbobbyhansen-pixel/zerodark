@@ -1,7 +1,5 @@
 import Foundation
 import SwiftUI
-import CoreLocation
-import AVFoundation
 
 // MARK: - Announcement Model
 

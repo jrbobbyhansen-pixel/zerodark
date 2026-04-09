@@ -9,6 +9,8 @@ import SwiftUI
 enum OpsMode: String, CaseIterable {
     case planner  = "Planner"
     case team     = "Team"
+    case medical  = "Medical"
+    case planning = "Planning"
     case eval     = "Eval"
     case reports  = "Reports"
     case sims     = "Sims"
@@ -16,12 +18,14 @@ enum OpsMode: String, CaseIterable {
 
     var icon: String {
         switch self {
-        case .planner: return "flag.fill"
-        case .team:    return "person.3.fill"
-        case .eval:    return "star.fill"
-        case .reports: return "doc.text.fill"
-        case .sims:    return "antenna.radiowaves.left.and.right"
-        case .opSec:   return "lock.shield.fill"
+        case .planner:  return "flag.fill"
+        case .team:     return "person.3.fill"
+        case .medical:  return "cross.fill"
+        case .planning: return "list.bullet.clipboard"
+        case .eval:     return "star.fill"
+        case .reports:  return "doc.text.fill"
+        case .sims:     return "antenna.radiowaves.left.and.right"
+        case .opSec:    return "lock.shield.fill"
         }
     }
 }
@@ -80,6 +84,10 @@ struct OpsTabView: View {
                             MissionPlannerSection()
                         case .team:
                             TeamDashSection()
+                        case .medical:
+                            MedicalSection()
+                        case .planning:
+                            PlanningToolsSection()
                         case .eval:
                             EvalDebriefSection()
                         case .reports:
