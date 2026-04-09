@@ -18,7 +18,6 @@
 		02AD6BC58811AA06CCD214AB /* ControllerConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2322C85B2E1699EE5610C2 /* ControllerConsole.swift */; };
 		03D59C53CA5D84FF1BDE6374 /* 22-terrain-association.md in Resources */ = {isa = PBXBuildFile; fileRef = BE51EF5DA4224F5291F2F4A1 /* 22-terrain-association.md */; };
 		03F91AF7FB370ADBEDE6B991 /* ActionValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6B0D9E4AB9B5D99A1522F28 /* ActionValidator.swift */; };
-		050BD01CB8AD214E224F7BA8 /* PeerAssessment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 082117C59D08C766E1C19300 /* PeerAssessment.swift */; };
 		0594F1930709698E794C76D8 /* Terrain3DView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 367182B7614A513B40322588 /* Terrain3DView.swift */; };
 		05A0D50BA5D0DBE22F0A4FB0 /* 43-cqb-room-clearing.md in Resources */ = {isa = PBXBuildFile; fileRef = 5B2C24F19C4FD00583823CED /* 43-cqb-room-clearing.md */; };
 		05D7C8257DE6D9216ED5DC55 /* LandingZoneMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C91095C85D5BB2AA48CB4E /* LandingZoneMarker.swift */; };
@@ -30,7 +29,6 @@
 		089DC9008D6C0B6F30477049 /* 21-surveillance-detection.md in Resources */ = {isa = PBXBuildFile; fileRef = E84A9C29450568EE7975F94D /* 21-surveillance-detection.md */; };
 		091E9953545F30B3EA21668F /* UsarDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E693F1D0037C7E7857AE0A1 /* UsarDashboard.swift */; };
 		094B0109D5EA711A95752102 /* FewShotManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8C05C291C60A68A021F8DC /* FewShotManager.swift */; };
-		09AAF7A8AA5FCEC5329D2C16 /* TempLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F180297185A4A8FE071D2EF /* TempLogger.swift */; };
 		0AD2FA6E6B022988D0E4703E /* PurePursuitController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C9E8581F35A439AF26B2A9A /* PurePursuitController.swift */; };
 		0B3C03F225FA9DB062026516 /* 52-stealth-movement.md in Resources */ = {isa = PBXBuildFile; fileRef = 9968020680F705ECA9D1DE43 /* 52-stealth-movement.md */; };
 		0CAC99E70DF356124865F5E1 /* 111-power-management.md in Resources */ = {isa = PBXBuildFile; fileRef = 509ADEEC842C5B2A3BCD7872 /* 111-power-management.md */; };
@@ -43,7 +41,6 @@
 		0F133045EAEBBF5171DADC88 /* RoleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D2F0A7E0145BE34E657532C /* RoleManager.swift */; };
 		0F93543927968F66D62308D5 /* 74-counter-drone.md in Resources */ = {isa = PBXBuildFile; fileRef = FE6748FDE4E63095BE652A0B /* 74-counter-drone.md */; };
 		0FA097B29AEE18A434A6B6C3 /* 31-shock-treatment.md in Resources */ = {isa = PBXBuildFile; fileRef = 9396EB8BE3E0C59D957F63D9 /* 31-shock-treatment.md */; };
-		0FE9B035F1612C417E5CD610 /* SolarChargerOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28ABCA6934BF2BB9077D9CF5 /* SolarChargerOptimizer.swift */; };
 		101155C8161E7867AFD18449 /* FreeTAKConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1236A84CA53FB933D59B17D7 /* FreeTAKConnector.swift */; };
 		1180649CB9081E301C133C3D /* 106-stress-leadership.md in Resources */ = {isa = PBXBuildFile; fileRef = 4885B2171261ADAA73226B07 /* 106-stress-leadership.md */; };
 		118F9D48ABD6B2194FC180BE /* TimePressure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5936C3BB456A5AD20C5B55 /* TimePressure.swift */; };
@@ -52,12 +49,9 @@
 		13E3CFEA2482EA123678720F /* 21-compass-basics.md in Resources */ = {isa = PBXBuildFile; fileRef = 65C898E964CB4CCDEF5CF30D /* 21-compass-basics.md */; };
 		1416BBA333A969E5AC6919C6 /* 24-breaching.md in Resources */ = {isa = PBXBuildFile; fileRef = 18C8218B6996382F3A9B69F4 /* 24-breaching.md */; };
 		14D0BCFB752B397331FB56B1 /* SatelliteTrackShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74DB54A388B214025F3F313 /* SatelliteTrackShare.swift */; };
-		1588D873C49C721F3B775AC1 /* DstarData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A93EFAEE128A289A78684FF6 /* DstarData.swift */; };
 		158EBBFAFECD3A4C6F6C9B0B /* AnnouncementSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F6FF6FAD6ACECD56AAAD0A /* AnnouncementSystem.swift */; };
 		160F3986FDF752C0C48A54CF /* 12-airway-management.md in Resources */ = {isa = PBXBuildFile; fileRef = 756BA45925B2332731FF74B4 /* 12-airway-management.md */; };
-		16D884479D6BC7309058BC7F /* QualificationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410DB950B2C43B95FF520E0A /* QualificationCard.swift */; };
 		16EEB923DBBBDE72C7F2F33A /* 22-camouflage.md in Resources */ = {isa = PBXBuildFile; fileRef = 31A1D55CF128003650A2CD2D /* 22-camouflage.md */; };
-		1738EE9A41188D16751F84BF /* IncidentReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875915C2A89FD1A7B1769656 /* IncidentReport.swift */; };
 		1744D77EC490E0D7402E101B /* DTNDeliveryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0418FC64B071CB68AACBAB7D /* DTNDeliveryManager.swift */; };
 		174FDC0DD598664124D9932F /* EnvironmentSensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A1586095E47F1FA0557540 /* EnvironmentSensor.swift */; };
 		177FF7891EA949AFFD60EB22 /* BurialTimeTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65F1A4E8CFD5B7E93056B57 /* BurialTimeTracker.swift */; };
@@ -69,7 +63,6 @@
 		18D989CB075A347A58AAE2E9 /* ContourExtraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867FAED692A049AAB6C4AE08 /* ContourExtraction.swift */; };
 		19013A5EE304C79BF1285560 /* QuickReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D9543BE59DA8BB17645D89A /* QuickReference.swift */; };
 		190FD6264B729549FF92E2AB /* WaterCrossing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1430D388EB1D670839B52EA2 /* WaterCrossing.swift */; };
-		19875A53DB1C149225774F75 /* WeatherForecaster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D5FFC2D74EF67FB83B7A51 /* WeatherForecaster.swift */; };
 		19B573B17B9C34E426A2A770 /* PersonDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = E925880E78B2D93F12003435 /* PersonDetector.swift */; };
 		1A01F8BDF0AAB7EE5BD9911F /* Anemometer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D23A37CB21A9E5EAAEF91C72 /* Anemometer.swift */; };
 		1A0D7314221074D1892F536D /* 17-improvised-medicine.md in Resources */ = {isa = PBXBuildFile; fileRef = 6A2457121B0B8701E81B7241 /* 17-improvised-medicine.md */; };
@@ -96,7 +89,6 @@
 		20E76B0E038ED4D52DA48602 /* ThreatFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A3BDB8484E013936AC1F2DC /* ThreatFeedView.swift */; };
 		21288BBE9BC5471E08D4C0AC /* PaceCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744AE652015DC00C19882348 /* PaceCalculator.swift */; };
 		21778BD6C389C950790377DA /* 98-vehicle-recovery.md in Resources */ = {isa = PBXBuildFile; fileRef = CFE9734B320EB33B158C4DC6 /* 98-vehicle-recovery.md */; };
-		21C9E55982E4812B02CF33AF /* MeshDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3BD905E9DA87608BE219CF /* MeshDiscovery.swift */; };
 		21ECBAA1A6508466E9A7AD46 /* 37-medevac-9line.md in Resources */ = {isa = PBXBuildFile; fileRef = 2FA4D5224172FF3A14A3293F /* 37-medevac-9line.md */; };
 		21FE4E858B8A8D93A194517A /* 55-radio-procedures.md in Resources */ = {isa = PBXBuildFile; fileRef = 863151A64A3628AB38F2D873 /* 55-radio-procedures.md */; };
 		2250AB551F597DCCEE1CB6A8 /* StreamingProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C091E96A43C1BEE7AB715155 /* StreamingProcessor.swift */; };
@@ -109,18 +101,13 @@
 		248426210C3F039D7370CC5B /* NvgMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 172F79F74D6C433BAAA4A70F /* NvgMode.swift */; };
 		24AFDE63C8BDA9F2235F1FDD /* 11-bleeding-control.md in Resources */ = {isa = PBXBuildFile; fileRef = 6322701F2CDE6ED0883BC374 /* 11-bleeding-control.md */; };
 		24CBD6D3ED24C9A73FBACB17 /* 26-urban-navigation.md in Resources */ = {isa = PBXBuildFile; fileRef = C25FD27D86B616E5DA084208 /* 26-urban-navigation.md */; };
-		253124DB7F9160FEC2D773E6 /* FlashFloodMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6064CEFD7734B73DE181D1A /* FlashFloodMonitor.swift */; };
 		25700C4996B3B8A6A91CEDFD /* 93-arctic-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = A5F38ACDDF55B14E967AB8D0 /* 93-arctic-operations.md */; };
 		257042E90D6608C3F3DB6714 /* PulseOxInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69E8C703CF8A696F92DE8B04 /* PulseOxInterface.swift */; };
 		25AEE2D3A7DCEE17EB325F73 /* 28-tourniquet-application.md in Resources */ = {isa = PBXBuildFile; fileRef = 8233890AD17DEFD859F02D91 /* 28-tourniquet-application.md */; };
-		260A0D66B047E7FFC9DC7829 /* CommsSimulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 156C423939DF9309BC57631F /* CommsSimulator.swift */; };
 		26A418BFB33F5895CBC31CE4 /* ScenarioLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4343299DD8C2719A4ACCC63F /* ScenarioLibrary.swift */; };
-		26EDF5483884A4C7529814DB /* AltitudeTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 804565B5CD136BEE7CD67D42 /* AltitudeTracker.swift */; };
 		271567B42E71D8F3A76BD35D /* ScanGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30F1F16779B61BD07A6E1765 /* ScanGalleryView.swift */; };
-		274B3359255D2B2ADBCD8655 /* TeamPackStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C9B01E5129DEBEE16B1592 /* TeamPackStore.swift */; };
 		27646A558996A899614CB71B /* SwiftWaterProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D90AADB77DD7E2FA726FEFD /* SwiftWaterProtocol.swift */; };
 		279D428ACADDB02EBF1CA7FC /* 96-weather-advanced.md in Resources */ = {isa = PBXBuildFile; fileRef = 9FFBCEA83A8B4F5D40F5F38D /* 96-weather-advanced.md */; };
-		27A4444A5C3DD5BDD83B0200 /* IncidentDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA80941525121DDF52D29DEA /* IncidentDetector.swift */; };
 		27BD9C6F1506736D07DDFBD2 /* GISOverlayProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E71461B0C2D2713D64E72D /* GISOverlayProvider.swift */; };
 		281412EEF48C8D105DB89423 /* TreatmentAreaManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0368E65221BEE494C0D399 /* TreatmentAreaManager.swift */; };
 		286F407554038346229DD9F6 /* ImprovementTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29CCC3BFD9A20E36AB1CE929 /* ImprovementTracker.swift */; };
@@ -132,7 +119,6 @@
 		297F8832FDA1D4D05767AD0B /* TakClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB043E3B74BCA35197064B74 /* TakClient.swift */; };
 		29A1C3EAFD9A2C9C839E0C53 /* PTTController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F20DE55DC35C8429F49BEBD /* PTTController.swift */; };
 		29B19B89779728304EE1685A /* 105-task-organization.md in Resources */ = {isa = PBXBuildFile; fileRef = 16D3A1BEA24FA7769815DD93 /* 105-task-organization.md */; };
-		2A42640245FD5E427E68EC0E /* CertTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F7C43E1C21E6B85C924C64 /* CertTracker.swift */; };
 		2ABE45A6BB8B5206E021C7FB /* AppNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A8FC4924F81BC9825ACB7B /* AppNavigation.swift */; };
 		2BCB2C58D50680F0CE531D62 /* 87-building-assessment.md in Resources */ = {isa = PBXBuildFile; fileRef = A9A2CB5F036875FCDA768BB7 /* 87-building-assessment.md */; };
 		2C005EDD883026DE29FC1036 /* ElevationProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B89494F9050E1C893B5C86 /* ElevationProfile.swift */; };
@@ -143,14 +129,12 @@
 		2D520FD9A7ECC3B544189829 /* PlaneDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF2D298928708E941D6247B /* PlaneDetection.swift */; };
 		2D62B17922EE9EB3BD1C8768 /* 25-weather.md in Resources */ = {isa = PBXBuildFile; fileRef = B3531C0695D949C8AC3F8EED /* 25-weather.md */; };
 		2E04FB18EA053B8F9ACEAC60 /* GraphNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17F602396F5ACA10BF1DD536 /* GraphNode.swift */; };
-		2E7CF1B6CC739A7A2443632D /* BatteryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46D522BF9E6F1DAC113DE981 /* BatteryManager.swift */; };
 		2EF38FE330EC9630EE2AD178 /* ElevatorRescue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9072891231E014E02FCA9D74 /* ElevatorRescue.swift */; };
 		2F19735AA48059E4354B9627 /* MilitaryGridOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 746AD25063B9202BD29F2DDF /* MilitaryGridOverlay.swift */; };
 		2F3614DF3EC60F7CE7628849 /* TacticalOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC90851DEAFE60802B98209F /* TacticalOverlay.swift */; };
 		2F3E7EF67B76A1CEC4EDB820 /* 08-signaling-fire.md in Resources */ = {isa = PBXBuildFile; fileRef = 8B5305616F193B3F7B892794 /* 08-signaling-fire.md */; };
 		2F83A88BAAC92C18DDF18ADD /* VoidSpaceMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DDF2F12636DDA5870E16E89 /* VoidSpaceMapper.swift */; };
 		2FAAEF34EC472393B2B2615E /* TranscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F8174AD4A628B987D1EDA5A /* TranscriptionManager.swift */; };
-		301C2C47B041B6F799BC9C15 /* LightningPredictor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED88AE1FAEC24CF7258C266 /* LightningPredictor.swift */; };
 		305479B216D7E9B51EEBE249 /* FireWeatherMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB34A1E412FC55957C1612B /* FireWeatherMonitor.swift */; };
 		30C0D1C2A6FD51E6574AC88B /* 08-weather-reading.md in Resources */ = {isa = PBXBuildFile; fileRef = C4FF581FCF8F87821196F2B9 /* 08-weather-reading.md */; };
 		3197931A4C7E63E31AF756B4 /* MeshService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 061BAAFF0D99EF8B6B51BDCE /* MeshService.swift */; };
@@ -158,7 +142,6 @@
 		32FC1C3EE2A263565524856B /* MeasurementTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F96FA0F140B9E0C4AF14CF /* MeasurementTypes.swift */; };
 		331E4E579D42F0A633AE5C8D /* CurvatureAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 045BB1D71551D3BB34B92508 /* CurvatureAnalysis.swift */; };
 		342DA780974B126D355CA8F9 /* HapticPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F6DF63D6D97C8EFC7C0C60 /* HapticPickerSheet.swift */; };
-		34A097E86CF7C96E2F4A1B6B /* CacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5698268FB0849B80DFFC0460 /* CacheManager.swift */; };
 		34A3B7BC672F17CCF12BA8CC /* MeasurementOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF811EF989D9D3BB05CB59ED /* MeasurementOverlayView.swift */; };
 		34C52125C71545526CA5430B /* 09-site-selection.md in Resources */ = {isa = PBXBuildFile; fileRef = 30F503DD4609E1E45331712D /* 09-site-selection.md */; };
 		350E1E94B558AEF50C5D009E /* ViewshedAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879B7918AC440E44267B8F22 /* ViewshedAnalysis.swift */; };
@@ -188,7 +171,6 @@
 		3FA33485B32FE212E8A7737C /* 14-foraging-plants.md in Resources */ = {isa = PBXBuildFile; fileRef = A64A1D1E1B755AF22B43BA23 /* 14-foraging-plants.md */; };
 		3FB177F5BF23DFCBB992EB07 /* WildfireDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F524FB787E98F79A96768720 /* WildfireDashboard.swift */; };
 		3FBF37DC84655E1C7901359C /* 62-emcon.md in Resources */ = {isa = PBXBuildFile; fileRef = 09FD18B93302ECFAC569C567 /* 62-emcon.md */; };
-		401F6D4E767FA8FC41DAB0DE /* MeshRouting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223CE07C09EE5398F19BCB77 /* MeshRouting.swift */; };
 		402403A7846CB3AA1BDA0D35 /* GridMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1648A7CC585943EE23962BC6 /* GridMap.swift */; };
 		403C9E4EF556386B725EA6AB /* SosManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F2DA8AF94A093302205263 /* SosManager.swift */; };
 		406DD2DE7BD625AE87714B0D /* AttentionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC16A3EA02E4E943C38E583 /* AttentionManager.swift */; };
@@ -237,7 +219,6 @@
 		4C5ACCA71156D3A27B7A4FFA /* BreadcrumbEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2149600A31F68A82031CC037 /* BreadcrumbEngine.swift */; };
 		4C7D3EA845F51A3018A030B3 /* ToolFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7989C451C7505B6DE0704CB4 /* ToolFeedback.swift */; };
 		4CAEF498B48ED32286A8693D /* RadiationMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B8D55E8C220EB541470FC2 /* RadiationMonitor.swift */; };
-		4CC84543854D921193B6C5B9 /* HydrationCalc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35018562D3833E580F4878F3 /* HydrationCalc.swift */; };
 		4DAA5E3E98B600349E0BEB00 /* CsvGeoImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37519CBC8FFCC6DCD0F40F9A /* CsvGeoImport.swift */; };
 		4DFA23CC013921B8B1C96920 /* 05-navigation-land.md in Resources */ = {isa = PBXBuildFile; fileRef = 788B09ED58675CE2713C7506 /* 05-navigation-land.md */; };
 		4E1D9B498085D774791B9CF2 /* MeshExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48C98D581F186CDD9B019FD3 /* MeshExporter.swift */; };
@@ -252,7 +233,6 @@
 		516E29BFD67088003039B427 /* HandoffManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E9FF0AFA94DD2E3352220F1 /* HandoffManager.swift */; };
 		51B0F0B7034A1DD363727295 /* 73-convoy-security.md in Resources */ = {isa = PBXBuildFile; fileRef = D82BFD382428A7A3359E7496 /* 73-convoy-security.md */; };
 		523CB9AD13D8A4CAC5222F84 /* TabletopFacilitator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4008045065DE839179D338 /* TabletopFacilitator.swift */; };
-		5320C107A2748ADD78D7161E /* KmlHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD16E35F7DDECBA963090005 /* KmlHandler.swift */; };
 		539EB73E1CEDE0295D1E7408 /* RehearsalChecklist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A3FA34768D726E3D227AC3 /* RehearsalChecklist.swift */; };
 		53B7672AD95B67B05AB4320B /* Platform.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3668A1EA0A3AEDD1E740C88 /* Platform.swift */; };
 		53BBC5B468FA464AB7709044 /* TutorialSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9F454FB9936EB591F135D3 /* TutorialSystem.swift */; };
@@ -266,7 +246,6 @@
 		59FB8CA4135FE7EE90756D8D /* TeamRoster.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41B7D24A3ACA776318041A2 /* TeamRoster.swift */; };
 		5A470ACB893DBE8F2BE45AFE /* ValidActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94B764F4986B4643CFC46F14 /* ValidActions.swift */; };
 		5A562F95368B382E101DC678 /* 13-urban-improvised.md in Resources */ = {isa = PBXBuildFile; fileRef = 6EA63AEDE537027A7CA173B5 /* 13-urban-improvised.md */; };
-		5AEFFE1D02C205EB56F585F2 /* SunCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD30B10349C238ACCECB0AD /* SunCalculator.swift */; };
 		5B6031D32F8300619B0CF65B /* TrailDifficulty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEF6ACC618A5AD11E4B4B0 /* TrailDifficulty.swift */; };
 		5BD49E535EC27DBD027B5E80 /* SafetyProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C0DAE424545B793832B182 /* SafetyProperty.swift */; };
 		5C6898C1E37FA4C2239A97AA /* 78-checkpoint-tcp.md in Resources */ = {isa = PBXBuildFile; fileRef = 9D3773A7A6F0A88FFE0535D3 /* 78-checkpoint-tcp.md */; };
@@ -274,10 +253,8 @@
 		5D5FDDF4EFADD98C0279E714 /* VoiceCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 102E06D8E59EC6EE9609CF1E /* VoiceCommands.swift */; };
 		5DB0A88A0FD62E359A71BEDB /* MeshSimplifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4160796BC3B6E5771EAD64A /* MeshSimplifier.swift */; };
 		5DC6D60D491ABA286809D37C /* 84-return-friendly-forces.md in Resources */ = {isa = PBXBuildFile; fileRef = 199F1C2CA8133816B3768543 /* 84-return-friendly-forces.md */; };
-		5DD6F780FE2E2AA1219DDA27 /* ObservationLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FF75B35B033EA5C86828680 /* ObservationLog.swift */; };
 		5DDBD8B058117B5647EE7BC0 /* LocationAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E325ECC26BC344AB2CA0B57F /* LocationAdapter.swift */; };
 		5DDEE35542674C0503268F2C /* HillshadeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A9D0B0BDC1E4CB15EDCAF47 /* HillshadeGenerator.swift */; };
-		5DE9865D513091E2640B9EA3 /* MeshGateway.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AD3A26103EF18FBF66E2FD3 /* MeshGateway.swift */; };
 		5E1ABEBA0AD0FDCE7347BBE2 /* 10-debris-hut.md in Resources */ = {isa = PBXBuildFile; fileRef = 3D6B552AED02209A99AD1327 /* 10-debris-hut.md */; };
 		5E23BEEEBAE056DA00952265 /* SlopeAspect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BB91372875A2BA3012EE303 /* SlopeAspect.swift */; };
 		5E641AD7DDC36AB08A32F2D9 /* SecureNotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = D060333EAB63FC73BDD2B527 /* SecureNotes.swift */; };
@@ -289,7 +266,6 @@
 		616DC33C36B5CA04FB9796D6 /* 45-react-to-contact.md in Resources */ = {isa = PBXBuildFile; fileRef = C7F280F9435894F2A1C5DB49 /* 45-react-to-contact.md */; };
 		6277511EE60D099578AE1513 /* 59-tak-cot-basics.md in Resources */ = {isa = PBXBuildFile; fileRef = 1C75A3631C998E2D771BBB98 /* 59-tak-cot-basics.md */; };
 		63340E16D3B7C53650EB5541 /* DgpsInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 712C102F3DEF31474CA4D1CF /* DgpsInterface.swift */; };
-		6343E4FC4E140161CF8ECB91 /* NmeaParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3454543ADF6EBA90D0BE1B7D /* NmeaParser.swift */; };
 		6364C2727EF125AE1E44AB08 /* 02-fire-starting.md in Resources */ = {isa = PBXBuildFile; fileRef = E489E25726D09F2BAA97C10F /* 02-fire-starting.md */; };
 		63DFA391B92F2DA14745F7B9 /* WeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CB90D069F78E48AD964B0FD /* WeatherService.swift */; };
 		6409C97A5F76D35A9DA3DE54 /* EncryptedExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E89D910F0EFF028A77A5247 /* EncryptedExport.swift */; };
@@ -316,7 +292,6 @@
 		6B73DFAF99286601BAFF4F65 /* 60-comsec-opsec.md in Resources */ = {isa = PBXBuildFile; fileRef = 637BF6B41662CB6803CBC5DD /* 60-comsec-opsec.md */; };
 		6B853A7A949751E23D83BBD5 /* MeshRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E1DF3DBB8D887B8EDDDB1BA /* MeshRelay.swift */; };
 		6B85B0A7072E4DB562AB312B /* 23-celestial-navigation.md in Resources */ = {isa = PBXBuildFile; fileRef = 964638BA53DF3A9EE11AEAB1 /* 23-celestial-navigation.md */; };
-		6B8DA9B30F8E0218194DCBB4 /* SituationReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = BACC7E74134943D9DFFB2575 /* SituationReport.swift */; };
 		6BAAEDE6BC9BE026EA05C861 /* 86-urban-water-food.md in Resources */ = {isa = PBXBuildFile; fileRef = EEEC971AC9F2B89F904029A9 /* 86-urban-water-food.md */; };
 		6BAD47DE1F417F6A268B06E7 /* 76-sector-sketches.md in Resources */ = {isa = PBXBuildFile; fileRef = 83CC7191A715FD7FB722C390 /* 76-sector-sketches.md */; };
 		6BB1D286D73DE7687944C814 /* BatteryProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4E01150A1CA8C2426A5F64 /* BatteryProxy.swift */; };
@@ -344,7 +319,6 @@
 		73F0D54FF28041856CA4B550 /* YOLOService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4771C437719D869EA5D500 /* YOLOService.swift */; };
 		7421A042069F6FDF28B9319C /* CadExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829266876530CAFBDFB0A907 /* CadExporter.swift */; };
 		744D9E8CD26305D160978AF8 /* 89-safe-house-setup.md in Resources */ = {isa = PBXBuildFile; fileRef = 2AFAE1521C57272596036842 /* 89-safe-house-setup.md */; };
-		7486D5D8061BFA092D79FC79 /* SkillTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 483670A4D6550D7CFBB977A4 /* SkillTracker.swift */; };
 		74B0244DF873765BCCC23A9D /* Rangefinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A03618F46C1FF574DA7899B /* Rangefinder.swift */; };
 		74CB2718B9123981EA075A74 /* JsonApiClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A92C359ABCE5F00497B0D45 /* JsonApiClient.swift */; };
 		752DBEC0A1A8FFADEFC37F04 /* ScanMatchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC3E97EC61C9C0FAB6B8C21 /* ScanMatchResult.swift */; };
@@ -355,16 +329,13 @@
 		76D26164D324A08CA693DDB1 /* GeneratorMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D16E8C6539EF3707CC6E5192 /* GeneratorMonitor.swift */; };
 		76DDE08454391373F16053CD /* SceneTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5315FB0748B8A2F5C96390AC /* SceneTag.swift */; };
 		76E4BDAA4AE2590DF9309691 /* 01-water-procurement.md in Resources */ = {isa = PBXBuildFile; fileRef = DB5904D986F830D22E8C21FE /* 01-water-procurement.md */; };
-		770B1E2AC4D5FAA7B01297A7 /* IAPManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A31D4EC02A80A21AE48BB8FC /* IAPManager.swift */; };
 		771BBA9DE343DC969E946774 /* DiscussionTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 001A0DB317464528450B12F6 /* DiscussionTracker.swift */; };
 		7755D14CE203CA5D0D5B5C31 /* CameraAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B772199593D9D025F163EEC /* CameraAnnotationView.swift */; };
-		778FDCFCBC17BE0F60CD9FE4 /* Ax25Handler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93151E1D21EAE0C3A90DEFE6 /* Ax25Handler.swift */; };
 		77A58E607080CB06DFB16085 /* MultiFactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1634017D0332F447B675BDA2 /* MultiFactor.swift */; };
 		77E09828AEC008528059B0AA /* RecoveryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE70C6EBBFE87A1C0FD24A50 /* RecoveryManager.swift */; };
 		787895BE5533D26CD8306D01 /* ResourceSimulator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9A4F93C1469EC3D899C529 /* ResourceSimulator.swift */; };
 		792AE8A35DD70913DDB26013 /* CoordinationExercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50C2AC3E5712538662A8789A /* CoordinationExercise.swift */; };
 		79354335B757BF4598EA1156 /* HeartRateMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B2C091D31AE51A699F7F417 /* HeartRateMonitor.swift */; };
-		795E8E15F9E6540B612891F9 /* DtnProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77DAFD802BE739872E9E91E8 /* DtnProtocol.swift */; };
 		79798C1D238DE658EB833B4A /* 06-site-selection.md in Resources */ = {isa = PBXBuildFile; fileRef = 828F9C984A75CCCD14AD5792 /* 06-site-selection.md */; };
 		7990A20F993127FACB33DBA6 /* SopAssistant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32764C7A9B10E7E36FB4629F /* SopAssistant.swift */; };
 		7A9AC5D345AA7B827CE65CF6 /* QuickMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5CD33FDACC7EBD3F02449A8 /* QuickMessages.swift */; };
@@ -378,7 +349,6 @@
 		7CE0C3A0773E95F47EA017F5 /* 91-desert-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = 4A50CEFA04EB2914EFFA9A1B /* 91-desert-operations.md */; };
 		7CFF7DD9415EDB43ECE467D1 /* 17-insects-grubs.md in Resources */ = {isa = PBXBuildFile; fileRef = 2743EB55030FFE8684DEFD75 /* 17-insects-grubs.md */; };
 		7D2442514254ECF88A02B1A6 /* PlanningToolsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D2DF1EDE1FE8775CF5FDCC /* PlanningToolsSection.swift */; };
-		7DB6F16C8245FD3BB6001153 /* ObjectiveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA9692D308790ADA43EF8D2C /* ObjectiveManager.swift */; };
 		7E1F56468353D1EA20E4F991 /* RiskMatrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DC6C5CD808BF31DEF4A8D91 /* RiskMatrix.swift */; };
 		7E21BBE276EC3FFD0D3DF760 /* TacticalRoomAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D41D9D48447EB1AAA4C8FCE /* TacticalRoomAnalyzer.swift */; };
 		7E3EB9A1443AB80B941E8E45 /* AprsGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90F82C1AA459B174B0FD603 /* AprsGenerator.swift */; };
@@ -393,7 +363,6 @@
 		806C8D7A27A37553D2B5FD2B /* CoordinationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F29F5AC50D4AD903112504B /* CoordinationView.swift */; };
 		80AEAFB1632EAF269ED7295F /* CompromiseAssessment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A40045B3A86D598B35137DD5 /* CompromiseAssessment.swift */; };
 		81827F0A15235DE2D387EE99 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27E6105E6E1033F3B4342E71 /* ContentView.swift */; };
-		81A4B90644487BA966BE22C5 /* CompetencyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = C469D544036A5DA94C366783 /* CompetencyTest.swift */; };
 		81E163D5914F99BEB771B696 /* GARS in Frameworks */ = {isa = PBXBuildFile; productRef = 3B2DB40CF3D4D5008875FB8A /* GARS */; };
 		824854E967994988169D66A5 /* DistanceBearing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51737DBA05B5ED6F6D60031E /* DistanceBearing.swift */; };
 		832DA90E9C7F5AF2F44FFCAC /* PhaseTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BC4FE03815A42B12544C37A /* PhaseTracker.swift */; };
@@ -414,7 +383,6 @@
 		88F10C538D0DCFA10AF17BC2 /* TrailerTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64BA478F02CF9AF8411610A6 /* TrailerTracker.swift */; };
 		8922328B643344EA8BFC9BDC /* RuntimeSafetyMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D717ABB42F8D0AE4BD8E0AC4 /* RuntimeSafetyMonitor.swift */; };
 		89B59C57D69C8AC8BBB73D87 /* ReportTemplates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A885BC1408F9951B5A08BB /* ReportTemplates.swift */; };
-		8A00C2A96E7CCEA659B12AB9 /* TrainingLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8805FA88BCEC7581A6B31BA4 /* TrainingLog.swift */; };
 		8A5C98293F1990EC7C9B01C5 /* DroneMissionPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2A438FB25F2C7F4D3A960F /* DroneMissionPlanner.swift */; };
 		8A795C3540599A2553CB7822 /* ReconWalkActiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B157534765F3DF9A705FCA /* ReconWalkActiveView.swift */; };
 		8B2AE8C85F297C82A48EE66E /* MedevacRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB437DF924AB6E702B66D004 /* MedevacRequest.swift */; };
@@ -435,18 +403,15 @@
 		8F73C1EB493C994CDE7E6623 /* TacticalReports.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE966864E62F069EFF8E0A7A /* TacticalReports.swift */; };
 		8FA029DB07192C768872FE45 /* DroneVideoFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09ADA97D61492CD0FD6CEA2B /* DroneVideoFeed.swift */; };
 		90E5A3C2AE6D8025F4E99783 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155305E3CA094234AC49FFFD /* LocationManager.swift */; };
-		9103FFC90B4C65ADF35E2644 /* QuizBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEDBC1696977BCAF08EA0B6E /* QuizBuilder.swift */; };
 		911D6A977277F5AA6DA79B95 /* NavigationGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9E355F3B0D80071046F9A1D /* NavigationGraph.swift */; };
 		91CE817D70E5E43E1A9D0216 /* 81-escape-restraints.md in Resources */ = {isa = PBXBuildFile; fileRef = D56DE1467439B17EA1EEB8B5 /* 81-escape-restraints.md */; };
 		91D540ABF1CE85CE6560A1CB /* ModelSwitcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42B6398EE8865BAD2593BA8 /* ModelSwitcher.swift */; };
 		91F66C877B0898FE5D035ED5 /* HotZoneMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = E81101171CD2636CF560103D /* HotZoneMapper.swift */; };
-		925ADCF8CAACA3C554BB2042 /* MaintenanceLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52D196798FBCDF17ECC3B98D /* MaintenanceLogger.swift */; };
 		9272A8565247D3D27B36A395 /* HapticPTTController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDDE5C27CFDB8269091DDED9 /* HapticPTTController.swift */; };
 		92853D14F4579A22742970BB /* SimBandOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB413682170DE1F18AA4378 /* SimBandOptimizer.swift */; };
 		937D745072E6E0FAD4D0EF47 /* AttitudeSolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E23632583E35DE6FD51CC8 /* AttitudeSolver.swift */; };
 		93E920C0D8195F2D78693770 /* LOSRaycastEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF40E3781847FC9E7F7F5C6 /* LOSRaycastEngine.swift */; };
 		946B05F2DB6F366FF783BE3E /* 112-sigint-awareness.md in Resources */ = {isa = PBXBuildFile; fileRef = 73349F848007B5AE6D947D7A /* 112-sigint-awareness.md */; };
-		9488C2843D08C950E6E5DB76 /* PerformanceTrends.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADB8C79BFD45691665FD3057 /* PerformanceTrends.swift */; };
 		952A35F79B8178B8C1F33951 /* HazardDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = C21EC33D7D13481CF93287AA /* HazardDetector.swift */; };
 		952BBBB9FC8C55C6C1F2E79C /* ThermalOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7CF89BF836F593F9C728B73 /* ThermalOverlay.swift */; };
 		953278740947D2015263447E /* 19-recon-op-setup.md in Resources */ = {isa = PBXBuildFile; fileRef = A1B90A5CDA98EC58EF49328F /* 19-recon-op-setup.md */; };
@@ -459,13 +424,10 @@
 		97583D34FDB719729545C5C4 /* 03-shelter-construction.md in Resources */ = {isa = PBXBuildFile; fileRef = 1609247731946F5087752F58 /* 03-shelter-construction.md */; };
 		975EA54B719D3C9ED6DF3EC8 /* 16-hypothermia-treatment.md in Resources */ = {isa = PBXBuildFile; fileRef = 776CAD766E73197EDDD989BE /* 16-hypothermia-treatment.md */; };
 		97A1B04B871D11C3C715D6A4 /* HazmatIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78905C05475D32A8BA0F7589 /* HazmatIdentifier.swift */; };
-		97A42ED106849A2EE36F3601 /* SkillDecay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 826B01408A7458AED6AD326C /* SkillDecay.swift */; };
 		9A37DA99F78989FD7A8F0169 /* 03-storage-hygiene.md in Resources */ = {isa = PBXBuildFile; fileRef = EAB3F6C805B5B4D24EDEE7D1 /* 03-storage-hygiene.md */; };
 		9A4770656B5760E317F35C33 /* NotificationCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94BA61605BDE0DEAAF69C30C /* NotificationCenter.swift */; };
 		9B159A7F9F1DE4A4191981D2 /* ThreatAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A59CDB63D6BD0BC49875B9B /* ThreatAnalyzer.swift */; };
-		9C16FA8277F68C3C1C5F5F4F /* MeshtasticProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C91175DC8B38832CB869E1EE /* MeshtasticProtocol.swift */; };
 		9C7D85D9CC5EB794462AA1B5 /* ProtocolLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 407D756080B2FAACD13E3C9D /* ProtocolLibrary.swift */; };
-		9C812DBEFCF979AA2A9D9A58 /* StatusBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17353E18924F55A52513EAEC /* StatusBoard.swift */; };
 		9D1D2BBDD5CCFB1224544E8E /* 71-ied-recognition.md in Resources */ = {isa = PBXBuildFile; fileRef = 8879117C12F98ADE44EF2511 /* 71-ied-recognition.md */; };
 		9DD7EFDD6039E2F88D4D2AF9 /* EncryptionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B90F7A6D8F476A51D619D92 /* EncryptionEngine.swift */; };
 		9E2639C4DCD72F98D170D6C9 /* ToolSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2FAA5006752DD62EDD300C5 /* ToolSelector.swift */; };
@@ -478,16 +440,13 @@
 		A09DBA0F42663008F5883F3A /* SceneTagStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68454E5CAF9ECF9B45126706 /* SceneTagStore.swift */; };
 		A09EEA6AF993F267E449D976 /* WidgetSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58242BC3759AC93D2161FA91 /* WidgetSystem.swift */; };
 		A0DD1C64ED4843E1535118A3 /* ExerciseScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B226DE618530A21AC9529041 /* ExerciseScheduler.swift */; };
-		A0DDD0DBC4BB13171338204E /* StrandedTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AAF85C043CBCA311E09D25F /* StrandedTracker.swift */; };
 		A19E0D76AB3754A0276762F4 /* SignalPropagation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8A5331179E99E6D50DFE93 /* SignalPropagation.swift */; };
 		A1A5EF62729F2E7D25793CA2 /* AccessLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2DEA82F9B704E13001BD97 /* AccessLog.swift */; };
-		A20EACD79706D62A3A9C0B3E /* DmrData.swift in Sources */ = {isa = PBXBuildFile; fileRef = AECF83DFD4F4E7A5933A41A4 /* DmrData.swift */; };
 		A286362A8DE7DAD1F8688B22 /* TakMissionSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C3CDA9A679938204E01CBB /* TakMissionSync.swift */; };
 		A2C774C7DBF4D55F841D679F /* 92-jungle-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = A527FBC10C7FCC2F9868E250 /* 92-jungle-operations.md */; };
 		A2CCB3517FEADB29CE63EB60 /* 25-dead-reckoning.md in Resources */ = {isa = PBXBuildFile; fileRef = 5E5BD09654B4A566ABF0AA36 /* 25-dead-reckoning.md */; };
 		A2E60B8AAA5799BD52A91C45 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6761117520C183152AFD2D67 /* AuthManager.swift */; };
 		A2FE82AAEE2282330E0B0DAB /* ThermalOverlayMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1901A2BB89E77193EA86A6E1 /* ThermalOverlayMap.swift */; };
-		A35A033D977B42B578720F8C /* MoonPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF5A408A4D02286816155C00 /* MoonPhase.swift */; };
 		A374F66E6258DF723A5FFDD0 /* NavigationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39021A0C857CE739E0B492DF /* NavigationViewModel.swift */; };
 		A3EBED2C3BBC5A7E834A1624 /* HapticFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9550AB16CE153A9910120CF5 /* HapticFeedback.swift */; };
 		A3F222F58E0F21210F0FB4BD /* DroneTelemetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE764DAB7F918D93DAD65018 /* DroneTelemetry.swift */; };
@@ -509,15 +468,11 @@
 		AA743F3751E19178855BEB8C /* 50-perimeter-defense.md in Resources */ = {isa = PBXBuildFile; fileRef = 389BF61B395E4B1248132B1D /* 50-perimeter-defense.md */; };
 		AA9383C678D64B6A6482012D /* 67-pattern-of-life.md in Resources */ = {isa = PBXBuildFile; fileRef = 6B4A224AD46D7EB0C1B68092 /* 67-pattern-of-life.md */; };
 		AAA25803EAD5ECFE243C1FC0 /* EscapeRoutePlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01537B7C81DE34166C04E61D /* EscapeRoutePlanner.swift */; };
-		AAB3CAA4742C868CF5DC3FCF /* IncidentLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4598E6D0035BCC7D542FD21C /* IncidentLog.swift */; };
 		AAD41DFFD27BA08D7EB2233C /* OfflineTileProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E072845538F69AEDDF73D9 /* OfflineTileProvider.swift */; };
 		ABBE0EDF2A03A1AC34551D16 /* GpsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1444B4A6D18EEA2E8CC9469E /* GpsLogger.swift */; };
 		ABD070956F3E7B1A6B105E74 /* LostPersonProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54E8C2B4E7925EFBE7F1C706 /* LostPersonProfile.swift */; };
-		AC11BF3D1B2A3570D57D8BC7 /* EvidenceCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35468663C499521D88FCBBE4 /* EvidenceCollector.swift */; };
-		AC7A8AA6FDF7D501E8D54961 /* EquipmentTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC6B5FB7E3134010EFD02FA2 /* EquipmentTracker.swift */; };
 		ACA343C99BC737812D93106E /* DtnBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97B52F081DF9C1A5CF43A3E /* DtnBundle.swift */; };
 		AD25A80AA863B0463EA2AC01 /* PttController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C306E47A0092A740EA502D0 /* PttController.swift */; };
-		AD8C9AD04B6D688301A7A870 /* WindEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A7309E1AD788D9443ACBCC /* WindEstimator.swift */; };
 		ADCE35AFE40450D7B63B5D5C /* MergeClouds.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D1D57C0A2740088530F0E0 /* MergeClouds.swift */; };
 		ADDB2ADDDEE3124EEF62A3AF /* HospitalCapacity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C41275C23780AA7C726C557 /* HospitalCapacity.swift */; };
 		ADF11E335C4F1C98C6E03286 /* TeamDashSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED97F4BF0B71451748F0DADF /* TeamDashSection.swift */; };
@@ -545,7 +500,6 @@
 		B6142D8D35847BB90FD9FF35 /* ImportWizard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17FC376AC328E5D5025D3F18 /* ImportWizard.swift */; };
 		B62D00FF671FF53F743C1CE3 /* MultipeerKit in Frameworks */ = {isa = PBXBuildFile; productRef = 497D006DA5BE41749E4D5FA0 /* MultipeerKit */; };
 		B63705E94F3372C6858809D8 /* 41-psychological-first-aid.md in Resources */ = {isa = PBXBuildFile; fileRef = E4708B2949C84FCA70608700 /* 41-psychological-first-aid.md */; };
-		B63F732CC562532396889B44 /* FieldReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 237790D976F7DBEF06F68965 /* FieldReport.swift */; };
 		B65E77313BBEFE0B5694FC8E /* Colorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = C43957FE3DF070171C5AA6CC /* Colorization.swift */; };
 		B6766688C9F13E9097C203A8 /* DamBreachPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D825CCB303CE7507FD4F32 /* DamBreachPlanner.swift */; };
 		B6909C83A10C24868B131EE4 /* CelestialNavSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE42225A60B91D38EB330A9 /* CelestialNavSheet.swift */; };
@@ -553,7 +507,6 @@
 		B756E8D4DA3D9824AA959B3E /* BreachNotifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE9614CE7475AC4618D0351 /* BreachNotifier.swift */; };
 		B786CADDB3C871EFC605F67D /* ContextWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CF93300B58F112A58DA8569 /* ContextWindow.swift */; };
 		B7ECADD050F25238BCE7B9BA /* FlashcardEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F4A1C01B44C5270BD090D47 /* FlashcardEngine.swift */; };
-		B7EDE5D33F35DD28D676CE8D /* ScenarioBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E09D94B4425C2600C17A3948 /* ScenarioBuilder.swift */; };
 		B7F0039A465C16705CB3A4A7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4C0269B5C906DC54521BCFB /* Assets.xcassets */; };
 		B854106FB05A24DEF818698E /* VirtualVictims.swift in Sources */ = {isa = PBXBuildFile; fileRef = A01B146251474A12FAC1E62B /* VirtualVictims.swift */; };
 		B85805A587AFB06FF83BB57C /* 69-target-package.md in Resources */ = {isa = PBXBuildFile; fileRef = 5CBA104D345C196B865EA4F3 /* 69-target-package.md */; };
@@ -599,7 +552,6 @@
 		C7947277E8EBC249E34BDECB /* DivisionTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC33229E8504A902CE92480 /* DivisionTracker.swift */; };
 		C7DBF54B0839D99F6534B233 /* MissionClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32BCE4E96379317ED6809CEB /* MissionClock.swift */; };
 		C7FEE0ED0B541AF7EDEFB9BA /* RiskAssessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E423C9A3FB60C5638E9D4F8 /* RiskAssessor.swift */; };
-		C815C77C4B7B39B6A3B9F59F /* WinlinkInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F15A18D62B5F9FB9196B9D1 /* WinlinkInterface.swift */; };
 		C82626DF166D402E3B9EC2B1 /* 34-hypothermia-frostbite.md in Resources */ = {isa = PBXBuildFile; fileRef = 07904812A61151F1049A0474 /* 34-hypothermia-frostbite.md */; };
 		C940E53420A1A529723E87DA /* DroneController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89332DFEAB47442B9D20C254 /* DroneController.swift */; };
 		C96BEC368DDA6765CE6DDD6A /* EmbeddingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE1725DA3F21AF0CBCF1533 /* EmbeddingEngine.swift */; };
@@ -629,8 +581,6 @@
 		D02E029D1AE75CABFDD6BA9F /* IncidentResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA8AB3889DFCEDF8343FD224 /* IncidentResponse.swift */; };
 		D12A1860BDCD00371DEDDFA7 /* TerrainComparison.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27BBEABE32CB1CBB7AF5C79B /* TerrainComparison.swift */; };
 		D173DBB70B06958291BA0999 /* 57-brevity-codes.md in Resources */ = {isa = PBXBuildFile; fileRef = 538CD3192DF07D58DBEBB9D3 /* 57-brevity-codes.md */; };
-		D1A5C6541F636E7D0E9B0B5F /* AprsParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C8D8A7B3F4F0133364285DE /* AprsParser.swift */; };
-		D2526FF58C8AD5C829C34BD3 /* LightEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4989F9580101EAAD1B5E1D /* LightEstimator.swift */; };
 		D2B5CEFF328AE1F1FD822CF7 /* Geofence.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6767A26259D077FF2BB15EF /* Geofence.swift */; };
 		D2EF14B15E9063843B7A25EA /* TrackTrapManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A60165650343664EAA82560E /* TrackTrapManager.swift */; };
 		D331D5D0EECB2770939616A4 /* QuantizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CE61BDF902ED6DBC6E158C2 /* QuantizationManager.swift */; };
@@ -641,10 +591,8 @@
 		D372BAEFAFFEEC8BCAA251EC /* KalmanFuse.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0B1E461581BC84EE04C8486 /* KalmanFuse.swift */; };
 		D3FC8882C490C48BE79C2D62 /* GeofenceMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EFCB72452B77C6B14C02C2D /* GeofenceMonitor.swift */; };
 		D401396C0F362D3D1AC0359C /* 06-management.md in Resources */ = {isa = PBXBuildFile; fileRef = E34409BA7FD64ACC61825661 /* 06-management.md */; };
-		D44EE8D87F46D231D13F6F21 /* TeamSkills.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D1191C0E8055158AE1AA57 /* TeamSkills.swift */; };
 		D450D96538633995BCC12E87 /* LLMAssistant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90563F0C745F3D76C52F4371 /* LLMAssistant.swift */; };
 		D48172CC5078F519CC14ECC3 /* 54-breaching.md in Resources */ = {isa = PBXBuildFile; fileRef = 8CC73F383F9A82D2967CB010 /* 54-breaching.md */; };
-		D489CD862AF198904CB2B22E /* StatusReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BCFEA9B137F28FC78BA077F /* StatusReport.swift */; };
 		D4B5001F4E586DE8B900A965 /* DemGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED65806E8B74F2C9C73F4D7 /* DemGenerator.swift */; };
 		D51CC68C5A0AE44A4D04AE56 /* BiometricAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FBBEDD7425E51CE317D32EC /* BiometricAuth.swift */; };
 		D56A604A950C9D9D70365984 /* PatientHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2060861DE474DFF0D4E329BF /* PatientHandoff.swift */; };
@@ -662,7 +610,6 @@
 		D948CF777C629068B80F902E /* MultiGnss.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CA8E307D2BBE77C2A1868FF /* MultiGnss.swift */; };
 		D9A56E139DDC57B6ED23EFC4 /* BluetoothSensorHub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F67319773E2D0055A66E26E1 /* BluetoothSensorHub.swift */; };
 		D9FD2FBF8EFBB024AB427E48 /* ExposureTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B178B6E48389E60A1EC8C1 /* ExposureTracker.swift */; };
-		DA1CC1ADBF31C2379AB9E1DA /* SurveySystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE5038CC39AE1767680C666 /* SurveySystem.swift */; };
 		DB213325A6BFD74E96F800A7 /* DebriefManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC6318E917E574652A52A63 /* DebriefManager.swift */; };
 		DB25D494682A5B86382108AD /* TacticalMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80078D4C2D966C969BA473AE /* TacticalMapView.swift */; };
 		DB9CB1C9A1A526C2A156E0D2 /* EncryptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A03F1BF1A82AE7AB37025EB /* EncryptionManager.swift */; };
@@ -683,7 +630,6 @@
 		E2BBC07677E15D785A6E070C /* KnowledgeCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D93E3C31583D93E7BE5DE0 /* KnowledgeCheck.swift */; };
 		E2CD89FB6F8DF9430E9B914D /* LiDARCaptureEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D63B33998E1D545A23E671 /* LiDARCaptureEngine.swift */; };
 		E308C284A1FAC7F1E342AA66 /* TeamMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50B65FCEF80A3F10E6A3DA9D /* TeamMapView.swift */; };
-		E33AD636AC0A94DD48AE2F8B /* DamageAssessment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A42901FDB12E946B9CC1F42 /* DamageAssessment.swift */; };
 		E3B7AC27A3D87B0632DF15B1 /* HeightMeasure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4266A126085FBC7580B4A6D2 /* HeightMeasure.swift */; };
 		E411FC128A17EA7E54FB85E6 /* SecureFileTransfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AC80874E94444C5F9672378 /* SecureFileTransfer.swift */; };
 		E4EFD2CA5539528EEAF0E3D5 /* PointCloudEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F9E2338C04AFE2F41318EC1 /* PointCloudEngine.swift */; };
@@ -695,16 +641,13 @@
 		E60D2E7E4E3BF406F4329BC9 /* MissionLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE32BDF3B19C8996C8B9FBAE /* MissionLog.swift */; };
 		E6186C5C2228BFBFF3B30CF0 /* InferenceClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7D0CAA187C00D36AF55796 /* InferenceClient.swift */; };
 		E67F42281411722DFD8E6438 /* 109-ammunition-management.md in Resources */ = {isa = PBXBuildFile; fileRef = E65473DB374D3FF53B4BC3EC /* 109-ammunition-management.md */; };
-		E6CB98AEFE3876515CBD800F /* SatelliteMessageQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2670B8DA4638DE1351B7DD80 /* SatelliteMessageQueue.swift */; };
 		E6F1C2EBA03F80770BE4B4BA /* LocalInferenceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BF5DD46FDF79FD55F409E19 /* LocalInferenceEngine.swift */; };
 		E6F68BE7E7E6157BA1426284 /* ContingencyMatrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5707880910599D296F1B2A25 /* ContingencyMatrix.swift */; };
-		E7C8ED72A66E2F87895D3E8E /* MessagePriority.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6EC13ED0C802C8F7992A28C /* MessagePriority.swift */; };
 		E825A0044D35BA6EBA93AD85 /* TakMarkerSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32AE700503E200A431E446C0 /* TakMarkerSync.swift */; };
 		E82DDB3B1800817B36794E9E /* MetadataScrubber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 374A8F51518ACC8A70A0B1BA /* MetadataScrubber.swift */; };
 		E867DF19D9EFD0D9B449B4C4 /* Terrain3dViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55F7E5D9496D8EFB8000082A /* Terrain3dViewer.swift */; };
 		E86DEB0FE91E2DBA9E9F84FB /* 10-insects.md in Resources */ = {isa = PBXBuildFile; fileRef = B09332EFBD909E42665AD67F /* 10-insects.md */; };
 		E86E049921B5F9D62A3A12EB /* 04-scarcity-extreme.md in Resources */ = {isa = PBXBuildFile; fileRef = CD4FF9F07873C64B1993FAAF /* 04-scarcity-extreme.md */; };
-		E8925762F2043EC5229AFFDD /* RemediationPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85B0ABD79717880F81A179CD /* RemediationPlanner.swift */; };
 		E93690666C280E0A249A5082 /* 11-snow-arctic-shelters.md in Resources */ = {isa = PBXBuildFile; fileRef = 32CAB9E6F7437B892092F577 /* 11-snow-arctic-shelters.md */; };
 		E93793AC234BA4FDD5854B1E /* SettingsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56F5221E1FB389BCB9A2A7B4 /* SettingsTabView.swift */; };
 		E95DC6FC4C14F9E39D90469E /* 58-meshtastic-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = 4EAE74E78B95989E645C113F /* 58-meshtastic-operations.md */; };
@@ -756,7 +699,6 @@
 		F785EBEF2E761D28AC5160CA /* EnvironmentMonitorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2D9DAA4AB215185F2343B /* EnvironmentMonitorView.swift */; };
 		F790B3412A00830525CFA9A3 /* AreaMeasure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E574707E910145CD06394B2 /* AreaMeasure.swift */; };
 		F8BDD62D1AB3A8B46DBA563B /* NavTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FBD2E0826D1156CA169A4D9 /* NavTabView.swift */; };
-		F8CC28428C2A972BC87444C7 /* NoiseDiscipline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509B8BFA3D0F3195450471DB /* NoiseDiscipline.swift */; };
 		F8D3E8B79C9C4A62C30A2A1F /* SitrepGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E97FD841E49082CBCE4879 /* SitrepGenerator.swift */; };
 		F8E9B3C42735A092CC5D58B2 /* BreadcrumbTrail.swift in Sources */ = {isa = PBXBuildFile; fileRef = A52458FF6FF1535CA8D8F3BD /* BreadcrumbTrail.swift */; };
 		F90BF6D39CE43C729ECFED43 /* SecureSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8469B4FB914659D02E038EA8 /* SecureSync.swift */; };
@@ -3302,13 +3244,11 @@
 				257042E90D6608C3F3DB6714 /* PulseOxInterface.swift in Sources */,
 				2CB452125826336F6C1307A5 /* AedTracker.swift in Sources */,
 				CEDA6C5FA5ADF939F333E448 /* BpMonitor.swift in Sources */,
-				E6CB98AEFE3876515CBD800F /* SatelliteMessageQueue.swift in Sources */,
 				403C9E4EF556386B725EA6AB /* SosManager.swift in Sources */,
 				0E1D13B746EBE4324E41583B /* IridiumInterface.swift in Sources */,
 				14D0BCFB752B397331FB56B1 /* SatelliteTrackShare.swift in Sources */,
 				C6DC6CAE7F84434DE2047128 /* InreachInterface.swift in Sources */,
 				8DC78B1A27064F5F6074D495 /* SpotInterface.swift in Sources */,
-				9C812DBEFCF979AA2A9D9A58 /* StatusBoard.swift in Sources */,
 				475C7E34BC81349D1C9F6536 /* ResourceTracker.swift in Sources */,
 				B439C8B1FFD1FC01CEAF95DE /* ShiftScheduler.swift in Sources */,
 				3A7C40709A8B261B453A3E21 /* SearchPatterns.swift in Sources */,
@@ -3316,7 +3256,6 @@
 				59FB8CA4135FE7EE90756D8D /* TeamRoster.swift in Sources */,
 				41D40FC2A5C2294A413EA311 /* AarBuilder.swift in Sources */,
 				D83534EF1833EBE04690CE4D /* CheckInSystem.swift in Sources */,
-				AAB3CAA4742C868CF5DC3FCF /* IncidentLog.swift in Sources */,
 				F8BDD62D1AB3A8B46DBA563B /* NavTabView.swift in Sources */,
 				4F865A9DB3133EB8321F0070 /* MapTabView.swift in Sources */,
 				B6909C83A10C24868B131EE4 /* CelestialNavSheet.swift in Sources */,
@@ -3367,8 +3306,6 @@
 				D02E029D1AE75CABFDD6BA9F /* IncidentResponse.swift in Sources */,
 				7B01975EB0ECE4AC44277F86 /* ThreatIntel.swift in Sources */,
 				80AEAFB1632EAF269ED7295F /* CompromiseAssessment.swift in Sources */,
-				AC11BF3D1B2A3570D57D8BC7 /* EvidenceCollector.swift in Sources */,
-				27A4444A5C3DD5BDD83B0200 /* IncidentDetector.swift in Sources */,
 				6052D83FC65225E55EA6A01C /* ForensicExport.swift in Sources */,
 				CFA82A6C57D591963D1BCC4D /* IsolationMode.swift in Sources */,
 				77E09828AEC008528059B0AA /* RecoveryManager.swift in Sources */,
@@ -3392,7 +3329,6 @@
 				B7ECADD050F25238BCE7B9BA /* FlashcardEngine.swift in Sources */,
 				1B63FA6C49EB57AF6B560078 /* LearningPath.swift in Sources */,
 				F347137C65AB7AD9DCA738C8 /* CaseStudyBrowser.swift in Sources */,
-				9103FFC90B4C65ADF35E2644 /* QuizBuilder.swift in Sources */,
 				E2BBC07677E15D785A6E070C /* KnowledgeCheck.swift in Sources */,
 				771BBA9DE343DC969E946774 /* DiscussionTracker.swift in Sources */,
 				45745D317B6D6253ACB0562E /* HotwashGuide.swift in Sources */,
@@ -3408,34 +3344,10 @@
 				118F9D48ABD6B2194FC180BE /* TimePressure.swift in Sources */,
 				00E484D7CA12E8A86E34D5B9 /* WeatherSimulator.swift in Sources */,
 				B854106FB05A24DEF818698E /* VirtualVictims.swift in Sources */,
-				B7EDE5D33F35DD28D676CE8D /* ScenarioBuilder.swift in Sources */,
-				260A0D66B047E7FFC9DC7829 /* CommsSimulator.swift in Sources */,
 				787895BE5533D26CD8306D01 /* ResourceSimulator.swift in Sources */,
-				D44EE8D87F46D231D13F6F21 /* TeamSkills.swift in Sources */,
-				16D884479D6BC7309058BC7F /* QualificationCard.swift in Sources */,
-				9488C2843D08C950E6E5DB76 /* PerformanceTrends.swift in Sources */,
-				2A42640245FD5E427E68EC0E /* CertTracker.swift in Sources */,
-				8A00C2A96E7CCEA659B12AB9 /* TrainingLog.swift in Sources */,
-				7486D5D8061BFA092D79FC79 /* SkillTracker.swift in Sources */,
-				050BD01CB8AD214E224F7BA8 /* PeerAssessment.swift in Sources */,
-				81A4B90644487BA966BE22C5 /* CompetencyTest.swift in Sources */,
-				97A42ED106849A2EE36F3601 /* SkillDecay.swift in Sources */,
-				E8925762F2043EC5229AFFDD /* RemediationPlanner.swift in Sources */,
 				6FD9C77406628030B8EC44A3 /* LoraPacket.swift in Sources */,
-				401F6D4E767FA8FC41DAB0DE /* MeshRouting.swift in Sources */,
-				21C9E55982E4812B02CF33AF /* MeshDiscovery.swift in Sources */,
-				5DE9865D513091E2640B9EA3 /* MeshGateway.swift in Sources */,
-				795E8E15F9E6540B612891F9 /* DtnProtocol.swift in Sources */,
-				9C16FA8277F68C3C1C5F5F4F /* MeshtasticProtocol.swift in Sources */,
-				6343E4FC4E140161CF8ECB91 /* NmeaParser.swift in Sources */,
-				A20EACD79706D62A3A9C0B3E /* DmrData.swift in Sources */,
-				C815C77C4B7B39B6A3B9F59F /* WinlinkInterface.swift in Sources */,
-				1588D873C49C721F3B775AC1 /* DstarData.swift in Sources */,
-				D1A5C6541F636E7D0E9B0B5F /* AprsParser.swift in Sources */,
-				778FDCFCBC17BE0F60CD9FE4 /* Ax25Handler.swift in Sources */,
 				CF3012FB3B1111E85545EC72 /* P25Data.swift in Sources */,
 				7E3EB9A1443AB80B941E8E45 /* AprsGenerator.swift in Sources */,
-				6B8DA9B30F8E0218194DCBB4 /* SituationReport.swift in Sources */,
 				641465A329787B079D0C1E78 /* NimsForms.swift in Sources */,
 				884BD7179ABB7633D883DC90 /* EdxlHandler.swift in Sources */,
 				7FEF56EC9353C69214651FDA /* CapHandler.swift in Sources */,
@@ -3462,7 +3374,6 @@
 				BBD39F67D2FA31B4F768274F /* ProjectionHandler.swift in Sources */,
 				7C3CAAE211CD1D15A3709B4D /* MbtilesHandler.swift in Sources */,
 				68FB4E11304D57759C9C87B9 /* GeojsonHandler.swift in Sources */,
-				5320C107A2748ADD78D7161E /* KmlHandler.swift in Sources */,
 				4C09900D93F7A7E4ECB0E0C6 /* OpOrderBuilder.swift in Sources */,
 				21288BBE9BC5471E08D4C0AC /* PaceCalculator.swift in Sources */,
 				7E1F56468353D1EA20E4F991 /* RiskMatrix.swift in Sources */,
@@ -3611,7 +3522,6 @@
 				88BEA48FE40802ADEDB7CAEE /* FloodDashboard.swift in Sources */,
 				888C310B972B8E8A1C5E4963 /* WaterLevelTracker.swift in Sources */,
 				F5BA3FE1AE85E0A1806CB473 /* BoatOperations.swift in Sources */,
-				A0DDD0DBC4BB13171338204E /* StrandedTracker.swift in Sources */,
 				DEC0D94892C3AFD778177141 /* HighWaterMarks.swift in Sources */,
 				27646A558996A899614CB71B /* SwiftWaterProtocol.swift in Sources */,
 				70020DA0CA1D66B4595687F0 /* ClueLogger.swift in Sources */,
@@ -3662,11 +3572,9 @@
 				DB9CB1C9A1A526C2A156E0D2 /* EncryptionManager.swift in Sources */,
 				ACA343C99BC737812D93106E /* DtnBundle.swift in Sources */,
 				A19E0D76AB3754A0276762F4 /* SignalPropagation.swift in Sources */,
-				E7C8ED72A66E2F87895D3E8E /* MessagePriority.swift in Sources */,
 				832DA90E9C7F5AF2F44FFCAC /* PhaseTracker.swift in Sources */,
 				440B1C03179319C29BDDB82A /* MissionPlanner.swift in Sources */,
 				C7DBF54B0839D99F6534B233 /* MissionClock.swift in Sources */,
-				7DB6F16C8245FD3BB6001153 /* ObjectiveManager.swift in Sources */,
 				289A515EA39347BE22931E6A /* ContingencyPlanner.swift in Sources */,
 				F1549837364D928D0B34FA9C /* TimelineView.swift in Sources */,
 				E60D2E7E4E3BF406F4329BC9 /* MissionLog.swift in Sources */,
@@ -3678,34 +3586,10 @@
 				0E7BFA57A5D1D7F841313D3C /* TeamChat.swift in Sources */,
 				20D13EB8D01E8AF4F9B4D4AE /* CensusTool.swift in Sources */,
 				C5538C0A08D9B4AE44B59F36 /* DataSync.swift in Sources */,
-				DA1CC1ADBF31C2379AB9E1DA /* SurveySystem.swift in Sources */,
 				39FA7D0049AD575AE5A9B919 /* DataValidation.swift in Sources */,
 				89B59C57D69C8AC8BBB73D87 /* ReportTemplates.swift in Sources */,
 				BDC6EBCC62BDBACE44F638A3 /* IntelligenceReport.swift in Sources */,
 				67B4EC6EA2DA856F125F2249 /* ReportArchive.swift in Sources */,
-				D489CD862AF198904CB2B22E /* StatusReport.swift in Sources */,
-				1738EE9A41188D16751F84BF /* IncidentReport.swift in Sources */,
-				E33AD636AC0A94DD48AE2F8B /* DamageAssessment.swift in Sources */,
-				5DD6F780FE2E2AA1219DDA27 /* ObservationLog.swift in Sources */,
-				B63F732CC562532396889B44 /* FieldReport.swift in Sources */,
-				34A097E86CF7C96E2F4A1B6B /* CacheManager.swift in Sources */,
-				2E7CF1B6CC739A7A2443632D /* BatteryManager.swift in Sources */,
-				AC7A8AA6FDF7D501E8D54961 /* EquipmentTracker.swift in Sources */,
-				925ADCF8CAACA3C554BB2042 /* MaintenanceLogger.swift in Sources */,
-				26EDF5483884A4C7529814DB /* AltitudeTracker.swift in Sources */,
-				D2526FF58C8AD5C829C34BD3 /* LightEstimator.swift in Sources */,
-				253124DB7F9160FEC2D773E6 /* FlashFloodMonitor.swift in Sources */,
-				F8CC28428C2A972BC87444C7 /* NoiseDiscipline.swift in Sources */,
-				0FE9B035F1612C417E5CD610 /* SolarChargerOptimizer.swift in Sources */,
-				274B3359255D2B2ADBCD8655 /* TeamPackStore.swift in Sources */,
-				19875A53DB1C149225774F75 /* WeatherForecaster.swift in Sources */,
-				09AAF7A8AA5FCEC5329D2C16 /* TempLogger.swift in Sources */,
-				4CC84543854D921193B6C5B9 /* HydrationCalc.swift in Sources */,
-				5AEFFE1D02C205EB56F585F2 /* SunCalculator.swift in Sources */,
-				301C2C47B041B6F799BC9C15 /* LightningPredictor.swift in Sources */,
-				AD8C9AD04B6D688301A7A870 /* WindEstimator.swift in Sources */,
-				A35A033D977B42B578720F8C /* MoonPhase.swift in Sources */,
-				770B1E2AC4D5FAA7B01297A7 /* IAPManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
