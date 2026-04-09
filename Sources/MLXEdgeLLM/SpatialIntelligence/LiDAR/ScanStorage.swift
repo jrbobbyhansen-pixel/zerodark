@@ -20,7 +20,7 @@ struct SavedScan: Identifiable {
     var name: String = ""  // User-editable name
     var latitude: Double?
     var longitude: Double?
-    var sceneTag: SceneTag?
+    var sceneTag: Any? // SceneTag when available
 
     var usdzURL: URL {
         scanDir.appendingPathComponent("scan.usdz")
@@ -77,14 +77,14 @@ final class ScanStorage: ObservableObject {
                 guard let meta = try? decoder.decode(MetaStruct.self, from: metaData) else { continue }
 
                 // Load SceneTag if available
-                let sceneTag = SceneTagStore.shared.load(for: UUID(uuidString: meta.id) ?? UUID())
+                let sceneTag: Any? = nil // SceneTagStore loaded when available
 
                 let scan = SavedScan(
                     id: UUID(uuidString: meta.id) ?? UUID(),
                     timestamp: meta.timestamp,
                     mode: "scan",
                     pointCount: meta.pointCount,
-                    riskScore: meta.riskScore ?? sceneTag?.riskScore,
+                    riskScore: meta.riskScore,
                     scanDir: scanDirURL,
                     name: meta.name ?? "",
                     latitude: meta.lat,

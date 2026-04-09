@@ -5,6 +5,8 @@ import MultipeerKit
 import CryptoSwift
 import Combine
 import CoreLocation
+
+// MeshtasticNode defined in MeshtasticBridge.swift
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -317,9 +319,12 @@ final class MeshService: ObservableObject {
                     content: "HAPTIC: \(code.displayName)"
                 ))
             }
+
+        @unknown default:
+            break
         }
     }
-    
+
     // MARK: - Sending
     
     func sendText(_ text: String) {

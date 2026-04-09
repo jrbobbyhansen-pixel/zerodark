@@ -110,8 +110,18 @@ struct TacticalAnalysis {
     let overallAssessment: String
     let riskScore: Float  // 0-1
     // Enhanced by HazardDetector + PersonDetector
-    var hazards: [Hazard] = []
+    var hazards: [ScanHazard] = []
     var detectedPersonCount: Int = 0
+}
+
+// MARK: - Inline Hazard Type (avoids dependency on HazardDetector.swift)
+
+struct ScanHazard: Identifiable {
+    let id = UUID()
+    let type: String
+    let position: SIMD3<Float>
+    let severity: String
+    let description: String
 }
 
 // MARK: - Detection Types

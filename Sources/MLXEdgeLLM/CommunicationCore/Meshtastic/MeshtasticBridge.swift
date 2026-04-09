@@ -1,9 +1,48 @@
 // MeshtasticBridge.swift — BLE Bridge to Meshtastic LoRa Hardware
 // Connects to Meshtastic devices and bridges positions/messages into mesh
 
-import CoreBluetooth
+@preconcurrency import CoreBluetooth
 import CoreLocation
 import Foundation
+
+// MARK: - Inline Protobuf Helpers (avoids folder group discovery issues)
+
+private func pbReadVarint(_ bytes: [UInt8], offset: Int) -> (UInt64, Int)? {
+    var result: UInt64 = 0; var shift = 0; var i = offset
+    while i < bytes.count {
+        let byte = bytes[i]; i += 1
+        result |= UInt64(byte & 0x7F) << shift
+        if byte & 0x80 == 0 { return (result, i - offset) }
+        shift += 7; if shift >= 64 { return nil }
+    }
+    return nil
+}
+
+private func pbReadFieldHeader(_ bytes: [UInt8], offset: Int) -> (tag: Int, wireType: Int, headerLen: Int)? {
+    guard let (v, n) = pbReadVarint(bytes, offset: offset) else { return nil }
+    return (Int(v >> 3), Int(v & 0x07), n)
+}
+
+private func pbEncodeVarint(_ value: UInt64) -> Data {
+    var data = Data(); var v = value
+    repeat { var byte = UInt8(v & 0x7F); v >>= 7; if v != 0 { byte |= 0x80 }; data.append(byte) } while v != 0
+    return data
+}
+
+private func pbEncodeVarintField(tag: Int, value: UInt64) -> Data {
+    var data = Data()
+    data.append(contentsOf: pbEncodeVarint(UInt64(tag << 3 | 0)))
+    data.append(contentsOf: pbEncodeVarint(value))
+    return data
+}
+
+private func pbEncodeBytesField(tag: Int, value: Data) -> Data {
+    var data = Data()
+    data.append(contentsOf: pbEncodeVarint(UInt64(tag << 3 | 2)))
+    data.append(contentsOf: pbEncodeVarint(UInt64(value.count)))
+    data.append(value)
+    return data
+}
 
 // Official Meshtastic BLE service and characteristic UUIDs
 private let meshtasticServiceUUID = CBUUID(string: "6BA1B218-15A8-461F-9FA8-5D651A2B8888")

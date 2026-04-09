@@ -95,7 +95,9 @@ final class BreadcrumbEngine: ObservableObject {
                 if !drFallbackActive {
                     drFallbackActive = true
                     gpsStatus = .denied
-                    DeadReckoningEngine.shared.start()
+                    if let pos = currentPosition {
+                        DeadReckoningEngine.shared.start(from: pos, heading: heading)
+                    }
                     NotificationCenter.default.post(
                         name: Notification.Name("ZD.inAppAlert"),
                         object: nil,

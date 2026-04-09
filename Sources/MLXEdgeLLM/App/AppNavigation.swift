@@ -105,8 +105,8 @@ public class AppState: ObservableObject {
     @Published public var latestIntelSummary: String = ""
     @Published public var intelUpdateCount: Int = 0
 
-    // LiDAR SceneTag (v6 — latest scan with threats/covers for cross-tab consumption)
-    @Published public var latestSceneTag: SceneTag?
+    // LiDAR SceneTag (v6 — set from LiDARCaptureEngine after scan)
+    @Published public var latestSceneTag: Any?
 
     // Navigation state (v6.1 — fused from BreadcrumbEngine, DR, Celestial, Battery)
     @Published public var navState: NavState = NavState()

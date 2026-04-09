@@ -10,7 +10,7 @@ struct OfflineMapView: UIViewRepresentable {
     @ObservedObject var tileProvider = OfflineTileProvider.shared
     @Binding var region: MKCoordinateRegion?
     var showsUserLocation: Bool = true
-    var waypoints: [Waypoint] = []
+    var waypoints: [TacticalWaypoint] = []
     
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()
@@ -127,22 +127,13 @@ struct OfflineMapView: UIViewRepresentable {
 // MARK: - Waypoint Annotation
 
 final class WaypointAnnotation: NSObject, MKAnnotation {
-    let waypoint: Waypoint
-    
-    var coordinate: CLLocationCoordinate2D {
-        waypoint.coordinate
-    }
-    
-    var title: String? {
-        waypoint.name
-    }
-    
-    var subtitle: String? {
-        // Show altitude if available
-        String(format: "%.0fm", waypoint.altitude)
-    }
-    
-    init(waypoint: NavWaypoint) {
+    let waypoint: TacticalWaypoint
+
+    var coordinate: CLLocationCoordinate2D { waypoint.coordinate }
+    var title: String? { waypoint.displayLabel }
+    var subtitle: String? { waypoint.type.rawValue }
+
+    init(waypoint: TacticalWaypoint) {
         self.waypoint = waypoint
         super.init()
     }
@@ -189,9 +180,9 @@ struct MapStatusOverlay: View {
 
 #Preview {
     OfflineMapView(
-        region: .constant(MKCoordinateRegion(
+        region: .constant(Optional(MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 29.4241, longitude: -98.4936),
             span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
-        ))
+        )))
     )
 }
