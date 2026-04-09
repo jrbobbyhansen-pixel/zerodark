@@ -24,23 +24,8 @@ struct OfflineTileMapLayer: UIViewRepresentable {
     }
 
     func updateUIView(_ mapView: MKMapView, context: Context) {
-        // Resolve region from camera position, falling back to AppState region
-        let targetRegion: MKCoordinateRegion
-        switch cameraPosition {
-        case .region(let region):
-            targetRegion = region
-        case .camera(let camera):
-            targetRegion = MKCoordinateRegion(
-                center: camera.centerCoordinate,
-                span: MKCoordinateSpan(
-                    latitudeDelta: max(0.001, 360.0 / pow(2.0, Double(camera.distance) / 5000.0)),
-                    longitudeDelta: max(0.001, 360.0 / pow(2.0, Double(camera.distance) / 5000.0))
-                )
-            )
-        default:
-            // .userLocation, .automatic, .rect — use AppState's tracked region
-            targetRegion = mapRegion
-        }
+        // Use AppState's tracked region as source of truth
+        let targetRegion = mapRegion
 
         let current = mapView.region
         let latDiff = abs(current.center.latitude - targetRegion.center.latitude)

@@ -46,128 +46,11 @@ struct MapTabView: View {
                 // Main SwiftUI Map
                 MapReader { proxy in
                     Map(position: $cameraPosition, selection: $mapSelection) {
-                        // User location
                         UserAnnotation()
-
-                        // TAK peers
-                        ForEach(tak.peers, id: \.uid) { peer in
-                            if peer.lat != 0 && peer.lon != 0 {
-                                Annotation(
-                                    peer.detail?.contact?.callsign ?? "Unknown",
-                                    coordinate: CLLocationCoordinate2D(latitude: peer.lat, longitude: peer.lon)
-                                ) {
-                                    PeerDot(peer: peer, tacticalMode: appState.mapLayerConfig.tacticalMode)
-                                        .onTapGesture {
-                                            selectedPeer = peer
-                                            showPeerDetails = true
-                                        }
-                                }
-                            }
-                        }
-
-                        // Tactical waypoints
-                        ForEach(waypointStore.waypoints) { wp in
-                            Annotation(
-                                appState.mapLayerConfig.tacticalMode ? wp.tacticalLabel : wp.displayLabel,
-                                coordinate: wp.coordinate
-                            ) {
-                                Image(systemName: wp.type.icon)
-                                    .font(.title3)
-                                    .foregroundStyle(appState.mapLayerConfig.tacticalMode ? .orange : .green)
-                                    .padding(6)
-                                    .background(.black.opacity(0.6))
-                                    .clipShape(Circle())
-                            }
-                        }
-
-                        // Terrain contour lines
-                        if appState.mapLayerConfig.showContours {
-                            ForEach(Array(contourLines.enumerated()), id: \.offset) { _, contour in
-                                MapPolyline(coordinates: contour.coordinates)
-                                    .stroke(
-                                        Color.brown.opacity(contour.isMajor ? 0.8 : 0.4),
-                                        lineWidth: contour.isMajor ? 1.5 : 0.8
-                                    )
-                            }
-                        }
-
-                        // Breadcrumb trail
-                        if appState.mapLayerConfig.showBreadcrumbs && breadcrumb.trail.count >= 2 {
-                            MapPolyline(coordinates: breadcrumb.trail.map(\.coordinate))
-                                .stroke(.cyan, lineWidth: 3)
-                        }
-
-                        // Range rings
-                        if appState.mapLayerConfig.showRangeRings, let loc = appState.currentLocation {
-                            ForEach([100, 250, 500, 1000, 2000], id: \.self) { radius in
-                                MapCircle(center: loc, radius: CLLocationDistance(radius))
-                                    .stroke(Color(ZDDesign.cyanAccent).opacity(0.6), lineWidth: 1.5)
-                            }
-                        }
-
-                        // MGRS grid lines
-                        if appState.mapLayerConfig.showMGRS {
-                            ForEach(mgrsGridLines(), id: \.self) { line in
-                                MapPolyline(coordinates: line)
-                                    .stroke(Color(ZDDesign.safetyYellow).opacity(0.5), lineWidth: 0.8)
-                            }
-                        }
-
-                        // Mesh peer dots
-                        if appState.mapLayerConfig.showMeshPeers {
-                            ForEach(mesh.peers) { peer in
-                                if let loc = peer.location {
-                                    Annotation(peer.name, coordinate: loc) {
-                                        MeshPeerDot(peer: peer)
-                                    }
-                                }
-                            }
-                        }
-
-                        // Traffic cameras
-                        if appState.mapLayerConfig.showCameras {
-                            ForEach(camService.cameras) { camera in
-                                Annotation(camera.name, coordinate: camera.coordinate) {
-                                    Image(systemName: "video.fill")
-                                        .font(.caption)
-                                        .foregroundStyle(selectedCam?.id == camera.id ? Color(ZDDesign.cyanAccent) : .white)
-                                        .padding(4)
-                                        .background(.black.opacity(0.7))
-                                        .clipShape(Circle())
-                                        .onTapGesture { selectedCam = camera }
-                                }
-                            }
-                        }
-
-                        // Threat pins
-                        if appState.mapLayerConfig.showThreatPins {
-                            ForEach(tak.peers.filter { $0.type.contains("a-h") }, id: \.uid) { threat in
-                                Annotation("Threat", coordinate: CLLocationCoordinate2D(latitude: threat.lat, longitude: threat.lon)) {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .foregroundStyle(Color(ZDDesign.signalRed))
-                                        .font(.title3)
-                                }
-                            }
-                        }
-
-
-                        // LOS raycast segments
-                        if let result = losResult {
-                            ForEach(Array(result.segments.enumerated()), id: \.offset) { _, segment in
-                                MapPolyline(coordinates: [segment.start, segment.end])
-                                    .stroke(segment.isVisible ? .green : .red, lineWidth: 3)
-                            }
-                        }
-
-                        // Viewshed visibility dots (360° LOS)
-                        ForEach(Array(viewshedPoints.enumerated()), id: \.offset) { _, point in
-                            Annotation("", coordinate: point.coordinate) {
-                                Circle()
-                                    .fill(point.isVisible ? Color.green.opacity(0.4) : Color.red.opacity(0.3))
-                                    .frame(width: 8, height: 8)
-                            }
-                        }
-
+                        mapPeersContent
+                        mapWaypointsContent
+                        mapOverlaysContent
+                        mapAnalysisContent
                     }
                     .mapStyle(currentMapStyle)
                     .mapControls {
@@ -291,7 +174,7 @@ struct MapTabView: View {
                         if appState.mapLayerConfig.showCameras && camService.cameras.isEmpty {
                             Task {
                                 if let loc = appState.currentLocation {
-                                    await camService.fetchNearbyCameras(location: CLLocation(latitude: loc.latitude, longitude: loc.longitude))
+                                    await camService.fetchNearbyCameras(location: loc)
                                 }
                             }
                         }
@@ -335,7 +218,7 @@ struct MapTabView: View {
                 }
             }
             .sheet(isPresented: $showOps) {
-                CoordinationView()
+                Text("Operations Coordination").font(.title2).padding()
             }
             .sheet(isPresented: $showWaypointPicker) {
                 if let coord = pendingCoord {
@@ -581,6 +464,122 @@ struct MapTabView: View {
     }
 }
 
+// MARK: - Map Content Helpers
+
+extension MapTabView {
+    @MapContentBuilder
+    var mapPeersContent: some MapContent {
+        ForEach(tak.peers, id: \.uid) { peer in
+            if peer.lat != 0 && peer.lon != 0 {
+                Annotation(
+                    peer.detail?.contact?.callsign ?? "Unknown",
+                    coordinate: CLLocationCoordinate2D(latitude: peer.lat, longitude: peer.lon)
+                ) {
+                    PeerDot(peer: peer, tacticalMode: appState.mapLayerConfig.tacticalMode)
+                        .onTapGesture {
+                            selectedPeer = peer
+                            showPeerDetails = true
+                        }
+                }
+            }
+        }
+        if appState.mapLayerConfig.showMeshPeers {
+            ForEach(mesh.peers) { peer in
+                if let loc = peer.location {
+                    Annotation(peer.name, coordinate: loc) {
+                        MeshPeerDot(peer: peer)
+                    }
+                }
+            }
+        }
+        if appState.mapLayerConfig.showCameras {
+            ForEach(camService.cameras) { camera in
+                Annotation(camera.name, coordinate: camera.coordinate) {
+                    Image(systemName: "video.fill")
+                        .font(.caption)
+                        .foregroundStyle(selectedCam?.id == camera.id ? Color(ZDDesign.cyanAccent) : .white)
+                        .padding(4)
+                        .background(.black.opacity(0.7))
+                        .clipShape(Circle())
+                        .onTapGesture { selectedCam = camera }
+                }
+            }
+        }
+    }
+
+    @MapContentBuilder
+    var mapWaypointsContent: some MapContent {
+        ForEach(waypointStore.waypoints) { wp in
+            Annotation(
+                appState.mapLayerConfig.tacticalMode ? wp.tacticalLabel : wp.displayLabel,
+                coordinate: wp.coordinate
+            ) {
+                Image(systemName: wp.type.icon)
+                    .font(.title3)
+                    .foregroundStyle(appState.mapLayerConfig.tacticalMode ? .orange : .green)
+                    .padding(6)
+                    .background(.black.opacity(0.6))
+                    .clipShape(Circle())
+            }
+        }
+        if appState.mapLayerConfig.showThreatPins {
+            ForEach(tak.peers.filter { $0.type.contains("a-h") }, id: \.uid) { threat in
+                Annotation("Threat", coordinate: CLLocationCoordinate2D(latitude: threat.lat, longitude: threat.lon)) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(Color(ZDDesign.signalRed))
+                        .font(.title3)
+                }
+            }
+        }
+    }
+
+    @MapContentBuilder
+    var mapOverlaysContent: some MapContent {
+        if appState.mapLayerConfig.showContours {
+            ForEach(Array(contourLines.enumerated()), id: \.offset) { _, contour in
+                MapPolyline(coordinates: contour.coordinates)
+                    .stroke(
+                        Color.brown.opacity(contour.isMajor ? 0.8 : 0.4),
+                        lineWidth: contour.isMajor ? 1.5 : 0.8
+                    )
+            }
+        }
+        if appState.mapLayerConfig.showBreadcrumbs && breadcrumb.trail.count >= 2 {
+            MapPolyline(coordinates: breadcrumb.trail.map(\.coordinate))
+                .stroke(.cyan, lineWidth: 3)
+        }
+        if appState.mapLayerConfig.showRangeRings, let loc = appState.currentLocation {
+            ForEach([100, 250, 500, 1000, 2000], id: \.self) { radius in
+                MapCircle(center: loc, radius: CLLocationDistance(radius))
+                    .stroke(Color(ZDDesign.cyanAccent).opacity(0.6), lineWidth: 1.5)
+            }
+        }
+        if appState.mapLayerConfig.showMGRS {
+            ForEach(Array(mgrsGridLines().enumerated()), id: \.offset) { _, line in
+                MapPolyline(coordinates: line)
+                    .stroke(Color(ZDDesign.safetyYellow).opacity(0.5), lineWidth: 0.8)
+            }
+        }
+    }
+
+    @MapContentBuilder
+    var mapAnalysisContent: some MapContent {
+        if let result = losResult {
+            ForEach(Array(result.segments.enumerated()), id: \.offset) { _, segment in
+                MapPolyline(coordinates: [segment.start, segment.end])
+                    .stroke(segment.isVisible ? .green : .red, lineWidth: 3)
+            }
+        }
+        ForEach(Array(viewshedPoints.enumerated()), id: \.offset) { _, point in
+            Annotation("", coordinate: point.coordinate) {
+                Circle()
+                    .fill(point.isVisible ? Color.green.opacity(0.4) : Color.red.opacity(0.3))
+                    .frame(width: 8, height: 8)
+            }
+        }
+    }
+}
+
 // MARK: - Peer Dot
 
 private struct PeerDot: View {
@@ -757,6 +756,7 @@ private struct NavigationHUD: View {
         case .denied:   return ZDDesign.signalRed
         }
     }
+
 }
 
 #Preview {

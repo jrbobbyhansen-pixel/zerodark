@@ -1,5 +1,4 @@
 // EvalDebriefSection.swift — Ops > Eval sub-section
-// Composes: EvaluatorTools + PhotoVideoLog + DebriefManager + TeamSkills
 
 import SwiftUI
 
@@ -7,11 +6,10 @@ struct EvalDebriefSection: View {
     var body: some View {
         ScrollView {
             VStack(spacing: ZDDesign.spacing16) {
-                // Evaluation Tools
                 OpsSectionHeader(icon: "star.fill", title: "EVALUATION", color: ZDDesign.safetyYellow)
 
                 NavigationLink {
-                    EvaluatorToolsView()
+                    Text("Evaluator Tools — Coming Soon").padding()
                 } label: {
                     OpsSectionCard(
                         icon: "checkmark.rectangle.stack.fill",
@@ -22,7 +20,7 @@ struct EvalDebriefSection: View {
                 }
 
                 NavigationLink {
-                    PhotoVideoLoggerView()
+                    Text("Photo/Video Log — Coming Soon").padding()
                 } label: {
                     OpsSectionCard(
                         icon: "camera.fill",
@@ -32,11 +30,10 @@ struct EvalDebriefSection: View {
                     )
                 }
 
-                // Debrief & Skills
                 OpsSectionHeader(icon: "bubble.left.and.bubble.right.fill", title: "DEBRIEF & SKILLS", color: ZDDesign.forestGreen)
 
                 NavigationLink {
-                    DebriefView()
+                    Text("Debrief Manager — Coming Soon").padding()
                 } label: {
                     OpsSectionCard(
                         icon: "text.bubble.fill",
@@ -47,7 +44,7 @@ struct EvalDebriefSection: View {
                 }
 
                 NavigationLink {
-                    TeamSkillsView()
+                    Text("Team Skills — Coming Soon").padding()
                 } label: {
                     OpsSectionCard(
                         icon: "chart.bar.fill",

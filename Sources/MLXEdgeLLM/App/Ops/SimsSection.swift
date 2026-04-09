@@ -1,5 +1,4 @@
 // SimsSection.swift — Ops > Sims sub-section
-// Composes: CommsSimulator + TeamChallenge
 
 import SwiftUI
 
@@ -7,11 +6,10 @@ struct SimsSection: View {
     var body: some View {
         ScrollView {
             VStack(spacing: ZDDesign.spacing16) {
-                // Communications Simulation
                 OpsSectionHeader(icon: "antenna.radiowaves.left.and.right", title: "COMMUNICATIONS", color: ZDDesign.cyanAccent)
 
                 NavigationLink {
-                    CommsSimulatorView()
+                    Text("Comms Simulator — Coming Soon").padding()
                 } label: {
                     OpsSectionCard(
                         icon: "waveform.badge.mic",
@@ -21,11 +19,10 @@ struct SimsSection: View {
                     )
                 }
 
-                // Team Challenges
                 OpsSectionHeader(icon: "flag.checkered", title: "TEAM CHALLENGES", color: ZDDesign.safetyYellow)
 
                 NavigationLink {
-                    TeamChallengeView()
+                    Text("Team Challenge — Coming Soon").padding()
                 } label: {
                     OpsSectionCard(
                         icon: "figure.2.arms.open",

@@ -11,8 +11,8 @@ public class CelestialNavigator: NSObject, ObservableObject, AVCaptureVideoDataO
     @Published public var estimatedHeading: Double?
     @Published public var detectedStarCount: Int = 0
     @Published public var isSessionRunning: Bool = false
-    @Published public var arOverlayData: CelestialOverlayData?
-    @Published public var fallbackMode: CelestialFallback = .none
+    @Published var arOverlayData: CelestialOverlayData?
+    @Published var fallbackMode: CelestialFallback = .none
 
     private let captureSession = AVCaptureSession()
     private let detector = StarDetector()

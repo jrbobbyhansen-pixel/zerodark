@@ -251,7 +251,7 @@ struct TeamMapView: View {
                 }
             }
             .sheet(isPresented: $showOps) {
-                CoordinationView()
+                Text("Operations Coordination").font(.title2).padding()
             }
             .sheet(isPresented: $showWaypointPicker) {
                 if let coord = pendingCoord {

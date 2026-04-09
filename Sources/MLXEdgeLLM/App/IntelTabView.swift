@@ -307,8 +307,8 @@ struct KnowledgeContentView: View {
         let id = UUID()
         let role: String
         let content: String
-        var verification: VerificationResult?
-        var sources: [MultiModalResult]?
+        var verification: IntelVerificationResult?
+        var sources: [IntelSearchResult]?
     }
 
     enum KnowledgeMode { case ask, browse }
@@ -767,18 +767,17 @@ struct MessageBubbleView: View {
                     if let sources = message.sources, !sources.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 6) {
-                                ForEach(Array(Set(sources.map(\.source))), id: \.rawValue) { source in
-                                    let result = sources.first { $0.source == source }!
+                                ForEach(sources) { result in
                                     HStack(spacing: 3) {
-                                        Image(systemName: result.sourceIcon)
+                                        Image(systemName: "doc.text")
                                             .font(.system(size: 9))
                                         Text(result.sourceLabel)
                                             .font(.system(size: 9))
                                     }
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 3)
-                                    .background(result.sourceColor.opacity(0.2))
-                                    .foregroundColor(result.sourceColor)
+                                    .background(ZDDesign.cyanAccent.opacity(0.2))
+                                    .foregroundColor(ZDDesign.cyanAccent)
                                     .cornerRadius(4)
                                 }
                             }
@@ -792,19 +791,19 @@ struct MessageBubbleView: View {
         .padding(.horizontal)
     }
 
-    private func verificationIcon(_ v: VerificationResult) -> String {
+    private func verificationIcon(_ v: IntelVerificationResult) -> String {
         if v.isVerified && v.confidence > 0.8 { return "checkmark.shield.fill" }
         if v.confidence > 0.5 { return "exclamationmark.shield.fill" }
         return "xmark.shield.fill"
     }
 
-    private func verificationColor(_ v: VerificationResult) -> Color {
+    private func verificationColor(_ v: IntelVerificationResult) -> Color {
         if v.isVerified && v.confidence > 0.8 { return ZDDesign.successGreen }
         if v.confidence > 0.5 { return ZDDesign.safetyYellow }
         return ZDDesign.signalRed
     }
 
-    private func verificationLabel(_ v: VerificationResult) -> String {
+    private func verificationLabel(_ v: IntelVerificationResult) -> String {
         if v.isVerified && v.confidence > 0.8 { return "Verified (\(Int(v.confidence * 100))%)" }
         if v.confidence > 0.5 { return "Partial (\(Int(v.confidence * 100))%)" }
         return "Unverified"

@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		009F1B2E9357A4601A4701C3 /* 35-heat-injuries.md in Resources */ = {isa = PBXBuildFile; fileRef = 428A93DEE055293DB509BBC0 /* 35-heat-injuries.md */; };
 		01CD9BC0A9C34877E82138F7 /* 40-infections-sepsis.md in Resources */ = {isa = PBXBuildFile; fileRef = 5D63E6E785FB6E0400A3087E /* 40-infections-sepsis.md */; };
-		021392BFE0544F5A799DD9A3 /* llmfarm_core in Frameworks */ = {isa = PBXBuildFile; productRef = E2093A3EC8DEFC1CDB8F2E3B /* llmfarm_core */; };
+		021392BFE0544F5A799DD9A3 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		03D59C53CA5D84FF1BDE6374 /* 22-terrain-association.md in Resources */ = {isa = PBXBuildFile; fileRef = BE51EF5DA4224F5291F2F4A1 /* 22-terrain-association.md */; };
 		05A0D50BA5D0DBE22F0A4FB0 /* 43-cqb-room-clearing.md in Resources */ = {isa = PBXBuildFile; fileRef = 5B2C24F19C4FD00583823CED /* 43-cqb-room-clearing.md */; };
 		0612317F2FEA96E15A8591D7 /* 18-cqb-fundamentals.md in Resources */ = {isa = PBXBuildFile; fileRef = D9E73C31F8D79B035F7F06CF /* 18-cqb-fundamentals.md */; };
@@ -28,6 +28,7 @@
 		1416BBA333A969E5AC6919C6 /* 24-breaching.md in Resources */ = {isa = PBXBuildFile; fileRef = 18C8218B6996382F3A9B69F4 /* 24-breaching.md */; };
 		160F3986FDF752C0C48A54CF /* 12-airway-management.md in Resources */ = {isa = PBXBuildFile; fileRef = 756BA45925B2332731FF74B4 /* 12-airway-management.md */; };
 		16EEB923DBBBDE72C7F2F33A /* 22-camouflage.md in Resources */ = {isa = PBXBuildFile; fileRef = 31A1D55CF128003650A2CD2D /* 22-camouflage.md */; };
+		16FACA9012C85AAB20ED9141 /* HeightMeasure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4266A126085FBC7580B4A6D2 /* HeightMeasure.swift */; };
 		1744D77EC490E0D7402E101B /* DTNDeliveryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0418FC64B071CB68AACBAB7D /* DTNDeliveryManager.swift */; };
 		174FDC0DD598664124D9932F /* EnvironmentSensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A1586095E47F1FA0557540 /* EnvironmentSensor.swift */; };
 		18957EFFD3366C5817104969 /* 09-fishing.md in Resources */ = {isa = PBXBuildFile; fileRef = 088F99C3EF2772F2075DC725 /* 09-fishing.md */; };
@@ -66,7 +67,9 @@
 		29B19B89779728304EE1685A /* 105-task-organization.md in Resources */ = {isa = PBXBuildFile; fileRef = 16D3A1BEA24FA7769815DD93 /* 105-task-organization.md */; };
 		2ABE45A6BB8B5206E021C7FB /* AppNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A8FC4924F81BC9825ACB7B /* AppNavigation.swift */; };
 		2BCB2C58D50680F0CE531D62 /* 87-building-assessment.md in Resources */ = {isa = PBXBuildFile; fileRef = A9A2CB5F036875FCDA768BB7 /* 87-building-assessment.md */; };
+		2C02EC9FE4156DA818DD7C1E /* VolumeMeasure.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDECDA06F8FB7D9B9BBC7CB9 /* VolumeMeasure.swift */; };
 		2C48707DD7E3B2F5D5DAE208 /* GeoPackageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 649752049A5F7FCB36BA7889 /* GeoPackageService.swift */; };
+		2C50F14D82CCE51BD466BB7B /* ReportsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE535710C34F8B3F12F6A0C /* ReportsSection.swift */; };
 		2C8C26672F4F0B89B7979C95 /* 63-observation-post.md in Resources */ = {isa = PBXBuildFile; fileRef = 445B5A1F8C73451866B753AC /* 63-observation-post.md */; };
 		2D62B17922EE9EB3BD1C8768 /* 25-weather.md in Resources */ = {isa = PBXBuildFile; fileRef = B3531C0695D949C8AC3F8EED /* 25-weather.md */; };
 		2E4934B0FF93DD0598A37652 /* TeamPackStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C9B01E5129DEBEE16B1592 /* TeamPackStore.swift */; };
@@ -76,7 +79,7 @@
 		2FAAEF34EC472393B2B2615E /* TranscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F8174AD4A628B987D1EDA5A /* TranscriptionManager.swift */; };
 		30C0D1C2A6FD51E6574AC88B /* 08-weather-reading.md in Resources */ = {isa = PBXBuildFile; fileRef = C4FF581FCF8F87821196F2B9 /* 08-weather-reading.md */; };
 		3197931A4C7E63E31AF756B4 /* MeshService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 061BAAFF0D99EF8B6B51BDCE /* MeshService.swift */; };
-		321294AC9D0BDF998FFCDE48 /* GeoPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 2FF1FB944810E41A93A75C46 /* GeoPackage */; };
+		321294AC9D0BDF998FFCDE48 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		32FC1C3EE2A263565524856B /* MeasurementTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F96FA0F140B9E0C4AF14CF /* MeasurementTypes.swift */; };
 		342DA780974B126D355CA8F9 /* HapticPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F6DF63D6D97C8EFC7C0C60 /* HapticPickerSheet.swift */; };
 		34A3B7BC672F17CCF12BA8CC /* MeasurementOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF811EF989D9D3BB05CB59ED /* MeasurementOverlayView.swift */; };
@@ -105,6 +108,7 @@
 		44C926FE792CF12547ACD79B /* 39-improvised-medicine.md in Resources */ = {isa = PBXBuildFile; fileRef = B89E8BD8B53DF2AE91C4F8D9 /* 39-improvised-medicine.md */; };
 		451A27D18B9FD3C3731D9891 /* CursorOnTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB5B97207BFC2E0FE094AD3E /* CursorOnTarget.swift */; };
 		4614DF817F7972DED626E039 /* 29-information-collection.md in Resources */ = {isa = PBXBuildFile; fileRef = 8178819E1280B19547EDB026 /* 29-information-collection.md */; };
+		47067EC557E03995ACEAA181 /* SceneTagStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68454E5CAF9ECF9B45126706 /* SceneTagStore.swift */; };
 		47D2F599E4014C5742A44D17 /* TacticalWaypointStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80FF995E84AECE23548C8D45 /* TacticalWaypointStore.swift */; };
 		47F01383A33A0EC15EA7F55B /* 80-anti-tracking-advanced.md in Resources */ = {isa = PBXBuildFile; fileRef = AF5B8A9B22C4E26C6A386BCA /* 80-anti-tracking-advanced.md */; };
 		47F89B73EE56EA7D36CE165C /* WeatherForecaster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D5FFC2D74EF67FB83B7A51 /* WeatherForecaster.swift */; };
@@ -114,6 +118,7 @@
 		4A2932F4A22064B973DB76CB /* 77-vbied-awareness.md in Resources */ = {isa = PBXBuildFile; fileRef = 2C52434E784130380BC5B58D /* 77-vbied-awareness.md */; };
 		4A4A3A0DE23842F7E33624FB /* 51-camouflage.md in Resources */ = {isa = PBXBuildFile; fileRef = 598310C7C75CA57141CAE1B9 /* 51-camouflage.md */; };
 		4A6C63A11AC381278E3047B4 /* 30-airway-management.md in Resources */ = {isa = PBXBuildFile; fileRef = 8CA0E00A286A79273BAC326D /* 30-airway-management.md */; };
+		4A8EE67C329486A0CED78302 /* ReportFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFE254EDEF0113E612CAAE01 /* ReportFormView.swift */; };
 		4B01BB59394FDE998AA9D63A /* TileDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F819DE76DF2DE629B015041 /* TileDownloadView.swift */; };
 		4BF90C18A8341814121CA44E /* 83-isolation-procedures.md in Resources */ = {isa = PBXBuildFile; fileRef = 634AC23447A314BF7E91004B /* 83-isolation-procedures.md */; };
 		4C09900D93F7A7E4ECB0E0C6 /* OpOrderBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD9568DDC980C9C766F6C58 /* OpOrderBuilder.swift */; };
@@ -122,11 +127,13 @@
 		4E1D9B498085D774791B9CF2 /* MeshExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48C98D581F186CDD9B019FD3 /* MeshExporter.swift */; };
 		4E6AFC815DA8F10F06CDAB25 /* ZDKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706AE4996AC35BD5E02F160F /* ZDKeychain.swift */; };
 		4E7DD8782382A33DFEEE1BBD /* MeshtasticBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10C5593F58FC6F21D22293A8 /* MeshtasticBridge.swift */; };
+		4E7F022A640D0B794198E58E /* StarCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E752665F1966C07C2E41DE /* StarCatalog.swift */; };
 		4F1FCB204D8AB3C59739DBCB /* OfflineMapEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E712FB353E8B24FD2F2B58 /* OfflineMapEngine.swift */; };
 		4F3FE2FB30A2EE61097A9842 /* TelemetryDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08624ABBE7384C7B4A999012 /* TelemetryDashboard.swift */; };
 		4F865A9DB3133EB8321F0070 /* MapTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D7DC745F5D3843671CC28 /* MapTabView.swift */; };
 		50B2A0954D08B422311879F5 /* SceneTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5315FB0748B8A2F5C96390AC /* SceneTag.swift */; };
 		50F2415A31D16A2D7870AF5B /* 65-area-reconnaissance.md in Resources */ = {isa = PBXBuildFile; fileRef = ED1B4BAFB0796A70D18FA9D7 /* 65-area-reconnaissance.md */; };
+		51294BC19B563288C7C89443 /* PointCloudEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F9E2338C04AFE2F41318EC1 /* PointCloudEngine.swift */; };
 		51B0F0B7034A1DD363727295 /* 73-convoy-security.md in Resources */ = {isa = PBXBuildFile; fileRef = D82BFD382428A7A3359E7496 /* 73-convoy-security.md */; };
 		539EB73E1CEDE0295D1E7408 /* RehearsalChecklist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A3FA34768D726E3D227AC3 /* RehearsalChecklist.swift */; };
 		53B7672AD95B67B05AB4320B /* Platform.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3668A1EA0A3AEDD1E740C88 /* Platform.swift */; };
@@ -171,12 +178,14 @@
 		7311CDCECAB5BA7465FCC557 /* 114-electronic-warfare-basics.md in Resources */ = {isa = PBXBuildFile; fileRef = 22F1B9554587F6CFD34EB6D8 /* 114-electronic-warfare-basics.md */; };
 		7361FD6B6340453B8C86972B /* MeshAnomalyDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 102AFF747C3ED63691F0F461 /* MeshAnomalyDetector.swift */; };
 		744D9E8CD26305D160978AF8 /* 89-safe-house-setup.md in Resources */ = {isa = PBXBuildFile; fileRef = 2AFAE1521C57272596036842 /* 89-safe-house-setup.md */; };
+		7560CC69A9B2E8F1906A45DE /* GroundClassification.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D698356A4335CF069B059E /* GroundClassification.swift */; };
 		7580400C4695A152AB3059BC /* NavState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E49EA4E2F5E1B015F088E72E /* NavState.swift */; };
 		76CC68AFF9F36F853C291713 /* 14-fractures.md in Resources */ = {isa = PBXBuildFile; fileRef = 6C8D05C178E0E89C34AB2B68 /* 14-fractures.md */; };
 		76E4BDAA4AE2590DF9309691 /* 01-water-procurement.md in Resources */ = {isa = PBXBuildFile; fileRef = DB5904D986F830D22E8C21FE /* 01-water-procurement.md */; };
 		7755D14CE203CA5D0D5B5C31 /* CameraAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B772199593D9D025F163EEC /* CameraAnnotationView.swift */; };
 		79798C1D238DE658EB833B4A /* 06-site-selection.md in Resources */ = {isa = PBXBuildFile; fileRef = 828F9C984A75CCCD14AD5792 /* 06-site-selection.md */; };
 		7BB7CDAA836885F502CA23DF /* LoRaComms.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC297F512BC30B9AA5F8FD91 /* LoRaComms.swift */; };
+		7C4089BEDFE8E7CE65EB8AC2 /* OfflineTileMapLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93915969B4879688745BFF2E /* OfflineTileMapLayer.swift */; };
 		7CE0C3A0773E95F47EA017F5 /* 91-desert-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = 4A50CEFA04EB2914EFFA9A1B /* 91-desert-operations.md */; };
 		7CFF7DD9415EDB43ECE467D1 /* 17-insects-grubs.md in Resources */ = {isa = PBXBuildFile; fileRef = 2743EB55030FFE8684DEFD75 /* 17-insects-grubs.md */; };
 		7D2442514254ECF88A02B1A6 /* PlanningToolsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D2DF1EDE1FE8775CF5FDCC /* PlanningToolsSection.swift */; };
@@ -188,7 +197,8 @@
 		7FEA29DA2B2AEBCD8B427319 /* ConsumptionPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 814A654AF6E536A6B243C7C8 /* ConsumptionPlanner.swift */; };
 		80013E7D2322A16135F0A4EC /* LiDARMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514B24D7BA096A486268D43D /* LiDARMode.swift */; };
 		81827F0A15235DE2D387EE99 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27E6105E6E1033F3B4342E71 /* ContentView.swift */; };
-		81E163D5914F99BEB771B696 /* GARS in Frameworks */ = {isa = PBXBuildFile; productRef = 3B2DB40CF3D4D5008875FB8A /* GARS */; };
+		81C0C93D6C4177B92524D40C /* TacticalReports.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE966864E62F069EFF8E0A7A /* TacticalReports.swift */; };
+		81E163D5914F99BEB771B696 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		83FB96B78E63A60672E24504 /* 18-processing-preservation.md in Resources */ = {isa = PBXBuildFile; fileRef = 9B3E1BEF799BAC3D170E4CCA /* 18-processing-preservation.md */; };
 		84434F61464B4D2BC25D89F2 /* TileDownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA5CED150F1A39A4EE719FE /* TileDownloadManager.swift */; };
 		8530F289B00E5992F8D69E44 /* IntelTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B90C9F32FE518C3FC7626E /* IntelTabView.swift */; };
@@ -204,8 +214,9 @@
 		8D3135FE6CC7FB4EF036A157 /* MeshCryptoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1284B4B83EA8D3B0FF3A0EB /* MeshCryptoManager.swift */; };
 		8D4C6320C4452B0DCB22C045 /* 17-heat-injury.md in Resources */ = {isa = PBXBuildFile; fileRef = 2F75408C95C2E6F01594D35D /* 17-heat-injury.md */; };
 		8D93C3EA52812F2AE782BFD8 /* FastLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E592D91A5D7834168B0739C /* FastLibraryView.swift */; };
-		8E3A1E2D3523ED0C5E0F19BE /* MGRS in Frameworks */ = {isa = PBXBuildFile; productRef = E5128B2991D7903A080BEE7B /* MGRS */; };
+		8E3A1E2D3523ED0C5E0F19BE /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		8E98A124D5F23ABBF4244D47 /* DTNBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEFF3D9D7A11BAB861C284D /* DTNBuffer.swift */; };
+		8FBC94FDB6EBBC0D4CA2784C /* LineOfSight.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0AC62C18B5D70DEEC1DBF23 /* LineOfSight.swift */; };
 		90E5A3C2AE6D8025F4E99783 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155305E3CA094234AC49FFFD /* LocationManager.swift */; };
 		91CE817D70E5E43E1A9D0216 /* 81-escape-restraints.md in Resources */ = {isa = PBXBuildFile; fileRef = D56DE1467439B17EA1EEB8B5 /* 81-escape-restraints.md */; };
 		9272A8565247D3D27B36A395 /* HapticPTTController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDDE5C27CFDB8269091DDED9 /* HapticPTTController.swift */; };
@@ -230,6 +241,7 @@
 		A52AC8FFA7CDE28830A43C2F /* LLMAssistantView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 604D792ABCA37B1F7BCF681E /* LLMAssistantView.swift */; };
 		A6528CE699D3736A328305BB /* GeofenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48D929116D067AD2D2886F05 /* GeofenceManager.swift */; };
 		A678D1B2F4F506963B36AB8B /* ThreatCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C322A89479A257DF73BD56 /* ThreatCategory.swift */; };
+		A70547DEA274D0F49C208B41 /* StarDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B8DA2E805861939C7EDCF2 /* StarDetector.swift */; };
 		A749133B7839E12100BBD650 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = D5C39CF09FC950266A971D4F /* MLXLLM */; };
 		A90DEA3D3C3BB2906873F1C3 /* 13-airway.md in Resources */ = {isa = PBXBuildFile; fileRef = CD96E09EF4937BD71C92C612 /* 13-airway.md */; };
 		AA743F3751E19178855BEB8C /* 50-perimeter-defense.md in Resources */ = {isa = PBXBuildFile; fileRef = 389BF61B395E4B1248132B1D /* 50-perimeter-defense.md */; };
@@ -255,6 +267,7 @@
 		BCAA7906DCE779F08B99F825 /* 100-counter-surveillance-vehicle.md in Resources */ = {isa = PBXBuildFile; fileRef = 67CC58CD7CA55A0453E38241 /* 100-counter-surveillance-vehicle.md */; };
 		BD88FAF468225EB14A177EA0 /* 46-bounding-overwatch.md in Resources */ = {isa = PBXBuildFile; fileRef = 5061F949D576F515A91A4F13 /* 46-bounding-overwatch.md */; };
 		BE8F92C82A2BE7FF6E5EF714 /* ThreatClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 788A847BBCD41C2781F560FB /* ThreatClassifier.swift */; };
+		BEED667D0FD9CC6A339DB450 /* AttitudeSolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E23632583E35DE6FD51CC8 /* AttitudeSolver.swift */; };
 		C0447F9D1D4D9052FD789427 /* ZeroDarkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0FFDB15B8762D7E15F6938 /* ZeroDarkApp.swift */; };
 		C06A4D2CE76CC654A7C6CE03 /* 47-ambush-drill.md in Resources */ = {isa = PBXBuildFile; fileRef = 530D9F8CE143FE623D13AD56 /* 47-ambush-drill.md */; };
 		C0FAE39B5C650DCF159F44BF /* BuildingExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B235A1C21A97FCFC192AAB68 /* BuildingExtractor.swift */; };
@@ -265,6 +278,7 @@
 		C671D965B7745ECA24FB8531 /* VitalSignsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1683D153AD2AB45CD66DD82 /* VitalSignsLogger.swift */; };
 		C7FEE0ED0B541AF7EDEFB9BA /* RiskAssessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E423C9A3FB60C5638E9D4F8 /* RiskAssessor.swift */; };
 		C82626DF166D402E3B9EC2B1 /* 34-hypothermia-frostbite.md in Resources */ = {isa = PBXBuildFile; fileRef = 07904812A61151F1049A0474 /* 34-hypothermia-frostbite.md */; };
+		C8E3E064CCD61D2F6B7E1B98 /* SimsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6ECFF0D3158A5F263BFD2A /* SimsSection.swift */; };
 		C9B17AAF39DA6FD443D8E685 /* OpsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0671CE05939D1E518628428C /* OpsTabView.swift */; };
 		CC984F2FD3FA2A848CD83332 /* AARBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DD0FF4CB7EF29E012CB7B1A /* AARBundle.swift */; };
 		CD122DD9CEFB0F7FF04FD29D /* CelestialNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B95391919A77B021D35AC2C /* CelestialNavigator.swift */; };
@@ -292,6 +306,7 @@
 		DEA160C018B4DD52C229D9E5 /* 12-tarp-improvised.md in Resources */ = {isa = PBXBuildFile; fileRef = 35111BFD9320488FB6DA1210 /* 12-tarp-improvised.md */; };
 		DF82FBE42219A3EBC93D7EA4 /* 16-tccc.md in Resources */ = {isa = PBXBuildFile; fileRef = 15204427AE21956C0F89BA03 /* 16-tccc.md */; };
 		E027443BECD49E91BD0B3F13 /* 24-mgrs-coordinates.md in Resources */ = {isa = PBXBuildFile; fileRef = E70351539D2F9D73FE0ABACB /* 24-mgrs-coordinates.md */; };
+		E06EFCBF6B8819B77BB36DCF /* LiDARIntelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5913382A85FA1392DB2F709 /* LiDARIntelBridge.swift */; };
 		E091ABA2803CA6993D85FECF /* ReconWalkEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57A42188C625C602766D7ACF /* ReconWalkEngine.swift */; };
 		E1118C522F89E511DD359B91 /* MeasurementManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE354C53FB729BA270A8C4B1 /* MeasurementManager.swift */; };
 		E133E7FB8CA90C5B35C670AC /* TacticalScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E79436D8BC046E680FFFA11D /* TacticalScanner.swift */; };
@@ -312,6 +327,8 @@
 		E93793AC234BA4FDD5854B1E /* SettingsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56F5221E1FB389BCB9A2A7B4 /* SettingsTabView.swift */; };
 		E95DC6FC4C14F9E39D90469E /* 58-meshtastic-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = 4EAE74E78B95989E645C113F /* 58-meshtastic-operations.md */; };
 		E9BD5312B94135BCC73C68D1 /* 36-tccc-march.md in Resources */ = {isa = PBXBuildFile; fileRef = 63821674F693DB8745526EDA /* 36-tccc-march.md */; };
+		E9D2FD2CAD7184580E52A5D8 /* EvalDebriefSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9224B7AACF64FF22C3AE2B70 /* EvalDebriefSection.swift */; };
+		EA7A4034987EDB996F08A98B /* ThreatClassMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0214192C5A2E167F1F323284 /* ThreatClassMap.swift */; };
 		ECE41A05D145C3981D511B88 /* 07-rope-knots.md in Resources */ = {isa = PBXBuildFile; fileRef = EFDB2E779DF353E787B2A3F6 /* 07-rope-knots.md */; };
 		ED17189D3C656A0FAF6A3C2B /* 107-load-planning.md in Resources */ = {isa = PBXBuildFile; fileRef = C2934D7BA269DC2C887394C4 /* 107-load-planning.md */; };
 		EED86600FDF5946EDB1B5305 /* 04-management.md in Resources */ = {isa = PBXBuildFile; fileRef = FBC1D6EA7E7CAF3A1939D8DF /* 04-management.md */; };
@@ -832,7 +849,6 @@
 		A3FFE49088A7B3E4E772E504 /* RoleAssigner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RoleAssigner.swift; path = Sources/MLXEdgeLLM/Training/Tabletop/RoleAssigner.swift; sourceTree = "<group>"; };
 		A40045B3A86D598B35137DD5 /* CompromiseAssessment.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CompromiseAssessment.swift; path = Sources/MLXEdgeLLM/Security/Incident/CompromiseAssessment.swift; sourceTree = "<group>"; };
 		A4C010A5AED564E323D1615A /* GoalTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GoalTracker.swift; path = Sources/MLXEdgeLLM/AI/Context/GoalTracker.swift; sourceTree = "<group>"; };
-		A4DC68F4594937F57C30390D /* llmfarm_core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = llmfarm_core; path = ../llmfarm_core; sourceTree = SOURCE_ROOT; };
 		A52458FF6FF1535CA8D8F3BD /* BreadcrumbTrail.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BreadcrumbTrail.swift; path = Sources/MLXEdgeLLM/Navigation/BreadcrumbTrail.swift; sourceTree = "<group>"; };
 		A527FBC10C7FCC2F9868E250 /* 92-jungle-operations.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "92-jungle-operations.md"; sourceTree = "<group>"; };
 		A5C3350A5A582DB66FC500D4 /* MciResourceTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MciResourceTracker.swift; path = Sources/MLXEdgeLLM/Scenarios/MCI/MciResourceTracker.swift; sourceTree = "<group>"; };
@@ -1129,14 +1145,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				021392BFE0544F5A799DD9A3 /* llmfarm_core in Frameworks */,
+				021392BFE0544F5A799DD9A3 /* BuildFile in Frameworks */,
 				647E94DA333763543BA18234 /* MLX in Frameworks */,
 				A749133B7839E12100BBD650 /* MLXLLM in Frameworks */,
 				B62D00FF671FF53F743C1CE3 /* MultipeerKit in Frameworks */,
 				F718FEA8EFFF0363B8D1AD9C /* CryptoSwift in Frameworks */,
-				8E3A1E2D3523ED0C5E0F19BE /* MGRS in Frameworks */,
-				81E163D5914F99BEB771B696 /* GARS in Frameworks */,
-				321294AC9D0BDF998FFCDE48 /* GeoPackage in Frameworks */,
+				8E3A1E2D3523ED0C5E0F19BE /* BuildFile in Frameworks */,
+				81E163D5914F99BEB771B696 /* BuildFile in Frameworks */,
+				321294AC9D0BDF998FFCDE48 /* BuildFile in Frameworks */,
 				7EF0D06E7EA7E6DD378E58AF /* Accelerate.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1614,7 +1630,6 @@
 		A9F391AEBE4CCF7850030CE3 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				A4DC68F4594937F57C30390D /* llmfarm_core */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
@@ -2473,14 +2488,10 @@
 			);
 			name = ZeroDark;
 			packageProductDependencies = (
-				E2093A3EC8DEFC1CDB8F2E3B /* llmfarm_core */,
 				AA97FEE2AEDBA8EEF1AD0265 /* MLX */,
 				D5C39CF09FC950266A971D4F /* MLXLLM */,
 				497D006DA5BE41749E4D5FA0 /* MultipeerKit */,
 				2E7E82E118372B83ADF473F9 /* CryptoSwift */,
-				E5128B2991D7903A080BEE7B /* MGRS */,
-				3B2DB40CF3D4D5008875FB8A /* GARS */,
-				2FF1FB944810E41A93A75C46 /* GeoPackage */,
 			);
 			productName = ZeroDark;
 			productReference = 7A623377610C8D143B7DAD0F /* ZeroDark.app */;
@@ -2514,12 +2525,8 @@
 			packageReferences = (
 				FD577DF2C7D4246E64F2DC3C /* XCRemoteSwiftPackageReference "CryptoSwift" */,
 				5AC1D2760D489924462418D8 /* XCRemoteSwiftPackageReference "MultipeerKit" */,
-				01A1322C358BB3BBFAB9E514 /* XCRemoteSwiftPackageReference "gars-ios" */,
-				91A64BCDD8E399E10BFF7E55 /* XCRemoteSwiftPackageReference "geopackage-ios" */,
-				E32FA2ACF2E3F9646EF923FD /* XCRemoteSwiftPackageReference "mgrs-ios" */,
 				DA7E243DC7E0888DEC3D486F /* XCRemoteSwiftPackageReference "mlx-swift" */,
 				8A2631D37B61B8FA19C06643 /* XCRemoteSwiftPackageReference "mlx-swift-lm" */,
-				B100B9B6F7930EE0F95DA364 /* XCLocalSwiftPackageReference "llmfarm_core" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1A4AAF57146BB7D27C77F518 /* Products */;
@@ -2864,6 +2871,23 @@
 				47F89B73EE56EA7D36CE165C /* WeatherForecaster.swift in Sources */,
 				50B2A0954D08B422311879F5 /* SceneTag.swift in Sources */,
 				D4C22897992827B7165BF08C /* IntelStubs.swift in Sources */,
+				A70547DEA274D0F49C208B41 /* StarDetector.swift in Sources */,
+				BEED667D0FD9CC6A339DB450 /* AttitudeSolver.swift in Sources */,
+				4E7F022A640D0B794198E58E /* StarCatalog.swift in Sources */,
+				EA7A4034987EDB996F08A98B /* ThreatClassMap.swift in Sources */,
+				7C4089BEDFE8E7CE65EB8AC2 /* OfflineTileMapLayer.swift in Sources */,
+				8FBC94FDB6EBBC0D4CA2784C /* LineOfSight.swift in Sources */,
+				E9D2FD2CAD7184580E52A5D8 /* EvalDebriefSection.swift in Sources */,
+				C8E3E064CCD61D2F6B7E1B98 /* SimsSection.swift in Sources */,
+				2C50F14D82CCE51BD466BB7B /* ReportsSection.swift in Sources */,
+				81C0C93D6C4177B92524D40C /* TacticalReports.swift in Sources */,
+				4A8EE67C329486A0CED78302 /* ReportFormView.swift in Sources */,
+				47067EC557E03995ACEAA181 /* SceneTagStore.swift in Sources */,
+				51294BC19B563288C7C89443 /* PointCloudEngine.swift in Sources */,
+				7560CC69A9B2E8F1906A45DE /* GroundClassification.swift in Sources */,
+				2C02EC9FE4156DA818DD7C1E /* VolumeMeasure.swift in Sources */,
+				16FACA9012C85AAB20ED9141 /* HeightMeasure.swift in Sources */,
+				E06EFCBF6B8819B77BB36DCF /* LiDARIntelBridge.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3074,22 +3098,7 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		B100B9B6F7930EE0F95DA364 /* XCLocalSwiftPackageReference "llmfarm_core" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = /Users/bobbyhansenjr./Developer/llmfarm_core;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
-		01A1322C358BB3BBFAB9E514 /* XCRemoteSwiftPackageReference "gars-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ngageoint/gars-ios";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
-		};
 		5AC1D2760D489924462418D8 /* XCRemoteSwiftPackageReference "MultipeerKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/insidegui/MultipeerKit";
@@ -3106,28 +3115,12 @@
 				kind = branch;
 			};
 		};
-		91A64BCDD8E399E10BFF7E55 /* XCRemoteSwiftPackageReference "geopackage-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ngageoint/geopackage-ios";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 9.0.0;
-			};
-		};
 		DA7E243DC7E0888DEC3D486F /* XCRemoteSwiftPackageReference "mlx-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ml-explore/mlx-swift";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 0.18.0;
-			};
-		};
-		E32FA2ACF2E3F9646EF923FD /* XCRemoteSwiftPackageReference "mgrs-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ngageoint/mgrs-ios";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
 			};
 		};
 		FD577DF2C7D4246E64F2DC3C /* XCRemoteSwiftPackageReference "CryptoSwift" */ = {
@@ -3146,16 +3139,6 @@
 			package = FD577DF2C7D4246E64F2DC3C /* XCRemoteSwiftPackageReference "CryptoSwift" */;
 			productName = CryptoSwift;
 		};
-		2FF1FB944810E41A93A75C46 /* GeoPackage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 91A64BCDD8E399E10BFF7E55 /* XCRemoteSwiftPackageReference "geopackage-ios" */;
-			productName = GeoPackage;
-		};
-		3B2DB40CF3D4D5008875FB8A /* GARS */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 01A1322C358BB3BBFAB9E514 /* XCRemoteSwiftPackageReference "gars-ios" */;
-			productName = GARS;
-		};
 		497D006DA5BE41749E4D5FA0 /* MultipeerKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 5AC1D2760D489924462418D8 /* XCRemoteSwiftPackageReference "MultipeerKit" */;
@@ -3170,15 +3153,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8A2631D37B61B8FA19C06643 /* XCRemoteSwiftPackageReference "mlx-swift-lm" */;
 			productName = MLXLLM;
-		};
-		E2093A3EC8DEFC1CDB8F2E3B /* llmfarm_core */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = llmfarm_core;
-		};
-		E5128B2991D7903A080BEE7B /* MGRS */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E32FA2ACF2E3F9646EF923FD /* XCRemoteSwiftPackageReference "mgrs-ios" */;
-			productName = MGRS;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

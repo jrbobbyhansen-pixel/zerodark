@@ -65,8 +65,9 @@ struct TeamStatus {
     let equipmentStatus: [String: Bool]
 
     var riskFactor: Double {
-        // Example risk factor calculation
-        return (1.0 - morale) + (equipmentStatus.filter { !$0.value }.count / Double(numberOfMembers))
+        let brokenCount = Double(equipmentStatus.filter { !$0.value }.count)
+        let memberCount = Double(max(numberOfMembers, 1))
+        return (1.0 - morale) + (brokenCount / memberCount)
     }
 }
 

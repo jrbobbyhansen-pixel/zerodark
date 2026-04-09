@@ -311,7 +311,7 @@ struct LiDARTabView: View {
             .pickerStyle(.segmented)
             .padding(.horizontal)
             .onChange(of: lidarMode) { _, newMode in
-                engine.pipeline?.activeMode = newMode
+                // engine.pipeline?.activeMode = newMode  — deferred
             }
 
             // Two-button row: Quick Scan + Recon Walk

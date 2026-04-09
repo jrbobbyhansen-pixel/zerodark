@@ -283,30 +283,22 @@ struct NavTabView: View {
         isComputingViewshed = true
         defer { isComputingViewshed = false }
 
-        let engine = ViewshedComputeEngine.shared
-        if let result = await engine.computeViewshed(from: pos, radius: 2000, observerHeight: 1.8, resolution: 360, samplesPerRadial: 200) {
-            viewshedResult = result
-            appState.navState.viewshedTimestamp = Date()
-            appState.navEventBus.send(.viewshedComputed(result))
-        } else {
-            // CPU fallback
-            let cpuResult = LOSRaycastEngine.shared.computeViewshed(from: pos, radius: 2000, resolution: 360)
-            // Convert CPU result to ViewshedResult format
-            var visibility = [Float](repeating: 0, count: 360 * 100)
-            for (idx, entry) in cpuResult.enumerated() {
-                visibility[idx] = entry.isVisible ? 1.0 : 0.0
-            }
-            let result = ViewshedResult(
-                observer: pos,
-                radius: 2000,
-                resolution: 360,
-                samplesPerRadial: 100,
-                visibility: visibility,
-                computeTimeMs: 0
-            )
-            viewshedResult = result
-            appState.navState.viewshedTimestamp = Date()
+        let cpuResult = LOSRaycastEngine.shared.computeViewshed(from: pos, radius: 2000, resolution: 360)
+        var visibility = [Float](repeating: 0, count: 360 * 100)
+        for (idx, entry) in cpuResult.enumerated() {
+            visibility[idx] = entry.isVisible ? 1.0 : 0.0
         }
+        let result = ViewshedResult(
+            observer: pos,
+            radius: 2000,
+            resolution: 360,
+            samplesPerRadial: 100,
+            visibility: visibility,
+            computeTimeMs: 0
+        )
+        viewshedResult = result
+        appState.navState.viewshedTimestamp = Date()
+        appState.navEventBus.send(.viewshedComputed(result))
     }
 
     // MARK: - Helpers

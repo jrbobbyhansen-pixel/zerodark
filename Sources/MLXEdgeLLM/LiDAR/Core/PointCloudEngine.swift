@@ -17,8 +17,14 @@ class PointCloudEngine {
 
     // MARK: - Voxel Grid
 
-    private struct VoxelKey: Hashable {
+    struct VoxelKey: Hashable {
         let x: Int, y: Int, z: Int
+
+        init(x: Int, y: Int, z: Int) {
+            self.x = x
+            self.y = y
+            self.z = z
+        }
 
         init(_ point: SIMD3<Float>, size: Float) {
             x = Int(floor(point.x / size))
@@ -232,10 +238,4 @@ class PointCloudEngine {
     static let shared = PointCloudEngine()
 }
 
-private extension PointCloudEngine.VoxelKey {
-    init(x: Int, y: Int, z: Int) {
-        self.x = x
-        self.y = y
-        self.z = z
-    }
-}
+// VoxelKey init(x:y:z:) defined inside struct above
