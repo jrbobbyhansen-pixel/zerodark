@@ -101,7 +101,7 @@ final class BreadcrumbEngine: ObservableObject {
                         object: nil,
                         userInfo: ["title": "GPS DENIED", "body": "Dead reckoning active — accuracy degrades over time", "severity": "warning"]
                     )
-                    AuditLogger.shared.log(.credentialAccess, detail: "dr_fallback_activated accuracy:\(Int(accuracy))m")
+                    AuditLogger.shared.log(.drFallbackActivated, detail: "accuracy:\(Int(accuracy))m")
                 }
             } else {
                 gpsStatus = .degraded
@@ -111,7 +111,7 @@ final class BreadcrumbEngine: ObservableObject {
             if drFallbackActive {
                 drFallbackActive = false
                 DeadReckoningEngine.shared.stop()
-                AuditLogger.shared.log(.credentialAccess, detail: "gps_recovered accuracy:\(Int(accuracy))m")
+                AuditLogger.shared.log(.gpsRecovered, detail: "accuracy:\(Int(accuracy))m")
             }
             gpsDegraded = false
             gpsDegradedSince = nil

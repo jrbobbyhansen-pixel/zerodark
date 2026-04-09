@@ -77,7 +77,7 @@ final class ContingencyMatrix: ObservableObject {
                 "severity": plan.priority == .critical ? "critical" : "warning"
             ]
         )
-        AuditLogger.shared.log(.credentialAccess, detail: "contingency_triggered:\(plan.trigger)")
+        AuditLogger.shared.log(.contingencyTriggered, detail: plan.trigger)
     }
 
     func exportText() -> String {

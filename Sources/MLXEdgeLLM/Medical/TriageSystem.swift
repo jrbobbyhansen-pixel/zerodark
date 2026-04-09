@@ -92,7 +92,7 @@ final class TriageSystem: ObservableObject {
 
     func addCasualty(_ casualty: Casualty) {
         casualties.append(casualty)
-        AuditLogger.shared.log(.credentialAccess, detail: "triage_tagged:\(casualty.label) → \(casualty.category.rawValue)")
+        AuditLogger.shared.log(.triagePerformed, detail: "tagged:\(casualty.label) → \(casualty.category.rawValue)")
     }
 
     func removeCasualty(at offsets: IndexSet) {

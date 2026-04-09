@@ -76,7 +76,7 @@ final class VitalSignsLogger: ObservableObject {
     func recordVitals(_ entry: VitalSignEntry) {
         entries.append(entry)
         checkForDeterioration(entry)
-        AuditLogger.shared.log(.credentialAccess, detail: "vitals_recorded HR:\(entry.pulse) SpO2:\(entry.spo2) BP:\(entry.bpFormatted)")
+        AuditLogger.shared.log(.vitalsRecorded, detail: "HR:\(entry.pulse) SpO2:\(entry.spo2) BP:\(entry.bpFormatted)")
     }
 
     // MARK: - Deterioration Detection

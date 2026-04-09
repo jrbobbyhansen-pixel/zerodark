@@ -8,7 +8,10 @@ import CoreMotion
 
 // MARK: - DeadReckoningEngine
 
-class DeadReckoningEngine: ObservableObject {
+@MainActor
+final class DeadReckoningEngine: ObservableObject {
+    static let shared = DeadReckoningEngine()
+
     @Published var heading: CLLocationDirection = 0
     @Published var paceCount: Int = 0
     @Published var estimatedPosition: CLLocationCoordinate2D?

@@ -31,6 +31,21 @@ enum AuditEventType: String, Codable {
     // App lifecycle
     case appLaunched        = "APP_LAUNCH"
     case appBackgrounded    = "APP_BG"
+    // Medical
+    case triagePerformed    = "TRIAGE"
+    case medevacTransmitted = "MEDEVAC_TX"
+    case vitalsRecorded     = "VITALS"
+    case medicationAdded    = "MED_ADD"
+    case tourniquetApplied  = "TQ_APPLIED"
+    // Navigation
+    case routeCalculated    = "ROUTE_CALC"
+    case waypointCreated    = "WP_CREATE"
+    case drFallbackActivated = "DR_ACTIVE"
+    case gpsRecovered       = "GPS_RECOVER"
+    // Operations
+    case contingencyTriggered = "CONTINGENCY"
+    case checkInRecorded    = "CHECKIN"
+    case observationLogged  = "OBSERVATION"
 }
 
 struct AuditEntry: Codable, Identifiable {

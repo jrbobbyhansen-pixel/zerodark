@@ -53,12 +53,12 @@ final class ObservationLogger: ObservableObject {
     private init() { load() }
 
     func logObservation(bearing: Double, distance: Double, description: String, category: Observation.ObservationCategory = .general) {
-        let location = LocationService.shared.lastKnownLocation?.coordinate
+        let location = LocationManager.shared.lastKnownLocation
             ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)
         let obs = Observation(location: location, bearing: bearing, distance: distance, description: description, category: category)
         observations.append(obs)
         save()
-        AuditLogger.shared.log(.credentialAccess, detail: "observation_logged:\(category.rawValue)")
+        AuditLogger.shared.log(.observationLogged, detail: category.rawValue)
     }
 
     func remove(at offsets: IndexSet) {

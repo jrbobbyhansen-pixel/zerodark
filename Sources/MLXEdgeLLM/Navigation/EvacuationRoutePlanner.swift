@@ -84,7 +84,7 @@ final class EvacuationRoutePlanner: ObservableObject {
                 routes.append(alternate)
             }
         }
-        AuditLogger.shared.log(.credentialAccess, detail: "evac_routes:\(routes.count)")
+        AuditLogger.shared.log(.routeCalculated, detail: "evac_routes:\(routes.count)")
     }
 
     // MARK: - A* Pathfinding
@@ -244,7 +244,7 @@ struct EvacuationRoutePlannerView: View {
                 }
                 Button {
                     guard let lat = Double(destLat), let lon = Double(destLon) else { return }
-                    let start = LocationService.shared.lastKnownLocation?.coordinate
+                    let start = LocationManager.shared.lastKnownLocation
                         ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)
                     Task { await planner.calculateRoutes(from: start, to: CLLocationCoordinate2D(latitude: lat, longitude: lon)) }
                 } label: {

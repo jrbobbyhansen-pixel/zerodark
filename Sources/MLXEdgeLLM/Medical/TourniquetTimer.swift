@@ -75,7 +75,7 @@ final class TourniquetTimer: ObservableObject {
         activeTourniquets.append(tq)
         scheduleAlert(for: tq)
         startDisplayTimer()
-        AuditLogger.shared.log(.credentialAccess, detail: "tourniquet_applied:\(limb.rawValue)")
+        AuditLogger.shared.log(.tourniquetApplied, detail: limb.rawValue)
     }
 
     func remove(id: UUID) {

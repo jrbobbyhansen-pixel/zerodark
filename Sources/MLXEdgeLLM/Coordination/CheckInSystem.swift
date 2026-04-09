@@ -80,7 +80,7 @@ final class CheckInSystem: ObservableObject {
         let checkIn = CheckIn(location: location)
         checkIns.append(checkIn)
         checkOverdueCheckIns()
-        AuditLogger.shared.log(.credentialAccess, detail: "checkin recorded lat:\(checkIn.latitude) lon:\(checkIn.longitude)")
+        AuditLogger.shared.log(.checkInRecorded, detail: "lat:\(checkIn.latitude) lon:\(checkIn.longitude)")
     }
 
     func manualCheckIn() {
@@ -135,7 +135,7 @@ final class CheckInSystem: ObservableObject {
             ]
         )
 
-        AuditLogger.shared.log(.credentialAccess, detail: "checkin_overdue count:\(count) callsigns:\(names)")
+        AuditLogger.shared.log(.checkInRecorded, detail: "OVERDUE count:\(count) callsigns:\(names)")
     }
 
     // MARK: - Notification Permission

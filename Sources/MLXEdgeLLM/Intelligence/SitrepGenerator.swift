@@ -28,11 +28,11 @@ final class SitrepGenerator: ObservableObject {
         let dtg = formatDTG(Date())
         let callsign = AppConfig.deviceCallsign
 
-        // Location
+        // Location (lastKnownLocation is CLLocationCoordinate2D?, not CLLocation)
         let locationLine: String
-        if let loc = LocationService.shared.lastKnownLocation {
-            let mgrs = formatMGRS(lat: loc.coordinate.latitude, lon: loc.coordinate.longitude)
-            locationLine = "\(mgrs) (±\(Int(loc.horizontalAccuracy))m)"
+        if let coord = LocationManager.shared.lastKnownLocation {
+            let mgrs = formatMGRS(lat: coord.latitude, lon: coord.longitude)
+            locationLine = mgrs
         } else {
             locationLine = "GPS UNAVAILABLE"
         }
@@ -55,12 +55,12 @@ final class SitrepGenerator: ObservableObject {
         }
 
         // Comms
-        let meshPeers = MeshRelay.shared.connectedPeers
+        let meshPeers = MeshRelay.shared.relayedPeers
         let channel = ChannelManager.shared.selectedChannel
         let commsLine = "Mesh peers: \(meshPeers.count), Channel: \(channel?.name ?? "None")"
 
         // Weather (cached)
-        let weatherLine = WeatherService.shared.cachedConditions ?? "No weather data"
+        let weatherLine = WeatherService.shared.currentConditions?.description ?? "No weather data"
 
         // Assemble SITREP
         var sitrep = """

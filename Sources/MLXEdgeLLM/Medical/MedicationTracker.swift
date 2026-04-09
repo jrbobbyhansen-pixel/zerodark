@@ -90,7 +90,7 @@ final class MedicationTracker: ObservableObject {
         let normalized = drug.lowercased().trimmingCharacters(in: .whitespaces)
         let med = Medication(drug: normalized, dose: dose, route: route, time: time, patient: patient)
         medications.append(med)
-        AuditLogger.shared.log(.credentialAccess, detail: "OVERRIDE: forced medication add \(normalized) for \(patient)")
+        AuditLogger.shared.log(.medicationAdded, detail: "OVERRIDE: \(normalized) for \(patient)")
     }
 
     // MARK: - Allergy Check

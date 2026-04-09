@@ -120,9 +120,9 @@ final class MedevacViewModel: ObservableObject {
     }
 
     private func autoFillLocation() {
-        if let loc = LocationService.shared.lastKnownLocation {
-            let lat = loc.coordinate.latitude
-            let lon = loc.coordinate.longitude
+        if let coord = LocationManager.shared.lastKnownLocation {
+            let lat = coord.latitude
+            let lon = coord.longitude
             let latDir = lat >= 0 ? "N" : "S"
             let lonDir = lon >= 0 ? "E" : "W"
             request.line1Location = String(format: "%@%.5f %@%.5f", latDir, abs(lat), lonDir, abs(lon))
@@ -154,7 +154,7 @@ final class MedevacViewModel: ObservableObject {
 
         history.append(request)
         transmitStatus = "Transmitted at \(DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium))"
-        AuditLogger.shared.log(.reportExported, detail: "MEDEVAC 9-line transmitted")
+        AuditLogger.shared.log(.medevacTransmitted, detail: "9-line transmitted")
 
         // Reset for next request
         var newReq = MedevacData()

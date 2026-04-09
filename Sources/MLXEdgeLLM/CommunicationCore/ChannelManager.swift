@@ -64,7 +64,7 @@ final class ChannelManager: ObservableObject {
 
     func selectChannel(_ channel: Channel) {
         selectedChannel = channel
-        AuditLogger.shared.log(.credentialAccess, detail: "channel_selected:\(channel.name)")
+        AuditLogger.shared.log(.meshJoined, detail: "channel_selected:\(channel.name)")
     }
 
     func addChannel(name: String, frequency: String? = nil, description: String = "") {
