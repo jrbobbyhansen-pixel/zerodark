@@ -177,8 +177,30 @@ struct TileDownloadView: View {
                         }
                     }
 
+                    Section("Terrain Data") {
+                        let missingTerrain = TerrainEngine.shared.missingTiles(for: mapRegion)
+                        if missingTerrain.isEmpty {
+                            Label("Terrain data available for this region", systemImage: "checkmark.circle.fill")
+                                .font(.caption).foregroundColor(ZDDesign.successGreen)
+                        } else {
+                            Label("\(missingTerrain.count) terrain tile\(missingTerrain.count == 1 ? "" : "s") needed for elevation/LOS", systemImage: "mountain.2.fill")
+                                .font(.caption).foregroundColor(ZDDesign.safetyYellow)
+                            Button {
+                                Task {
+                                    for tile in missingTerrain {
+                                        try? await TerrainEngine.shared.downloadTile(named: tile)
+                                    }
+                                }
+                            } label: {
+                                Label("Download Terrain (\(missingTerrain.count) tiles)", systemImage: "arrow.down.circle.fill")
+                                    .font(.caption)
+                            }
+                            .tint(ZDDesign.forestGreen)
+                        }
+                    }
+
                     Section {
-                        Button("Download This Region") {
+                        Button {
                             guard !regionName.isEmpty, !downloader.isDownloading else { return }
                             Task {
                                 await downloader.startDownload(
@@ -187,17 +209,19 @@ struct TileDownloadView: View {
                                     minZoom: Int(minZoom),
                                     maxZoom: Int(maxZoom)
                                 )
+                                // Auto-download terrain tiles for same region
+                                let missing = TerrainEngine.shared.missingTiles(for: mapRegion)
+                                for tile in missing {
+                                    try? await TerrainEngine.shared.downloadTile(named: tile)
+                                }
                             }
+                        } label: {
+                            Label("Download Map + Terrain", systemImage: "arrow.down.circle.fill")
+                                .frame(maxWidth: .infinity)
+                                .font(.headline)
                         }
-                        .frame(maxWidth: .infinity)
-                        .foregroundColor(ZDDesign.pureWhite)
-                        .padding(.vertical, 8)
-                        .background(
-                            downloader.isDownloading || regionName.isEmpty
-                            ? Color.gray.opacity(0.4)
-                            : ZDDesign.forestGreen
-                        )
-                        .cornerRadius(10)
+                        .buttonStyle(.borderedProminent)
+                        .tint(ZDDesign.forestGreen)
                         .disabled(downloader.isDownloading || regionName.isEmpty)
                     }
                 }

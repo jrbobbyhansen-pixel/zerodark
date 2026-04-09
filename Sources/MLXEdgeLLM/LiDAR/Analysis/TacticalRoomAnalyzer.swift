@@ -157,13 +157,110 @@ final class TacticalRoomAnalyzer: ObservableObject {
     }
 
     private func estimateOpenings(geometry: ARMeshGeometry) -> Int {
-        // Heuristic: count planar regions with height > 1.8m and width > 0.7m
-        // This is a fast approximation — full analysis done post-scan
-        return Int.random(in: 0...2) // placeholder until real mesh analysis
+        // Extract face normals and classify vertical vs horizontal surfaces
+        // Vertical gaps > 0.7m wide suggest openings (doors/windows)
+        let vertices = extractVertices(from: geometry)
+        let faces = extractFaces(from: geometry)
+        guard vertices.count > 20, faces.count > 10 else { return 0 }
+
+        // Compute normals and find vertical faces (wall segments)
+        var verticalFaceCount = 0
+        var wallYRanges: [ClosedRange<Float>] = []
+
+        for face in faces.prefix(500) {
+            guard face.0 < vertices.count, face.1 < vertices.count, face.2 < vertices.count else { continue }
+            let v0 = vertices[face.0], v1 = vertices[face.1], v2 = vertices[face.2]
+            let edge1 = v1 - v0, edge2 = v2 - v0
+            let normal = normalize(cross(edge1, edge2))
+
+            // Vertical face: normal is mostly horizontal (|y| < 0.3)
+            if abs(normal.y) < 0.3 {
+                verticalFaceCount += 1
+                let minY = min(v0.y, min(v1.y, v2.y))
+                let maxY = max(v0.y, max(v1.y, v2.y))
+                wallYRanges.append(minY...maxY)
+            }
+        }
+
+        guard verticalFaceCount > 5 else { return 0 }
+
+        // Count vertical gaps: regions where wall faces are sparse
+        // Simple heuristic: if wall coverage is < 70% of total vertical area, there are openings
+        let totalWallSpan = wallYRanges.reduce(0.0) { $0 + Float($1.upperBound - $1.lowerBound) }
+        let avgCoverage = totalWallSpan / max(1, Float(verticalFaceCount))
+
+        // More faces with low coverage = more openings
+        if avgCoverage < 0.5 { return 2 }
+        if avgCoverage < 1.0 { return 1 }
+        return 0
     }
 
     private func estimateCover(geometry: ARMeshGeometry) -> Int {
-        return Int.random(in: 0...3) // placeholder
+        // Find objects between 0.3m-1.5m above the lowest point (cover height)
+        let vertices = extractVertices(from: geometry)
+        guard vertices.count > 20 else { return 0 }
+
+        let minY = vertices.map(\.y).min() ?? 0
+        let coverVertices = vertices.filter { ($0.y - minY) > 0.3 && ($0.y - minY) < 1.5 }
+
+        // Cluster cover vertices by XZ proximity (0.5m buckets)
+        var buckets: Set<SIMD2<Int>> = []
+        for v in coverVertices {
+            buckets.insert(SIMD2<Int>(Int(v.x / 0.5), Int(v.z / 0.5)))
+        }
+
+        // Each distinct XZ bucket with enough vertices is a potential cover position
+        return min(buckets.count / 3, 6) // Require 3 buckets per cover cluster
+    }
+
+    // MARK: - Mesh Geometry Extraction Helpers
+
+    private func extractVertices(from geometry: ARMeshGeometry) -> [SIMD3<Float>] {
+        let vertexBuffer = geometry.vertices
+        let count = vertexBuffer.count
+        guard count > 0 else { return [] }
+
+        let stride = vertexBuffer.stride
+        let pointer = vertexBuffer.buffer.contents()
+        var result: [SIMD3<Float>] = []
+        result.reserveCapacity(min(count, 2000))
+
+        // Sample up to 2000 vertices for performance
+        let step = max(1, count / 2000)
+        for i in Swift.stride(from: 0, to: count, by: step) {
+            let offset = i * stride
+            let vertex = pointer.advanced(by: offset).assumingMemoryBound(to: SIMD3<Float>.self).pointee
+            result.append(vertex)
+        }
+        return result
+    }
+
+    private func extractFaces(from geometry: ARMeshGeometry) -> [(Int, Int, Int)] {
+        let faceBuffer = geometry.faces
+        let count = faceBuffer.count
+        guard count > 0 else { return [] }
+
+        let bytesPerIndex = faceBuffer.bytesPerIndex
+        let pointer = faceBuffer.buffer.contents()
+        var result: [(Int, Int, Int)] = []
+        result.reserveCapacity(min(count, 500))
+
+        let step = max(1, count / 500)
+        for i in Swift.stride(from: 0, to: count, by: step) {
+            let offset = i * bytesPerIndex * 3
+            let i0: Int, i1: Int, i2: Int
+            if bytesPerIndex == 4 {
+                i0 = Int(pointer.advanced(by: offset).assumingMemoryBound(to: UInt32.self).pointee)
+                i1 = Int(pointer.advanced(by: offset + 4).assumingMemoryBound(to: UInt32.self).pointee)
+                i2 = Int(pointer.advanced(by: offset + 8).assumingMemoryBound(to: UInt32.self).pointee)
+            } else {
+                i0 = Int(pointer.advanced(by: offset).assumingMemoryBound(to: UInt16.self).pointee)
+                i1 = Int(pointer.advanced(by: offset + 2).assumingMemoryBound(to: UInt16.self).pointee)
+                i2 = Int(pointer.advanced(by: offset + 4).assumingMemoryBound(to: UInt16.self).pointee)
+            }
+            result.append((i0, i1, i2))
+        }
+        return result
     }
 
     // MARK: - Post-Scan Full Analysis
@@ -262,21 +359,28 @@ final class TacticalRoomAnalyzer: ObservableObject {
             let isDoor = heightFromFloor < 0.5  // Near floor = door
             let isWindow = heightFromFloor > 0.8 && heightFromFloor < 2.0
 
+            // Estimate opening dimensions from mesh anchor bounding box
+            let anchorVertices = extractVertices(from: geometry)
+            let anchorBoundsX = anchorVertices.map(\.x)
+            let anchorBoundsY = anchorVertices.map(\.y)
+            let measuredWidth = (anchorBoundsX.max() ?? 1) - (anchorBoundsX.min() ?? 0)
+            let measuredHeight = (anchorBoundsY.max() ?? 2) - (anchorBoundsY.min() ?? 0)
+
             if isDoor && entries.filter({ $0.wall == wall && $0.type == "Door" }).isEmpty {
                 entries.append(RoomEntryPoint(
                     type: "Door",
                     wall: wall,
-                    widthM: Float.random(in: 0.8...1.2),
-                    heightM: Float.random(in: 1.9...2.1),
-                    exposureLevel: exposureLevel(wall: wall, entries: entries)
+                    widthM: max(0.6, min(measuredWidth, 2.5)),
+                    heightM: max(1.5, min(measuredHeight, 2.5)),
+                    exposureLevel: computeExposure(wall: wall, entries: entries, totalWalls: 4)
                 ))
             } else if isWindow && entries.filter({ $0.wall == wall && $0.type == "Window" }).isEmpty {
                 entries.append(RoomEntryPoint(
                     type: "Window",
                     wall: wall,
-                    widthM: Float.random(in: 0.6...1.5),
-                    heightM: Float.random(in: 0.9...1.2),
-                    exposureLevel: "High"
+                    widthM: max(0.4, min(measuredWidth, 2.0)),
+                    heightM: max(0.5, min(measuredHeight, 1.5)),
+                    exposureLevel: computeExposure(wall: wall, entries: entries, totalWalls: 4)
                 ))
             }
 
@@ -291,11 +395,15 @@ final class TacticalRoomAnalyzer: ObservableObject {
         return entries
     }
 
-    private func exposureLevel(wall: String, entries: [RoomEntryPoint]) -> String {
-        // More entries on same side = more exposed
+    private func computeExposure(wall: String, entries: [RoomEntryPoint], totalWalls: Int) -> String {
+        // Exposure based on: entries on same wall + entries on adjacent walls
         let sameWall = entries.filter { $0.wall == wall }.count
-        if sameWall > 1 { return "High" }
-        return ["High", "Medium", "Low"].randomElement() ?? "Medium"
+        let adjacentWalls: [String: [String]] = ["N": ["E", "W"], "S": ["E", "W"], "E": ["N", "S"], "W": ["N", "S"]]
+        let adjacentCount = entries.filter { adjacentWalls[wall]?.contains($0.wall) ?? false }.count
+
+        if sameWall > 0 || adjacentCount > 1 { return "High" }
+        if adjacentCount == 1 { return "Medium" }
+        return "Low"
     }
 
     // MARK: - Cover Position Detection

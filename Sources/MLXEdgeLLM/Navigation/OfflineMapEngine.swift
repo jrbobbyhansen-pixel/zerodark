@@ -60,8 +60,35 @@ final class OfflineMapEngine: ObservableObject {
 
     // MARK: - Tile Availability
 
+    /// Check if offline map tiles cover a specific coordinate at a given zoom
+    /// Queries OfflineTileProvider for actual tile data availability
     func hasOfflineCoverage(for coordinate: CLLocationCoordinate2D, zoom: Int) -> Bool {
-        !availableRegions.isEmpty
+        let tile = tileCoordinate(for: coordinate, zoom: zoom)
+        return OfflineTileProvider.shared.getTile(z: tile.z, x: tile.x, y: tile.y) != nil
+    }
+
+    /// Check if terrain elevation data is available for a coordinate
+    func hasTerrainCoverage(for coordinate: CLLocationCoordinate2D) -> Bool {
+        TerrainEngine.shared.hasTile(for: coordinate)
+    }
+
+    /// Coverage status for a coordinate (map + terrain)
+    enum CoverageStatus {
+        case full       // Both map tiles and terrain data available
+        case mapOnly    // Map tiles but no terrain
+        case terrainOnly // Terrain but no map tiles
+        case none       // Nothing available offline
+    }
+
+    func coverageStatus(for coordinate: CLLocationCoordinate2D, zoom: Int = 12) -> CoverageStatus {
+        let hasMap = hasOfflineCoverage(for: coordinate, zoom: zoom)
+        let hasTerrain = hasTerrainCoverage(for: coordinate)
+        switch (hasMap, hasTerrain) {
+        case (true, true):   return .full
+        case (true, false):  return .mapOnly
+        case (false, true):  return .terrainOnly
+        case (false, false): return .none
+        }
     }
 
     // MARK: - Coordinate Utilities

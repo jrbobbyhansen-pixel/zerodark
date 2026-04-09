@@ -22,6 +22,28 @@ final class BreadcrumbEngine: ObservableObject {
     @Published private(set) var currentPosition: CLLocationCoordinate2D?
     @Published private(set) var positionUncertaintyMeters: Double = 0
     @Published private(set) var canopyDetected: Bool = false
+    @Published private(set) var gpsDegraded: Bool = false
+    @Published private(set) var drFallbackActive: Bool = false
+    @Published private(set) var lastGPSAccuracy: Double = 0
+    @Published private(set) var gpsStatus: GPSStatus = .good
+
+    enum GPSStatus: String {
+        case good     = "GPS OK"
+        case degraded = "GPS DEGRADED"
+        case denied   = "GPS DENIED — DR ACTIVE"
+
+        var color: String {
+            switch self {
+            case .good:     return "successGreen"
+            case .degraded: return "safetyYellow"
+            case .denied:   return "signalRed"
+            }
+        }
+    }
+
+    private var gpsDegradedSince: Date?
+    private let gpsDegradedThresholdM: Double = 30.0     // >30m = degraded
+    private let gpsDeniedTimeoutS: TimeInterval = 60.0   // 60s degraded = DR fallback
 
     /// Fused navigation pose snapshot for NavState consumption
     var fusedNavPose: NavPose? {
@@ -58,6 +80,43 @@ final class BreadcrumbEngine: ObservableObject {
 
     private init() {
         initializeCovariance()
+    }
+
+    // MARK: - GPS Status Evaluation
+
+    private func evaluateGPSStatus(accuracy: Double) {
+        if accuracy > gpsDegradedThresholdM {
+            // GPS is degraded
+            gpsDegraded = true
+            if gpsDegradedSince == nil { gpsDegradedSince = Date() }
+
+            // Check if degraded long enough to trigger DR fallback
+            if let since = gpsDegradedSince, Date().timeIntervalSince(since) > gpsDeniedTimeoutS {
+                if !drFallbackActive {
+                    drFallbackActive = true
+                    gpsStatus = .denied
+                    DeadReckoningEngine.shared.start()
+                    NotificationCenter.default.post(
+                        name: Notification.Name("ZD.inAppAlert"),
+                        object: nil,
+                        userInfo: ["title": "GPS DENIED", "body": "Dead reckoning active — accuracy degrades over time", "severity": "warning"]
+                    )
+                    AuditLogger.shared.log(.credentialAccess, detail: "dr_fallback_activated accuracy:\(Int(accuracy))m")
+                }
+            } else {
+                gpsStatus = .degraded
+            }
+        } else {
+            // GPS is good — reset degradation tracking
+            if drFallbackActive {
+                drFallbackActive = false
+                DeadReckoningEngine.shared.stop()
+                AuditLogger.shared.log(.credentialAccess, detail: "gps_recovered accuracy:\(Int(accuracy))m")
+            }
+            gpsDegraded = false
+            gpsDegradedSince = nil
+            gpsStatus = .good
+        }
     }
 
     // MARK: - Lifecycle
@@ -211,6 +270,8 @@ final class BreadcrumbEngine: ObservableObject {
         }
 
         let hAcc = max(location.horizontalAccuracy, 1.0)
+        lastGPSAccuracy = hAcc
+        evaluateGPSStatus(accuracy: hAcc)
         let vAcc = max(location.verticalAccuracy, 2.0)
         let mPerDegLat = 111320.0
         let mPerDegLon = 111320.0 * cos(x[0] * .pi / 180.0)

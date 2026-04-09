@@ -294,6 +294,17 @@ struct MapTabView: View {
                 }
                 .padding(12)
 
+                // Navigation HUD (bottom-left)
+                VStack {
+                    Spacer()
+                    HStack {
+                        NavigationHUD(breadcrumb: breadcrumb)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 4)
+                }
+
                 // Tactical toolbar (bottom)
                 VStack {
                     Spacer()
@@ -733,6 +744,67 @@ extension Array: @retroactive Hashable where Element == CLLocationCoordinate2D {
         hasher.combine(count)
         if let first { hasher.combine(first.latitude); hasher.combine(first.longitude) }
         if let last { hasher.combine(last.latitude); hasher.combine(last.longitude) }
+    }
+}
+
+// MARK: - Navigation HUD
+
+private struct NavigationHUD: View {
+    @ObservedObject var breadcrumb: BreadcrumbEngine
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            // GPS status
+            HStack(spacing: 4) {
+                Circle()
+                    .fill(gpsColor)
+                    .frame(width: 6, height: 6)
+                Text(breadcrumb.gpsStatus.rawValue)
+                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                    .foregroundColor(gpsColor)
+            }
+
+            // MGRS position
+            if let pos = breadcrumb.currentPosition {
+                Text(MGRSConverter.toMGRS(coordinate: pos, precision: 4))
+                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+                    .foregroundColor(.white)
+            }
+
+            // Elevation
+            if let pos = breadcrumb.currentPosition,
+               let elev = TerrainEngine.shared.elevationAt(coordinate: pos) {
+                Text("\(Int(elev))m / \(Int(elev * 3.28084))ft")
+                    .font(.system(size: 9, design: .monospaced))
+                    .foregroundColor(.secondary)
+            }
+
+            // Speed + heading
+            HStack(spacing: 8) {
+                Text(String(format: "%.1f m/s", breadcrumb.speedMps))
+                    .font(.system(size: 9, design: .monospaced))
+                Text(String(format: "HDG %03.0f°", breadcrumb.heading))
+                    .font(.system(size: 9, design: .monospaced))
+            }
+            .foregroundColor(.secondary)
+
+            // GPS accuracy
+            Text("±\(Int(breadcrumb.lastGPSAccuracy))m")
+                .font(.system(size: 8, design: .monospaced))
+                .foregroundColor(breadcrumb.lastGPSAccuracy > 30 ? ZDDesign.signalRed :
+                                breadcrumb.lastGPSAccuracy > 10 ? ZDDesign.safetyYellow : .secondary)
+        }
+        .padding(8)
+        .background(Color.black.opacity(0.75))
+        .cornerRadius(8)
+    }
+
+    private var gpsColor: Color {
+        switch breadcrumb.gpsStatus {
+        case .good:     return ZDDesign.successGreen
+        case .degraded: return ZDDesign.safetyYellow
+        case .denied:   return ZDDesign.signalRed
+        }
     }
 }
 
