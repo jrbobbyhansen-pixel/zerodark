@@ -33,8 +33,8 @@ enum OpsMode: String, CaseIterable {
 // MARK: - OpsTabView
 
 struct OpsTabView: View {
-    @StateObject private var mesh = MeshService.shared
-    @StateObject private var activity = ActivityFeed.shared
+    @ObservedObject private var mesh = MeshService.shared
+    @ObservedObject private var activity = ActivityFeed.shared
     @State private var opsMode: OpsMode = .planner
     @State private var exportURL: URL?
 

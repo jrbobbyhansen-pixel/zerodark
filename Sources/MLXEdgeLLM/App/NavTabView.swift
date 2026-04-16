@@ -7,10 +7,10 @@ import CoreLocation
 
 struct NavTabView: View {
     @EnvironmentObject var appState: AppState
-    @StateObject private var breadcrumb = BreadcrumbEngine.shared
-    @StateObject private var deadReckoning = DeadReckoningEngine.shared
+    @ObservedObject private var breadcrumb = BreadcrumbEngine.shared
+    @ObservedObject private var deadReckoning = DeadReckoningEngine.shared
     @StateObject private var celestial = CelestialNavigator()
-    @StateObject private var weather = WeatherForecaster.shared
+    @ObservedObject private var weather = WeatherForecaster.shared
 
     @State private var showAROverlay = false
     @State private var viewshedResult: ViewshedResult?

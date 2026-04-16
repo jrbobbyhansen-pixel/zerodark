@@ -49,6 +49,7 @@ final class ObservationLogger: ObservableObject {
     static let shared = ObservationLogger()
 
     @Published var observations: [FieldObservation] = []
+    @Published var exportURL: URL?
 
     private init() { load() }
 
@@ -85,11 +86,7 @@ final class ObservationLogger: ObservableObject {
         let text = exportText()
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("ObservationLog.txt")
         try? text.write(to: url, atomically: true, encoding: .utf8)
-        let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows.first?.rootViewController?
-            .present(av, animated: true)
+        exportURL = url
     }
 
     // MARK: - Persistence
@@ -114,7 +111,7 @@ final class ObservationLogger: ObservableObject {
 // MARK: - FieldObservationLoggerView
 
 struct ObservationLoggerView: View {
-    @StateObject private var logger = ObservationLogger.shared
+    @ObservedObject private var logger = ObservationLogger.shared
     @State private var showAdd = false
     @State private var newDesc = ""
     @State private var newBearing = ""
@@ -173,6 +170,9 @@ struct ObservationLoggerView: View {
         }
         .navigationTitle("Observation Log")
         .navigationBarTitleDisplayMode(.large)
+        .sheet(item: $logger.exportURL) { url in
+            ShareSheet(items: [url])
+        }
     }
 }
 

@@ -51,6 +51,7 @@ struct MissionPhase: Identifiable, Codable {
 @MainActor
 final class TimelineViewModel: ObservableObject {
     @Published var phases: [MissionPhase] = []
+    @Published var exportURL: URL?
 
     func addPhase(name: String, plannedStart: Date, noLaterThan: Date, notes: String = "") {
         guard !name.isEmpty else { return }
@@ -94,11 +95,7 @@ final class TimelineViewModel: ObservableObject {
 
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("MissionTimeline.txt")
         try? text.write(to: url, atomically: true, encoding: .utf8)
-        let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows.first?.rootViewController?
-            .present(av, animated: true)
+        exportURL = url
     }
 }
 
@@ -170,6 +167,9 @@ struct TimelinePlannerView: View {
         }
         .navigationTitle("Mission Timeline")
         .navigationBarTitleDisplayMode(.large)
+        .sheet(item: $vm.exportURL) { url in
+            ShareSheet(items: [url])
+        }
     }
 }
 

@@ -113,6 +113,7 @@ final class MedevacViewModel: ObservableObject {
     @Published var request = MedevacData()
     @Published var history: [MedevacData] = []
     @Published var transmitStatus: String?
+    @Published var exportURL: URL?
 
     init() {
         autoFillLocation()
@@ -165,11 +166,7 @@ final class MedevacViewModel: ObservableObject {
         let text = request.formattedNineLine
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("MEDEVAC-9LINE.txt")
         try? text.write(to: tempURL, atomically: true, encoding: .utf8)
-        let av = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows.first?.rootViewController?
-            .present(av, animated: true)
+        exportURL = tempURL
     }
 }
 
@@ -259,6 +256,9 @@ struct MedevacView: View {
         }
         .navigationTitle("9-Line MEDEVAC")
         .navigationBarTitleDisplayMode(.large)
+        .sheet(item: $vm.exportURL) { url in
+            ShareSheet(items: [url])
+        }
     }
 }
 

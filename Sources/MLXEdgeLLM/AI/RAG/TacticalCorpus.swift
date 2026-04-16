@@ -1102,7 +1102,7 @@ SOS MORSE:
 // MARK: - TacticalCorpusView
 
 struct TacticalCorpusView: View {
-    @StateObject private var viewModel = TacticalCorpus.shared
+    @ObservedObject private var viewModel = TacticalCorpus.shared
 
     var body: some View {
         NavigationStack {

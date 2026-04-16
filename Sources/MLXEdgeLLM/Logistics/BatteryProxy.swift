@@ -102,7 +102,7 @@ final class BatteryProxy: ObservableObject {
 
         // Slope (drain rate per hour) and intercept
         let slope = sxy / sxx
-        drainRatePerHour = -slope  // positive value means draining
+        drainRatePerHour = max(0, -slope)  // positive value means draining; clamp to 0 when charging
 
         // Estimate time to zero
         if slope < -1e-6 {

@@ -12,7 +12,7 @@ struct ReportsSection: View {
                 OpsSectionHeader(icon: "doc.text.fill", title: "FIELD REPORTS", color: ZDDesign.cyanAccent)
 
                 NavigationLink {
-                    Text("Field Report — Coming Soon").padding()
+                    ComingSoonView(title: "Field Report", icon: "doc.richtext", description: "Generate reports with maps, images, videos & PDF export")
                 } label: {
                     OpsSectionCard(
                         icon: "doc.richtext",
@@ -42,7 +42,7 @@ struct ReportsSection: View {
                 OpsSectionHeader(icon: "tablecells.fill", title: "DATA COLLECTION", color: ZDDesign.forestGreen)
 
                 NavigationLink {
-                    Text("Census Tool — Coming Soon").padding()
+                    ComingSoonView(title: "Census Tool", icon: "person.crop.rectangle.stack.fill", description: "Household resource tracking with AR & location scanning")
                 } label: {
                     OpsSectionCard(
                         icon: "person.crop.rectangle.stack.fill",
@@ -53,7 +53,7 @@ struct ReportsSection: View {
                 }
 
                 NavigationLink {
-                    Text("Data Validation — Coming Soon").padding()
+                    ComingSoonView(title: "Data Validation", icon: "checkmark.diamond.fill", description: "Validate location, AR sessions & audio with scoring")
                 } label: {
                     OpsSectionCard(
                         icon: "checkmark.diamond.fill",
@@ -83,10 +83,7 @@ struct ReportsSection: View {
         }
         .sheet(isPresented: $showAARSheet) {
             NavigationStack {
-                Text("AAR Report — Coming Soon")
-                    .padding()
-                    .navigationTitle("AAR Report")
-                    .navigationBarTitleDisplayMode(.inline)
+                ComingSoonView(title: "AAR Report", icon: "doc.badge.clock.fill", description: "After Action Report with structured observations and mesh relay")
             }
         }
     }

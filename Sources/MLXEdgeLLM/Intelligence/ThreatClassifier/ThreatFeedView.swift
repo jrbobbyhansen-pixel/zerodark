@@ -3,7 +3,7 @@
 import SwiftUI
 
 struct ThreatFeedView: View {
-    @StateObject private var classifier = ThreatClassifier.shared
+    @ObservedObject private var classifier = ThreatClassifier.shared
     @State private var showSubmitForm = false
     @State private var reportText = ""
     @State private var reporterID = "SelfReport"

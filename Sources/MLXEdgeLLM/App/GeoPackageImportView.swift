@@ -4,7 +4,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct GeoPackageImportView: View {
-    @StateObject private var service = GeoPackageService.shared
+    @ObservedObject private var service = GeoPackageService.shared
     @State private var showFilePicker = false
     @State private var selectedLayer: GPKGLayer?
     @Environment(\.dismiss) private var dismiss: DismissAction
@@ -162,7 +162,7 @@ struct GeoPackageImportView: View {
 struct GeoPackageLayerDetailView: View {
     let layer: GPKGLayer
 
-    @StateObject private var service = GeoPackageService.shared
+    @ObservedObject private var service = GeoPackageService.shared
     @State private var features: [GPKGFeature] = []
     @Environment(\.dismiss) private var dismiss: DismissAction
 

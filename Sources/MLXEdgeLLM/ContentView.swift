@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var appState = AppState.shared
-    @StateObject private var haptic = HapticComms.shared
+    @ObservedObject private var appState = AppState.shared
+    @ObservedObject private var haptic = HapticComms.shared
     @State private var bootComplete = false
 
     var body: some View {

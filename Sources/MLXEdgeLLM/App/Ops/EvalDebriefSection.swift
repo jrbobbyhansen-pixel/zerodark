@@ -9,7 +9,7 @@ struct EvalDebriefSection: View {
                 OpsSectionHeader(icon: "star.fill", title: "EVALUATION", color: ZDDesign.safetyYellow)
 
                 NavigationLink {
-                    Text("Evaluator Tools — Coming Soon").padding()
+                    ComingSoonView(title: "Evaluator Tools", icon: "checkmark.rectangle.stack.fill", description: "Checklists, scoring rubrics, real-time notes & summary reports")
                 } label: {
                     OpsSectionCard(
                         icon: "checkmark.rectangle.stack.fill",
@@ -20,7 +20,7 @@ struct EvalDebriefSection: View {
                 }
 
                 NavigationLink {
-                    Text("Photo/Video Log — Coming Soon").padding()
+                    ComingSoonView(title: "Photo/Video Log", icon: "camera.fill", description: "Capture, record & tag media with location data")
                 } label: {
                     OpsSectionCard(
                         icon: "camera.fill",
@@ -33,7 +33,7 @@ struct EvalDebriefSection: View {
                 OpsSectionHeader(icon: "bubble.left.and.bubble.right.fill", title: "DEBRIEF & SKILLS", color: ZDDesign.forestGreen)
 
                 NavigationLink {
-                    Text("Debrief Manager — Coming Soon").padding()
+                    ComingSoonView(title: "Debrief Manager", icon: "text.bubble.fill", description: "Session scheduling, attendance tracking & documentation")
                 } label: {
                     OpsSectionCard(
                         icon: "text.bubble.fill",
@@ -44,7 +44,7 @@ struct EvalDebriefSection: View {
                 }
 
                 NavigationLink {
-                    Text("Team Skills — Coming Soon").padding()
+                    ComingSoonView(title: "Team Skills", icon: "chart.bar.fill", description: "Skill aggregation, gap analysis & training priorities")
                 } label: {
                     OpsSectionCard(
                         icon: "chart.bar.fill",

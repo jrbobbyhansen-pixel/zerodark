@@ -3,7 +3,7 @@ import ARKit
 import RealityKit
 
 struct ReconWalkActiveView: View {
-    @StateObject private var engine = ReconWalkEngine.shared
+    @ObservedObject private var engine = ReconWalkEngine.shared
     @Environment(\.dismiss) var dismiss: DismissAction
     @State private var covertMode: ReconWalkConfig.CovertMode = .none
 

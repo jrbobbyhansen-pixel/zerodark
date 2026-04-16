@@ -92,7 +92,7 @@ enum Device: Identifiable, Hashable {
 
 struct BatteryManagerView: View {
     @StateObject private var viewModel = BatteryManager()
-    @StateObject private var proxy = BatteryProxy.shared
+    @ObservedObject private var proxy = BatteryProxy.shared
 
     var body: some View {
         VStack {

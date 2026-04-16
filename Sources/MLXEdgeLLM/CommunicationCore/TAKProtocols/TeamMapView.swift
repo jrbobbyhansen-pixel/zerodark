@@ -18,19 +18,20 @@ struct TeamMapView: View {
     @State private var locationManager = CLLocationManager()
     @State private var shouldCenterOnUser = false
     @State private var useSatelliteMap = false
-    @StateObject private var offlineTiles = OfflineTileProvider.shared
-    @StateObject private var waypointStore = TacticalWaypointStore.shared
-    @StateObject private var mesh = MeshService.shared
+    @ObservedObject private var offlineTiles = OfflineTileProvider.shared
+    @ObservedObject private var waypointStore = TacticalWaypointStore.shared
+    @ObservedObject private var mesh = MeshService.shared
     @State private var tacticalMode = false
     @State private var showWaypointPicker = false
     @State private var pendingCoord: CLLocationCoordinate2D?
     @State private var showOps = false
     @State private var showContours = false
     @State private var contourOverlay: ContourOverlay?
-    @StateObject private var camService = TrafficCamService.shared
+    @ObservedObject private var camService = TrafficCamService.shared
     @State private var showCameras = false
     @State private var selectedCam: TrafficCamera?
     @State private var showCelestialNav = false
+    @State private var shareURL: URL?
     @State private var mapRegion = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 0, longitude: 0),  // Updated by LocationManager on appear
         span: MKCoordinateSpan(latitudeDelta: 0.015, longitudeDelta: 0.015)  // ~1.5km tactical view
@@ -264,6 +265,9 @@ struct TeamMapView: View {
             .sheet(isPresented: $showCelestialNav) {
                 CelestialNavStatusView()
             }
+            .sheet(item: $shareURL) { url in
+                ShareSheet(items: [url])
+            }
         }
     }
 
@@ -275,12 +279,7 @@ struct TeamMapView: View {
         let gpxData = waypointStore.exportGPX()
         let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("waypoints.gpx")
         try? gpxData.write(to: tmpURL)
-        let ac = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows
-            .first?.rootViewController?
-            .present(ac, animated: true)
+        shareURL = tmpURL
     }
 
     private func affiliationColor(_ type: String) -> Color {
@@ -757,7 +756,7 @@ class TacticalAnnotation: MKPointAnnotation {
 
 struct WaypointPickerSheet: View {
     let coordinate: CLLocationCoordinate2D
-    @StateObject private var store = TacticalWaypointStore.shared
+    @ObservedObject private var store = TacticalWaypointStore.shared
     @Environment(\.dismiss) var dismiss: DismissAction
     @State private var selectedType: TacticalMarker = .cache
     @State private var tacticalNotes = ""

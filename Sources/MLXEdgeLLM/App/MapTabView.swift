@@ -10,11 +10,11 @@ struct MapTabView: View {
     // Singletons (same as TeamMapView)
     @ObservedObject var tak = FreeTAKConnector.shared
     @ObservedObject var takBle = TAKBLEBridge.shared
-    @StateObject var offlineTiles = OfflineTileProvider.shared
-    @StateObject var waypointStore = TacticalWaypointStore.shared
-    @StateObject var mesh = MeshService.shared
-    @StateObject var camService = TrafficCamService.shared
-    @StateObject var breadcrumb = BreadcrumbEngine.shared
+    @ObservedObject var offlineTiles = OfflineTileProvider.shared
+    @ObservedObject var waypointStore = TacticalWaypointStore.shared
+    @ObservedObject var mesh = MeshService.shared
+    @ObservedObject var camService = TrafficCamService.shared
+    @ObservedObject var breadcrumb = BreadcrumbEngine.shared
     @EnvironmentObject var appState: AppState
 
     // Map state
@@ -33,6 +33,7 @@ struct MapTabView: View {
     @State private var losMode = false
     @State private var showLOSDetails = false
     @State private var viewshedPoints: [(coordinate: CLLocationCoordinate2D, isVisible: Bool)] = []
+    @State private var shareURL: URL?
 
     var body: some View {
         NavigationStack {
@@ -218,7 +219,9 @@ struct MapTabView: View {
                 }
             }
             .sheet(isPresented: $showOps) {
-                Text("Operations Coordination").font(.title2).padding()
+                NavigationStack {
+                    ComingSoonView(title: "Operations Coordination", icon: "person.2.wave.2.fill", description: "Multi-agency coordination, incident command & resource management")
+                }
             }
             .sheet(isPresented: $showWaypointPicker) {
                 if let coord = pendingCoord {
@@ -259,6 +262,9 @@ struct MapTabView: View {
                     }
                     .presentationDetents([.medium, .large])
                 }
+            }
+            .sheet(item: $shareURL) { url in
+                ShareSheet(items: [url])
             }
             .onReceive(appState.mapEventBus) { event in
                 handleMapEvent(event)
@@ -455,12 +461,7 @@ struct MapTabView: View {
         let gpxData = waypointStore.exportGPX()
         let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("waypoints.gpx")
         try? gpxData.write(to: tmpURL)
-        let ac = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows
-            .first?.rootViewController?
-            .present(ac, animated: true)
+        shareURL = tmpURL
     }
 }
 

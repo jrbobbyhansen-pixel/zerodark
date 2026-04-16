@@ -231,7 +231,7 @@ final class EvacuationRoutePlanner: ObservableObject {
 // MARK: - EvacuationRoutePlannerView
 
 struct EvacuationRoutePlannerView: View {
-    @StateObject private var planner = EvacuationRoutePlanner.shared
+    @ObservedObject private var planner = EvacuationRoutePlanner.shared
     @State private var destLat = ""
     @State private var destLon = ""
 

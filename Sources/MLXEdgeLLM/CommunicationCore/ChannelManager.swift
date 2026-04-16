@@ -145,7 +145,7 @@ final class ChannelManager: ObservableObject {
 // MARK: - ChannelView
 
 struct ChannelView: View {
-    @StateObject private var manager = ChannelManager.shared
+    @ObservedObject private var manager = ChannelManager.shared
     @State private var showAddSheet = false
     @State private var newName = ""
     @State private var newFreq = ""

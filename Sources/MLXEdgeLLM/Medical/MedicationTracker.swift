@@ -209,10 +209,11 @@ final class MedicationTracker: ObservableObject {
 // MARK: - MedicationTrackerView
 
 struct MedicationTrackerView: View {
-    @StateObject private var tracker = MedicationTracker.shared
+    @ObservedObject private var tracker = MedicationTracker.shared
     @State private var showAddSheet = false
     @State private var alertError: MedicationError? = nil
     @State private var pendingMedication: PendingMed? = nil
+    @State private var shareURL: URL?
 
     var body: some View {
         NavigationStack {
@@ -244,11 +245,7 @@ struct MedicationTrackerView: View {
                         let url = FileManager.default.temporaryDirectory
                             .appendingPathComponent("medications-\(Int(Date().timeIntervalSince1970)).csv")
                         try? data.write(to: url, atomically: true, encoding: .utf8)
-                        let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-                        UIApplication.shared.connectedScenes
-                            .compactMap { $0 as? UIWindowScene }
-                            .first?.windows.first?.rootViewController?
-                            .present(av, animated: true)
+                        shareURL = url
                     } label: {
                         Label("Export", systemImage: "square.and.arrow.up")
                     }
@@ -279,6 +276,9 @@ struct MedicationTrackerView: View {
                         pendingMedication = nil
                     }
                 )
+            }
+            .sheet(item: $shareURL) { url in
+                ShareSheet(items: [url])
             }
         }
     }

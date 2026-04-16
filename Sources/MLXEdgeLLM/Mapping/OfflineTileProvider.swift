@@ -69,9 +69,9 @@ final class MBTilesReader {
         guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { return nil }
         defer { sqlite3_finalize(stmt) }
         
-        sqlite3_bind_int(stmt, 1, Int32(coord.z))
-        sqlite3_bind_int(stmt, 2, Int32(coord.x))
-        sqlite3_bind_int(stmt, 3, Int32(coord.tmsY))  // MBTiles uses TMS
+        guard sqlite3_bind_int(stmt, 1, Int32(coord.z)) == SQLITE_OK,
+              sqlite3_bind_int(stmt, 2, Int32(coord.x)) == SQLITE_OK,
+              sqlite3_bind_int(stmt, 3, Int32(coord.tmsY)) == SQLITE_OK else { return nil }  // MBTiles uses TMS
         
         guard sqlite3_step(stmt) == SQLITE_ROW else { return nil }
         

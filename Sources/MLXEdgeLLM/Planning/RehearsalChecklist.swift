@@ -83,6 +83,7 @@ private let checklistTemplates: [RehearsalChecklist] = [
 @MainActor
 final class RehearsalChecklistViewModel: ObservableObject {
     @Published var checklists: [RehearsalChecklist] = []
+    @Published var exportURL: URL?
 
     private let persistURL: URL = {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -124,11 +125,7 @@ final class RehearsalChecklistViewModel: ObservableObject {
 
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("checklist.txt")
         try? text.write(to: url, atomically: true, encoding: .utf8)
-        let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows.first?.rootViewController?
-            .present(av, animated: true)
+        exportURL = url
     }
 
     private func save() {
@@ -203,6 +200,9 @@ struct RehearsalChecklistView: View {
         }
         .navigationTitle("Checklists")
         .navigationBarTitleDisplayMode(.large)
+        .sheet(item: $vm.exportURL) { url in
+            ShareSheet(items: [url])
+        }
     }
 }
 

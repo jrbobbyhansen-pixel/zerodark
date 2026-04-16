@@ -5,7 +5,7 @@ import SwiftUI
 import StoreKit
 
 struct TeamPackPaywall: View {
-    @StateObject private var store = TeamPackStore.shared
+    @ObservedObject private var store = TeamPackStore.shared
     @Environment(\.dismiss) private var dismiss: DismissAction
 
     var body: some View {

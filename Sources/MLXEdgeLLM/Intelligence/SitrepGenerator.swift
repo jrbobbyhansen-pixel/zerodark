@@ -13,6 +13,7 @@ final class SitrepGenerator: ObservableObject {
     @Published var currentSitrep: String = ""
     @Published var isGenerating = false
     @Published var lastGenerated: Date?
+    @Published var exportURL: URL?
 
     private init() {}
 
@@ -104,19 +105,14 @@ final class SitrepGenerator: ObservableObject {
         let tempURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("SITREP-\(Int(Date().timeIntervalSince1970)).txt")
         try? currentSitrep.write(to: tempURL, atomically: true, encoding: .utf8)
-
-        let av = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows.first?.rootViewController?
-            .present(av, animated: true)
+        exportURL = tempURL
     }
 }
 
 // MARK: - SitrepView
 
 struct SitrepView: View {
-    @StateObject private var gen = SitrepGenerator.shared
+    @ObservedObject private var gen = SitrepGenerator.shared
 
     var body: some View {
         Form {
@@ -158,6 +154,9 @@ struct SitrepView: View {
         }
         .navigationTitle("SITREP Generator")
         .navigationBarTitleDisplayMode(.large)
+        .sheet(item: $gen.exportURL) { url in
+            ShareSheet(items: [url])
+        }
     }
 }
 

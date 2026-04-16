@@ -10,7 +10,7 @@ struct SelectedPanel: Identifiable {
 
 /// Main telemetry dashboard
 struct TelemetryDashboard: View {
-    @StateObject private var store = TelemetryStore.shared
+    @ObservedObject private var store = TelemetryStore.shared
     @State private var selectedPanel: SelectedPanel? = nil
 
     var body: some View {
@@ -132,7 +132,7 @@ struct TelemetryPanel: View {
 
 /// Detail view for selected panel
 struct TelemetryDetailView: View {
-    @StateObject private var store = TelemetryStore.shared
+    @ObservedObject private var store = TelemetryStore.shared
     let object: TelemetryObject
     @Binding var isPresented: SelectedPanel?
 

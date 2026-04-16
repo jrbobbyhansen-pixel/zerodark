@@ -84,6 +84,7 @@ final class OpOrderBuilder: ObservableObject {
 
     @Published var order = OpOrder()
     @Published var isSaving = false
+    @Published var exportURL: URL?
 
     private init() {}
 
@@ -217,7 +218,7 @@ final class OpOrderBuilder: ObservableObject {
 
     // MARK: - Share
 
-    func presentShareSheet(from viewController: UIViewController? = nil) {
+    func prepareExport() {
         isSaving = true
         defer { isSaving = false }
 
@@ -228,18 +229,11 @@ final class OpOrderBuilder: ObservableObject {
         let pdfURL = tempDir.appendingPathComponent("OPORD-\(ts).pdf")
         try? exportOrderPDF().write(to: pdfURL)
 
-        // JSON
+        // JSON (write alongside PDF but share the PDF URL)
         let jsonURL = tempDir.appendingPathComponent("OPORD-\(ts).json")
         if let jsonData = exportOrderJSON() { try? jsonData.write(to: jsonURL) }
 
-        var items: [Any] = [pdfURL]
-        if FileManager.default.fileExists(atPath: jsonURL.path) { items.append(jsonURL) }
-
-        let av = UIActivityViewController(activityItems: items, applicationActivities: nil)
-        let vc = viewController ?? UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows.first?.rootViewController
-        vc?.present(av, animated: true)
+        exportURL = pdfURL
 
         AuditLogger.shared.log(.reportExported, detail: "OPORD \(order.orderNumber) PDF+JSON")
     }
@@ -248,7 +242,7 @@ final class OpOrderBuilder: ObservableObject {
 // MARK: - OpOrderBuilderView
 
 struct OpOrderBuilderView: View {
-    @StateObject private var vm = OpOrderBuilder.shared
+    @ObservedObject private var vm = OpOrderBuilder.shared
     @State private var newObjective = ""
     @State private var objectiveType: Objective.ObjectiveType = .primary
 
@@ -313,7 +307,7 @@ struct OpOrderBuilderView: View {
 
             Section {
                 Button {
-                    vm.presentShareSheet()
+                    vm.prepareExport()
                 } label: {
                     Label("Export OPORD (PDF + JSON)", systemImage: "square.and.arrow.up")
                         .frame(maxWidth: .infinity)
@@ -325,6 +319,9 @@ struct OpOrderBuilderView: View {
         }
         .navigationTitle("Op Order Builder")
         .navigationBarTitleDisplayMode(.large)
+        .sheet(item: $vm.exportURL) { url in
+            ShareSheet(items: [url])
+        }
     }
 }
 

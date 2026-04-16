@@ -9,7 +9,7 @@ struct SimsSection: View {
                 OpsSectionHeader(icon: "antenna.radiowaves.left.and.right", title: "COMMUNICATIONS", color: ZDDesign.cyanAccent)
 
                 NavigationLink {
-                    Text("Comms Simulator — Coming Soon").padding()
+                    ComingSoonView(title: "Comms Simulator", icon: "waveform.badge.mic", description: "Practice radio procedures, protocols & channel management")
                 } label: {
                     OpsSectionCard(
                         icon: "waveform.badge.mic",
@@ -22,7 +22,7 @@ struct SimsSection: View {
                 OpsSectionHeader(icon: "flag.checkered", title: "TEAM CHALLENGES", color: ZDDesign.safetyYellow)
 
                 NavigationLink {
-                    Text("Team Challenge — Coming Soon").padding()
+                    ComingSoonView(title: "Team Challenge", icon: "figure.2.arms.open", description: "Scenario-based challenges with tasks, locations & scoring")
                 } label: {
                     OpsSectionCard(
                         icon: "figure.2.arms.open",

@@ -43,6 +43,7 @@ enum ContingencyPriority: String, CaseIterable, Codable {
 @MainActor
 final class ContingencyMatrix: ObservableObject {
     @Published var plans: [ContingencyPlan] = []
+    @Published var exportURL: URL?
 
     private let persistURL: URL = {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -96,11 +97,7 @@ final class ContingencyMatrix: ObservableObject {
         let text = exportText()
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("Contingencies.txt")
         try? text.write(to: url, atomically: true, encoding: .utf8)
-        let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows.first?.rootViewController?
-            .present(av, animated: true)
+        exportURL = url
     }
 
     private func save() {
@@ -192,6 +189,9 @@ struct ContingencyMatrixView: View {
         }
         .navigationTitle("Contingency Matrix")
         .navigationBarTitleDisplayMode(.large)
+        .sheet(item: $matrix.exportURL) { url in
+            ShareSheet(items: [url])
+        }
     }
 }
 

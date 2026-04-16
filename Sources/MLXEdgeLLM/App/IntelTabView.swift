@@ -85,10 +85,10 @@ struct IntelTabView: View {
 // MARK: - Intel Dashboard (v6 — Threat Score Gauge + Status)
 
 struct IntelDashboardView: View {
-    @StateObject private var appState = AppState.shared
-    @StateObject private var analyzer = ThreatAnalyzer.shared
-    @StateObject private var corpus = IntelCorpus.shared
-    @StateObject private var embeddingEngine = MLXEmbeddingEngine.shared
+    @ObservedObject private var appState = AppState.shared
+    @ObservedObject private var analyzer = ThreatAnalyzer.shared
+    @ObservedObject private var corpus = IntelCorpus.shared
+    @ObservedObject private var embeddingEngine = MLXEmbeddingEngine.shared
 
     var body: some View {
         ScrollView {
@@ -288,11 +288,11 @@ struct IntelDashboardView: View {
 // MARK: - Knowledge Content View (v6 — Hybrid Search + Verify)
 
 struct KnowledgeContentView: View {
-    @StateObject private var rag = KnowledgeRAG.shared
-    @StateObject private var corpus = IntelCorpus.shared
-    @StateObject private var inference = TextInferenceClient.shared
-    @StateObject private var engine = LocalInferenceEngine.shared
-    @StateObject private var protocolDB = ProtocolDatabase.shared
+    @ObservedObject private var rag = KnowledgeRAG.shared
+    @ObservedObject private var corpus = IntelCorpus.shared
+    @ObservedObject private var inference = TextInferenceClient.shared
+    @ObservedObject private var engine = LocalInferenceEngine.shared
+    @ObservedObject private var protocolDB = ProtocolDatabase.shared
     private let verifyPipeline = VerifyPipeline.shared
     @State private var mode: KnowledgeMode = .ask
     @State private var searchQuery = ""
@@ -813,9 +813,9 @@ struct MessageBubbleView: View {
 // MARK: - Vision Content View (v6 — Auto-ingest to IntelCorpus)
 
 struct VisionContentView: View {
-    @StateObject private var rag = KnowledgeRAG.shared
-    @StateObject private var vision = VisionInferenceClient.shared
-    @StateObject private var corpus = IntelCorpus.shared
+    @ObservedObject private var rag = KnowledgeRAG.shared
+    @ObservedObject private var vision = VisionInferenceClient.shared
+    @ObservedObject private var corpus = IntelCorpus.shared
     @State private var selectedImage: UIImage? = nil
     @State private var selectedMode: VisionMode = .plantId
     @State private var showImagePicker = false

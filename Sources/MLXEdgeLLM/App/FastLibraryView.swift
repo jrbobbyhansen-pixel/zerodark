@@ -4,7 +4,7 @@ import SwiftUI
 import PDFKit
 
 struct FastLibraryView: View {
-    @StateObject private var library = FastLibraryService.shared
+    @ObservedObject private var library = FastLibraryService.shared
     @State private var searchText = ""
     @State private var selectedDoc: LibraryDocument?
     @State private var selectedChunk: TextChunk?

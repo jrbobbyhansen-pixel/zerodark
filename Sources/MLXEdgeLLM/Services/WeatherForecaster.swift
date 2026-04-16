@@ -153,7 +153,7 @@ final class WeatherForecaster: ObservableObject {
         }
 
         Task { @MainActor in
-            let celestial = CelestialNavigator()
+            let celestial = CelestialNavigator.shared
             let times = celestial.sunTimes(date: Date(), latitude: loc.latitude, longitude: loc.longitude)
             self.sunrise = times.sunrise
             self.sunset = times.sunset

@@ -4,10 +4,10 @@
 import SwiftUI
 
 struct TeamDashSection: View {
-    @StateObject private var mesh = MeshService.shared
-    @StateObject private var weather = WeatherService.shared
-    @StateObject private var safetyMonitor = RuntimeSafetyMonitor.shared
-    @StateObject private var teamPack = TeamPackStore.shared
+    @ObservedObject private var mesh = MeshService.shared
+    @ObservedObject private var weather = WeatherService.shared
+    @ObservedObject private var safetyMonitor = RuntimeSafetyMonitor.shared
+    @ObservedObject private var teamPack = TeamPackStore.shared
     @State private var showPaywall = false
 
     var body: some View {
@@ -23,7 +23,7 @@ struct TeamDashSection: View {
                 OpsSectionHeader(icon: "person.3.fill", title: "TEAM MANAGEMENT", color: ZDDesign.cyanAccent)
 
                 NavigationLink {
-                    Text("Team Coordination — Coming Soon").padding()
+                    ComingSoonView(title: "Coordination", icon: "person.2.wave.2.fill", description: "Incident management, unit tracking & search patterns")
                 } label: {
                     OpsSectionCard(
                         icon: "person.2.wave.2.fill",

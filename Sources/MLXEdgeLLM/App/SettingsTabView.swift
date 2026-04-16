@@ -16,12 +16,13 @@ struct SettingsTabView: View {
     @State private var takHostValid = true
     @State private var takPortValid = true
 
-    @StateObject private var takConnector = FreeTAKConnector.shared
-    @StateObject private var engine       = LocalInferenceEngine.shared
-    @StateObject private var modelMgr     = ModelManager.shared
+    @ObservedObject private var takConnector = FreeTAKConnector.shared
+    @ObservedObject private var engine       = LocalInferenceEngine.shared
+    @ObservedObject private var modelMgr     = ModelManager.shared
 
     @State private var toast: ToastMessage? = nil
     @State private var showAuditLog = false
+    @State private var shareURL: URL?
 
     var body: some View {
         NavigationStack {
@@ -232,12 +233,7 @@ struct SettingsTabView: View {
                     Button("Export Audit Log") {
                         AuditLogger.shared.log(.logsExported, detail: "audit CSV export")
                         if let url = AuditLogger.shared.exportCSVToFile() {
-                            // Present share sheet
-                            let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-                            UIApplication.shared.connectedScenes
-                                .compactMap { $0 as? UIWindowScene }
-                                .first?.windows.first?.rootViewController?
-                                .present(av, animated: true)
+                            shareURL = url
                         }
                     }
                     .foregroundColor(ZDDesign.cyanAccent)
@@ -271,6 +267,9 @@ struct SettingsTabView: View {
                 }
             }
             .animation(.easeInOut(duration: 0.3), value: toast?.id)
+            .sheet(item: $shareURL) { url in
+                ShareSheet(items: [url])
+            }
         }
     }
 

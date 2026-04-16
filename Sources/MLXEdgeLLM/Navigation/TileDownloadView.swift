@@ -47,7 +47,7 @@ private let regionPresets: [RegionPreset] = [
 ]
 
 struct TileDownloadView: View {
-    @StateObject private var downloader = TileDownloadManager.shared
+    @ObservedObject private var downloader = TileDownloadManager.shared
     @State private var regionName = ""
     @State private var minZoom: Double = 8
     @State private var maxZoom: Double = 16

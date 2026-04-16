@@ -6,16 +6,17 @@ import RealityKit
 import AVFoundation
 
 struct LiDARTabView: View {
-    @StateObject private var engine = LiDARCaptureEngine.shared
-    @StateObject private var analyzer = TacticalRoomAnalyzer.shared
+    @ObservedObject private var engine = LiDARCaptureEngine.shared
+    @ObservedObject private var analyzer = TacticalRoomAnalyzer.shared
     @State private var showingResults = false
-    @StateObject private var reconEngine = ReconWalkEngine.shared
+    @ObservedObject private var reconEngine = ReconWalkEngine.shared
     @State private var showReconWalk = false
     @State private var lidarMode: LiDARMode = .full
     @State private var scanSpeedMode: ScanSpeedMode = .standard
     @State private var showPermissionAlert = false
     @State private var showRoomIntelReport = false
     @State private var roomIntelReport: RoomIntelReport? = nil
+    @State private var shareURL: URL?
 
     var body: some View {
         NavigationStack {
@@ -86,13 +87,15 @@ struct LiDARTabView: View {
                         let url = FileManager.default.temporaryDirectory
                             .appendingPathComponent("room-intel-\(Int(Date().timeIntervalSince1970)).txt")
                         try? text.write(to: url, atomically: true, encoding: .utf8)
-                        let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-                        UIApplication.shared.connectedScenes
-                            .compactMap { $0 as? UIWindowScene }
-                            .first?.windows.first?.rootViewController?
-                            .present(av, animated: true)
+                        showRoomIntelReport = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            shareURL = url
+                        }
                     }
                 }
+            }
+            .sheet(item: $shareURL) { url in
+                ShareSheet(items: [url])
             }
         }
     }
@@ -726,7 +729,7 @@ struct LiDARResultsView: View {
 // MARK: - Scan history view
 
 struct LiDARHistoryView: View {
-    @StateObject private var engine = LiDARCaptureEngine.shared
+    @ObservedObject private var engine = LiDARCaptureEngine.shared
     @Environment(\.dismiss) var dismiss: DismissAction
 
     var body: some View {

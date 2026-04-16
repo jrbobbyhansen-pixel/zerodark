@@ -4,7 +4,7 @@ import SwiftUI
 import CoreLocation
 
 struct GeofenceEditorView: View {
-    @StateObject private var manager = GeofenceManager.shared
+    @ObservedObject private var manager = GeofenceManager.shared
     @State private var showAddForm = false
 
     var body: some View {

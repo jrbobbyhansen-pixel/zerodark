@@ -5,7 +5,7 @@ import MapKit
 import CoreLocation
 
 struct OfflineDataView: View {
-    @StateObject private var downloadManager = OfflineDownloadManager.shared
+    @ObservedObject private var downloadManager = OfflineDownloadManager.shared
     @State private var mapPacks: [URL] = []
     @State private var terrainTiles: [URL] = []
     @State private var totalStorage: String = "Calculating..."
