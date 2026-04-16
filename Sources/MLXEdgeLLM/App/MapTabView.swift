@@ -15,6 +15,9 @@ struct MapTabView: View {
     @ObservedObject var mesh = MeshService.shared
     @ObservedObject var camService = TrafficCamService.shared
     @ObservedObject var breadcrumb = BreadcrumbEngine.shared
+    @ObservedObject private var deadReckoning = DeadReckoningEngine.shared
+    @ObservedObject private var weather = WeatherForecaster.shared
+    @ObservedObject private var celestial = CelestialNavigator.shared
     @EnvironmentObject var appState: AppState
 
     // Map state
@@ -34,6 +37,9 @@ struct MapTabView: View {
     @State private var showLOSDetails = false
     @State private var viewshedPoints: [(coordinate: CLLocationCoordinate2D, isVisible: Bool)] = []
     @State private var shareURL: URL?
+    // Navigation mode (merged from NavTabView)
+    @State private var navMode = false
+    @State private var isComputingNavViewshed = false
 
     var body: some View {
         NavigationStack {
@@ -52,6 +58,7 @@ struct MapTabView: View {
                         mapWaypointsContent
                         mapOverlaysContent
                         mapAnalysisContent
+                        mapNavContent
                     }
                     .mapStyle(currentMapStyle)
                     .mapControls {
@@ -155,10 +162,22 @@ struct MapTabView: View {
                     .padding(.bottom, 4)
                 }
 
-                // Tactical toolbar (bottom)
+                // Tactical toolbar (bottom) + optional nav status bar above it
                 VStack {
                     Spacer()
+                    if navMode {
+                        navStatusBar
+                    }
                     tacticalToolbar
+                }
+
+                // Nav HUD strip (top) — shown when navMode is active
+                if navMode {
+                    VStack {
+                        navHUDStrip
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity)
                 }
             }
             .navigationTitle("Map")
@@ -356,6 +375,10 @@ struct MapTabView: View {
                 .cornerRadius(8)
             }
 
+            ToolbarToggle(text: "NAV", active: navMode) {
+                navMode.toggle()
+            }
+
             Spacer()
         }
         .padding(.horizontal, 12)
@@ -452,6 +475,129 @@ struct MapTabView: View {
             await MainActor.run {
                 contourLines = lines
             }
+        }
+    }
+
+    // MARK: - Nav Mode Overlays
+
+    private var navHUDStrip: some View {
+        HStack(spacing: 14) {
+            VStack(spacing: 1) {
+                Text(String(format: "%.1f", appState.navState.speed))
+                    .font(.system(.callout, design: .monospaced, weight: .bold))
+                    .foregroundColor(ZDDesign.pureWhite)
+                Text("m/s").font(.caption2).foregroundColor(ZDDesign.mediumGray)
+            }
+            Divider().frame(height: 28)
+            VStack(spacing: 1) {
+                Text(String(format: "%03.0f\u{00B0}", appState.navState.heading))
+                    .font(.system(.callout, design: .monospaced, weight: .bold))
+                    .foregroundColor(ZDDesign.pureWhite)
+                Text("HDG").font(.caption2).foregroundColor(ZDDesign.mediumGray)
+            }
+            Divider().frame(height: 28)
+            VStack(spacing: 1) {
+                Text(String(format: "%.0fm", appState.navState.altitude))
+                    .font(.system(.callout, design: .monospaced, weight: .bold))
+                    .foregroundColor(ZDDesign.pureWhite)
+                Text("ALT").font(.caption2).foregroundColor(ZDDesign.mediumGray)
+            }
+            Divider().frame(height: 28)
+            VStack(spacing: 1) {
+                Text(String(format: "%.1fm", appState.navState.ekfUncertainty))
+                    .font(.system(.callout, design: .monospaced, weight: .bold))
+                    .foregroundColor(appState.navState.ekfUncertainty > 10 ? ZDDesign.signalRed : ZDDesign.pureWhite)
+                Text("ERR").font(.caption2).foregroundColor(ZDDesign.mediumGray)
+            }
+            Spacer()
+            Button {
+                Task { await computeNavViewshed() }
+            } label: {
+                if isComputingNavViewshed {
+                    ProgressView().tint(ZDDesign.cyanAccent)
+                } else {
+                    Image(systemName: "eye.circle")
+                        .foregroundColor(ZDDesign.cyanAccent)
+                }
+            }
+            .disabled(isComputingNavViewshed)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(ZDDesign.darkCard.opacity(0.92))
+        .cornerRadius(10)
+        .padding(.horizontal, 12)
+        .padding(.top, 8)
+    }
+
+    private var navStatusBar: some View {
+        HStack(spacing: 18) {
+            HStack(spacing: 4) {
+                Image(systemName: appState.navState.canopyDetected ? "leaf.fill" : "leaf")
+                    .foregroundColor(appState.navState.canopyDetected ? .orange : .green)
+                Text(appState.navState.canopyDetected ? "CANOPY" : "OPEN")
+                    .font(.caption).foregroundColor(ZDDesign.pureWhite)
+            }
+            HStack(spacing: 4) {
+                Image(systemName: "shoeprints.fill").foregroundColor(ZDDesign.cyanAccent)
+                Text("ZUPT:\(appState.navState.zuptCount)")
+                    .font(.caption).foregroundColor(ZDDesign.pureWhite)
+            }
+            HStack(spacing: 4) {
+                Image(systemName: "star.fill")
+                    .foregroundColor(celestial.detectedStarCount >= 2 ? .yellow : ZDDesign.mediumGray)
+                Text("\(celestial.detectedStarCount)★")
+                    .font(.caption).foregroundColor(ZDDesign.pureWhite)
+            }
+            Spacer()
+            HStack(spacing: 4) {
+                Image(systemName: navBatteryIcon).foregroundColor(navBatteryColor)
+                Text(String(format: "%.0fm", appState.navState.batteryMinutesRemaining))
+                    .font(.caption).foregroundColor(ZDDesign.pureWhite)
+            }
+            HStack(spacing: 4) {
+                Image(systemName: navBaroIcon).foregroundColor(ZDDesign.cyanAccent)
+                Text(weather.barometricPressureTrend == .stable ? "STABLE" :
+                     weather.barometricPressureTrend == .rapidDrop ? "DROP" : "RISE")
+                    .font(.caption).foregroundColor(ZDDesign.pureWhite)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 7)
+        .background(ZDDesign.darkCard.opacity(0.92))
+        .cornerRadius(10)
+        .padding(.horizontal, 12)
+        .padding(.bottom, 4)
+    }
+
+    private var navBatteryIcon: String {
+        let level = appState.navState.batteryTrend
+        if level > 0.75 { return "battery.100" }
+        if level > 0.5  { return "battery.75" }
+        if level > 0.25 { return "battery.50" }
+        return "battery.25"
+    }
+
+    private var navBatteryColor: Color {
+        appState.navState.batteryMinutesRemaining < 30 ? Color(ZDDesign.signalRed) :
+        appState.navState.batteryMinutesRemaining < 60 ? .orange : .green
+    }
+
+    private var navBaroIcon: String {
+        switch weather.barometricPressureTrend {
+        case .stable: return "barometer"
+        case .rapidDrop: return "arrow.down.circle"
+        case .rapidRise: return "arrow.up.circle"
+        }
+    }
+
+    private func computeNavViewshed() async {
+        guard let pos = appState.navState.position else { return }
+        isComputingNavViewshed = true
+        defer { isComputingNavViewshed = false }
+        let points = LOSRaycastEngine.shared.computeViewshed(from: pos, radius: 2000, resolution: 36)
+        await MainActor.run {
+            viewshedPoints = points
         }
     }
 
@@ -685,6 +831,34 @@ struct ContourLineData: Hashable {
 
     static func == (lhs: ContourLineData, rhs: ContourLineData) -> Bool {
         lhs.elevation == rhs.elevation && lhs.coordinates.count == rhs.coordinates.count
+    }
+}
+
+// MARK: - Nav Content (DR/EKF rings overlay)
+
+extension MapTabView {
+    @MapContentBuilder
+    var mapNavContent: some MapContent {
+        if navMode, let pos = appState.navState.position {
+            Annotation("", coordinate: pos) {
+                ZStack {
+                    if deadReckoning.isActive {
+                        Circle()
+                            .stroke(Color.orange.opacity(0.5), lineWidth: 2)
+                            .frame(
+                                width: CGFloat(max(24, deadReckoning.confidenceRadius)),
+                                height: CGFloat(max(24, deadReckoning.confidenceRadius))
+                            )
+                    }
+                    Circle()
+                        .fill(Color.cyan.opacity(0.25))
+                        .frame(
+                            width: CGFloat(max(14, appState.navState.ekfUncertainty)),
+                            height: CGFloat(max(14, appState.navState.ekfUncertainty))
+                        )
+                }
+            }
+        }
     }
 }
 

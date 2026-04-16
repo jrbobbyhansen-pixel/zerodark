@@ -81,10 +81,11 @@ struct MGRSConverter {
             eLetter = "?"
         }
 
-        // Northing letters (20-letter pattern, cycling)
-        let nLettersN = "FGHJKLMNPQRSTUVABCDE"
-        let nLettersS = "ABCDEFGHJKLMNPQRSTUV"
-        let nPattern = northing >= 0 ? nLettersN : nLettersS
+        // Northing letters: MGRS uses zone parity, NOT hemisphere
+        // Odd zones → A-based cycle; even zones → F-based cycle
+        let nLettersOdd  = "ABCDEFGHJKLMNPQRSTUV"
+        let nLettersEven = "FGHJKLMNPQRSTUVABCDE"
+        let nPattern = (zone % 2 == 1) ? nLettersOdd : nLettersEven
         let nIndex = Int(northing / 100000) % 20
         nLetter = String(nPattern[nPattern.index(nPattern.startIndex, offsetBy: nIndex)])
 

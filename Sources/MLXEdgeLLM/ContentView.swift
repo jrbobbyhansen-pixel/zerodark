@@ -30,10 +30,6 @@ struct ContentView: View {
                     .tabItem { Label("Map", systemImage: "map.fill") }
                     .tag(AppTab.map)
 
-                NavTabView()
-                    .tabItem { Label("Nav", systemImage: "location.north.fill") }
-                    .tag(AppTab.nav)
-
                 LiDARTabView()
                     .tabItem { Label("LiDAR", systemImage: "cube.fill") }
                     .tag(AppTab.lidar)

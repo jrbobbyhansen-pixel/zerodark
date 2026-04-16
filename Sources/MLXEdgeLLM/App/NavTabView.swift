@@ -9,7 +9,7 @@ struct NavTabView: View {
     @EnvironmentObject var appState: AppState
     @ObservedObject private var breadcrumb = BreadcrumbEngine.shared
     @ObservedObject private var deadReckoning = DeadReckoningEngine.shared
-    @StateObject private var celestial = CelestialNavigator()
+    @ObservedObject private var celestial = CelestialNavigator.shared
     @ObservedObject private var weather = WeatherForecaster.shared
 
     @State private var showAROverlay = false
