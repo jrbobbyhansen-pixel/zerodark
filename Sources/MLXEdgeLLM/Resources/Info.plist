@@ -24,6 +24,8 @@
     <string>ZeroDark uses Bluetooth for mesh networking and LoRa communication.</string>
     <key>NSLocalNetworkUsageDescription</key>
     <string>ZeroDark uses local network for peer-to-peer mesh communication.</string>
+    <key>NSMotionUsageDescription</key>
+    <string>ZeroDark uses motion sensors for dead reckoning navigation and trail recording when GPS is unavailable.</string>
     <key>UIBackgroundModes</key>
     <array>
         <string>location</string>
