@@ -30,13 +30,19 @@ struct MapTabView: View {
     @State private var selectedCam: TrafficCamera?
     @State private var showCelestialNav = false
     @State private var contourLines: [ContourLineData] = []
+    @State private var isGeneratingContours = false
     @State private var mapSelection: MKMapItem?
     @State private var losResult: LOSResult?
     @State private var losTarget: CLLocationCoordinate2D?
     @State private var losMode = false
     @State private var showLOSDetails = false
+    @State private var losTerrainWarning = false
+    @State private var isComputingViewshed = false
     @State private var viewshedPoints: [(coordinate: CLLocationCoordinate2D, isVisible: Bool)] = []
     @State private var shareURL: URL?
+    @State private var selectedWaypoint: TacticalWaypoint?
+    // MGRS grid cached — only regenerated on camera-stop, not every render
+    @State private var cachedMGRSLines: [[CLLocationCoordinate2D]] = []
     // Navigation mode (merged from NavTabView)
     @State private var navMode = false
     @State private var isComputingNavViewshed = false
@@ -69,6 +75,9 @@ struct MapTabView: View {
                     .onMapCameraChange(frequency: .onEnd) { context in
                         appState.mapRegion = context.region
                         appState.currentLocation = context.region.center
+                        if appState.mapLayerConfig.showMGRS {
+                            cachedMGRSLines = mgrsGridLines()
+                        }
                     }
                     .simultaneousGesture(
                         LongPressGesture(minimumDuration: 0.5)
@@ -79,9 +88,11 @@ struct MapTabView: View {
                                     if let location = drag?.location {
                                         if let coord = proxy.convert(location, from: .local) {
                                             if losMode {
-                                                // LOS mode: compute line-of-sight from user to tapped point
                                                 losTarget = coord
                                                 if let userLoc = appState.currentLocation {
+                                                    if TerrainEngine.shared.elevationAt(coordinate: coord) == nil {
+                                                        losTerrainWarning = true
+                                                    }
                                                     losResult = LOSRaycastEngine.shared.computeLOS(from: userLoc, to: coord)
                                                     showLOSDetails = true
                                                 }
@@ -102,6 +113,9 @@ struct MapTabView: View {
                                 if let coord = proxy.convert(value.location, from: .local) {
                                     losTarget = coord
                                     if let userLoc = appState.currentLocation {
+                                        if TerrainEngine.shared.elevationAt(coordinate: coord) == nil {
+                                            losTerrainWarning = true
+                                        }
                                         losResult = LOSRaycastEngine.shared.computeLOS(from: userLoc, to: coord)
                                         showLOSDetails = true
                                     }
@@ -285,6 +299,14 @@ struct MapTabView: View {
             .sheet(item: $shareURL) { url in
                 ShareSheet(items: [url])
             }
+            .sheet(item: $selectedWaypoint) { wp in
+                WaypointDetailSheet(waypoint: wp, store: waypointStore)
+            }
+            .alert("No Terrain Data", isPresented: $losTerrainWarning) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("No elevation data is available for this area. LOS results assume flat terrain and may be inaccurate. Load HGT tiles in Settings to enable accurate line-of-sight.")
+            }
             .onReceive(appState.mapEventBus) { event in
                 handleMapEvent(event)
             }
@@ -316,11 +338,18 @@ struct MapTabView: View {
 
             ToolbarToggle(text: "MGRS", active: appState.mapLayerConfig.showMGRS) {
                 appState.mapLayerConfig.showMGRS.toggle()
+                if appState.mapLayerConfig.showMGRS {
+                    cachedMGRSLines = mgrsGridLines()
+                }
             }
 
-            ToolbarToggle(icon: "mountain.2.fill", label: "Terrain", active: appState.mapLayerConfig.showContours) {
+            ToolbarToggle(
+                icon: isGeneratingContours ? "hourglass" : "mountain.2.fill",
+                label: "Terrain",
+                active: appState.mapLayerConfig.showContours
+            ) {
                 appState.mapLayerConfig.showContours.toggle()
-                if appState.mapLayerConfig.showContours && contourLines.isEmpty {
+                if appState.mapLayerConfig.showContours && contourLines.isEmpty && !isGeneratingContours {
                     generateContourLines()
                 }
             }
@@ -347,15 +376,21 @@ struct MapTabView: View {
                         showLOSDetails = true
                     }
                 }
-                Button("Show Viewshed") {
-                    guard let userLoc = appState.currentLocation else { return }
+                Button(isComputingViewshed ? "Computing…" : "Show Viewshed") {
+                    guard let userLoc = appState.currentLocation, !isComputingViewshed else { return }
+                    if TerrainEngine.shared.elevationAt(coordinate: userLoc) == nil {
+                        losTerrainWarning = true
+                    }
+                    isComputingViewshed = true
                     Task.detached {
                         let points = LOSRaycastEngine.shared.computeViewshed(from: userLoc, radius: 2000, resolution: 36)
                         await MainActor.run {
                             viewshedPoints = points
+                            isComputingViewshed = false
                         }
                     }
                 }
+                .disabled(isComputingViewshed)
                 if !viewshedPoints.isEmpty {
                     Button("Clear Viewshed") {
                         viewshedPoints = []
@@ -458,6 +493,7 @@ struct MapTabView: View {
 
     private func generateContourLines() {
         let region = appState.mapRegion
+        isGeneratingContours = true
         Task.detached {
             let overlay = ContourOverlay(region: region, contourInterval: 30)
             overlay.generateContours(resolution: 40)
@@ -474,6 +510,7 @@ struct MapTabView: View {
             }
             await MainActor.run {
                 contourLines = lines
+                isGeneratingContours = false
             }
         }
     }
@@ -605,9 +642,10 @@ struct MapTabView: View {
 
     private func shareWaypoints() {
         let gpxData = waypointStore.exportGPX()
-        let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("waypoints.gpx")
-        try? gpxData.write(to: tmpURL)
-        shareURL = tmpURL
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let url = docs.appendingPathComponent("waypoints_\(Int(Date().timeIntervalSince1970)).gpx")
+        try? gpxData.write(to: url)
+        shareURL = url
     }
 }
 
@@ -667,6 +705,7 @@ extension MapTabView {
                     .padding(6)
                     .background(.black.opacity(0.6))
                     .clipShape(Circle())
+                    .onTapGesture { selectedWaypoint = wp }
             }
         }
         if appState.mapLayerConfig.showThreatPins {
@@ -702,7 +741,7 @@ extension MapTabView {
             }
         }
         if appState.mapLayerConfig.showMGRS {
-            ForEach(Array(mgrsGridLines().enumerated()), id: \.offset) { _, line in
+            ForEach(Array(cachedMGRSLines.enumerated()), id: \.offset) { _, line in
                 MapPolyline(coordinates: line)
                     .stroke(Color(ZDDesign.safetyYellow).opacity(0.5), lineWidth: 0.8)
             }
@@ -932,6 +971,70 @@ private struct NavigationHUD: View {
         }
     }
 
+}
+
+// MARK: - Waypoint Detail Sheet
+
+private struct WaypointDetailSheet: View {
+    let waypoint: TacticalWaypoint
+    @ObservedObject var store: TacticalWaypointStore
+    @Environment(\.dismiss) private var dismiss
+    @State private var confirmDelete = false
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section("Location") {
+                    LabeledContent("MGRS") {
+                        Text(MGRSConverter.toMGRS(coordinate: waypoint.coordinate, precision: 5))
+                            .font(.system(.body, design: .monospaced))
+                    }
+                    LabeledContent("Lat / Lon") {
+                        Text(String(format: "%.5f, %.5f", waypoint.lat, waypoint.lon))
+                            .font(.system(.caption, design: .monospaced))
+                    }
+                }
+                Section("Details") {
+                    LabeledContent("Type", value: waypoint.type.rawValue.capitalized)
+                    if !waypoint.publicDescription.isEmpty {
+                        LabeledContent("Description", value: waypoint.publicDescription)
+                    }
+                    if !waypoint.tacticalNotes.isEmpty {
+                        LabeledContent("Notes", value: waypoint.tacticalNotes)
+                    }
+                    LabeledContent("Created by", value: waypoint.createdBy)
+                    LabeledContent("Created") {
+                        Text(waypoint.createdAt.formatted(date: .abbreviated, time: .shortened))
+                    }
+                }
+                Section {
+                    Button(role: .destructive) {
+                        confirmDelete = true
+                    } label: {
+                        Label("Delete Waypoint", systemImage: "trash")
+                    }
+                }
+            }
+            .navigationTitle(waypoint.displayLabel)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+            .confirmationDialog(
+                "Delete \"\(waypoint.displayLabel)\"?",
+                isPresented: $confirmDelete,
+                titleVisibility: .visible
+            ) {
+                Button("Delete", role: .destructive) {
+                    store.remove(id: waypoint.id)
+                    dismiss()
+                }
+            }
+        }
+        .presentationDetents([.medium])
+    }
 }
 
 #Preview {
