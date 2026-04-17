@@ -79,6 +79,22 @@ struct PlanningToolsSection: View {
                     destination: DistanceBearingView()
                 )
 
+                PlanningCard(
+                    title: "Area Calculator",
+                    subtitle: "Draw polygons on map, calculate enclosed area in m²/ha/acres",
+                    icon: "pentagon.fill",
+                    color: ZDDesign.safetyYellow,
+                    destination: AreaCalculatorView()
+                )
+
+                PlanningCard(
+                    title: "Elevation Profile",
+                    subtitle: "Cumulative gain/loss, high points, saddles from breadcrumb track",
+                    icon: "mountain.2.fill",
+                    color: .orange,
+                    destination: ElevationProfileView()
+                )
+
                 OpsSectionHeader(icon: "cloud.sun.fill", title: "ENVIRONMENT", color: ZDDesign.safetyYellow)
                     .padding(.top, 4)
 

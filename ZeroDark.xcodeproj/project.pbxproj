@@ -217,6 +217,7 @@
 		7E1F56468353D1EA20E4F991 /* RiskMatrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DC6C5CD808BF31DEF4A8D91 /* RiskMatrix.swift */; };
 		7E21BBE276EC3FFD0D3DF760 /* TacticalRoomAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D41D9D48447EB1AAA4C8FCE /* TacticalRoomAnalyzer.swift */; };
 		7EF0D06E7EA7E6DD378E58AF /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 007B0CE6CBE12CB052F751AE /* Accelerate.framework */; };
+		7F0350E8D3865C5BA2D44CAE /* ElevationProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1BF5FD5F6B32873C8544D6 /* ElevationProfile.swift */; };
 		7F71B51FEA8D0308AC775453 /* 85-urban-movement.md in Resources */ = {isa = PBXBuildFile; fileRef = 24D0D3D59B90249390A7E990 /* 85-urban-movement.md */; };
 		7FE15C099B1FA4AD511CABCD /* HAMMERAcousticModem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23ECD93496738827D5E6C8C6 /* HAMMERAcousticModem.swift */; };
 		7FEA29DA2B2AEBCD8B427319 /* ConsumptionPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 814A654AF6E536A6B243C7C8 /* ConsumptionPlanner.swift */; };
@@ -309,6 +310,7 @@
 		C0447F9D1D4D9052FD789427 /* ZeroDarkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0FFDB15B8762D7E15F6938 /* ZeroDarkApp.swift */; };
 		C06A4D2CE76CC654A7C6CE03 /* 47-ambush-drill.md in Resources */ = {isa = PBXBuildFile; fileRef = 530D9F8CE143FE623D13AD56 /* 47-ambush-drill.md */; };
 		C0FAE39B5C650DCF159F44BF /* BuildingExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B235A1C21A97FCFC192AAB68 /* BuildingExtractor.swift */; };
+		C195DF9A0FB15700338D4A27 /* AreaCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55B1DB9B2CA0652F91619FF2 /* AreaCalculator.swift */; };
 		C1F98F441481129C70CEB494 /* 09-cold-weather-survival.md in Resources */ = {isa = PBXBuildFile; fileRef = D45117034F95080A8DB0EEC7 /* 09-cold-weather-survival.md */; };
 		C292426197AA105322B1496C /* ScanStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4001FA525C6D6F6A6D91BFB0 /* ScanStorage.swift */; };
 		C38611710B3D93A54317F292 /* TAKBLEBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C30E1D9284457D6BE8ECC5 /* TAKBLEBridge.swift */; };
@@ -632,6 +634,7 @@
 		3D573F511F6EDC04B1A28F71 /* KnowledgeRAG.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KnowledgeRAG.swift; sourceTree = "<group>"; };
 		3D6B552AED02209A99AD1327 /* 10-debris-hut.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "10-debris-hut.md"; sourceTree = "<group>"; };
 		3DE535710C34F8B3F12F6A0C /* ReportsSection.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ReportsSection.swift; path = Sources/MLXEdgeLLM/App/Ops/ReportsSection.swift; sourceTree = "<group>"; };
+		3E1BF5FD5F6B32873C8544D6 /* ElevationProfile.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ElevationProfile.swift; path = Sources/MLXEdgeLLM/SpatialIntelligence/ElevationProfile.swift; sourceTree = "<group>"; };
 		3E693F1D0037C7E7857AE0A1 /* UsarDashboard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UsarDashboard.swift; path = Sources/MLXEdgeLLM/Scenarios/Urban/UsarDashboard.swift; sourceTree = "<group>"; };
 		3EB54C9EBBCC84BD402ED9DC /* EvaluatorTools.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EvaluatorTools.swift; path = Sources/MLXEdgeLLM/Training/Field/EvaluatorTools.swift; sourceTree = "<group>"; };
 		3F180297185A4A8FE071D2EF /* TempLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TempLogger.swift; path = Sources/MLXEdgeLLM/Services/TempLogger.swift; sourceTree = "<group>"; };
@@ -702,6 +705,7 @@
 		554A951967AFE1CAEE24956C /* GeofenceEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeofenceEditorView.swift; sourceTree = "<group>"; };
 		55634899BDF895C6663DC02D /* ObservationDetailSheet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ObservationDetailSheet.swift; sourceTree = "<group>"; };
 		5565DB8EF0907709E63BC3BE /* LiDARTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiDARTabView.swift; sourceTree = "<group>"; };
+		55B1DB9B2CA0652F91619FF2 /* AreaCalculator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AreaCalculator.swift; path = Sources/MLXEdgeLLM/SpatialIntelligence/AreaCalculator.swift; sourceTree = "<group>"; };
 		55DF986CB353AF2031989AF8 /* DataClassification.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DataClassification.swift; path = Sources/MLXEdgeLLM/Security/Access/DataClassification.swift; sourceTree = "<group>"; };
 		55F7E5D9496D8EFB8000082A /* Terrain3dViewer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Terrain3dViewer.swift; path = Sources/MLXEdgeLLM/Navigation/Terrain3dViewer.swift; sourceTree = "<group>"; };
 		5698268FB0849B80DFFC0460 /* CacheManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CacheManager.swift; path = Sources/MLXEdgeLLM/Logistics/CacheManager.swift; sourceTree = "<group>"; };
@@ -2272,6 +2276,8 @@
 				DE95C74AB14BAF061A2603D8 /* HydrationCalc.swift */,
 				754D039639F75DE4EE1B2B6E /* PointCloudAnnotator.swift */,
 				B93C06EF01501B5102A4B678 /* DistanceBearing.swift */,
+				55B1DB9B2CA0652F91619FF2 /* AreaCalculator.swift */,
+				3E1BF5FD5F6B32873C8544D6 /* ElevationProfile.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3079,6 +3085,8 @@
 				8C8548077815A253DEC42726 /* HydrationCalc.swift in Sources */,
 				09A5B31D616ADBB2533E59B2 /* PointCloudAnnotator.swift in Sources */,
 				CFF49988DE8E33D608030BB8 /* DistanceBearing.swift in Sources */,
+				C195DF9A0FB15700338D4A27 /* AreaCalculator.swift in Sources */,
+				7F0350E8D3865C5BA2D44CAE /* ElevationProfile.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
