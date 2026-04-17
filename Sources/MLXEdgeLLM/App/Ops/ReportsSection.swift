@@ -22,6 +22,17 @@ struct ReportsSection: View {
                     )
                 }
 
+                NavigationLink {
+                    VoiceMemoView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "mic.fill",
+                        title: "Voice Memos",
+                        subtitle: "GPS-tagged audio memos; compressed & queued for DTN mesh relay",
+                        color: .orange
+                    )
+                }
+
                 OpsSectionHeader(icon: "shield.fill", title: "TACTICAL REPORTS", color: ZDDesign.safetyYellow)
 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {

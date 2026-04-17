@@ -73,6 +73,7 @@
 		29A1C3EAFD9A2C9C839E0C53 /* PTTController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F20DE55DC35C8429F49BEBD /* PTTController.swift */; };
 		29B19B89779728304EE1685A /* 105-task-organization.md in Resources */ = {isa = PBXBuildFile; fileRef = 16D3A1BEA24FA7769815DD93 /* 105-task-organization.md */; };
 		29C6932063A1472AD539305B /* WatershedAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB5497CF56763FCBBB2CBFB /* WatershedAnalysis.swift */; };
+		2A0D956BE8D08CAF1DB8FDFC /* VoiceMemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C6B137F0FBEEB028777676 /* VoiceMemo.swift */; };
 		2ABE45A6BB8B5206E021C7FB /* AppNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A8FC4924F81BC9825ACB7B /* AppNavigation.swift */; };
 		2BCB2C58D50680F0CE531D62 /* 87-building-assessment.md in Resources */ = {isa = PBXBuildFile; fileRef = A9A2CB5F036875FCDA768BB7 /* 87-building-assessment.md */; };
 		2C02EC9FE4156DA818DD7C1E /* VolumeMeasure.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDECDA06F8FB7D9B9BBC7CB9 /* VolumeMeasure.swift */; };
@@ -896,6 +897,7 @@
 		A0B1E461581BC84EE04C8486 /* KalmanFuse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KalmanFuse.swift; path = Sources/MLXEdgeLLM/LiDAR/Fusion/KalmanFuse.swift; sourceTree = "<group>"; };
 		A12C823CAE3165D6CA8F1640 /* 12-shock.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "12-shock.md"; sourceTree = "<group>"; };
 		A1B90A5CDA98EC58EF49328F /* 19-recon-op-setup.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "19-recon-op-setup.md"; sourceTree = "<group>"; };
+		A1C6B137F0FBEEB028777676 /* VoiceMemo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VoiceMemo.swift; path = Sources/MLXEdgeLLM/CommunicationCore/VoiceMemo.swift; sourceTree = "<group>"; };
 		A31D4EC02A80A21AE48BB8FC /* IAPManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IAPManager.swift; path = Sources/MLXEdgeLLM/Store/IAPManager.swift; sourceTree = "<group>"; };
 		A3668A1EA0A3AEDD1E740C88 /* Platform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Platform.swift; sourceTree = "<group>"; };
 		A3B96C4F434BC0AA5756D9EA /* ClimbRouteFinder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ClimbRouteFinder.swift; path = Sources/MLXEdgeLLM/Navigation/ClimbRouteFinder.swift; sourceTree = "<group>"; };
@@ -2227,6 +2229,7 @@
 				8086FDF41817A64352CB47F9 /* MessageQueue.swift */,
 				B971A47BE0225EBD22D8C405 /* ChannelManager.swift */,
 				04DD4801FE3530A7AEA705DE /* MeshVisualizer.swift */,
+				A1C6B137F0FBEEB028777676 /* VoiceMemo.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3019,6 +3022,7 @@
 				C827C93B3097FAF0A5E7D1AF /* MessageQueue.swift in Sources */,
 				746A30EB7668008DBC6F1DFE /* ChannelManager.swift in Sources */,
 				37BE4BC4DAB79FDA2D834C04 /* MeshVisualizer.swift in Sources */,
+				2A0D956BE8D08CAF1DB8FDFC /* VoiceMemo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
