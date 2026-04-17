@@ -75,6 +75,7 @@
 		29A1C3EAFD9A2C9C839E0C53 /* PTTController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F20DE55DC35C8429F49BEBD /* PTTController.swift */; };
 		29B19B89779728304EE1685A /* 105-task-organization.md in Resources */ = {isa = PBXBuildFile; fileRef = 16D3A1BEA24FA7769815DD93 /* 105-task-organization.md */; };
 		29C6932063A1472AD539305B /* WatershedAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB5497CF56763FCBBB2CBFB /* WatershedAnalysis.swift */; };
+		29FE1FBE5EA59566CEB4C376 /* ModelPerformanceMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4084AFF59F767C576B1D774C /* ModelPerformanceMonitor.swift */; };
 		2A0D956BE8D08CAF1DB8FDFC /* VoiceMemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C6B137F0FBEEB028777676 /* VoiceMemo.swift */; };
 		2ABE45A6BB8B5206E021C7FB /* AppNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A8FC4924F81BC9825ACB7B /* AppNavigation.swift */; };
 		2BCB2C58D50680F0CE531D62 /* 87-building-assessment.md in Resources */ = {isa = PBXBuildFile; fileRef = A9A2CB5F036875FCDA768BB7 /* 87-building-assessment.md */; };
@@ -129,6 +130,7 @@
 		47F01383A33A0EC15EA7F55B /* 80-anti-tracking-advanced.md in Resources */ = {isa = PBXBuildFile; fileRef = AF5B8A9B22C4E26C6A386BCA /* 80-anti-tracking-advanced.md */; };
 		47F89B73EE56EA7D36CE165C /* WeatherForecaster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D5FFC2D74EF67FB83B7A51 /* WeatherForecaster.swift */; };
 		4849EBDBDA205541CD3C1ED8 /* 04-food-procurement.md in Resources */ = {isa = PBXBuildFile; fileRef = 5A4866F478E54AFA78B1624E /* 04-food-procurement.md */; };
+		486E9987A4F3643708E14B69 /* TacticalQueryParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCCCC65E98D542C0705F2203 /* TacticalQueryParser.swift */; };
 		4956FB1CE145E6D6D2F06A36 /* 99-vehicle-security.md in Resources */ = {isa = PBXBuildFile; fileRef = C80F379265B732D0E8C785FB /* 99-vehicle-security.md */; };
 		4A0DBA333EF0F64FF440ACC6 /* 05-construction.md in Resources */ = {isa = PBXBuildFile; fileRef = 92C4770F4CCAFF288A4877D4 /* 05-construction.md */; };
 		4A2932F4A22064B973DB76CB /* 77-vbied-awareness.md in Resources */ = {isa = PBXBuildFile; fileRef = 2C52434E784130380BC5B58D /* 77-vbied-awareness.md */; };
@@ -645,6 +647,7 @@
 		3FECBD049F220C8EDEC20EFC /* VegetationFilter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VegetationFilter.swift; path = Sources/MLXEdgeLLM/LiDAR/Core/VegetationFilter.swift; sourceTree = "<group>"; };
 		4001FA525C6D6F6A6D91BFB0 /* ScanStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanStorage.swift; sourceTree = "<group>"; };
 		407D756080B2FAACD13E3C9D /* ProtocolLibrary.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProtocolLibrary.swift; path = Sources/MLXEdgeLLM/AI/RAG/ProtocolLibrary.swift; sourceTree = "<group>"; };
+		4084AFF59F767C576B1D774C /* ModelPerformanceMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ModelPerformanceMonitor.swift; path = Sources/MLXEdgeLLM/Intelligence/ModelPerformanceMonitor.swift; sourceTree = "<group>"; };
 		40F7C43E1C21E6B85C924C64 /* CertTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CertTracker.swift; path = Sources/MLXEdgeLLM/Training/Skills/CertTracker.swift; sourceTree = "<group>"; };
 		410DB950B2C43B95FF520E0A /* QualificationCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QualificationCard.swift; path = Sources/MLXEdgeLLM/Training/Skills/QualificationCard.swift; sourceTree = "<group>"; };
 		4198BBC900CFFAC0464A8744 /* TacticalNavigationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalNavigationView.swift; sourceTree = "<group>"; };
@@ -1122,6 +1125,7 @@
 		DC8A3C2DB8500F9938A39918 /* 16-fishing.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "16-fishing.md"; sourceTree = "<group>"; };
 		DC8A5331179E99E6D50DFE93 /* SignalPropagation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SignalPropagation.swift; path = Sources/MLXEdgeLLM/CommunicationCore/SignalPropagation.swift; sourceTree = "<group>"; };
 		DC8C05C291C60A68A021F8DC /* FewShotManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FewShotManager.swift; path = Sources/MLXEdgeLLM/AI/Prompts/FewShotManager.swift; sourceTree = "<group>"; };
+		DCCCC65E98D542C0705F2203 /* TacticalQueryParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TacticalQueryParser.swift; path = Sources/MLXEdgeLLM/Intelligence/TacticalQueryParser.swift; sourceTree = "<group>"; };
 		DCEF8B32673813FB965C40E6 /* ObdInterface.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ObdInterface.swift; path = Sources/MLXEdgeLLM/Hardware/Vehicle/ObdInterface.swift; sourceTree = "<group>"; };
 		DCFA91779ECB05B12EBA0418 /* LearningPath.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LearningPath.swift; path = Sources/MLXEdgeLLM/Training/Knowledge/LearningPath.swift; sourceTree = "<group>"; };
 		DD00A32F45A01105D6AE749E /* TeamStatus.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TeamStatus.swift; path = Sources/MLXEdgeLLM/FieldOps/Team/TeamStatus.swift; sourceTree = "<group>"; };
@@ -2282,6 +2286,8 @@
 				3E1BF5FD5F6B32873C8544D6 /* ElevationProfile.swift */,
 				E690A8988D7E0E4CF095250B /* TerrainComparison.swift */,
 				19CE4A6C3ABFFD17B23735A2 /* PointCloudExporter.swift */,
+				DCCCC65E98D542C0705F2203 /* TacticalQueryParser.swift */,
+				4084AFF59F767C576B1D774C /* ModelPerformanceMonitor.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3093,6 +3099,8 @@
 				7F0350E8D3865C5BA2D44CAE /* ElevationProfile.swift in Sources */,
 				9B80CA96462D402B906FC3AD /* TerrainComparison.swift in Sources */,
 				5405D35EC824CBE9E36E97E5 /* PointCloudExporter.swift in Sources */,
+				486E9987A4F3643708E14B69 /* TacticalQueryParser.swift in Sources */,
+				29FE1FBE5EA59566CEB4C376 /* ModelPerformanceMonitor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

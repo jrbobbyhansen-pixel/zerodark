@@ -6,6 +6,35 @@ struct EvalDebriefSection: View {
     var body: some View {
         ScrollView {
             VStack(spacing: ZDDesign.spacing16) {
+
+                OpsSectionHeader(icon: "brain", title: "AI TOOLS", color: ZDDesign.cyanAccent)
+
+                NavigationLink { SitrepView() } label: {
+                    OpsSectionCard(icon: "doc.text.fill", title: "SITREP Generator",
+                                   subtitle: "Auto-generate situation report from live system state. Export & send.",
+                                   color: ZDDesign.cyanAccent)
+                }
+                NavigationLink { RiskAssessorView() } label: {
+                    OpsSectionCard(icon: "exclamationmark.triangle.fill", title: "Risk Assessor",
+                                   subtitle: "Mission risk by domain: weather, altitude, team, comms, environment.",
+                                   color: ZDDesign.signalRed)
+                }
+                NavigationLink { TacticalQueryParserView() } label: {
+                    OpsSectionCard(icon: "text.magnifyingglass", title: "Query Parser",
+                                   subtitle: "Natural language → structured action intent. Maps to ZeroDark tools.",
+                                   color: .purple)
+                }
+                NavigationLink { DecisionLogView() } label: {
+                    OpsSectionCard(icon: "brain", title: "Decision Log",
+                                   subtitle: "AI decision audit trail — reasoning, inputs, confidence, outcomes.",
+                                   color: ZDDesign.mediumGray)
+                }
+                NavigationLink { ModelPerformanceView() } label: {
+                    OpsSectionCard(icon: "gauge.with.dots.needle.50percent", title: "Model Monitor",
+                                   subtitle: "On-device inference latency, memory, throughput. Tradeoff advisor.",
+                                   color: .orange)
+                }
+
                 OpsSectionHeader(icon: "star.fill", title: "EVALUATION", color: ZDDesign.safetyYellow)
 
                 NavigationLink {
