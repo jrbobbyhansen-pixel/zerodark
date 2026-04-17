@@ -425,6 +425,76 @@ final class BreadcrumbEngine: ObservableObject {
         recordTrailPoint()
     }
 
+    // MARK: - Scan Match Correction
+
+    /// Inject an ICP-derived position correction as a 2-measurement EKF update (lat + lon).
+    /// Only runs when the EKF is initialized. Uses a lower-trust R than GPS (score-scaled).
+    /// Call from a scan-rate loop when `drFallbackActive` is true.
+    func injectScanMatchCorrection(_ result: ScanMatchResult) {
+        guard initialized, result.converged, result.score > 0 else { return }
+
+        let mPerDegLat = 111320.0
+        let mPerDegLon = 111320.0 * cos(x[0] * .pi / 180.0)
+
+        // ARKit world convention: +X east, +Y up, -Z north
+        let northMeters = Double(-result.translationMeters.z)
+        let eastMeters  = Double(result.translationMeters.x)
+
+        let deltaLat = northMeters / mPerDegLat
+        let deltaLon = eastMeters / mPerDegLon
+
+        // Innovation: how much the scan match says we're offset from current EKF estimate
+        let y = [deltaLat, deltaLon]
+
+        // Measurement noise R: inversely scaled by match score.
+        // score=1.0 → R ≈ 5m²; score=0.4 → R ≈ 125m² (much less trusted than GPS)
+        let rBase = 5.0
+        let rScale = Double(max(0.04, result.score * result.score))
+        let rLat = pow(rBase / rScale / mPerDegLat, 2)
+        let rLon = pow(rBase / rScale / mPerDegLon, 2)
+
+        // 2-measurement EKF update: H selects [lat, lon] = rows 0 and 1 of identity
+        // S = P[0..1][0..1] + diag(R)
+        let s00 = P[0 * 7 + 0] + rLat
+        let s01 = P[0 * 7 + 1]
+        let s10 = P[1 * 7 + 0]
+        let s11 = P[1 * 7 + 1] + rLon
+
+        let det = s00 * s11 - s01 * s10
+        guard abs(det) > 1e-20 else { return }
+
+        // S^-1 (2x2)
+        let si00 =  s11 / det
+        let si01 = -s01 / det
+        let si10 = -s10 / det
+        let si11 =  s00 / det
+
+        // K = P * H' * S^-1  (7x2)
+        // P*H' = columns 0 and 1 of P  → K[i][j] = P[i*7+0]*Si0j + P[i*7+1]*Si1j
+        var K = [Double](repeating: 0, count: 14)  // 7x2
+        for i in 0..<7 {
+            K[i * 2 + 0] = P[i * 7 + 0] * si00 + P[i * 7 + 1] * si10
+            K[i * 2 + 1] = P[i * 7 + 0] * si01 + P[i * 7 + 1] * si11
+        }
+
+        // State update: x += K * y
+        for i in 0..<7 {
+            x[i] += K[i * 2 + 0] * y[0] + K[i * 2 + 1] * y[1]
+        }
+
+        // Covariance update: P = (I - K*H) * P
+        var IKH = [Double](repeating: 0, count: 49)
+        for i in 0..<7 { IKH[i * 7 + i] = 1.0 }
+        for i in 0..<7 {
+            IKH[i * 7 + 0] -= K[i * 2 + 0]
+            IKH[i * 7 + 1] -= K[i * 2 + 1]
+        }
+        P = matMul7(IKH, P)
+
+        x[6] = atan2(sin(x[6]), cos(x[6]))
+        updatePublishedState()
+    }
+
     // MARK: - Trail Recording
 
     private func recordTrailPoint() {

@@ -411,6 +411,9 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
     // LingBot-Map streaming 3D state (TSDF + GCA keyframes)
     private(set) var lingBotEngine: (any LingBotMapEngine)?
 
+    // ICP scan matcher — produces BreadcrumbEngine corrections when GPS degrades
+    private let scanMatcher = ScanMatcher()
+
     // Location
     private var locationManager: CLLocationManager?
     private var currentLocation: CLLocationCoordinate2D?
@@ -511,6 +514,9 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         // Reset coverage grid
         coverageGrid = Array(repeating: Array(repeating: 0, count: 8), count: 8)
         maxCellDensity = 1.0
+
+        // Reset scan matcher reference map for new scan
+        scanMatcher.reset()
     }
 
     func startScan(config: LiDARScanConfig) {
@@ -1987,6 +1993,25 @@ extension LiDARCaptureEngine: ARSessionDelegate {
                             intrinsics: capturedIntrinsics,
                             timestamp: capturedTimestamp
                         )
+                    }
+                }
+
+                // ICP scan matching — injects position corrections into BreadcrumbEngine
+                // when GPS degrades (activates at >30m accuracy, matches DR fallback threshold).
+                // Runs every 10 frames (~3 Hz at 30 fps) to avoid blocking the frame pipeline.
+                let capturedFrameCount = await MainActor.run { self.frameCount }
+                if capturedFrameCount % 10 == 0 {
+                    let gpsAccuracy = await MainActor.run { BreadcrumbEngine.shared.lastGPSAccuracy }
+                    let matcher = self.scanMatcher
+                    Task.detached(priority: .utility) {
+                        if let correction = matcher.match(
+                            incoming: newPointsFinal,
+                            gpsAccuracy: gpsAccuracy
+                        ) {
+                            await MainActor.run {
+                                BreadcrumbEngine.shared.injectScanMatchCorrection(correction)
+                            }
+                        }
                     }
                 }
 

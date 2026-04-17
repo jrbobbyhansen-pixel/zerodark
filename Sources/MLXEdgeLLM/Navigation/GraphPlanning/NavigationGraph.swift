@@ -52,6 +52,60 @@ public class NavigationGraph: NSObject, ObservableObject {
         edges.values.filter { $0.toID == nodeID }
     }
 
+    // MARK: - Dijkstra Path Finding
+
+    /// Find the lowest-cost path from `fromID` to `toID` using Dijkstra's algorithm.
+    /// Edge weight represents cost (distance in meters or travel time).
+    /// - Returns: Ordered array of nodes from source to destination, or `nil` if no path exists.
+    public func findPath(from fromID: UUID, to toID: UUID) -> [GraphNode]? {
+        guard nodes[fromID] != nil, nodes[toID] != nil else { return nil }
+        if fromID == toID { return nodes[fromID].map { [$0] } }
+
+        // Priority queue entry: (cost, nodeID)
+        var dist: [UUID: Double] = [fromID: 0]
+        var prev: [UUID: UUID] = [:]
+        // Simple min-heap via sorted array (graph is small — hundreds of nodes max)
+        var queue: [(cost: Double, id: UUID)] = [(0, fromID)]
+
+        while !queue.isEmpty {
+            // Pop minimum-cost entry
+            queue.sort { $0.cost < $1.cost }
+            let (currentCost, currentID) = queue.removeFirst()
+
+            if currentID == toID { break }
+
+            // Skip stale queue entries
+            if currentCost > (dist[currentID] ?? .infinity) { continue }
+
+            for edge in outgoingEdges(from: currentID) {
+                // Skip restricted edges
+                if edge.edgeType == .restricted { continue }
+
+                let newCost = currentCost + edge.weight
+                if newCost < (dist[edge.toID] ?? .infinity) {
+                    dist[edge.toID] = newCost
+                    prev[edge.toID] = currentID
+                    queue.append((newCost, edge.toID))
+                }
+            }
+        }
+
+        // Reconstruct path by walking prev[] backwards
+        guard dist[toID] != nil else { return nil }
+
+        var path: [GraphNode] = []
+        var current: UUID? = toID
+        while let nodeID = current {
+            guard let node = nodes[nodeID] else { break }
+            path.insert(node, at: 0)
+            current = prev[nodeID]
+        }
+
+        // Validate path starts from source
+        guard path.first?.id == fromID else { return nil }
+        return path
+    }
+
     /// Persist to file
     private func saveGraph() {
         let data = GraphData(nodes: Array(nodes.values), edges: Array(edges.values))

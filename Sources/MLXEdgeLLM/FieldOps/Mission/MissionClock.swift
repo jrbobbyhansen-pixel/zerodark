@@ -5,6 +5,8 @@ import AVFoundation
 // MARK: - MissionClock
 
 class MissionClock: ObservableObject {
+    static let shared = MissionClock()
+
     @Published var currentTime: Date = Date()
     @Published var missionStartDate: Date?
     @Published var missionEndDate: Date?

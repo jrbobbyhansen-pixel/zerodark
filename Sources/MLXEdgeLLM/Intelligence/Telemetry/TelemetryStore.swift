@@ -3,6 +3,7 @@
 import Foundation
 import Combine
 import UIKit
+import CoreLocation
 
 /// Battery telemetry adapter
 class BatteryTelemetryAdapter: BaseTelemetryAdapter {
@@ -41,14 +42,15 @@ public class TelemetryStore: NSObject, ObservableObject {
 
     /// Register default adapters
     private func registerDefaultAdapters() {
-        // Telemetry system starts with position, battery, mesh, team, weather, threat types
-        // Adapters are registered on-demand by their objects
-        let batteryAdapter = BatteryTelemetryAdapter(objectType: .battery)
-        registerAdapter(batteryAdapter)
+        registerAdapter(BatteryTelemetryAdapter(objectType: .battery))
+        registerAdapter(MeshTelemetryAdapter(objectType: .mesh))
+        registerAdapter(LocationTelemetryAdapter(objectType: .position))
+        registerAdapter(TeamTelemetryAdapter(objectType: .team))
+        registerAdapter(ThreatTelemetryAdapter(objectType: .threat))
 
-        // Create objects for all types and subscribe
+        // Create objects for all types
         for type in TelemetryObjectType.allCases {
-            var obj = TelemetryObject(type: type)
+            let obj = TelemetryObject(type: type)
             objects.append(obj)
         }
 

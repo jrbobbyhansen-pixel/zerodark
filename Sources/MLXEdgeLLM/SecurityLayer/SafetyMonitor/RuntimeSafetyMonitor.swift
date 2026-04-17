@@ -98,29 +98,27 @@ public class RuntimeSafetyMonitor: ObservableObject {
     private func evaluateProperty(_ property: SafetyProperty) async -> Bool {
         switch property {
         case .teamMemberReachable:
-            // return HapticComms.shared.connectedPeers.count > 0
-            return true  // Placeholder
+            return MeshService.shared.peers.contains { $0.status != .offline }
 
         case .meshNetworkHealthy:
-            // Integration with MeshAnomalyDetector
-            if let detector = NSClassFromString("MLXEdgeLLM.MeshAnomalyDetector") as? AnyObject {
-                // Safe runtime check if MeshAnomalyDetector exists
-                return true  // Placeholder
+            // No active anomaly alerts = healthy
+            let criticalAlerts = MeshAnomalyDetector.shared.alerts.filter {
+                $0.severity == .high || $0.severity == .critical
             }
-            return true
+            return criticalAlerts.isEmpty
 
         case .positionKnown:
-            // let age = Date().timeIntervalSince(LocationManager.shared.lastFix)
-            // return age < positionAgeThreshold
-            return true  // Placeholder
+            return LocationManager.shared.currentLocation != nil
 
         case .withinGeofence:
-            return true  // Placeholder
+            guard let coord = LocationManager.shared.currentLocation else { return true }
+            let codable = CodableCoordinate(latitude: coord.latitude, longitude: coord.longitude)
+            return GeofenceManager.shared.status(for: codable) == .safe
 
         case .batteryAboveThreshold:
             UIDevice.current.isBatteryMonitoringEnabled = true
             let level = UIDevice.current.batteryLevel
-            return level < 0 || level > batteryThreshold  // -1 means unknown
+            return level < 0 || level > batteryThreshold  // -1 means unknown/charging
 
         case .storageAvailable:
             if let attrs = try? FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory()),
@@ -130,14 +128,18 @@ public class RuntimeSafetyMonitor: ObservableObject {
             return true
 
         case .modelLoaded:
-            // return LocalInferenceEngine.shared.modelState == .ready
-            return true  // Placeholder
+            return LocalInferenceEngine.shared.modelState == .ready
 
         case .checkInOnSchedule:
-            return true  // Placeholder
+            return CheckInSystem.shared.overdueCheckIns.isEmpty
 
         case .missionTimeRemaining:
-            return true  // Placeholder
+            guard let start = MissionClock.shared.missionStartDate,
+                  let end = MissionClock.shared.missionEndDate else { return true }
+            let total = end.timeIntervalSince(start)
+            guard total > 0 else { return true }
+            let elapsed = Date().timeIntervalSince(start)
+            return elapsed < total * 0.80  // violation when <20% of mission time remains
         }
     }
 
