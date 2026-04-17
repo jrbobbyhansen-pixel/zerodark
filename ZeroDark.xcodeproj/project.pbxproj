@@ -379,6 +379,7 @@
 		F785EBEF2E761D28AC5160CA /* EnvironmentMonitorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A2D9DAA4AB215185F2343B /* EnvironmentMonitorView.swift */; };
 		F8BDD62D1AB3A8B46DBA563B /* NavTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FBD2E0826D1156CA169A4D9 /* NavTabView.swift */; };
 		F8D3E8B79C9C4A62C30A2A1F /* SitrepGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E97FD841E49082CBCE4879 /* SitrepGenerator.swift */; };
+		F8DE2235277E64DE3CB6BF69 /* ResourceTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FF028F11809EAA9B83B58A /* ResourceTracker.swift */; };
 		F997A265345451FBF1636A53 /* WaypointOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3926D03700876E844860380 /* WaypointOverlay.swift */; };
 		FBB312D42BA2928D8ADEAB4E /* 72-react-indirect-fire.md in Resources */ = {isa = PBXBuildFile; fileRef = E05AA16FEBB045D2CC3E6E30 /* 72-react-indirect-fire.md */; };
 		FDAC1D26A526D50F420FEC12 /* 115-zerodark-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = CC04AB64E17287DD1413B0FC /* 115-zerodark-operations.md */; };
@@ -2997,6 +2998,7 @@
 				4F630591518DA9A5EF259DE5 /* SearchPattern.swift in Sources */,
 				D3D8B6DE756FD1DED08FE60E /* TaskAssignment.swift in Sources */,
 				D18313A9511E00CCE76FAC48 /* IncidentLog.swift in Sources */,
+				F8DE2235277E64DE3CB6BF69 /* ResourceTracker.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

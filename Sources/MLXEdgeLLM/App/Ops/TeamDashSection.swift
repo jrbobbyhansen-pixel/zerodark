@@ -99,6 +99,17 @@ struct TeamDashSection: View {
                     )
                 }
 
+                NavigationLink {
+                    ResourceTrackerView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "bag.fill",
+                        title: "Resource Tracker",
+                        subtitle: "Water, food, batteries, medical, ammo — consumption log & resupply planner",
+                        color: .green
+                    )
+                }
+
                 // Safety Monitor
                 safetyMonitorCard
             }
