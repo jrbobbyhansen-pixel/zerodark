@@ -17,6 +17,7 @@
 		06DB76F8B043889BD9113C1F /* DTMFLoggerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC6A8BBA08D4DFEB1064D5FC /* DTMFLoggerView.swift */; };
 		089DC9008D6C0B6F30477049 /* 21-surveillance-detection.md in Resources */ = {isa = PBXBuildFile; fileRef = E84A9C29450568EE7975F94D /* 21-surveillance-detection.md */; };
 		0B3C03F225FA9DB062026516 /* 52-stealth-movement.md in Resources */ = {isa = PBXBuildFile; fileRef = 9968020680F705ECA9D1DE43 /* 52-stealth-movement.md */; };
+		0B910D736FE7C1BE70C59B9D /* AarBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3508CFB369BD5BF7AD59A5F0 /* AarBuilder.swift */; };
 		0CAC99E70DF356124865F5E1 /* 111-power-management.md in Resources */ = {isa = PBXBuildFile; fileRef = 509ADEEC842C5B2A3BCD7872 /* 111-power-management.md */; };
 		0DBF5913CF4137E39354A214 /* ShiftScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88DCC09381F6B460C18BB2C7 /* ShiftScheduler.swift */; };
 		0F93543927968F66D62308D5 /* 74-counter-drone.md in Resources */ = {isa = PBXBuildFile; fileRef = FE6748FDE4E63095BE652A0B /* 74-counter-drone.md */; };
@@ -583,6 +584,7 @@
 		345C60D593D3F962F50B4192 /* TerrainSlopeAnalyzer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TerrainSlopeAnalyzer.swift; path = Sources/MLXEdgeLLM/Navigation/TerrainSlopeAnalyzer.swift; sourceTree = "<group>"; };
 		34747187204B8E27AE46AFD7 /* LineOfSightAnalyzerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LineOfSightAnalyzerView.swift; path = Sources/MLXEdgeLLM/Navigation/LineOfSightAnalyzerView.swift; sourceTree = "<group>"; };
 		35018562D3833E580F4878F3 /* HydrationCalc.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HydrationCalc.swift; path = Sources/MLXEdgeLLM/Services/HydrationCalc.swift; sourceTree = "<group>"; };
+		3508CFB369BD5BF7AD59A5F0 /* AarBuilder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AarBuilder.swift; path = Sources/MLXEdgeLLM/Coordination/AarBuilder.swift; sourceTree = "<group>"; };
 		35111BFD9320488FB6DA1210 /* 12-tarp-improvised.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "12-tarp-improvised.md"; sourceTree = "<group>"; };
 		35468663C499521D88FCBBE4 /* EvidenceCollector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EvidenceCollector.swift; path = Sources/MLXEdgeLLM/Security/Incident/EvidenceCollector.swift; sourceTree = "<group>"; };
 		35A8FC4924F81BC9825ACB7B /* AppNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNavigation.swift; sourceTree = "<group>"; };
@@ -739,6 +741,7 @@
 		6C8D05C178E0E89C34AB2B68 /* 14-fractures.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "14-fractures.md"; sourceTree = "<group>"; };
 		6E054367161C876318A82B69 /* CommsAudit.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CommsAudit.swift; path = Sources/MLXEdgeLLM/Security/Comms/CommsAudit.swift; sourceTree = "<group>"; };
 		6E4AF54B3F4C9E3C0A7171AC /* SearchUrgency.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SearchUrgency.swift; path = Sources/MLXEdgeLLM/Scenarios/Wilderness/SearchUrgency.swift; sourceTree = "<group>"; };
+		6E51C7B1F5B94C1E33C16ED7 /* AarBuilder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AarBuilder.swift; sourceTree = "<group>"; };
 		6EA63AEDE537027A7CA173B5 /* 13-urban-improvised.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "13-urban-improvised.md"; sourceTree = "<group>"; };
 		6F8174AD4A628B987D1EDA5A /* TranscriptionManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TranscriptionManager.swift; path = Sources/MLXEdgeLLM/Tier1/Features/Transcription/TranscriptionManager.swift; sourceTree = "<group>"; };
 		700801AFB526EEF80979CA1E /* VideoLibrary.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VideoLibrary.swift; path = Sources/MLXEdgeLLM/Training/Knowledge/VideoLibrary.swift; sourceTree = "<group>"; };
@@ -1032,6 +1035,7 @@
 		CDECDA06F8FB7D9B9BBC7CB9 /* VolumeMeasure.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VolumeMeasure.swift; path = Sources/MLXEdgeLLM/LiDAR/Measure/VolumeMeasure.swift; sourceTree = "<group>"; };
 		CDF3BA1A5729E2D051A3D96D /* RetardantTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RetardantTracker.swift; path = Sources/MLXEdgeLLM/Scenarios/Wildfire/RetardantTracker.swift; sourceTree = "<group>"; };
 		CE32BDF3B19C8996C8B9FBAE /* MissionLog.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MissionLog.swift; path = Sources/MLXEdgeLLM/FieldOps/Mission/MissionLog.swift; sourceTree = "<group>"; };
+		CE8BEBA20A96C64EA89A6FF4 /* AarBuilder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AarBuilder.swift; sourceTree = "<group>"; };
 		CE966864E62F069EFF8E0A7A /* TacticalReports.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalReports.swift; sourceTree = "<group>"; };
 		CEB36B1B49B4A7890825E43F /* CommsLog.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CommsLog.swift; path = Sources/MLXEdgeLLM/CommunicationCore/CommsLog.swift; sourceTree = "<group>"; };
 		CF12053B5155705916890655 /* RadioProgramming.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RadioProgramming.swift; path = Sources/MLXEdgeLLM/Hardware/Radio/RadioProgramming.swift; sourceTree = "<group>"; };
@@ -1425,6 +1429,7 @@
 			isa = PBXGroup;
 			children = (
 				210B51EA24FAF43C9EEE3F70 /* AI */,
+				6E51C7B1F5B94C1E33C16ED7 /* AarBuilder.swift */,
 			);
 			name = MLXEdgeLLM;
 			sourceTree = "<group>";
@@ -2211,6 +2216,8 @@
 				CF66DAEF8C784386B842DBAD /* ScanMatcher.swift */,
 				34747187204B8E27AE46AFD7 /* LineOfSightAnalyzerView.swift */,
 				C6199DC8C9263F93324D82FF /* WaterCrossingAnalyzer.swift */,
+				CE8BEBA20A96C64EA89A6FF4 /* AarBuilder.swift */,
+				3508CFB369BD5BF7AD59A5F0 /* AarBuilder.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -2999,6 +3006,7 @@
 				D18313A9511E00CCE76FAC48 /* IncidentLog.swift in Sources */,
 				F8DE2235277E64DE3CB6BF69 /* ResourceTracker.swift in Sources */,
 				0DBF5913CF4137E39354A214 /* ShiftScheduler.swift in Sources */,
+				0B910D736FE7C1BE70C59B9D /* AarBuilder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

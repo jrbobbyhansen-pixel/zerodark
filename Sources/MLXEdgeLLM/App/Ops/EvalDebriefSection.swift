@@ -33,12 +33,12 @@ struct EvalDebriefSection: View {
                 OpsSectionHeader(icon: "bubble.left.and.bubble.right.fill", title: "DEBRIEF & SKILLS", color: ZDDesign.forestGreen)
 
                 NavigationLink {
-                    ComingSoonView(title: "Debrief Manager", icon: "text.bubble.fill", description: "Session scheduling, attendance tracking & documentation")
+                    AARBuilderView()
                 } label: {
                     OpsSectionCard(
-                        icon: "text.bubble.fill",
-                        title: "Debrief Manager",
-                        subtitle: "Session scheduling, attendance tracking & documentation",
+                        icon: "doc.text.magnifyingglass",
+                        title: "After Action Reports",
+                        subtitle: "Generate AAR from mission data; timeline, decisions, outcomes, lessons. Export PDF/Markdown.",
                         color: ZDDesign.forestGreen
                     )
                 }
