@@ -17,6 +17,7 @@ struct OpsCommsStrip: View {
     @State private var showHapticPicker = false
     @State private var showMessageQueue = false
     @State private var showChannelManager = false
+    @State private var showTopology = false
     @State private var messageText = ""
 
     var body: some View {
@@ -44,6 +45,9 @@ struct OpsCommsStrip: View {
         }
         .sheet(isPresented: $showChannelManager) {
             ChannelManagerView()
+        }
+        .sheet(isPresented: $showTopology) {
+            MeshVisualizerView()
         }
     }
 
@@ -233,6 +237,12 @@ struct OpsCommsStrip: View {
                 Text("CHANNEL")
                     .font(.system(size: 9, weight: .bold)).foregroundColor(.secondary)
                 Spacer()
+                Button {
+                    showTopology = true
+                } label: {
+                    Image(systemName: "point.3.connected.trianglepath.dotted")
+                        .font(.caption2).foregroundColor(ZDDesign.cyanAccent)
+                }
                 Button {
                     showChannelManager = true
                 } label: {

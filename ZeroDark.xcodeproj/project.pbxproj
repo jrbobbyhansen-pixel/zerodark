@@ -97,6 +97,7 @@
 		35963624669DD0463FA1C53F /* phi-3.5-mini.gguf in Resources */ = {isa = PBXBuildFile; fileRef = CA013B26E79517D6B5774A23 /* phi-3.5-mini.gguf */; };
 		364D05E829165C3C3485BC9C /* 15-hunting-trapping.md in Resources */ = {isa = PBXBuildFile; fileRef = 93313E241868535829F051E7 /* 15-hunting-trapping.md */; };
 		3681352145784C1AA14EBBED /* MeshAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69D8F07ADF3FEC5906E95EE9 /* MeshAdapter.swift */; };
+		37BE4BC4DAB79FDA2D834C04 /* MeshVisualizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04DD4801FE3530A7AEA705DE /* MeshVisualizer.swift */; };
 		382F87ADE6286CDA952B8D62 /* 70-humint-collection.md in Resources */ = {isa = PBXBuildFile; fileRef = 8977B7EC07F6A0A155F68C2B /* 70-humint-collection.md */; };
 		3883AE1864F84355848A717B /* TerrainEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B4F6FF69CD0F5EF277126CB /* TerrainEngine.swift */; };
 		39A26B4FDD9FCA635FC5A5ED /* BurnCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5CA75C591A61A0D411B7AE5 /* BurnCalculator.swift */; };
@@ -406,6 +407,7 @@
 		04857ADF4C39F38393D8E3E0 /* TelemetryObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryObject.swift; sourceTree = "<group>"; };
 		04B6CF9FAD455F12F573F0C6 /* TriageSystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TriageSystem.swift; path = Sources/MLXEdgeLLM/Medical/TriageSystem.swift; sourceTree = "<group>"; };
 		04B8D55E8C220EB541470FC2 /* RadiationMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RadiationMonitor.swift; path = Sources/MLXEdgeLLM/Hardware/Sensors/RadiationMonitor.swift; sourceTree = "<group>"; };
+		04DD4801FE3530A7AEA705DE /* MeshVisualizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MeshVisualizer.swift; path = Sources/MLXEdgeLLM/CommunicationCore/MeshVisualizer.swift; sourceTree = "<group>"; };
 		050298E122600367BE9B28E9 /* OnDeviceVisionEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnDeviceVisionEngine.swift; sourceTree = "<group>"; };
 		05D54BEF52F8D1CBB8924BAA /* TeamChallenge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TeamChallenge.swift; path = Sources/MLXEdgeLLM/Training/Team/TeamChallenge.swift; sourceTree = "<group>"; };
 		05F05E1E2708A08D84A8F24B /* SearchPattern.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPattern.swift; sourceTree = "<group>"; };
@@ -2224,6 +2226,7 @@
 				3508CFB369BD5BF7AD59A5F0 /* AarBuilder.swift */,
 				8086FDF41817A64352CB47F9 /* MessageQueue.swift */,
 				B971A47BE0225EBD22D8C405 /* ChannelManager.swift */,
+				04DD4801FE3530A7AEA705DE /* MeshVisualizer.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3015,6 +3018,7 @@
 				0B910D736FE7C1BE70C59B9D /* AarBuilder.swift in Sources */,
 				C827C93B3097FAF0A5E7D1AF /* MessageQueue.swift in Sources */,
 				746A30EB7668008DBC6F1DFE /* ChannelManager.swift in Sources */,
+				37BE4BC4DAB79FDA2D834C04 /* MeshVisualizer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
