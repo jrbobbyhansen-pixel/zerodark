@@ -215,6 +215,7 @@
 		76E4BDAA4AE2590DF9309691 /* 01-water-procurement.md in Resources */ = {isa = PBXBuildFile; fileRef = DB5904D986F830D22E8C21FE /* 01-water-procurement.md */; };
 		7755D14CE203CA5D0D5B5C31 /* CameraAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B772199593D9D025F163EEC /* CameraAnnotationView.swift */; };
 		79798C1D238DE658EB833B4A /* 06-site-selection.md in Resources */ = {isa = PBXBuildFile; fileRef = 828F9C984A75CCCD14AD5792 /* 06-site-selection.md */; };
+		79B16B2EC0CD721E22112744 /* LandingZoneMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30EEACA385366B2B66D84A45 /* LandingZoneMarker.swift */; };
 		7BB7CDAA836885F502CA23DF /* LoRaComms.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC297F512BC30B9AA5F8FD91 /* LoRaComms.swift */; };
 		7C4089BEDFE8E7CE65EB8AC2 /* OfflineTileMapLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93915969B4879688745BFF2E /* OfflineTileMapLayer.swift */; };
 		7CE0C3A0773E95F47EA017F5 /* 91-desert-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = 4A50CEFA04EB2914EFFA9A1B /* 91-desert-operations.md */; };
@@ -606,6 +607,7 @@
 		2F75408C95C2E6F01594D35D /* 17-heat-injury.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "17-heat-injury.md"; sourceTree = "<group>"; };
 		2FA4D5224172FF3A14A3293F /* 37-medevac-9line.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "37-medevac-9line.md"; sourceTree = "<group>"; };
 		307882E945AD3B1DDBE6D853 /* WindEstimator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WindEstimator.swift; path = Sources/MLXEdgeLLM/Services/WindEstimator.swift; sourceTree = "<group>"; };
+		30EEACA385366B2B66D84A45 /* LandingZoneMarker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LandingZoneMarker.swift; path = Sources/MLXEdgeLLM/Navigation/LandingZoneMarker.swift; sourceTree = "<group>"; };
 		30F1F16779B61BD07A6E1765 /* ScanGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanGalleryView.swift; sourceTree = "<group>"; };
 		30F503DD4609E1E45331712D /* 09-site-selection.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "09-site-selection.md"; sourceTree = "<group>"; };
 		312374E5BCDED643D22B136D /* TacticalHapticOverlay.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TacticalHapticOverlay.swift; path = Sources/MLXEdgeLLM/UI/Feedback/TacticalHapticOverlay.swift; sourceTree = "<group>"; };
@@ -2315,6 +2317,7 @@
 				E2330231710D85A21869E586 /* ClimbRouteFinder.swift */,
 				B1ACCC66EA474185CDEC8CF7 /* DriftCalculator.swift */,
 				A4ED8F1EBC46FCED0AA05FB3 /* RoadTrailDetector.swift */,
+				30EEACA385366B2B66D84A45 /* LandingZoneMarker.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3137,6 +3140,7 @@
 				2270D50BAE30CC11200AC27D /* ClimbRouteFinder.swift in Sources */,
 				B383680C53CA1456ACDD40AE /* DriftCalculator.swift in Sources */,
 				F2BA891B986A834CC2C96CC5 /* RoadTrailDetector.swift in Sources */,
+				79B16B2EC0CD721E22112744 /* LandingZoneMarker.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

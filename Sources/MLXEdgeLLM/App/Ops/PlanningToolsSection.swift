@@ -72,6 +72,14 @@ struct PlanningToolsSection: View {
                 )
 
                 PlanningCard(
+                    title: "Drop Zone Marker",
+                    subtitle: "Mark airdrop LZ, parachute drift offset, mesh transmission of coordinates",
+                    icon: "shippingbox.fill",
+                    color: ZDDesign.safetyYellow,
+                    destination: LandingZoneMarkerView()
+                )
+
+                PlanningCard(
                     title: "Drift Calculator",
                     subtitle: "SAR lost person probability distribution — ISRID profiles, terrain barriers",
                     icon: "arrow.triangle.branch",
