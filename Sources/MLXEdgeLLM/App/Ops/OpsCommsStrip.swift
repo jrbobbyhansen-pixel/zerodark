@@ -16,6 +16,7 @@ struct OpsCommsStrip: View {
     @State private var showJoinSheet = false
     @State private var showHapticPicker = false
     @State private var showMessageQueue = false
+    @State private var showChannelManager = false
     @State private var messageText = ""
 
     var body: some View {
@@ -40,6 +41,9 @@ struct OpsCommsStrip: View {
         }
         .sheet(isPresented: $showMessageQueue) {
             MessageQueueView()
+        }
+        .sheet(isPresented: $showChannelManager) {
+            ChannelManagerView()
         }
     }
 
@@ -223,6 +227,20 @@ struct OpsCommsStrip: View {
                     }
                 }
             }
+
+            // Quick Channel Switch
+            HStack {
+                Text("CHANNEL")
+                    .font(.system(size: 9, weight: .bold)).foregroundColor(.secondary)
+                Spacer()
+                Button {
+                    showChannelManager = true
+                } label: {
+                    Image(systemName: "slider.horizontal.3")
+                        .font(.caption2).foregroundColor(ZDDesign.cyanAccent)
+                }
+            }
+            QuickChannelSwitcher()
 
             // DTN Buffer
             HStack {

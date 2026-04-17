@@ -193,6 +193,7 @@
 		7311CDCECAB5BA7465FCC557 /* 114-electronic-warfare-basics.md in Resources */ = {isa = PBXBuildFile; fileRef = 22F1B9554587F6CFD34EB6D8 /* 114-electronic-warfare-basics.md */; };
 		7361FD6B6340453B8C86972B /* MeshAnomalyDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 102AFF747C3ED63691F0F461 /* MeshAnomalyDetector.swift */; };
 		744D9E8CD26305D160978AF8 /* 89-safe-house-setup.md in Resources */ = {isa = PBXBuildFile; fileRef = 2AFAE1521C57272596036842 /* 89-safe-house-setup.md */; };
+		746A30EB7668008DBC6F1DFE /* ChannelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B971A47BE0225EBD22D8C405 /* ChannelManager.swift */; };
 		749A3D0889830C0FC82E4358 /* CheckInSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 258185643E157D24F4EB25E8 /* CheckInSystem.swift */; };
 		7560CC69A9B2E8F1906A45DE /* GroundClassification.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D698356A4335CF069B059E /* GroundClassification.swift */; };
 		7580400C4695A152AB3059BC /* NavState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E49EA4E2F5E1B015F088E72E /* NavState.swift */; };
@@ -957,6 +958,7 @@
 		B900C2504CDE8A403F6EDA65 /* 103-contingency-planning.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "103-contingency-planning.md"; sourceTree = "<group>"; };
 		B91D5868261625BF9818C37F /* AtakPluginBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AtakPluginBridge.swift; path = Sources/MLXEdgeLLM/Interop/TAK/AtakPluginBridge.swift; sourceTree = "<group>"; };
 		B91E7889F25A1B0A83A9D6B9 /* ProtobufHelpers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProtobufHelpers.swift; path = Sources/MLXEdgeLLM/CommunicationCore/MeshNetworking/ProtobufHelpers.swift; sourceTree = "<group>"; };
+		B971A47BE0225EBD22D8C405 /* ChannelManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ChannelManager.swift; path = Sources/MLXEdgeLLM/CommunicationCore/ChannelManager.swift; sourceTree = "<group>"; };
 		B97B52F081DF9C1A5CF43A3E /* DtnBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DtnBundle.swift; path = Sources/MLXEdgeLLM/CommunicationCore/DtnBundle.swift; sourceTree = "<group>"; };
 		BA9692D308790ADA43EF8D2C /* ObjectiveManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ObjectiveManager.swift; path = Sources/MLXEdgeLLM/FieldOps/Mission/ObjectiveManager.swift; sourceTree = "<group>"; };
 		BACC7E74134943D9DFFB2575 /* SituationReport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SituationReport.swift; path = Sources/MLXEdgeLLM/Interop/Emergency/SituationReport.swift; sourceTree = "<group>"; };
@@ -2221,6 +2223,7 @@
 				CE8BEBA20A96C64EA89A6FF4 /* AarBuilder.swift */,
 				3508CFB369BD5BF7AD59A5F0 /* AarBuilder.swift */,
 				8086FDF41817A64352CB47F9 /* MessageQueue.swift */,
+				B971A47BE0225EBD22D8C405 /* ChannelManager.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3011,6 +3014,7 @@
 				0DBF5913CF4137E39354A214 /* ShiftScheduler.swift in Sources */,
 				0B910D736FE7C1BE70C59B9D /* AarBuilder.swift in Sources */,
 				C827C93B3097FAF0A5E7D1AF /* MessageQueue.swift in Sources */,
+				746A30EB7668008DBC6F1DFE /* ChannelManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
