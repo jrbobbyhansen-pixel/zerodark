@@ -72,6 +72,14 @@ struct PlanningToolsSection: View {
                 )
 
                 PlanningCard(
+                    title: "Terrain Classifier",
+                    subtitle: "Classify LiDAR voxels: rock, vegetation, water, snow, sand, mud — traversability scores",
+                    icon: "mountain.2.fill",
+                    color: .brown,
+                    destination: TerrainClassifierView()
+                )
+
+                PlanningCard(
                     title: "Route Optimizer",
                     subtitle: "Multi-objective Pareto routes: distance, elevation, hazard, cover, exposure",
                     icon: "point.topleft.down.to.point.bottomright.curvepath.fill",

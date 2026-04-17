@@ -363,6 +363,7 @@
 		DB25D494682A5B86382108AD /* TacticalMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80078D4C2D966C969BA473AE /* TacticalMapView.swift */; };
 		DE145C59F868B5A44874023E /* RallyPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56649452C79C12CDDB460A0 /* RallyPoint.swift */; };
 		DEA160C018B4DD52C229D9E5 /* 12-tarp-improvised.md in Resources */ = {isa = PBXBuildFile; fileRef = 35111BFD9320488FB6DA1210 /* 12-tarp-improvised.md */; };
+		DF4ED45AEC0A5F79642B0A5F /* TerrainClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4599080C4D5179970BD2F404 /* TerrainClassifier.swift */; };
 		DF82FBE42219A3EBC93D7EA4 /* 16-tccc.md in Resources */ = {isa = PBXBuildFile; fileRef = 15204427AE21956C0F89BA03 /* 16-tccc.md */; };
 		E027443BECD49E91BD0B3F13 /* 24-mgrs-coordinates.md in Resources */ = {isa = PBXBuildFile; fileRef = E70351539D2F9D73FE0ABACB /* 24-mgrs-coordinates.md */; };
 		E06EFCBF6B8819B77BB36DCF /* LiDARIntelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5913382A85FA1392DB2F709 /* LiDARIntelBridge.swift */; };
@@ -665,6 +666,7 @@
 		43E02E2BC5F85724BAFBFA25 /* 08-hunting-trapping.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "08-hunting-trapping.md"; sourceTree = "<group>"; };
 		445B5A1F8C73451866B753AC /* 63-observation-post.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "63-observation-post.md"; sourceTree = "<group>"; };
 		4598E6D0035BCC7D542FD21C /* IncidentLog.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IncidentLog.swift; path = Sources/MLXEdgeLLM/Coordination/IncidentLog.swift; sourceTree = "<group>"; };
+		4599080C4D5179970BD2F404 /* TerrainClassifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TerrainClassifier.swift; path = Sources/MLXEdgeLLM/Navigation/TerrainClassifier.swift; sourceTree = "<group>"; };
 		46976C0E685C8A40F3A3EF7C /* TacticalCorpus.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TacticalCorpus.swift; path = Sources/MLXEdgeLLM/AI/RAG/TacticalCorpus.swift; sourceTree = "<group>"; };
 		46D522BF9E6F1DAC113DE981 /* BatteryManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BatteryManager.swift; path = Sources/MLXEdgeLLM/Logistics/BatteryManager.swift; sourceTree = "<group>"; };
 		483670A4D6550D7CFBB977A4 /* SkillTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SkillTracker.swift; path = Sources/MLXEdgeLLM/Training/Skills/SkillTracker.swift; sourceTree = "<group>"; };
@@ -2294,6 +2296,7 @@
 				4084AFF59F767C576B1D774C /* ModelPerformanceMonitor.swift */,
 				54B8E11DCC999C4F24024965 /* Terrain3dViewer.swift */,
 				14FA8ADE3944340ACE22978C /* RouteOptimizer.swift */,
+				4599080C4D5179970BD2F404 /* TerrainClassifier.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3109,6 +3112,7 @@
 				29FE1FBE5EA59566CEB4C376 /* ModelPerformanceMonitor.swift in Sources */,
 				31FA2C8EAFA9F12AF6BF665F /* Terrain3dViewer.swift in Sources */,
 				9E40D8E5108CB08B22182753 /* RouteOptimizer.swift in Sources */,
+				DF4ED45AEC0A5F79642B0A5F /* TerrainClassifier.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
