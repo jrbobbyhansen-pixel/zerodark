@@ -72,6 +72,14 @@ struct PlanningToolsSection: View {
                 )
 
                 PlanningCard(
+                    title: "Route Optimizer",
+                    subtitle: "Multi-objective Pareto routes: distance, elevation, hazard, cover, exposure",
+                    icon: "point.topleft.down.to.point.bottomright.curvepath.fill",
+                    color: ZDDesign.forestGreen,
+                    destination: RouteOptimizerView()
+                )
+
+                PlanningCard(
                     title: "Distance & Bearing",
                     subtitle: "Distance/bearing between waypoints; reverse bearing; multi-leg routes",
                     icon: "ruler.fill",

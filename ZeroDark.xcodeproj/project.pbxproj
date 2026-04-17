@@ -269,6 +269,7 @@
 		9B159A7F9F1DE4A4191981D2 /* ThreatAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A59CDB63D6BD0BC49875B9B /* ThreatAnalyzer.swift */; };
 		9B80CA96462D402B906FC3AD /* TerrainComparison.swift in Sources */ = {isa = PBXBuildFile; fileRef = E690A8988D7E0E4CF095250B /* TerrainComparison.swift */; };
 		9D1D2BBDD5CCFB1224544E8E /* 71-ied-recognition.md in Resources */ = {isa = PBXBuildFile; fileRef = 8879117C12F98ADE44EF2511 /* 71-ied-recognition.md */; };
+		9E40D8E5108CB08B22182753 /* RouteOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FA8ADE3944340ACE22978C /* RouteOptimizer.swift */; };
 		9ECF4E9A297F3298DB3DBE2A /* StatusBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17353E18924F55A52513EAEC /* StatusBoard.swift */; };
 		9FEAC1EF1AA8321D6E1275A2 /* DecisionLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = E588A2E798291A0B52BD52B0 /* DecisionLogger.swift */; };
 		A2C774C7DBF4D55F841D679F /* 92-jungle-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = A527FBC10C7FCC2F9868E250 /* 92-jungle-operations.md */; };
@@ -495,6 +496,7 @@
 		1446066E813453CD68D40F9B /* DistanceMeasure.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DistanceMeasure.swift; path = Sources/MLXEdgeLLM/LiDAR/Measure/DistanceMeasure.swift; sourceTree = "<group>"; };
 		14613183B3C290A6A53FA619 /* IntelligenceReport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IntelligenceReport.swift; path = Sources/MLXEdgeLLM/FieldOps/Reports/IntelligenceReport.swift; sourceTree = "<group>"; };
 		149856CDEBEBE30FE0D17376 /* MqttClient.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MqttClient.swift; path = Sources/MLXEdgeLLM/Interop/API/MqttClient.swift; sourceTree = "<group>"; };
+		14FA8ADE3944340ACE22978C /* RouteOptimizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RouteOptimizer.swift; path = Sources/MLXEdgeLLM/Navigation/RouteOptimizer.swift; sourceTree = "<group>"; };
 		15204427AE21956C0F89BA03 /* 16-tccc.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "16-tccc.md"; sourceTree = "<group>"; };
 		155305E3CA094234AC49FFFD /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		156C423939DF9309BC57631F /* CommsSimulator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CommsSimulator.swift; path = Sources/MLXEdgeLLM/Training/Scenarios/CommsSimulator.swift; sourceTree = "<group>"; };
@@ -2291,6 +2293,7 @@
 				DCCCC65E98D542C0705F2203 /* TacticalQueryParser.swift */,
 				4084AFF59F767C576B1D774C /* ModelPerformanceMonitor.swift */,
 				54B8E11DCC999C4F24024965 /* Terrain3dViewer.swift */,
+				14FA8ADE3944340ACE22978C /* RouteOptimizer.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3105,6 +3108,7 @@
 				486E9987A4F3643708E14B69 /* TacticalQueryParser.swift in Sources */,
 				29FE1FBE5EA59566CEB4C376 /* ModelPerformanceMonitor.swift in Sources */,
 				31FA2C8EAFA9F12AF6BF665F /* Terrain3dViewer.swift in Sources */,
+				9E40D8E5108CB08B22182753 /* RouteOptimizer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
