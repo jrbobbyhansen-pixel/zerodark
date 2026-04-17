@@ -44,6 +44,17 @@ struct TeamDashSection: View {
                     )
                 }
 
+                NavigationLink {
+                    StatusBoardView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "chart.bar.xaxis",
+                        title: "Status Board",
+                        subtitle: "Live team grid: location, battery, status, overdue overlay",
+                        color: ZDDesign.safetyYellow
+                    )
+                }
+
                 // Safety Monitor
                 safetyMonitorCard
             }

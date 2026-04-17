@@ -249,6 +249,7 @@
 		9A37DA99F78989FD7A8F0169 /* 03-storage-hygiene.md in Resources */ = {isa = PBXBuildFile; fileRef = EAB3F6C805B5B4D24EDEE7D1 /* 03-storage-hygiene.md */; };
 		9B159A7F9F1DE4A4191981D2 /* ThreatAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A59CDB63D6BD0BC49875B9B /* ThreatAnalyzer.swift */; };
 		9D1D2BBDD5CCFB1224544E8E /* 71-ied-recognition.md in Resources */ = {isa = PBXBuildFile; fileRef = 8879117C12F98ADE44EF2511 /* 71-ied-recognition.md */; };
+		9ECF4E9A297F3298DB3DBE2A /* StatusBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17353E18924F55A52513EAEC /* StatusBoard.swift */; };
 		9FEAC1EF1AA8321D6E1275A2 /* DecisionLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = E588A2E798291A0B52BD52B0 /* DecisionLogger.swift */; };
 		A2C774C7DBF4D55F841D679F /* 92-jungle-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = A527FBC10C7FCC2F9868E250 /* 92-jungle-operations.md */; };
 		A2CCB3517FEADB29CE63EB60 /* 25-dead-reckoning.md in Resources */ = {isa = PBXBuildFile; fileRef = 5E5BD09654B4A566ABF0AA36 /* 25-dead-reckoning.md */; };
@@ -2989,6 +2990,7 @@
 				2F2D3183FD130128763505F8 /* SunExposure.swift in Sources */,
 				AD1ACE9AAEE8AFAC85532826 /* TrailDifficulty.swift in Sources */,
 				3E292787B9A2C8F11EDB8C43 /* TeamRoster.swift in Sources */,
+				9ECF4E9A297F3298DB3DBE2A /* StatusBoard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
