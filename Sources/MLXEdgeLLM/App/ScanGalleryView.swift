@@ -133,6 +133,7 @@ struct ScanDetailView: View {
     @State private var showMetadata = false
     @State private var showExporter = false
     @State private var showComparison = false
+    @State private var show3DViewer = false
 
     var body: some View {
         GeometryReader { geo in
@@ -188,6 +189,9 @@ struct ScanDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: 16) {
+                    Button { show3DViewer = true } label: {
+                        Image(systemName: "cube.transparent.fill").foregroundColor(ZDDesign.cyanAccent)
+                    }
                     Button { showExporter = true } label: {
                         Image(systemName: "square.and.arrow.up").foregroundColor(ZDDesign.cyanAccent)
                     }
@@ -206,6 +210,9 @@ struct ScanDetailView: View {
                 .onAppear {
                     TerrainComparisonManager.shared.result = nil
                 }
+        }
+        .sheet(isPresented: $show3DViewer) {
+            Terrain3DViewer(scan: scan)
         }
         .onAppear { scanName = scan.name }
     }

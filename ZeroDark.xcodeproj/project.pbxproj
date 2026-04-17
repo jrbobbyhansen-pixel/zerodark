@@ -93,6 +93,7 @@
 		2FAAEF34EC472393B2B2615E /* TranscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F8174AD4A628B987D1EDA5A /* TranscriptionManager.swift */; };
 		30C0D1C2A6FD51E6574AC88B /* 08-weather-reading.md in Resources */ = {isa = PBXBuildFile; fileRef = C4FF581FCF8F87821196F2B9 /* 08-weather-reading.md */; };
 		3197931A4C7E63E31AF756B4 /* MeshService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 061BAAFF0D99EF8B6B51BDCE /* MeshService.swift */; };
+		31FA2C8EAFA9F12AF6BF665F /* Terrain3dViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B8E11DCC999C4F24024965 /* Terrain3dViewer.swift */; };
 		321294AC9D0BDF998FFCDE48 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		32FC1C3EE2A263565524856B /* MeasurementTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F96FA0F140B9E0C4AF14CF /* MeasurementTypes.swift */; };
 		342DA780974B126D355CA8F9 /* HapticPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F6DF63D6D97C8EFC7C0C60 /* HapticPickerSheet.swift */; };
@@ -705,6 +706,7 @@
 		53462CDFD8F5FF2F795F9ADC /* BatteryMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BatteryMonitor.swift; path = Sources/MLXEdgeLLM/Hardware/Power/BatteryMonitor.swift; sourceTree = "<group>"; };
 		538CD3192DF07D58DBEBB9D3 /* 57-brevity-codes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "57-brevity-codes.md"; sourceTree = "<group>"; };
 		548CDACACA20B7BB86E55251 /* KalmanConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KalmanConfig.swift; path = Sources/MLXEdgeLLM/LiDAR/Fusion/KalmanConfig.swift; sourceTree = "<group>"; };
+		54B8E11DCC999C4F24024965 /* Terrain3dViewer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Terrain3dViewer.swift; path = Sources/MLXEdgeLLM/Navigation/Terrain3dViewer.swift; sourceTree = "<group>"; };
 		54E8C2B4E7925EFBE7F1C706 /* LostPersonProfile.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LostPersonProfile.swift; path = Sources/MLXEdgeLLM/Scenarios/Wilderness/LostPersonProfile.swift; sourceTree = "<group>"; };
 		55184CDD55B2CD7368591B13 /* HybridSearchIndex.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HybridSearchIndex.swift; path = Sources/MLXEdgeLLM/AI/RAG/HybridSearchIndex.swift; sourceTree = "<group>"; };
 		554A951967AFE1CAEE24956C /* GeofenceEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeofenceEditorView.swift; sourceTree = "<group>"; };
@@ -2288,6 +2290,7 @@
 				19CE4A6C3ABFFD17B23735A2 /* PointCloudExporter.swift */,
 				DCCCC65E98D542C0705F2203 /* TacticalQueryParser.swift */,
 				4084AFF59F767C576B1D774C /* ModelPerformanceMonitor.swift */,
+				54B8E11DCC999C4F24024965 /* Terrain3dViewer.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3101,6 +3104,7 @@
 				5405D35EC824CBE9E36E97E5 /* PointCloudExporter.swift in Sources */,
 				486E9987A4F3643708E14B69 /* TacticalQueryParser.swift in Sources */,
 				29FE1FBE5EA59566CEB4C376 /* ModelPerformanceMonitor.swift in Sources */,
+				31FA2C8EAFA9F12AF6BF665F /* Terrain3dViewer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
