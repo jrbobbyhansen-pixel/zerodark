@@ -306,6 +306,7 @@
 		C671D965B7745ECA24FB8531 /* VitalSignsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1683D153AD2AB45CD66DD82 /* VitalSignsLogger.swift */; };
 		C7FEE0ED0B541AF7EDEFB9BA /* RiskAssessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E423C9A3FB60C5638E9D4F8 /* RiskAssessor.swift */; };
 		C82626DF166D402E3B9EC2B1 /* 34-hypothermia-frostbite.md in Resources */ = {isa = PBXBuildFile; fileRef = 07904812A61151F1049A0474 /* 34-hypothermia-frostbite.md */; };
+		C827C93B3097FAF0A5E7D1AF /* MessageQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8086FDF41817A64352CB47F9 /* MessageQueue.swift */; };
 		C8E3E064CCD61D2F6B7E1B98 /* SimsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6ECFF0D3158A5F263BFD2A /* SimsSection.swift */; };
 		C9B17AAF39DA6FD443D8E685 /* OpsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0671CE05939D1E518628428C /* OpsTabView.swift */; };
 		CA151E9861EB1E59092C0535 /* ModelURLs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1914D8E5CA1173A98E8DCC8D /* ModelURLs.swift */; };
@@ -796,6 +797,7 @@
 		80078D4C2D966C969BA473AE /* TacticalMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalMapView.swift; sourceTree = "<group>"; };
 		80107CDDDFB56C37B087CE41 /* TeamAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamAdapter.swift; sourceTree = "<group>"; };
 		804565B5CD136BEE7CD67D42 /* AltitudeTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AltitudeTracker.swift; path = Sources/MLXEdgeLLM/Services/AltitudeTracker.swift; sourceTree = "<group>"; };
+		8086FDF41817A64352CB47F9 /* MessageQueue.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MessageQueue.swift; path = Sources/MLXEdgeLLM/CommunicationCore/MessageQueue.swift; sourceTree = "<group>"; };
 		808EAFCE3083312D83A68271 /* QuickActions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QuickActions.swift; path = Sources/MLXEdgeLLM/UI/Navigation/QuickActions.swift; sourceTree = "<group>"; };
 		80D03744F86E7C2852043ED0 /* MessageQueue.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MessageQueue.swift; path = Sources/MLXEdgeLLM/CommunicationCore/MessageQueue.swift; sourceTree = "<group>"; };
 		80FF995E84AECE23548C8D45 /* TacticalWaypointStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalWaypointStore.swift; sourceTree = "<group>"; };
@@ -2218,6 +2220,7 @@
 				C6199DC8C9263F93324D82FF /* WaterCrossingAnalyzer.swift */,
 				CE8BEBA20A96C64EA89A6FF4 /* AarBuilder.swift */,
 				3508CFB369BD5BF7AD59A5F0 /* AarBuilder.swift */,
+				8086FDF41817A64352CB47F9 /* MessageQueue.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3007,6 +3010,7 @@
 				F8DE2235277E64DE3CB6BF69 /* ResourceTracker.swift in Sources */,
 				0DBF5913CF4137E39354A214 /* ShiftScheduler.swift in Sources */,
 				0B910D736FE7C1BE70C59B9D /* AarBuilder.swift in Sources */,
+				C827C93B3097FAF0A5E7D1AF /* MessageQueue.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

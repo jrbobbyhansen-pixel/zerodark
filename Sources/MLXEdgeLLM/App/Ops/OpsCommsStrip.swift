@@ -15,6 +15,7 @@ struct OpsCommsStrip: View {
     @State private var isExpanded = false
     @State private var showJoinSheet = false
     @State private var showHapticPicker = false
+    @State private var showMessageQueue = false
     @State private var messageText = ""
 
     var body: some View {
@@ -36,6 +37,9 @@ struct OpsCommsStrip: View {
         }
         .sheet(isPresented: $showHapticPicker) {
             HapticPickerSheet()
+        }
+        .sheet(isPresented: $showMessageQueue) {
+            MessageQueueView()
         }
     }
 
@@ -229,6 +233,16 @@ struct OpsCommsStrip: View {
                 Label("\(dtnBuffer.deliveredCount) Delivered", systemImage: "checkmark.circle.fill")
                     .font(.caption)
                     .foregroundColor(ZDDesign.successGreen)
+                Button {
+                    showMessageQueue = true
+                } label: {
+                    Text("Queue")
+                        .font(.caption2.bold())
+                        .foregroundColor(ZDDesign.cyanAccent)
+                        .padding(.horizontal, 8).padding(.vertical, 3)
+                        .background(ZDDesign.cyanAccent.opacity(0.15))
+                        .cornerRadius(6)
+                }
             }
 
             // Recent activity
