@@ -1,242 +1,321 @@
+// SunCalculator.swift — Sunrise/sunset, civil/nautical/astronomical twilight, golden hour
+// Jean Meeus-derived USNO-compatible solar position algorithm. No internet required.
+
 import Foundation
 import CoreLocation
-
-// MARK: - SunCalculator
-
-final class SunCalculator: ObservableObject {
-    @Published private(set) var sunrise: Date?
-    @Published private(set) var sunset: Date?
-    @Published private(set) var civilTwilightBegin: Date?
-    @Published private(set) var civilTwilightEnd: Date?
-    @Published private(set) var nauticalTwilightBegin: Date?
-    @Published private(set) var nauticalTwilightEnd: Date?
-    @Published private(set) var astronomicalTwilightBegin: Date?
-    @Published private(set) var astronomicalTwilightEnd: Date?
-    @Published private(set) var goldenHourBegin: Date?
-    @Published private(set) var goldenHourEnd: Date?
-
-    private let location: CLLocationCoordinate2D
-    private let calendar: Calendar
-
-    init(location: CLLocationCoordinate2D, calendar: Calendar = .current) {
-        self.location = location
-        self.calendar = calendar
-        calculateSunTimes()
-    }
-
-    func updateLocation(_ newLocation: CLLocationCoordinate2D) {
-        location = newLocation
-        calculateSunTimes()
-    }
-
-    func updateDate(_ newDate: Date) {
-        calendar = Calendar(identifier: calendar.identifier)
-        calendar.timeZone = TimeZone(identifier: calendar.timeZone.identifier) ?? calendar.timeZone
-        calendar.date = newDate
-        calculateSunTimes()
-    }
-
-    private func calculateSunTimes() {
-        let components = calendar.dateComponents([.year, .month, .day], from: calendar.date ?? Date())
-        guard let year = components.year, let month = components.month, let day = components.day else { return }
-
-        let sunTimes = SunTimesCalculator.calculate(for: location, date: DateComponents(year: year, month: month, day: day))
-
-        sunrise = sunTimes.sunrise
-        sunset = sunTimes.sunset
-        civilTwilightBegin = sunTimes.civilTwilightBegin
-        civilTwilightEnd = sunTimes.civilTwilightEnd
-        nauticalTwilightBegin = sunTimes.nauticalTwilightBegin
-        nauticalTwilightEnd = sunTimes.nauticalTwilightEnd
-        astronomicalTwilightBegin = sunTimes.astronomicalTwilightBegin
-        astronomicalTwilightEnd = sunTimes.astronomicalTwilightEnd
-        goldenHourBegin = sunTimes.goldenHourBegin
-        goldenHourEnd = sunTimes.goldenHourEnd
-    }
-}
-
-// MARK: - SunTimesCalculator
-
-private struct SunTimesCalculator {
-    static func calculate(for location: CLLocationCoordinate2D, date: DateComponents) -> SunTimes {
-        let sunTimes = SunTimes(location: location, date: date)
-        return sunTimes
-    }
-}
+import SwiftUI
 
 // MARK: - SunTimes
 
-private struct SunTimes {
+struct SunTimes {
+    let date: Date
+    let latitude: Double
+    let longitude: Double
+
     let sunrise: Date?
     let sunset: Date?
-    let civilTwilightBegin: Date?
-    let civilTwilightEnd: Date?
-    let nauticalTwilightBegin: Date?
-    let nauticalTwilightEnd: Date?
-    let astronomicalTwilightBegin: Date?
-    let astronomicalTwilightEnd: Date?
-    let goldenHourBegin: Date?
-    let goldenHourEnd: Date?
+    let solarNoon: Date?
+    let civilDawn: Date?       // -6°
+    let civilDusk: Date?       // -6°
+    let nauticalDawn: Date?    // -12°
+    let nauticalDusk: Date?    // -12°
+    let astronomicalDawn: Date? // -18°
+    let astronomicalDusk: Date? // -18°
+    let goldenHourBegin: Date?  // +6° rising
+    let goldenHourEnd: Date?    // +6° setting
+    let dayLength: TimeInterval?
 
-    init(location: CLLocationCoordinate2D, date: DateComponents) {
-        let calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC") ?? TimeZone.current
-
-        guard let date = calendar.date(from: date) else {
-            self.init(allNil: true)
-            return
-        }
-
-        let sunPosition = SunPosition(location: location, date: date)
-        let sunrise = sunPosition.sunrise
-        let sunset = sunPosition.sunset
-
-        self.sunrise = sunrise
-        self.sunset = sunset
-
-        let civilTwilightBegin = sunPosition.civilTwilightBegin
-        let civilTwilightEnd = sunPosition.civilTwilightEnd
-        let nauticalTwilightBegin = sunPosition.nauticalTwilightBegin
-        let nauticalTwilightEnd = sunPosition.nauticalTwilightEnd
-        let astronomicalTwilightBegin = sunPosition.astronomicalTwilightBegin
-        let astronomicalTwilightEnd = sunPosition.astronomicalTwilightEnd
-
-        self.civilTwilightBegin = civilTwilightBegin
-        self.civilTwilightEnd = civilTwilightEnd
-        self.nauticalTwilightBegin = nauticalTwilightBegin
-        self.nauticalTwilightEnd = nauticalTwilightEnd
-        self.astronomicalTwilightBegin = astronomicalTwilightBegin
-        self.astronomicalTwilightEnd = astronomicalTwilightEnd
-
-        let goldenHourBegin = sunPosition.goldenHourBegin
-        let goldenHourEnd = sunPosition.goldenHourEnd
-
-        self.goldenHourBegin = goldenHourBegin
-        self.goldenHourEnd = goldenHourEnd
-    }
-
-    private init(allNil: Bool) {
-        sunrise = nil
-        sunset = nil
-        civilTwilightBegin = nil
-        civilTwilightEnd = nil
-        nauticalTwilightBegin = nil
-        nauticalTwilightEnd = nil
-        astronomicalTwilightBegin = nil
-        astronomicalTwilightEnd = nil
-        goldenHourBegin = nil
-        goldenHourEnd = nil
-    }
-}
-
-// MARK: - SunPosition
-
-private struct SunPosition {
-    let location: CLLocationCoordinate2D
-    let date: Date
-
-    var sunrise: Date? {
-        return calculateSunEvent(for: .sunrise)
-    }
-
-    var sunset: Date? {
-        return calculateSunEvent(for: .sunset)
-    }
-
-    var civilTwilightBegin: Date? {
-        return calculateSunEvent(for: .civilTwilightBegin)
-    }
-
-    var civilTwilightEnd: Date? {
-        return calculateSunEvent(for: .civilTwilightEnd)
-    }
-
-    var nauticalTwilightBegin: Date? {
-        return calculateSunEvent(for: .nauticalTwilightBegin)
-    }
-
-    var nauticalTwilightEnd: Date? {
-        return calculateSunEvent(for: .nauticalTwilightEnd)
-    }
-
-    var astronomicalTwilightBegin: Date? {
-        return calculateSunEvent(for: .astronomicalTwilightBegin)
-    }
-
-    var astronomicalTwilightEnd: Date? {
-        return calculateSunEvent(for: .astronomicalTwilightEnd)
-    }
-
-    var goldenHourBegin: Date? {
-        return calculateSunEvent(for: .goldenHourBegin)
-    }
-
-    var goldenHourEnd: Date? {
-        return calculateSunEvent(for: .goldenHourEnd)
-    }
-
-    private func calculateSunEvent(for event: SunEvent) -> Date? {
-        let sunCalc = SunCalc(location: location, date: date)
-        return sunCalc.calculate(for: event)
-    }
-}
-
-// MARK: - SunCalc
-
-private struct SunCalc {
-    let location: CLLocationCoordinate2D
-    let date: Date
-
-    func calculate(for event: SunEvent) -> Date? {
-        let julianDate = JulianDate(date: date)
-        let sunPosition = SunPositionCalculator.calculate(for: location, julianDate: julianDate)
-        let eventTime = sunPosition.calculateEventTime(for: event)
-        return eventTime
-    }
-}
-
-// MARK: - SunPositionCalculator
-
-private struct SunPositionCalculator {
-    static func calculate(for location: CLLocationCoordinate2D, julianDate: JulianDate) -> SunPositionData {
-        let sunPositionData = SunPositionData(location: location, julianDate: julianDate)
-        return sunPositionData
-    }
-}
-
-// MARK: - SunPositionData
-
-private struct SunPositionData {
-    let location: CLLocationCoordinate2D
-    let julianDate: JulianDate
-
-    func calculateEventTime(for event: SunEvent) -> Date? {
-        // Placeholder for actual calculation logic
-        return nil
-    }
-}
-
-// MARK: - JulianDate
-
-private struct JulianDate {
-    let date: Date
-
-    init(date: Date) {
+    init(date: Date, latitude: Double, longitude: Double) {
         self.date = date
+        self.latitude = latitude
+        self.longitude = longitude
+        let results = SunCalculatorEngine.calculate(date: date, lat: latitude, lon: longitude)
+        sunrise = results.sunrise
+        sunset = results.sunset
+        solarNoon = results.solarNoon
+        civilDawn = results.civilDawn
+        civilDusk = results.civilDusk
+        nauticalDawn = results.nauticalDawn
+        nauticalDusk = results.nauticalDusk
+        astronomicalDawn = results.astronomicalDawn
+        astronomicalDusk = results.astronomicalDusk
+        goldenHourBegin = results.goldenHourBegin
+        goldenHourEnd = results.goldenHourEnd
+        if let sr = sunrise, let ss = sunset { dayLength = ss.timeIntervalSince(sr) } else { dayLength = nil }
     }
 }
 
-// MARK: - SunEvent
+// MARK: - SunCalculatorEngine
 
-private enum SunEvent {
-    case sunrise
-    case sunset
-    case civilTwilightBegin
-    case civilTwilightEnd
-    case nauticalTwilightBegin
-    case nauticalTwilightEnd
-    case astronomicalTwilightBegin
-    case astronomicalTwilightEnd
-    case goldenHourBegin
-    case goldenHourEnd
+private enum SunCalculatorEngine {
+    struct Results {
+        var sunrise: Date?; var sunset: Date?; var solarNoon: Date?
+        var civilDawn: Date?; var civilDusk: Date?
+        var nauticalDawn: Date?; var nauticalDusk: Date?
+        var astronomicalDawn: Date?; var astronomicalDusk: Date?
+        var goldenHourBegin: Date?; var goldenHourEnd: Date?
+    }
+
+    /// Scan day in 2-minute steps, detect altitude crossings for all events.
+    static func calculate(date: Date, lat: Double, lon: Double) -> Results {
+        let cal = Calendar(identifier: .gregorian)
+        let startOfDay = cal.startOfDay(for: date)
+        var r = Results()
+        var prevAlt = altitude(at: startOfDay, lat: lat, lon: lon)
+        var maxAlt = prevAlt
+        var maxT = startOfDay
+
+        let step: TimeInterval = 60
+        var t = startOfDay.addingTimeInterval(step)
+        while t <= startOfDay.addingTimeInterval(86400) {
+            let alt = altitude(at: t, lat: lat, lon: lon)
+            let prev = prevAlt
+
+            // Solar noon (max altitude)
+            if alt > maxAlt { maxAlt = alt; maxT = t }
+
+            cross(prev, alt, threshold: -0.833, rising: true,  t: t, step: step) { r.sunrise = $0 }
+            cross(prev, alt, threshold: -0.833, rising: false, t: t, step: step) { r.sunset = $0 }
+            cross(prev, alt, threshold: -6.0,   rising: true,  t: t, step: step) { r.civilDawn = $0 }
+            cross(prev, alt, threshold: -6.0,   rising: false, t: t, step: step) { r.civilDusk = $0 }
+            cross(prev, alt, threshold: -12.0,  rising: true,  t: t, step: step) { r.nauticalDawn = $0 }
+            cross(prev, alt, threshold: -12.0,  rising: false, t: t, step: step) { r.nauticalDusk = $0 }
+            cross(prev, alt, threshold: -18.0,  rising: true,  t: t, step: step) { r.astronomicalDawn = $0 }
+            cross(prev, alt, threshold: -18.0,  rising: false, t: t, step: step) { r.astronomicalDusk = $0 }
+            cross(prev, alt, threshold: 6.0,    rising: true,  t: t, step: step) { r.goldenHourBegin = $0 }
+            cross(prev, alt, threshold: 6.0,    rising: false, t: t, step: step) { r.goldenHourEnd = $0 }
+
+            prevAlt = alt
+            t = t.addingTimeInterval(step)
+        }
+        r.solarNoon = maxT
+        return r
+    }
+
+    /// Interpolate crossing time for a threshold.
+    private static func cross(
+        _ prev: Double, _ curr: Double, threshold: Double,
+        rising: Bool, t: Date, step: TimeInterval,
+        assign: (Date) -> Void
+    ) {
+        guard rising ? (prev <= threshold && curr > threshold) : (prev > threshold && curr <= threshold) else { return }
+        let frac = (threshold - prev) / (curr - prev)
+        assign(t.addingTimeInterval((frac - 1) * step))
+    }
+
+    // MARK: - Solar Altitude (USNO simplified Meeus)
+
+    static func altitude(at date: Date, lat: Double, lon: Double) -> Double {
+        let jd = julianDay(date: date)
+        let n = jd - 2451545.0   // days from J2000.0
+
+        // Mean longitude and mean anomaly
+        let L = (280.460 + 0.9856474 * n).truncatingRemainder(dividingBy: 360)
+        let g = (357.528 + 0.9856003 * n).truncatingRemainder(dividingBy: 360)
+        let gR = g * .pi / 180
+
+        // Ecliptic longitude
+        let lambda = L + 1.915 * sin(gR) + 0.020 * sin(2 * gR)
+        let lambdaR = lambda * .pi / 180
+
+        // Obliquity of ecliptic
+        let eps = (23.439 - 0.0000004 * n) * .pi / 180
+
+        // Right ascension and declination
+        var ra = atan2(cos(eps) * sin(lambdaR), cos(lambdaR))
+        if ra < 0 { ra += 2 * .pi }
+        let dec = asin(sin(eps) * sin(lambdaR))
+
+        // Greenwich Sidereal Time → Local Hour Angle
+        let ut = gmst(jd: jd)
+        let ha = ut + lon * .pi / 180 - ra
+
+        // Altitude
+        let latR = lat * .pi / 180
+        let sinAlt = sin(latR) * sin(dec) + cos(latR) * cos(dec) * cos(ha)
+        return asin(max(-1, min(1, sinAlt))) * 180 / .pi
+    }
+
+    private static func julianDay(date: Date) -> Double {
+        date.timeIntervalSince1970 / 86400.0 + 2440587.5
+    }
+
+    private static func gmst(jd: Double) -> Double {
+        let T = (jd - 2451545.0) / 36525.0
+        var θ = 280.46061837 + 360.98564736629 * (jd - 2451545.0) + T * T * (0.000387933 - T / 38710000.0)
+        θ = θ.truncatingRemainder(dividingBy: 360)
+        return θ * .pi / 180
+    }
+}
+
+// MARK: - SunCalculator (ObservableObject)
+
+@MainActor
+final class SunCalculator: ObservableObject {
+    static let shared = SunCalculator()
+
+    @Published private(set) var todayTimes: SunTimes?
+    @Published private(set) var tomorrowTimes: SunTimes?
+
+    private init() {
+        refresh()
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name("ZD.locationUpdate"),
+            object: nil, queue: .main
+        ) { [weak self] _ in Task { @MainActor [weak self] in self?.refresh() } }
+    }
+
+    func refresh() {
+        guard let loc = LocationManager.shared.currentLocation else { return }
+        let now = Date()
+        todayTimes = SunTimes(date: now, latitude: loc.latitude, longitude: loc.longitude)
+        let tomorrow = now.addingTimeInterval(86400)
+        tomorrowTimes = SunTimes(date: tomorrow, latitude: loc.latitude, longitude: loc.longitude)
+    }
+
+    /// Calculate sun times for an arbitrary date + location.
+    func calculate(date: Date, latitude: Double, longitude: Double) -> SunTimes {
+        SunTimes(date: date, latitude: latitude, longitude: longitude)
+    }
+
+    var currentAltitude: Double? {
+        guard let loc = LocationManager.shared.currentLocation else { return nil }
+        return SunCalculatorEngine.altitude(at: Date(), lat: loc.latitude, lon: loc.longitude)
+    }
+}
+
+// MARK: - SunCalculatorView
+
+struct SunCalculatorView: View {
+    @ObservedObject private var calc = SunCalculator.shared
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                ScrollView {
+                    VStack(spacing: 16) {
+                        if let t = calc.todayTimes {
+                            dayCard(title: "TODAY", times: t)
+                        } else {
+                            noLocationCard
+                        }
+                        if let t = calc.tomorrowTimes {
+                            dayCard(title: "TOMORROW", times: t)
+                        }
+                        altCard
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("Sun Calculator")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) { Button("Done") { dismiss() } }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { calc.refresh() } label: {
+                        Image(systemName: "arrow.clockwise").foregroundColor(ZDDesign.cyanAccent)
+                    }
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+
+    private var noLocationCard: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "location.slash").font(.title).foregroundColor(.secondary)
+            Text("Location required").font(.subheadline).foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity).padding(30)
+        .background(ZDDesign.darkCard).cornerRadius(12)
+    }
+
+    private func dayCard(title: String, times: SunTimes) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title).font(.caption.bold()).foregroundColor(.secondary)
+
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                sunRow(icon: "sunrise.fill",  label: "Sunrise",          time: times.sunrise,            color: .orange)
+                sunRow(icon: "sunset.fill",   label: "Sunset",           time: times.sunset,             color: .orange)
+                sunRow(icon: "sun.max.fill",  label: "Solar Noon",       time: times.solarNoon,          color: ZDDesign.safetyYellow)
+                dayLengthRow(seconds: times.dayLength)
+                sunRow(icon: "sun.horizon.fill", label: "Civil Dawn",    time: times.civilDawn,          color: ZDDesign.cyanAccent)
+                sunRow(icon: "sun.horizon.fill", label: "Civil Dusk",    time: times.civilDusk,          color: ZDDesign.cyanAccent)
+                sunRow(icon: "moon.stars.fill",  label: "Naut Dawn",     time: times.nauticalDawn,       color: .indigo)
+                sunRow(icon: "moon.stars.fill",  label: "Naut Dusk",     time: times.nauticalDusk,       color: .indigo)
+                sunRow(icon: "star.fill",        label: "Astro Dawn",    time: times.astronomicalDawn,   color: .purple)
+                sunRow(icon: "star.fill",        label: "Astro Dusk",    time: times.astronomicalDusk,   color: .purple)
+                sunRow(icon: "camera.aperture",  label: "Golden Begin",  time: times.goldenHourBegin,    color: .yellow)
+                sunRow(icon: "camera.aperture",  label: "Golden End",    time: times.goldenHourEnd,      color: .yellow)
+            }
+        }
+        .padding()
+        .background(ZDDesign.darkCard)
+        .cornerRadius(12)
+    }
+
+    private func sunRow(icon: String, label: String, time: Date?, color: Color) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon).foregroundColor(color).font(.caption)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(label).font(.caption2).foregroundColor(.secondary)
+                Text(time.map { $0.formatted(date: .omitted, time: .shortened) } ?? "—")
+                    .font(.caption.bold()).foregroundColor(ZDDesign.pureWhite)
+            }
+            Spacer()
+        }
+        .padding(8)
+        .background(Color.white.opacity(0.04))
+        .cornerRadius(8)
+    }
+
+    private func dayLengthRow(seconds: TimeInterval?) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "clock.fill").foregroundColor(ZDDesign.successGreen).font(.caption)
+            VStack(alignment: .leading, spacing: 1) {
+                Text("Day Length").font(.caption2).foregroundColor(.secondary)
+                if let s = seconds {
+                    let h = Int(s) / 3600, m = (Int(s) % 3600) / 60
+                    Text("\(h)h \(m)m").font(.caption.bold()).foregroundColor(ZDDesign.pureWhite)
+                } else {
+                    Text("—").font(.caption.bold()).foregroundColor(ZDDesign.pureWhite)
+                }
+            }
+            Spacer()
+        }
+        .padding(8)
+        .background(Color.white.opacity(0.04))
+        .cornerRadius(8)
+    }
+
+    private var altCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("CURRENT SUN ALTITUDE").font(.caption.bold()).foregroundColor(.secondary)
+            if let alt = calc.currentAltitude {
+                HStack {
+                    Image(systemName: alt > 0 ? "sun.max.fill" : "moon.fill")
+                        .foregroundColor(alt > 0 ? .yellow : .indigo)
+                    Text(String(format: "%.1f°", alt))
+                        .font(.title3.bold()).foregroundColor(ZDDesign.pureWhite)
+                    Spacer()
+                    Text(altitudeLabel(alt)).font(.caption).foregroundColor(.secondary)
+                }
+            } else {
+                Text("Location unavailable").font(.caption).foregroundColor(.secondary)
+            }
+        }
+        .padding()
+        .background(ZDDesign.darkCard)
+        .cornerRadius(12)
+    }
+
+    private func altitudeLabel(_ alt: Double) -> String {
+        if alt > 0 { return "Daylight" }
+        if alt > -6 { return "Civil twilight" }
+        if alt > -12 { return "Nautical twilight" }
+        if alt > -18 { return "Astronomical twilight" }
+        return "Night"
+    }
 }

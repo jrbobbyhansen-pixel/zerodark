@@ -70,6 +70,33 @@ struct PlanningToolsSection: View {
                     color: .green,
                     destination: RehearsalChecklistView()
                 )
+
+                OpsSectionHeader(icon: "cloud.sun.fill", title: "ENVIRONMENT", color: ZDDesign.safetyYellow)
+                    .padding(.top, 4)
+
+                PlanningCard(
+                    title: "Weather Forecaster",
+                    subtitle: "Barometric pressure trend, 12-24hr prediction, storm warning",
+                    icon: "barometer",
+                    color: ZDDesign.cyanAccent,
+                    destination: WeatherForecasterView()
+                )
+
+                PlanningCard(
+                    title: "Sun Calculator",
+                    subtitle: "Sunrise/sunset, twilight windows, golden hour, solar altitude",
+                    icon: "sun.max.fill",
+                    color: .orange,
+                    destination: SunCalculatorView()
+                )
+
+                PlanningCard(
+                    title: "Moon Phase",
+                    subtitle: "Phase, illumination, moonrise/moonset, shadow angle, night ops",
+                    icon: "moonphase.full.moon",
+                    color: .yellow,
+                    destination: MoonPhaseView()
+                )
             }
             .padding(.horizontal)
             .padding(.top, 8)
