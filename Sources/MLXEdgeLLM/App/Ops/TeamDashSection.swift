@@ -32,6 +32,17 @@ struct TeamDashSection: View {
                     )
                 }
 
+                NavigationLink {
+                    RelayNodeView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "point.3.connected.trianglepath.dotted",
+                        title: "Relay Node",
+                        subtitle: "Dedicated mesh relay with throughput stats, optimization & battery mgmt",
+                        color: MeshRelayManager.shared.isActive ? .orange : ZDDesign.mediumGray
+                    )
+                }
+
                 // Team Management Tools
                 OpsSectionHeader(icon: "person.3.fill", title: "TEAM MANAGEMENT", color: ZDDesign.cyanAccent)
 

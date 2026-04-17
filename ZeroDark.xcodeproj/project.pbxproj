@@ -238,6 +238,7 @@
 		8D4C6320C4452B0DCB22C045 /* 17-heat-injury.md in Resources */ = {isa = PBXBuildFile; fileRef = 2F75408C95C2E6F01594D35D /* 17-heat-injury.md */; };
 		8D93C3EA52812F2AE782BFD8 /* FastLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E592D91A5D7834168B0739C /* FastLibraryView.swift */; };
 		8E3A1E2D3523ED0C5E0F19BE /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		8E8F3F21F077393D9C2982C0 /* RelayNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E3F4159EC1AD41DB6F4965D /* RelayNode.swift */; };
 		8E98A124D5F23ABBF4244D47 /* DTNBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEFF3D9D7A11BAB861C284D /* DTNBuffer.swift */; };
 		8FBC94FDB6EBBC0D4CA2784C /* LineOfSight.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0AC62C18B5D70DEEC1DBF23 /* LineOfSight.swift */; };
 		90E5A3C2AE6D8025F4E99783 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155305E3CA094234AC49FFFD /* LocationManager.swift */; };
@@ -519,6 +520,7 @@
 		1D4989F9580101EAAD1B5E1D /* LightEstimator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LightEstimator.swift; path = Sources/MLXEdgeLLM/Services/LightEstimator.swift; sourceTree = "<group>"; };
 		1DC6C5CD808BF31DEF4A8D91 /* RiskMatrix.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RiskMatrix.swift; path = Sources/MLXEdgeLLM/Planning/RiskMatrix.swift; sourceTree = "<group>"; };
 		1DD0FF4CB7EF29E012CB7B1A /* AARBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AARBundle.swift; path = Sources/MLXEdgeLLM/CommunicationCore/DTN/AARBundle.swift; sourceTree = "<group>"; };
+		1E3F4159EC1AD41DB6F4965D /* RelayNode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RelayNode.swift; path = Sources/MLXEdgeLLM/CommunicationCore/RelayNode.swift; sourceTree = "<group>"; };
 		1E5B4A981AE6F5A5C7A31B92 /* 110-equipment-maintenance.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "110-equipment-maintenance.md"; sourceTree = "<group>"; };
 		1EE2F51C53D77E852269AAA8 /* ToolChainExecutor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ToolChainExecutor.swift; path = Sources/MLXEdgeLLM/AI/Tools/ToolChainExecutor.swift; sourceTree = "<group>"; };
 		1F4BC05DAE63C1C52B6D028A /* GeotiffExporter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GeotiffExporter.swift; path = Sources/MLXEdgeLLM/LiDAR/IO/GeotiffExporter.swift; sourceTree = "<group>"; };
@@ -2236,6 +2238,7 @@
 				A1C6B137F0FBEEB028777676 /* VoiceMemo.swift */,
 				6BA9242F96D1E50368721FE3 /* QuickMessages.swift */,
 				49FA038B2C91BBF69E870476 /* BeaconMode.swift */,
+				1E3F4159EC1AD41DB6F4965D /* RelayNode.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3031,6 +3034,7 @@
 				2A0D956BE8D08CAF1DB8FDFC /* VoiceMemo.swift in Sources */,
 				98309A4F650D3774A03947A8 /* QuickMessages.swift in Sources */,
 				7259F38858E68B4CBA9671A0 /* BeaconMode.swift in Sources */,
+				8E8F3F21F077393D9C2982C0 /* RelayNode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
