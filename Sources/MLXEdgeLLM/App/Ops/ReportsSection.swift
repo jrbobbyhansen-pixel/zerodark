@@ -33,6 +33,17 @@ struct ReportsSection: View {
                     )
                 }
 
+                NavigationLink {
+                    CommsLogView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "text.bubble.fill",
+                        title: "Comms Log",
+                        subtitle: "All sent/received mesh messages — filter, search, export CSV/JSON",
+                        color: ZDDesign.cyanAccent
+                    )
+                }
+
                 OpsSectionHeader(icon: "shield.fill", title: "TACTICAL REPORTS", color: ZDDesign.safetyYellow)
 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {

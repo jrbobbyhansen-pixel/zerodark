@@ -313,6 +313,7 @@
 		C7FEE0ED0B541AF7EDEFB9BA /* RiskAssessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E423C9A3FB60C5638E9D4F8 /* RiskAssessor.swift */; };
 		C82626DF166D402E3B9EC2B1 /* 34-hypothermia-frostbite.md in Resources */ = {isa = PBXBuildFile; fileRef = 07904812A61151F1049A0474 /* 34-hypothermia-frostbite.md */; };
 		C827C93B3097FAF0A5E7D1AF /* MessageQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8086FDF41817A64352CB47F9 /* MessageQueue.swift */; };
+		C8AF531CA88CF4A24E695E81 /* CommsLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC6FC8382E2A43EE63FAD3B2 /* CommsLog.swift */; };
 		C8E3E064CCD61D2F6B7E1B98 /* SimsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6ECFF0D3158A5F263BFD2A /* SimsSection.swift */; };
 		C9B17AAF39DA6FD443D8E685 /* OpsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0671CE05939D1E518628428C /* OpsTabView.swift */; };
 		CA151E9861EB1E59092C0535 /* ModelURLs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1914D8E5CA1173A98E8DCC8D /* ModelURLs.swift */; };
@@ -981,6 +982,7 @@
 		BC297F512BC30B9AA5F8FD91 /* LoRaComms.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoRaComms.swift; sourceTree = "<group>"; };
 		BC2E0A0208246D321EBC9D23 /* TimelineView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimelineView.swift; path = Sources/MLXEdgeLLM/FieldOps/Mission/TimelineView.swift; sourceTree = "<group>"; };
 		BC3F4B9A8B893A4DF211D957 /* CoordinateConverter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CoordinateConverter.swift; path = Sources/MLXEdgeLLM/Interop/GIS/CoordinateConverter.swift; sourceTree = "<group>"; };
+		BC6FC8382E2A43EE63FAD3B2 /* CommsLog.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CommsLog.swift; path = Sources/MLXEdgeLLM/CommunicationCore/CommsLog.swift; sourceTree = "<group>"; };
 		BDDE5C27CFDB8269091DDED9 /* HapticPTTController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HapticPTTController.swift; path = Sources/MLXEdgeLLM/CommunicationCore/Voice/HapticPTTController.swift; sourceTree = "<group>"; };
 		BE157BABAB49B31B21451413 /* MciDashboard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MciDashboard.swift; path = Sources/MLXEdgeLLM/Scenarios/MCI/MciDashboard.swift; sourceTree = "<group>"; };
 		BE20514C3F686800A100E36D /* TelemetryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryStore.swift; sourceTree = "<group>"; };
@@ -2239,6 +2241,7 @@
 				6BA9242F96D1E50368721FE3 /* QuickMessages.swift */,
 				49FA038B2C91BBF69E870476 /* BeaconMode.swift */,
 				1E3F4159EC1AD41DB6F4965D /* RelayNode.swift */,
+				BC6FC8382E2A43EE63FAD3B2 /* CommsLog.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3035,6 +3038,7 @@
 				98309A4F650D3774A03947A8 /* QuickMessages.swift in Sources */,
 				7259F38858E68B4CBA9671A0 /* BeaconMode.swift in Sources */,
 				8E8F3F21F077393D9C2982C0 /* RelayNode.swift in Sources */,
+				C8AF531CA88CF4A24E695E81 /* CommsLog.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
