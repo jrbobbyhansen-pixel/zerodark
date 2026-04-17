@@ -129,7 +129,7 @@ final class TriageSystem: ObservableObject {
 // MARK: - START Triage Flow View
 
 struct StartTriageFlowView: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @ObservedObject var system: TriageSystem
 
     @State private var step: StartTriageStep = .canWalk
@@ -246,7 +246,7 @@ struct StartTriageFlowView: View {
 // MARK: - TriageView
 
 struct TriageView: View {
-    @StateObject private var system = TriageSystem.shared
+    @ObservedObject private var system = TriageSystem.shared
     @State private var showTriageFlow = false
     @State private var showMETHANE = false
     @State private var incidentType = ""
@@ -255,7 +255,7 @@ struct TriageView: View {
     @State private var access = ""
 
     var body: some View {
-        Form { _ in
+        Form {
             // Summary counts
             Section("Casualty Count") {
                 HStack(spacing: 0) {
@@ -331,11 +331,12 @@ struct TriageView: View {
 
 private struct METHANEReportSheet: View {
     @ObservedObject var system: TriageSystem
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @State private var incidentType = ""
     @State private var location = ""
     @State private var hazards = ""
     @State private var access = ""
+    @State private var shareURL: URL?
 
     var body: some View {
         NavigationStack {
@@ -357,11 +358,7 @@ private struct METHANEReportSheet: View {
                         )
                         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("METHANE.txt")
                         try? report.write(to: tempURL, atomically: true, encoding: .utf8)
-                        let av = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
-                        UIApplication.shared.connectedScenes
-                            .compactMap { $0 as? UIWindowScene }
-                            .first?.windows.first?.rootViewController?
-                            .present(av, animated: true)
+                        shareURL = tempURL
                     } label: {
                         Label("Export METHANE Report", systemImage: "square.and.arrow.up")
                             .frame(maxWidth: .infinity)
@@ -376,6 +373,9 @@ private struct METHANEReportSheet: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                 }
+            }
+            .sheet(item: $shareURL) { url in
+                ShareSheet(items: [url])
             }
         }
     }

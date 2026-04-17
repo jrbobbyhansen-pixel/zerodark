@@ -1166,7 +1166,7 @@ struct ProtocolCardView: View {
 // MARK: - Protocol Browser View
 
 struct ProtocolBrowserView: View {
-    @StateObject private var db = ProtocolDatabase.shared
+    @ObservedObject private var db = ProtocolDatabase.shared
     @State private var searchQuery = ""
     @State private var selectedCategory: ProtocolCategory?
     @State private var selectedProtocol: TacticalProtocol?

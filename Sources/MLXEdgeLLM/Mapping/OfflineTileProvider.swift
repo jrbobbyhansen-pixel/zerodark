@@ -69,9 +69,9 @@ final class MBTilesReader {
         guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { return nil }
         defer { sqlite3_finalize(stmt) }
         
-        sqlite3_bind_int(stmt, 1, Int32(coord.z))
-        sqlite3_bind_int(stmt, 2, Int32(coord.x))
-        sqlite3_bind_int(stmt, 3, Int32(coord.tmsY))  // MBTiles uses TMS
+        guard sqlite3_bind_int(stmt, 1, Int32(coord.z)) == SQLITE_OK,
+              sqlite3_bind_int(stmt, 2, Int32(coord.x)) == SQLITE_OK,
+              sqlite3_bind_int(stmt, 3, Int32(coord.tmsY)) == SQLITE_OK else { return nil }  // MBTiles uses TMS
         
         guard sqlite3_step(stmt) == SQLITE_ROW else { return nil }
         
@@ -324,28 +324,41 @@ final class OfflineTileProvider: ObservableObject {
     
     func getTile(z: Int, x: Int, y: Int) -> Data? {
         guard let mapName = currentMap else { return nil }
-        
-        // Check cache
-        let cacheKey = "\(mapName)-\(z)-\(x)-\(y)" as NSString
-        if let cached = tileCache.object(forKey: cacheKey) {
-            return cached as Data
+
+        // Try exact zoom first, then fall back up to 4 parent zoom levels.
+        // This prevents blank tiles when MBTiles lacks the exact zoom level.
+        var searchZ = z
+        var searchX = x
+        var searchY = y
+        let maxFallback = 4
+
+        while searchZ >= max(0, z - maxFallback) {
+            let cacheKey = "\(mapName)-\(searchZ)-\(searchX)-\(searchY)" as NSString
+            if let cached = tileCache.object(forKey: cacheKey) {
+                return cached as Data
+            }
+
+            let coord = TileCoordinate(z: searchZ, x: searchX, y: searchY)
+            var tileData: Data?
+            if let reader = mbtilesReaders[mapName] {
+                tileData = reader.getTile(at: coord)
+            } else if let reader = pmtilesReaders[mapName] {
+                tileData = reader.getTile(at: coord)
+            }
+
+            if let data = tileData {
+                tileCache.setObject(data as NSData, forKey: cacheKey)
+                return data
+            }
+
+            // Step up one zoom level: parent tile covers 4× the area
+            if searchZ == 0 { break }
+            searchZ -= 1
+            searchX >>= 1
+            searchY >>= 1
         }
-        
-        let coord = TileCoordinate(z: z, x: x, y: y)
-        var tileData: Data?
-        
-        if let reader = mbtilesReaders[mapName] {
-            tileData = reader.getTile(at: coord)
-        } else if let reader = pmtilesReaders[mapName] {
-            tileData = reader.getTile(at: coord)
-        }
-        
-        // Cache result
-        if let data = tileData {
-            tileCache.setObject(data as NSData, forKey: cacheKey)
-        }
-        
-        return tileData
+
+        return nil
     }
     
     func selectMap(_ name: String) {

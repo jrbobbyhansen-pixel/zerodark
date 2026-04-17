@@ -68,7 +68,7 @@ struct MedicalSection: View {
                     subtitle: "Swiss staging + wind chill assessment",
                     icon: "thermometer.snowflake",
                     color: .cyan,
-                    destination: HypothermiaCalcView()
+                    destination: ComingSoonView(title: "Hypothermia Calculator", icon: "thermometer.snowflake", description: "Swiss staging and wind chill assessment")
                 )
             }
             .padding(.horizontal)

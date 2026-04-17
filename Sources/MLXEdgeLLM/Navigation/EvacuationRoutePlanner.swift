@@ -231,12 +231,12 @@ final class EvacuationRoutePlanner: ObservableObject {
 // MARK: - EvacuationRoutePlannerView
 
 struct EvacuationRoutePlannerView: View {
-    @StateObject private var planner = EvacuationRoutePlanner.shared
+    @ObservedObject private var planner = EvacuationRoutePlanner.shared
     @State private var destLat = ""
     @State private var destLon = ""
 
     var body: some View {
-        Form { _ in
+        Form {
             Section("Destination") {
                 HStack {
                     TextField("Latitude", text: $destLat).keyboardType(.decimalPad)

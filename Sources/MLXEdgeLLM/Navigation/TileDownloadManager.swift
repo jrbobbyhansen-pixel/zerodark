@@ -73,7 +73,8 @@ final class TileDownloadManager: ObservableObject {
     private let urlSession = URLSession(configuration: {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 30
-        config.httpMaximumConnectionsPerHost = 4
+        config.httpMaximumConnectionsPerHost = 8
+        config.httpAdditionalHeaders = ["User-Agent": "ZeroDark/1.0 offline-map-download"]
         return config
     }())
 
@@ -119,37 +120,68 @@ final class TileDownloadManager: ObservableObject {
             return
         }
 
+        // Build flat tile list
+        var allTiles: [(z: Int, x: Int, y: Int)] = []
         for z in minZoom...maxZoom {
             let (minX, maxX, minY, maxY) = tileRange(bounds: bounds, zoom: z)
             for x in minX...maxX {
                 for y in minY...maxY {
-                    guard isDownloading else { return } // cancelled
-
-                    let urlStr = tileURLTemplate
-                        .replacingOccurrences(of: "{z}", with: "\(z)")
-                        .replacingOccurrences(of: "{x}", with: "\(x)")
-                        .replacingOccurrences(of: "{y}", with: "\(y)")
-
-                    guard let url = URL(string: urlStr) else { continue }
-
-                    do {
-                        let (data, _) = try await urlSession.data(from: url)
-                        writeTile(db: db, z: z, x: x, y: y, data: data)
-                        if let idx = jobs.firstIndex(where: { $0.id == job.id }) {
-                            jobs[idx].downloadedTiles += 1
-                            jobs[idx].downloadedBytes += Int64(data.count)
-                            activeJob = jobs[idx]
-                        }
-                    } catch {
-                        if let idx = jobs.firstIndex(where: { $0.id == job.id }) {
-                            jobs[idx].failedTiles += 1
-                        }
-                    }
-
-                    // Respect OSM tile server rate limit — 2 requests/second per policy
-                    try? await Task.sleep(nanoseconds: 500_000_000)
+                    allTiles.append((z, x, y))
                 }
             }
+        }
+
+        // Download in batches of 8 concurrent tiles (respects httpMaximumConnectionsPerHost)
+        let batchSize = 8
+        let session = urlSession  // capture non-isolated for task group
+        var batchStart = 0
+        while batchStart < allTiles.count {
+            guard isDownloading else { break }
+
+            let batchEnd = min(batchStart + batchSize, allTiles.count)
+            let batch = Array(allTiles[batchStart..<batchEnd])
+
+            // Download this batch concurrently, collect results
+            let results: [(z: Int, x: Int, y: Int, data: Data?)] = await withTaskGroup(
+                of: (Int, Int, Int, Data?).self
+            ) { group in
+                for tile in batch {
+                    let urlStr = tileURLTemplate
+                        .replacingOccurrences(of: "{z}", with: "\(tile.z)")
+                        .replacingOccurrences(of: "{x}", with: "\(tile.x)")
+                        .replacingOccurrences(of: "{y}", with: "\(tile.y)")
+                    guard let url = URL(string: urlStr) else { continue }
+                    group.addTask {
+                        do {
+                            let (data, _) = try await session.data(from: url)
+                            return (tile.z, tile.x, tile.y, data)
+                        } catch {
+                            return (tile.z, tile.x, tile.y, nil)
+                        }
+                    }
+                }
+                var out: [(Int, Int, Int, Data?)] = []
+                for await r in group { out.append(r) }
+                return out
+            }
+
+            // Write to SQLite on main actor (SQLite writes must be serial)
+            for (z, x, y, data) in results {
+                if let data = data {
+                    writeTile(db: db, z: z, x: x, y: y, data: data)
+                    if let idx = jobs.firstIndex(where: { $0.id == job.id }) {
+                        jobs[idx].downloadedTiles += 1
+                        jobs[idx].downloadedBytes += Int64(data.count)
+                        activeJob = jobs[idx]
+                    }
+                } else {
+                    if let idx = jobs.firstIndex(where: { $0.id == job.id }) {
+                        jobs[idx].failedTiles += 1
+                    }
+                }
+            }
+
+            batchStart += batchSize
         }
 
         sqlite3_close(db)

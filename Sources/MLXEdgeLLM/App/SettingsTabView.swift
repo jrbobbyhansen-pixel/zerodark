@@ -16,12 +16,13 @@ struct SettingsTabView: View {
     @State private var takHostValid = true
     @State private var takPortValid = true
 
-    @StateObject private var takConnector = FreeTAKConnector.shared
-    @StateObject private var engine       = LocalInferenceEngine.shared
-    @StateObject private var modelMgr     = ModelManager.shared
+    @ObservedObject private var takConnector = FreeTAKConnector.shared
+    @ObservedObject private var engine       = LocalInferenceEngine.shared
+    @ObservedObject private var modelMgr     = ModelManager.shared
 
     @State private var toast: ToastMessage? = nil
     @State private var showAuditLog = false
+    @State private var shareURL: URL?
 
     var body: some View {
         NavigationStack {
@@ -126,34 +127,20 @@ struct SettingsTabView: View {
                                 .foregroundColor(ZDDesign.signalRed)
                                 .padding(.top, 2)
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Model Not Installed")
+                                Text("Model Not Downloaded")
                                     .font(.subheadline).foregroundColor(ZDDesign.pureWhite)
-                                Text("On-device model enables fully offline AI. Phi-3.5-mini (2.2GB) — no internet required after install.")
+                                Text("Phi-3.5-mini (2.2 GB) — powers fully offline AI answers. Download over WiFi once.")
                                     .font(.caption2).foregroundColor(ZDDesign.mediumGray)
                             }
                         }
-                        Button { Task { await modelMgr.installFromBundle() } } label: {
-                            Label("Install from Bundle", systemImage: "arrow.down.circle.fill")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .disabled(!modelMgr.modelInstalled)
-                        .buttonStyle(.bordered)
-
                         Button {
-                            UIPasteboard.general.string = """
-                            ZeroDark Model Setup:
-                            1. Download phi-3.5-mini.gguf from HuggingFace
-                            2. Connect iPhone via USB
-                            3. Open Finder → iPhone → Files → ZeroDark
-                            4. Copy model to Models folder
-                            5. Restart app
-                            """
-                            showToast("Instructions copied", symbol: "doc.on.doc.fill", color: ZDDesign.cyanAccent)
+                            Task { await LocalInferenceEngine.shared.loadModel() }
                         } label: {
-                            Label("Copy Setup Instructions", systemImage: "doc.on.doc.fill")
+                            Label("Download Model", systemImage: "arrow.down.circle.fill")
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.bordered)
+                        .tint(ZDDesign.cyanAccent)
 
                     case .loading:
                         HStack {
@@ -224,7 +211,7 @@ struct SettingsTabView: View {
 
                 // MARK: Maps
                 Section("Maps") {
-                    NavigationLink("Offline Map Downloads") { TileDownloadView() }
+                    NavigationLink("Offline Maps") { TileDownloadView() }
                 }
 
                 // MARK: Security
@@ -232,12 +219,7 @@ struct SettingsTabView: View {
                     Button("Export Audit Log") {
                         AuditLogger.shared.log(.logsExported, detail: "audit CSV export")
                         if let url = AuditLogger.shared.exportCSVToFile() {
-                            // Present share sheet
-                            let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-                            UIApplication.shared.connectedScenes
-                                .compactMap { $0 as? UIWindowScene }
-                                .first?.windows.first?.rootViewController?
-                                .present(av, animated: true)
+                            shareURL = url
                         }
                     }
                     .foregroundColor(ZDDesign.cyanAccent)
@@ -271,6 +253,9 @@ struct SettingsTabView: View {
                 }
             }
             .animation(.easeInOut(duration: 0.3), value: toast?.id)
+            .sheet(item: $shareURL) { url in
+                ShareSheet(items: [url])
+            }
         }
     }
 

@@ -77,6 +77,7 @@ struct RiskEntry: Identifiable, Codable {
 @MainActor
 final class RiskMatrixViewModel: ObservableObject {
     @Published var risks: [RiskEntry] = []
+    @Published var exportURL: URL?
 
     private let persistURL: URL = {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -112,11 +113,7 @@ final class RiskMatrixViewModel: ObservableObject {
         let text = exportText()
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("RiskAssessment.txt")
         try? text.write(to: url, atomically: true, encoding: .utf8)
-        let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows.first?.rootViewController?
-            .present(av, animated: true)
+        exportURL = url
     }
 
     private func save() {
@@ -195,6 +192,9 @@ struct RiskMatrixView: View {
         }
         .navigationTitle("Risk Matrix")
         .navigationBarTitleDisplayMode(.large)
+        .sheet(item: $vm.exportURL) { url in
+            ShareSheet(items: [url])
+        }
     }
 }
 

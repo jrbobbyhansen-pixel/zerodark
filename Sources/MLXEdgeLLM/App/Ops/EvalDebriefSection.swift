@@ -1,5 +1,4 @@
 // EvalDebriefSection.swift — Ops > Eval sub-section
-// Composes: EvaluatorTools + PhotoVideoLog + DebriefManager + TeamSkills
 
 import SwiftUI
 
@@ -7,11 +6,10 @@ struct EvalDebriefSection: View {
     var body: some View {
         ScrollView {
             VStack(spacing: ZDDesign.spacing16) {
-                // Evaluation Tools
                 OpsSectionHeader(icon: "star.fill", title: "EVALUATION", color: ZDDesign.safetyYellow)
 
                 NavigationLink {
-                    EvaluatorToolsView()
+                    ComingSoonView(title: "Evaluator Tools", icon: "checkmark.rectangle.stack.fill", description: "Checklists, scoring rubrics, real-time notes & summary reports")
                 } label: {
                     OpsSectionCard(
                         icon: "checkmark.rectangle.stack.fill",
@@ -22,7 +20,7 @@ struct EvalDebriefSection: View {
                 }
 
                 NavigationLink {
-                    PhotoVideoLoggerView()
+                    ComingSoonView(title: "Photo/Video Log", icon: "camera.fill", description: "Capture, record & tag media with location data")
                 } label: {
                     OpsSectionCard(
                         icon: "camera.fill",
@@ -32,11 +30,10 @@ struct EvalDebriefSection: View {
                     )
                 }
 
-                // Debrief & Skills
                 OpsSectionHeader(icon: "bubble.left.and.bubble.right.fill", title: "DEBRIEF & SKILLS", color: ZDDesign.forestGreen)
 
                 NavigationLink {
-                    DebriefView()
+                    ComingSoonView(title: "Debrief Manager", icon: "text.bubble.fill", description: "Session scheduling, attendance tracking & documentation")
                 } label: {
                     OpsSectionCard(
                         icon: "text.bubble.fill",
@@ -47,7 +44,7 @@ struct EvalDebriefSection: View {
                 }
 
                 NavigationLink {
-                    TeamSkillsView()
+                    ComingSoonView(title: "Team Skills", icon: "chart.bar.fill", description: "Skill aggregation, gap analysis & training priorities")
                 } label: {
                     OpsSectionCard(
                         icon: "chart.bar.fill",

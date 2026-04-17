@@ -8,11 +8,13 @@ import CoreLocation
 /// Celestial navigator using star detection + sun/moon ephemeris
 @MainActor
 public class CelestialNavigator: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+    static let shared = CelestialNavigator()
+
     @Published public var estimatedHeading: Double?
     @Published public var detectedStarCount: Int = 0
     @Published public var isSessionRunning: Bool = false
-    @Published public var arOverlayData: CelestialOverlayData?
-    @Published public var fallbackMode: CelestialFallback = .none
+    @Published var arOverlayData: CelestialOverlayData?
+    @Published var fallbackMode: CelestialFallback = .none
 
     private let captureSession = AVCaptureSession()
     private let detector = StarDetector()

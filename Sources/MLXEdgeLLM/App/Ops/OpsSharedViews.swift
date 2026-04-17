@@ -183,12 +183,12 @@ struct OpsAlert: Identifiable {
 // MARK: - JoinMeshSheet
 
 struct JoinMeshSheet: View {
-    @StateObject private var mesh = MeshService.shared
+    @ObservedObject private var mesh = MeshService.shared
     @State private var groupKey = ""
     @State private var rememberNetwork = true
     @State private var editingNickname: ZDPeer?
     @State private var nicknameText = ""
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     var body: some View {
         NavigationStack {
@@ -484,9 +484,9 @@ struct JoinMeshSheet: View {
 // MARK: - SARToolsSheet
 
 struct SARToolsSheet: View {
-    @Environment(\.dismiss) var dismiss
-    @StateObject private var mesh = MeshService.shared
-    @StateObject private var activity = ActivityFeed.shared
+    @Environment(\.dismiss) var dismiss: DismissAction
+    @ObservedObject private var mesh = MeshService.shared
+    @ObservedObject private var activity = ActivityFeed.shared
     @State private var selectedType: String = "expandingSquare"
     @State private var trackSpacing: Double = 50
 
@@ -544,6 +544,37 @@ struct SARToolsSheet: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
             }
         }
+    }
+}
+
+// MARK: - Coming Soon Placeholder
+
+struct ComingSoonView: View {
+    let title: String
+    let icon: String
+    let description: String
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            Image(systemName: icon)
+                .font(.system(size: 48))
+                .foregroundStyle(ZDDesign.mediumGray)
+            Text(title)
+                .font(.title2.bold())
+                .foregroundStyle(.primary)
+            Text(description)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+            Text("Coming in a future update")
+                .font(.caption)
+                .foregroundStyle(ZDDesign.mediumGray)
+            Spacer()
+        }
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

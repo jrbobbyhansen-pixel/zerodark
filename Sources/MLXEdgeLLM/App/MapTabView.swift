@@ -10,13 +10,14 @@ struct MapTabView: View {
     // Singletons (same as TeamMapView)
     @ObservedObject var tak = FreeTAKConnector.shared
     @ObservedObject var takBle = TAKBLEBridge.shared
-    @StateObject var offlineTiles = OfflineTileProvider.shared
-    @StateObject var waypointStore = TacticalWaypointStore.shared
-    @StateObject var mesh = MeshService.shared
-    @StateObject var camService = TrafficCamService.shared
-    @StateObject var breadcrumb = BreadcrumbEngine.shared
-    @StateObject var gisOverlays = GISOverlayProvider.shared
-    @StateObject var hotZone = HotZoneClassifier.shared
+    @ObservedObject var offlineTiles = OfflineTileProvider.shared
+    @ObservedObject var waypointStore = TacticalWaypointStore.shared
+    @ObservedObject var mesh = MeshService.shared
+    @ObservedObject var camService = TrafficCamService.shared
+    @ObservedObject var breadcrumb = BreadcrumbEngine.shared
+    @ObservedObject private var deadReckoning = DeadReckoningEngine.shared
+    @ObservedObject private var weather = WeatherForecaster.shared
+    @ObservedObject private var celestial = CelestialNavigator.shared
     @EnvironmentObject var appState: AppState
 
     // Map state
@@ -29,12 +30,22 @@ struct MapTabView: View {
     @State private var selectedCam: TrafficCamera?
     @State private var showCelestialNav = false
     @State private var contourLines: [ContourLineData] = []
-    @State private var mapSelection: MapSelection<MKMapItem>?
+    @State private var isGeneratingContours = false
+    @State private var mapSelection: MKMapItem?
     @State private var losResult: LOSResult?
     @State private var losTarget: CLLocationCoordinate2D?
     @State private var losMode = false
     @State private var showLOSDetails = false
+    @State private var losTerrainWarning = false
+    @State private var isComputingViewshed = false
     @State private var viewshedPoints: [(coordinate: CLLocationCoordinate2D, isVisible: Bool)] = []
+    @State private var shareURL: URL?
+    @State private var selectedWaypoint: TacticalWaypoint?
+    // MGRS grid cached — only regenerated on camera-stop, not every render
+    @State private var cachedMGRSLines: [[CLLocationCoordinate2D]] = []
+    // Navigation mode (merged from NavTabView)
+    @State private var navMode = false
+    @State private var isComputingNavViewshed = false
 
     var body: some View {
         NavigationStack {
@@ -48,159 +59,12 @@ struct MapTabView: View {
                 // Main SwiftUI Map
                 MapReader { proxy in
                     Map(position: $cameraPosition, selection: $mapSelection) {
-                        // User location
                         UserAnnotation()
-
-                        // TAK peers
-                        ForEach(tak.peers, id: \.uid) { peer in
-                            if peer.lat != 0 && peer.lon != 0 {
-                                Annotation(
-                                    peer.detail?.contact?.callsign ?? "Unknown",
-                                    coordinate: CLLocationCoordinate2D(latitude: peer.lat, longitude: peer.lon)
-                                ) {
-                                    PeerDot(peer: peer, tacticalMode: appState.mapLayerConfig.tacticalMode)
-                                        .onTapGesture {
-                                            selectedPeer = peer
-                                            showPeerDetails = true
-                                        }
-                                }
-                            }
-                        }
-
-                        // Tactical waypoints
-                        ForEach(waypointStore.waypoints) { wp in
-                            Annotation(
-                                appState.mapLayerConfig.tacticalMode ? wp.tacticalLabel : wp.displayLabel,
-                                coordinate: wp.coordinate
-                            ) {
-                                Image(systemName: wp.type.icon)
-                                    .font(.title3)
-                                    .foregroundStyle(appState.mapLayerConfig.tacticalMode ? .orange : .green)
-                                    .padding(6)
-                                    .background(.black.opacity(0.6))
-                                    .clipShape(Circle())
-                            }
-                        }
-
-                        // Terrain contour lines
-                        if appState.mapLayerConfig.showContours {
-                            ForEach(Array(contourLines.enumerated()), id: \.offset) { _, contour in
-                                MapPolyline(coordinates: contour.coordinates)
-                                    .stroke(
-                                        Color.brown.opacity(contour.isMajor ? 0.8 : 0.4),
-                                        lineWidth: contour.isMajor ? 1.5 : 0.8
-                                    )
-                            }
-                        }
-
-                        // Breadcrumb trail
-                        if appState.mapLayerConfig.showBreadcrumbs && breadcrumb.trail.count >= 2 {
-                            MapPolyline(coordinates: breadcrumb.trail.map(\.coordinate))
-                                .stroke(.cyan, lineWidth: 3)
-                        }
-
-                        // Range rings
-                        if appState.mapLayerConfig.showRangeRings, let loc = appState.currentLocation {
-                            ForEach([100, 250, 500, 1000, 2000], id: \.self) { radius in
-                                MapCircle(center: loc, radius: CLLocationDistance(radius))
-                                    .stroke(Color(ZDDesign.cyanAccent).opacity(0.6), lineWidth: 1.5)
-                            }
-                        }
-
-                        // MGRS grid lines
-                        if appState.mapLayerConfig.showMGRS {
-                            ForEach(mgrsGridLines(), id: \.self) { line in
-                                MapPolyline(coordinates: line)
-                                    .stroke(Color(ZDDesign.safetyYellow).opacity(0.5), lineWidth: 0.8)
-                            }
-                        }
-
-                        // Mesh peer dots
-                        if appState.mapLayerConfig.showMeshPeers {
-                            ForEach(mesh.peers) { peer in
-                                if let loc = peer.location {
-                                    Annotation(peer.name, coordinate: loc) {
-                                        MeshPeerDot(peer: peer)
-                                    }
-                                }
-                            }
-                        }
-
-                        // Traffic cameras
-                        if appState.mapLayerConfig.showCameras {
-                            ForEach(camService.cameras) { camera in
-                                Annotation(camera.name, coordinate: camera.coordinate) {
-                                    Image(systemName: "video.fill")
-                                        .font(.caption)
-                                        .foregroundStyle(selectedCam?.id == camera.id ? Color(ZDDesign.cyanAccent) : .white)
-                                        .padding(4)
-                                        .background(.black.opacity(0.7))
-                                        .clipShape(Circle())
-                                        .onTapGesture { selectedCam = camera }
-                                }
-                            }
-                        }
-
-                        // Threat pins
-                        if appState.mapLayerConfig.showThreatPins {
-                            ForEach(tak.peers.filter { $0.type.contains("a-h") }, id: \.uid) { threat in
-                                Annotation("Threat", coordinate: CLLocationCoordinate2D(latitude: threat.lat, longitude: threat.lon)) {
-                                    Image(systemName: "exclamationmark.triangle.fill")
-                                        .foregroundStyle(Color(ZDDesign.signalRed))
-                                        .font(.title3)
-                                }
-                            }
-                        }
-
-                        // GIS overlays (KML/Shapefile)
-                        if appState.mapLayerConfig.showGISOverlays {
-                            ForEach(gisOverlays.overlays) { overlay in
-                                switch overlay {
-                                case .polygon(_, let name, let coords, let color):
-                                    MapPolygon(coordinates: coords)
-                                        .foregroundStyle(color.opacity(0.3))
-                                        .stroke(color, lineWidth: 2)
-                                case .polyline(_, let name, let coords, let color):
-                                    MapPolyline(coordinates: coords)
-                                        .stroke(color, lineWidth: 2)
-                                case .point(_, let name, let coord):
-                                    Annotation(name, coordinate: coord) {
-                                        Image(systemName: "mappin.circle.fill")
-                                            .foregroundStyle(.purple)
-                                    }
-                                }
-                            }
-                        }
-
-                        // LOS raycast segments
-                        if let result = losResult {
-                            ForEach(Array(result.segments.enumerated()), id: \.offset) { _, segment in
-                                MapPolyline(coordinates: [segment.start, segment.end])
-                                    .stroke(segment.isVisible ? .green : .red, lineWidth: 3)
-                            }
-                        }
-
-                        // Viewshed visibility dots (360° LOS)
-                        ForEach(Array(viewshedPoints.enumerated()), id: \.offset) { _, point in
-                            Annotation("", coordinate: point.coordinate) {
-                                Circle()
-                                    .fill(point.isVisible ? Color.green.opacity(0.4) : Color.red.opacity(0.3))
-                                    .frame(width: 8, height: 8)
-                            }
-                        }
-
-                        // HotZone classification overlays
-                        ForEach(hotZone.classifications) { zone in
-                            MapCircle(center: zone.center, radius: zone.radiusMeters)
-                                .foregroundStyle(
-                                    Color(red: zone.type.color.r, green: zone.type.color.g, blue: zone.type.color.b)
-                                        .opacity(zone.type.color.a)
-                                )
-                                .stroke(
-                                    Color(red: zone.type.color.r, green: zone.type.color.g, blue: zone.type.color.b),
-                                    lineWidth: 2
-                                )
-                        }
+                        mapPeersContent
+                        mapWaypointsContent
+                        mapOverlaysContent
+                        mapAnalysisContent
+                        mapNavContent
                     }
                     .mapStyle(currentMapStyle)
                     .mapControls {
@@ -211,6 +75,9 @@ struct MapTabView: View {
                     .onMapCameraChange(frequency: .onEnd) { context in
                         appState.mapRegion = context.region
                         appState.currentLocation = context.region.center
+                        if appState.mapLayerConfig.showMGRS {
+                            cachedMGRSLines = mgrsGridLines()
+                        }
                     }
                     .simultaneousGesture(
                         LongPressGesture(minimumDuration: 0.5)
@@ -221,9 +88,11 @@ struct MapTabView: View {
                                     if let location = drag?.location {
                                         if let coord = proxy.convert(location, from: .local) {
                                             if losMode {
-                                                // LOS mode: compute line-of-sight from user to tapped point
                                                 losTarget = coord
                                                 if let userLoc = appState.currentLocation {
+                                                    if TerrainEngine.shared.elevationAt(coordinate: coord) == nil {
+                                                        losTerrainWarning = true
+                                                    }
                                                     losResult = LOSRaycastEngine.shared.computeLOS(from: userLoc, to: coord)
                                                     showLOSDetails = true
                                                 }
@@ -244,6 +113,9 @@ struct MapTabView: View {
                                 if let coord = proxy.convert(value.location, from: .local) {
                                     losTarget = coord
                                     if let userLoc = appState.currentLocation {
+                                        if TerrainEngine.shared.elevationAt(coordinate: coord) == nil {
+                                            losTerrainWarning = true
+                                        }
                                         losResult = LOSRaycastEngine.shared.computeLOS(from: userLoc, to: coord)
                                         showLOSDetails = true
                                     }
@@ -254,7 +126,6 @@ struct MapTabView: View {
                 .ignoresSafeArea()
                 .onAppear {
                     offlineTiles.scanForMaps()
-                    gisOverlays.scanForGISFiles()
                     if !breadcrumb.isRecording {
                         breadcrumb.startRecording()
                     }
@@ -305,10 +176,22 @@ struct MapTabView: View {
                     .padding(.bottom, 4)
                 }
 
-                // Tactical toolbar (bottom)
+                // Tactical toolbar (bottom) + optional nav status bar above it
                 VStack {
                     Spacer()
+                    if navMode {
+                        navStatusBar
+                    }
                     tacticalToolbar
+                }
+
+                // Nav HUD strip (top) — shown when navMode is active
+                if navMode {
+                    VStack {
+                        navHUDStrip
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity)
                 }
             }
             .navigationTitle("Map")
@@ -325,7 +208,7 @@ struct MapTabView: View {
                         if appState.mapLayerConfig.showCameras && camService.cameras.isEmpty {
                             Task {
                                 if let loc = appState.currentLocation {
-                                    await camService.fetchNearbyCameras(location: CLLocation(latitude: loc.latitude, longitude: loc.longitude))
+                                    await camService.fetchNearbyCameras(location: loc)
                                 }
                             }
                         }
@@ -352,21 +235,6 @@ struct MapTabView: View {
                             Label("Star Navigation", systemImage: "star.circle")
                         }
                         Button("Export Waypoints") { shareWaypoints() }
-                        Button("Mark HotZone") {
-                            if let loc = appState.currentLocation {
-                                Task {
-                                    let reading = HazmatSensorReading(
-                                        timestamp: Date(),
-                                        coordinate: loc,
-                                        gasConcentrationPPM: nil,
-                                        radiationUSvH: nil,
-                                        temperatureCelsius: nil,
-                                        oxygenPercent: nil
-                                    )
-                                    _ = await hotZone.classify(reading)
-                                }
-                            }
-                        }
                         if breadcrumb.isRecording {
                             Button("Stop Breadcrumbs") { breadcrumb.stopRecording() }
                         } else {
@@ -384,7 +252,9 @@ struct MapTabView: View {
                 }
             }
             .sheet(isPresented: $showOps) {
-                CoordinationView()
+                NavigationStack {
+                    ComingSoonView(title: "Operations Coordination", icon: "person.2.wave.2.fill", description: "Multi-agency coordination, incident command & resource management")
+                }
             }
             .sheet(isPresented: $showWaypointPicker) {
                 if let coord = pendingCoord {
@@ -426,6 +296,17 @@ struct MapTabView: View {
                     .presentationDetents([.medium, .large])
                 }
             }
+            .sheet(item: $shareURL) { url in
+                ShareSheet(items: [url])
+            }
+            .sheet(item: $selectedWaypoint) { wp in
+                WaypointDetailSheet(waypoint: wp, store: waypointStore)
+            }
+            .alert("No Terrain Data", isPresented: $losTerrainWarning) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("No elevation data is available for this area. LOS results assume flat terrain and may be inaccurate. Load HGT tiles in Settings to enable accurate line-of-sight.")
+            }
             .onReceive(appState.mapEventBus) { event in
                 handleMapEvent(event)
             }
@@ -457,11 +338,18 @@ struct MapTabView: View {
 
             ToolbarToggle(text: "MGRS", active: appState.mapLayerConfig.showMGRS) {
                 appState.mapLayerConfig.showMGRS.toggle()
+                if appState.mapLayerConfig.showMGRS {
+                    cachedMGRSLines = mgrsGridLines()
+                }
             }
 
-            ToolbarToggle(icon: "mountain.2.fill", label: "Terrain", active: appState.mapLayerConfig.showContours) {
+            ToolbarToggle(
+                icon: isGeneratingContours ? "hourglass" : "mountain.2.fill",
+                label: "Terrain",
+                active: appState.mapLayerConfig.showContours
+            ) {
                 appState.mapLayerConfig.showContours.toggle()
-                if appState.mapLayerConfig.showContours && contourLines.isEmpty {
+                if appState.mapLayerConfig.showContours && contourLines.isEmpty && !isGeneratingContours {
                     generateContourLines()
                 }
             }
@@ -488,15 +376,21 @@ struct MapTabView: View {
                         showLOSDetails = true
                     }
                 }
-                Button("Show Viewshed") {
-                    guard let userLoc = appState.currentLocation else { return }
+                Button(isComputingViewshed ? "Computing…" : "Show Viewshed") {
+                    guard let userLoc = appState.currentLocation, !isComputingViewshed else { return }
+                    if TerrainEngine.shared.elevationAt(coordinate: userLoc) == nil {
+                        losTerrainWarning = true
+                    }
+                    isComputingViewshed = true
                     Task.detached {
                         let points = LOSRaycastEngine.shared.computeViewshed(from: userLoc, radius: 2000, resolution: 36)
                         await MainActor.run {
                             viewshedPoints = points
+                            isComputingViewshed = false
                         }
                     }
                 }
+                .disabled(isComputingViewshed)
                 if !viewshedPoints.isEmpty {
                     Button("Clear Viewshed") {
                         viewshedPoints = []
@@ -514,6 +408,38 @@ struct MapTabView: View {
                 .padding(.vertical, 8)
                 .background(Color.black.opacity(0.6))
                 .cornerRadius(8)
+            }
+
+            ToolbarToggle(text: "NAV", active: navMode) {
+                navMode.toggle()
+            }
+
+            if offlineTiles.hasOfflineMaps {
+                Menu {
+                    ForEach(offlineTiles.availableMaps, id: \.self) { name in
+                        Button {
+                            offlineTiles.selectMap(name)
+                        } label: {
+                            if name == offlineTiles.currentMap {
+                                Label(name, systemImage: "checkmark")
+                            } else {
+                                Text(name)
+                            }
+                        }
+                    }
+                } label: {
+                    VStack(spacing: 2) {
+                        Image(systemName: "internaldrive")
+                            .font(.title3)
+                        Text("MAP")
+                            .font(.caption2)
+                    }
+                    .foregroundColor(ZDDesign.cyanAccent)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
+                    .background(Color.black.opacity(0.6))
+                    .cornerRadius(8)
+                }
             }
 
             Spacer()
@@ -595,6 +521,7 @@ struct MapTabView: View {
 
     private func generateContourLines() {
         let region = appState.mapRegion
+        isGeneratingContours = true
         Task.detached {
             let overlay = ContourOverlay(region: region, contourInterval: 30)
             overlay.generateContours(resolution: 40)
@@ -611,7 +538,131 @@ struct MapTabView: View {
             }
             await MainActor.run {
                 contourLines = lines
+                isGeneratingContours = false
             }
+        }
+    }
+
+    // MARK: - Nav Mode Overlays
+
+    private var navHUDStrip: some View {
+        HStack(spacing: 14) {
+            VStack(spacing: 1) {
+                Text(String(format: "%.1f", appState.navState.speed))
+                    .font(.system(.callout, design: .monospaced, weight: .bold))
+                    .foregroundColor(ZDDesign.pureWhite)
+                Text("m/s").font(.caption2).foregroundColor(ZDDesign.mediumGray)
+            }
+            Divider().frame(height: 28)
+            VStack(spacing: 1) {
+                Text(String(format: "%03.0f\u{00B0}", appState.navState.heading))
+                    .font(.system(.callout, design: .monospaced, weight: .bold))
+                    .foregroundColor(ZDDesign.pureWhite)
+                Text("HDG").font(.caption2).foregroundColor(ZDDesign.mediumGray)
+            }
+            Divider().frame(height: 28)
+            VStack(spacing: 1) {
+                Text(String(format: "%.0fm", appState.navState.altitude))
+                    .font(.system(.callout, design: .monospaced, weight: .bold))
+                    .foregroundColor(ZDDesign.pureWhite)
+                Text("ALT").font(.caption2).foregroundColor(ZDDesign.mediumGray)
+            }
+            Divider().frame(height: 28)
+            VStack(spacing: 1) {
+                Text(String(format: "%.1fm", appState.navState.ekfUncertainty))
+                    .font(.system(.callout, design: .monospaced, weight: .bold))
+                    .foregroundColor(appState.navState.ekfUncertainty > 10 ? ZDDesign.signalRed : ZDDesign.pureWhite)
+                Text("ERR").font(.caption2).foregroundColor(ZDDesign.mediumGray)
+            }
+            Spacer()
+            Button {
+                Task { await computeNavViewshed() }
+            } label: {
+                if isComputingNavViewshed {
+                    ProgressView().tint(ZDDesign.cyanAccent)
+                } else {
+                    Image(systemName: "eye.circle")
+                        .foregroundColor(ZDDesign.cyanAccent)
+                }
+            }
+            .disabled(isComputingNavViewshed)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(ZDDesign.darkCard.opacity(0.92))
+        .cornerRadius(10)
+        .padding(.horizontal, 12)
+        .padding(.top, 8)
+    }
+
+    private var navStatusBar: some View {
+        HStack(spacing: 18) {
+            HStack(spacing: 4) {
+                Image(systemName: appState.navState.canopyDetected ? "leaf.fill" : "leaf")
+                    .foregroundColor(appState.navState.canopyDetected ? .orange : .green)
+                Text(appState.navState.canopyDetected ? "CANOPY" : "OPEN")
+                    .font(.caption).foregroundColor(ZDDesign.pureWhite)
+            }
+            HStack(spacing: 4) {
+                Image(systemName: "shoeprints.fill").foregroundColor(ZDDesign.cyanAccent)
+                Text("ZUPT:\(appState.navState.zuptCount)")
+                    .font(.caption).foregroundColor(ZDDesign.pureWhite)
+            }
+            HStack(spacing: 4) {
+                Image(systemName: "star.fill")
+                    .foregroundColor(celestial.detectedStarCount >= 2 ? .yellow : ZDDesign.mediumGray)
+                Text("\(celestial.detectedStarCount)★")
+                    .font(.caption).foregroundColor(ZDDesign.pureWhite)
+            }
+            Spacer()
+            HStack(spacing: 4) {
+                Image(systemName: navBatteryIcon).foregroundColor(navBatteryColor)
+                Text(String(format: "%.0fm", appState.navState.batteryMinutesRemaining))
+                    .font(.caption).foregroundColor(ZDDesign.pureWhite)
+            }
+            HStack(spacing: 4) {
+                Image(systemName: navBaroIcon).foregroundColor(ZDDesign.cyanAccent)
+                Text(weather.barometricPressureTrend == .stable ? "STABLE" :
+                     weather.barometricPressureTrend == .rapidDrop ? "DROP" : "RISE")
+                    .font(.caption).foregroundColor(ZDDesign.pureWhite)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 7)
+        .background(ZDDesign.darkCard.opacity(0.92))
+        .cornerRadius(10)
+        .padding(.horizontal, 12)
+        .padding(.bottom, 4)
+    }
+
+    private var navBatteryIcon: String {
+        let level = appState.navState.batteryTrend
+        if level > 0.75 { return "battery.100" }
+        if level > 0.5  { return "battery.75" }
+        if level > 0.25 { return "battery.50" }
+        return "battery.25"
+    }
+
+    private var navBatteryColor: Color {
+        appState.navState.batteryMinutesRemaining < 30 ? Color(ZDDesign.signalRed) :
+        appState.navState.batteryMinutesRemaining < 60 ? .orange : .green
+    }
+
+    private var navBaroIcon: String {
+        switch weather.barometricPressureTrend {
+        case .stable: return "barometer"
+        case .rapidDrop: return "arrow.down.circle"
+        case .rapidRise: return "arrow.up.circle"
+        }
+    }
+
+    private func computeNavViewshed() async {
+        guard let pos = appState.navState.position else { return }
+        isComputingNavViewshed = true
+        defer { isComputingNavViewshed = false }
+        let points = LOSRaycastEngine.shared.computeViewshed(from: pos, radius: 2000, resolution: 36)
+        await MainActor.run {
+            viewshedPoints = points
         }
     }
 
@@ -619,14 +670,127 @@ struct MapTabView: View {
 
     private func shareWaypoints() {
         let gpxData = waypointStore.exportGPX()
-        let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("waypoints.gpx")
-        try? gpxData.write(to: tmpURL)
-        let ac = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows
-            .first?.rootViewController?
-            .present(ac, animated: true)
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let url = docs.appendingPathComponent("waypoints_\(Int(Date().timeIntervalSince1970)).gpx")
+        try? gpxData.write(to: url)
+        shareURL = url
+    }
+}
+
+// MARK: - Map Content Helpers
+
+extension MapTabView {
+    @MapContentBuilder
+    var mapPeersContent: some MapContent {
+        ForEach(tak.peers, id: \.uid) { peer in
+            if peer.lat != 0 && peer.lon != 0 {
+                Annotation(
+                    peer.detail?.contact?.callsign ?? "Unknown",
+                    coordinate: CLLocationCoordinate2D(latitude: peer.lat, longitude: peer.lon)
+                ) {
+                    PeerDot(peer: peer, tacticalMode: appState.mapLayerConfig.tacticalMode)
+                        .onTapGesture {
+                            selectedPeer = peer
+                            showPeerDetails = true
+                        }
+                }
+            }
+        }
+        if appState.mapLayerConfig.showMeshPeers {
+            ForEach(mesh.peers) { peer in
+                if let loc = peer.location {
+                    Annotation(peer.name, coordinate: loc) {
+                        MeshPeerDot(peer: peer)
+                    }
+                }
+            }
+        }
+        if appState.mapLayerConfig.showCameras {
+            ForEach(camService.cameras) { camera in
+                Annotation(camera.name, coordinate: camera.coordinate) {
+                    Image(systemName: "video.fill")
+                        .font(.caption)
+                        .foregroundStyle(selectedCam?.id == camera.id ? Color(ZDDesign.cyanAccent) : .white)
+                        .padding(4)
+                        .background(.black.opacity(0.7))
+                        .clipShape(Circle())
+                        .onTapGesture { selectedCam = camera }
+                }
+            }
+        }
+    }
+
+    @MapContentBuilder
+    var mapWaypointsContent: some MapContent {
+        ForEach(waypointStore.waypoints) { wp in
+            Annotation(
+                appState.mapLayerConfig.tacticalMode ? wp.tacticalLabel : wp.displayLabel,
+                coordinate: wp.coordinate
+            ) {
+                Image(systemName: wp.type.icon)
+                    .font(.title3)
+                    .foregroundStyle(appState.mapLayerConfig.tacticalMode ? .orange : .green)
+                    .padding(6)
+                    .background(.black.opacity(0.6))
+                    .clipShape(Circle())
+                    .onTapGesture { selectedWaypoint = wp }
+            }
+        }
+        if appState.mapLayerConfig.showThreatPins {
+            ForEach(tak.peers.filter { $0.type.contains("a-h") }, id: \.uid) { threat in
+                Annotation("Threat", coordinate: CLLocationCoordinate2D(latitude: threat.lat, longitude: threat.lon)) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(Color(ZDDesign.signalRed))
+                        .font(.title3)
+                }
+            }
+        }
+    }
+
+    @MapContentBuilder
+    var mapOverlaysContent: some MapContent {
+        if appState.mapLayerConfig.showContours {
+            ForEach(Array(contourLines.enumerated()), id: \.offset) { _, contour in
+                MapPolyline(coordinates: contour.coordinates)
+                    .stroke(
+                        Color.brown.opacity(contour.isMajor ? 0.8 : 0.4),
+                        lineWidth: contour.isMajor ? 1.5 : 0.8
+                    )
+            }
+        }
+        if appState.mapLayerConfig.showBreadcrumbs && breadcrumb.trail.count >= 2 {
+            MapPolyline(coordinates: breadcrumb.trail.map(\.coordinate))
+                .stroke(.cyan, lineWidth: 3)
+        }
+        if appState.mapLayerConfig.showRangeRings, let loc = appState.currentLocation {
+            ForEach([100, 250, 500, 1000, 2000], id: \.self) { radius in
+                MapCircle(center: loc, radius: CLLocationDistance(radius))
+                    .stroke(Color(ZDDesign.cyanAccent).opacity(0.6), lineWidth: 1.5)
+            }
+        }
+        if appState.mapLayerConfig.showMGRS {
+            ForEach(Array(cachedMGRSLines.enumerated()), id: \.offset) { _, line in
+                MapPolyline(coordinates: line)
+                    .stroke(Color(ZDDesign.safetyYellow).opacity(0.5), lineWidth: 0.8)
+            }
+        }
+    }
+
+    @MapContentBuilder
+    var mapAnalysisContent: some MapContent {
+        if let result = losResult {
+            ForEach(Array(result.segments.enumerated()), id: \.offset) { _, segment in
+                MapPolyline(coordinates: [segment.start, segment.end])
+                    .stroke(segment.isVisible ? .green : .red, lineWidth: 3)
+            }
+        }
+        ForEach(Array(viewshedPoints.enumerated()), id: \.offset) { _, point in
+            Annotation("", coordinate: point.coordinate) {
+                Circle()
+                    .fill(point.isVisible ? Color.green.opacity(0.4) : Color.red.opacity(0.3))
+                    .frame(width: 8, height: 8)
+            }
+        }
     }
 }
 
@@ -737,6 +901,34 @@ struct ContourLineData: Hashable {
     }
 }
 
+// MARK: - Nav Content (DR/EKF rings overlay)
+
+extension MapTabView {
+    @MapContentBuilder
+    var mapNavContent: some MapContent {
+        if navMode, let pos = appState.navState.position {
+            Annotation("", coordinate: pos) {
+                ZStack {
+                    if deadReckoning.isActive {
+                        Circle()
+                            .stroke(Color.orange.opacity(0.5), lineWidth: 2)
+                            .frame(
+                                width: CGFloat(max(24, deadReckoning.confidenceRadius)),
+                                height: CGFloat(max(24, deadReckoning.confidenceRadius))
+                            )
+                    }
+                    Circle()
+                        .fill(Color.cyan.opacity(0.25))
+                        .frame(
+                            width: CGFloat(max(14, appState.navState.ekfUncertainty)),
+                            height: CGFloat(max(14, appState.navState.ekfUncertainty))
+                        )
+                }
+            }
+        }
+    }
+}
+
 // MARK: - Hashable Array of Coordinates (for ForEach)
 
 extension Array: @retroactive Hashable where Element == CLLocationCoordinate2D {
@@ -805,6 +997,71 @@ private struct NavigationHUD: View {
         case .degraded: return ZDDesign.safetyYellow
         case .denied:   return ZDDesign.signalRed
         }
+    }
+
+}
+
+// MARK: - Waypoint Detail Sheet
+
+private struct WaypointDetailSheet: View {
+    let waypoint: TacticalWaypoint
+    @ObservedObject var store: TacticalWaypointStore
+    @Environment(\.dismiss) private var dismiss
+    @State private var confirmDelete = false
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section("Location") {
+                    LabeledContent("MGRS") {
+                        Text(MGRSConverter.toMGRS(coordinate: waypoint.coordinate, precision: 5))
+                            .font(.system(.body, design: .monospaced))
+                    }
+                    LabeledContent("Lat / Lon") {
+                        Text(String(format: "%.5f, %.5f", waypoint.lat, waypoint.lon))
+                            .font(.system(.caption, design: .monospaced))
+                    }
+                }
+                Section("Details") {
+                    LabeledContent("Type", value: waypoint.type.rawValue.capitalized)
+                    if !waypoint.publicDescription.isEmpty {
+                        LabeledContent("Description", value: waypoint.publicDescription)
+                    }
+                    if !waypoint.tacticalNotes.isEmpty {
+                        LabeledContent("Notes", value: waypoint.tacticalNotes)
+                    }
+                    LabeledContent("Created by", value: waypoint.createdBy)
+                    LabeledContent("Created") {
+                        Text(waypoint.createdAt.formatted(date: .abbreviated, time: .shortened))
+                    }
+                }
+                Section {
+                    Button(role: .destructive) {
+                        confirmDelete = true
+                    } label: {
+                        Label("Delete Waypoint", systemImage: "trash")
+                    }
+                }
+            }
+            .navigationTitle(waypoint.displayLabel)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
+            .confirmationDialog(
+                "Delete \"\(waypoint.displayLabel)\"?",
+                isPresented: $confirmDelete,
+                titleVisibility: .visible
+            ) {
+                Button("Delete", role: .destructive) {
+                    store.remove(id: waypoint.id)
+                    dismiss()
+                }
+            }
+        }
+        .presentationDetents([.medium])
     }
 }
 

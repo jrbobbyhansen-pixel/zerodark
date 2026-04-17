@@ -26,8 +26,8 @@ struct OpSecLesson: Identifiable {
 
 struct OpSecSection: View {
     @AppStorage("opsec_completed") private var completedLessonsData: Data = Data()
-    @StateObject private var relay = MeshRelay.shared
-    @StateObject private var geofences = GeofenceManager.shared
+    @ObservedObject private var relay = MeshRelay.shared
+    @ObservedObject private var geofences = GeofenceManager.shared
 
     private var completedLessonIDs: Set<String> {
         (try? JSONDecoder().decode(Set<String>.self, from: completedLessonsData)) ?? []
@@ -425,7 +425,7 @@ struct OpSecSection: View {
 struct OpSecModuleDetailView: View {
     let module: OpSecModule
     @Binding var completedLessonsData: Data
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     private var completedLessonIDs: Set<String> {
         (try? JSONDecoder().decode(Set<String>.self, from: completedLessonsData)) ?? []

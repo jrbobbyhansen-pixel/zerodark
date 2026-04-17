@@ -11,8 +11,8 @@ enum CameraError: Error {
 
 struct CameraFeedView: View {
     let camera: TrafficCamera
-    @Environment(\.dismiss) var dismiss
-    @StateObject private var camService = TrafficCamService.shared
+    @Environment(\.dismiss) var dismiss: DismissAction
+    @ObservedObject private var camService = TrafficCamService.shared
 
     @State private var currentFrame: UIImage?
     @State private var isLoading = true
@@ -20,6 +20,7 @@ struct CameraFeedView: View {
     @State private var lastRefresh = Date()
     @State private var autoRefresh = true
     @State private var refreshTimer: Timer?
+    @State private var showShareSheet = false
 
     var body: some View {
         ZStack {
@@ -43,6 +44,11 @@ struct CameraFeedView: View {
         }
         .onDisappear {
             stopAutoRefresh()
+        }
+        .sheet(isPresented: $showShareSheet) {
+            if let image = currentFrame {
+                ShareSheet(items: [image, "Traffic camera: \(camera.displayName)"])
+            }
         }
     }
 
@@ -238,7 +244,7 @@ struct CameraFeedView: View {
             // Share/Save frame
             if let image = currentFrame {
                 Button {
-                    shareFrame(image)
+                    showShareSheet = true
                 } label: {
                     VStack(spacing: 4) {
                         Image(systemName: "square.and.arrow.up")
@@ -314,17 +320,7 @@ struct CameraFeedView: View {
         refreshTimer = nil
     }
 
-    func shareFrame(_ image: UIImage) {
-        let activityVC = UIActivityViewController(
-            activityItems: [image, "Traffic camera: \(camera.displayName)"],
-            applicationActivities: nil
-        )
-
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootVC = windowScene.windows.first?.rootViewController {
-            rootVC.present(activityVC, animated: true)
-        }
-    }
+    // shareFrame is now handled via .sheet(isPresented: $showShareSheet)
 
     func saveFrame(_ image: UIImage) {
         UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)

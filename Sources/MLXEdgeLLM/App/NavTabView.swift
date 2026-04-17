@@ -7,10 +7,10 @@ import CoreLocation
 
 struct NavTabView: View {
     @EnvironmentObject var appState: AppState
-    @StateObject private var breadcrumb = BreadcrumbEngine.shared
-    @StateObject private var deadReckoning = DeadReckoningEngine()
-    @StateObject private var celestial = CelestialNavigator()
-    @StateObject private var weather = WeatherForecaster.shared
+    @ObservedObject private var breadcrumb = BreadcrumbEngine.shared
+    @ObservedObject private var deadReckoning = DeadReckoningEngine.shared
+    @ObservedObject private var celestial = CelestialNavigator.shared
+    @ObservedObject private var weather = WeatherForecaster.shared
 
     @State private var showAROverlay = false
     @State private var viewshedResult: ViewshedResult?
@@ -283,30 +283,22 @@ struct NavTabView: View {
         isComputingViewshed = true
         defer { isComputingViewshed = false }
 
-        let engine = ViewshedComputeEngine.shared
-        if let result = await engine.computeViewshed(from: pos, radius: 2000, observerHeight: 1.8, resolution: 360, samplesPerRadial: 200) {
-            viewshedResult = result
-            appState.navState.viewshedTimestamp = Date()
-            appState.navEventBus.send(.viewshedComputed(result))
-        } else {
-            // CPU fallback
-            let cpuResult = LOSRaycastEngine.shared.computeViewshed(from: pos, radius: 2000, resolution: 360)
-            // Convert CPU result to ViewshedResult format
-            var visibility = [Float](repeating: 0, count: 360 * 100)
-            for (idx, entry) in cpuResult.enumerated() {
-                visibility[idx] = entry.isVisible ? 1.0 : 0.0
-            }
-            let result = ViewshedResult(
-                observer: pos,
-                radius: 2000,
-                resolution: 360,
-                samplesPerRadial: 100,
-                visibility: visibility,
-                computeTimeMs: 0
-            )
-            viewshedResult = result
-            appState.navState.viewshedTimestamp = Date()
+        let cpuResult = LOSRaycastEngine.shared.computeViewshed(from: pos, radius: 2000, resolution: 360)
+        var visibility = [Float](repeating: 0, count: 360 * 100)
+        for (idx, entry) in cpuResult.enumerated() {
+            visibility[idx] = entry.isVisible ? 1.0 : 0.0
         }
+        let result = ViewshedResult(
+            observer: pos,
+            radius: 2000,
+            resolution: 360,
+            samplesPerRadial: 100,
+            visibility: visibility,
+            computeTimeMs: 0
+        )
+        viewshedResult = result
+        appState.navState.viewshedTimestamp = Date()
+        appState.navEventBus.send(.viewshedComputed(result))
     }
 
     // MARK: - Helpers

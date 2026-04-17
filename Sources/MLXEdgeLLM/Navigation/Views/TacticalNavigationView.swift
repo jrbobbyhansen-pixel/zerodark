@@ -5,7 +5,7 @@ import MapKit
 
 /// Tactical navigation control view
 struct TacticalNavigationView: View {
-    @StateObject private var navStack = TacticalNavigationStack.shared
+    @ObservedObject private var navStack = TacticalNavigationStack.shared
     @State private var destinationInput: String = ""
     @State private var showDestinationPicker = false
 

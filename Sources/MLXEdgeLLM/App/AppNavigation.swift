@@ -100,7 +100,7 @@ public class AppState: ObservableObject {
 
     // Intel/Threat state (v6 — synced from ThreatAnalyzer)
     @Published public var currentThreatScore: Double = 0.0
-    @Published public var currentThreatLevel: ThreatLevel = .none
+    @Published var currentThreatLevel: ThreatLevel = .none
     @Published public var activeThreatCount: Int = 0
     @Published public var latestIntelSummary: String = ""
     @Published public var intelUpdateCount: Int = 0
@@ -109,13 +109,13 @@ public class AppState: ObservableObject {
     @Published public var latestSceneTag: Any?
 
     // Navigation state (v6.1 — fused from BreadcrumbEngine, DR, Celestial, Battery)
-    @Published public var navState: NavState = NavState()
+    @Published var navState: NavState = NavState()
 
     // Pub/sub event buses for cross-tab coordination
     public let mapEventBus = PassthroughSubject<MapEvent, Never>()
     public let intelEventBus = PassthroughSubject<IntelEvent, Never>()
     public let threatEventBus = PassthroughSubject<ThreatEvent, Never>()
-    public let navEventBus = PassthroughSubject<NavEvent, Never>()
+    let navEventBus = PassthroughSubject<NavEvent, Never>()
 
     private var cancellables = Set<AnyCancellable>()
 

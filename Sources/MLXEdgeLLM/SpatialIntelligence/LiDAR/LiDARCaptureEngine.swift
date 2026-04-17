@@ -405,8 +405,8 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
     var config = LiDARScanConfig()
 
     // Enhanced LiDAR Pipeline (Kalman + ClutterFilter + YOLO + Haptics)
-    private(set) var pipeline: LiDARPipeline?
-    var pipelineConfig = LiDARPipelineConfig.recommended()
+    // LiDARPipeline integration deferred — uses core scan engine directly
+    private(set) var pipeline: Any?
 
     // Location
     private var locationManager: CLLocationManager?
@@ -483,10 +483,8 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
 
         analysisStatus = "Scanning..."
 
-        // Start enhanced pipeline (Kalman fusion, YOLO detection, haptic overlay)
-        let pipe = LiDARPipeline(config: pipelineConfig)
-        self.pipeline = pipe
-        Task { await pipe.start() }
+        // Enhanced pipeline deferred — scan uses core ARKit mesh directly
+        self.pipeline = nil
 
         // Reset guidance tracking
         scanGuidance = .goodCoverage
@@ -509,7 +507,7 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
     func stopScan() {
         isScanning = false
         arSession?.pause()
-        pipeline?.stop()
+        // pipeline?.stop()  — deferred
         pipeline = nil
 
         guard let startTime = scanStartTime else { return }
@@ -609,7 +607,7 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         }
 
         // Build and save initial SceneTag with YOLO detections + covers
-        let detections = await MainActor.run { pipeline?.yoloDetector.activeDetections ?? [] }
+        let detections: [YOLODetection] = []  // Pipeline YOLO deferred
         let covers = findCoverPositions(pointCloud: result.pointCloud, meshAnchors: result.meshAnchors)
         var sceneTag = SceneTag.from(result: result, detections: detections, coverPositions: covers, scanDir: scanDir)
         SceneTagStore.shared.save(sceneTag)
@@ -691,7 +689,7 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         // Phase 8: Tactical assessment
         analysisStatus = "Performing tactical assessment..."
         var tacticalAnalysis = await performTacticalAnalysis(result, terrain: terrainAnalysis, structure: structuralAnalysis)
-        tacticalAnalysis.detectedPersonCount = pipeline?.yoloDetector.activeDetections.filter({ $0.classId == 0 }).count ?? 0
+        tacticalAnalysis.detectedPersonCount = 0  // Pipeline YOLO deferred
         analyzedResult.tacticalAnalysis = tacticalAnalysis
 
         // Update the scan's riskScore in storage after analysis completes
@@ -1171,23 +1169,7 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
             }
         }
 
-        // Stage 3: YOLO vehicle detections as hard cover
-        if let detections = pipeline?.yoloDetector.activeDetections {
-            for det in detections {
-                guard let pos3D = det.position3D,
-                      ThreatClassMap.coverCategory(for: det.classId, distance: det.distance) == .cover else { continue }
-
-                let isDuplicate = cover.contains { length($0.center - pos3D) < gridSize }
-                if !isDuplicate {
-                    cover.append(CoverPosition(
-                        center: pos3D,
-                        type: .hardCover,
-                        protection: 0.8,
-                        exposedDirections: calculateExposedDirections(from: pos3D, pointCloud: pointCloud)
-                    ))
-                }
-            }
-        }
+        // Stage 3: YOLO vehicle detections as hard cover — deferred (pipeline not active)
 
         return cover
     }
@@ -1916,11 +1898,10 @@ extension LiDARCaptureEngine: ARSessionDelegate {
         Task { @MainActor [weak self] in
             guard let self, isScanning else { return }
 
-            // Feed frame to enhanced pipeline (YOLO detection + Kalman LiDAR update + haptics)
-            _ = pipeline?.processFrame(capturedFrame)
+            // Pipeline frame processing deferred
 
             // Use fused transform if Kalman fusion is active, otherwise raw ARKit transform
-            let fusedTransform = pipeline?.fusedTransform(at: frameTimestamp) ?? transform
+            let fusedTransform = transform  // Pipeline Kalman fusion deferred
 
             // Snapshot config on main actor (safe), then dispatch extraction off-thread
             let capturedConfig = config
@@ -1938,19 +1919,8 @@ extension LiDARCaptureEngine: ARSessionDelegate {
                     config: capturedConfig
                 )
 
-                // Run through pipeline: undistortion + clutter filter
-                let processed: [SIMD3<Float>]
-                if let pipeline = capturedPipeline {
-                    let result = await pipeline.processPoints(
-                        newPoints,
-                        frameStartTime: frameTimestamp - 0.033, // ~30fps
-                        frameEndTime: frameTimestamp
-                    )
-                    processed = result.filtered
-                } else {
-                    processed = newPoints
-                }
-                let newPointsFinal = processed
+                // Pipeline point processing deferred — use raw points
+                let newPointsFinal = newPoints
                 
                 // Minimal main actor hop: just append + increment + update coverage
                 await MainActor.run {

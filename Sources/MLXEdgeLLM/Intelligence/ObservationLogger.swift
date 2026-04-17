@@ -5,9 +5,9 @@ import Foundation
 import SwiftUI
 import CoreLocation
 
-// MARK: - Observation
+// MARK: - FieldObservation
 
-struct Observation: Identifiable, Codable {
+struct FieldObservation: Identifiable, Codable {
     let id: UUID
     let timestamp: Date
     let latitude: Double
@@ -42,20 +42,21 @@ struct Observation: Identifiable, Codable {
     }
 }
 
-// MARK: - ObservationLogger
+// MARK: - FieldObservationLogger
 
 @MainActor
 final class ObservationLogger: ObservableObject {
     static let shared = ObservationLogger()
 
-    @Published var observations: [Observation] = []
+    @Published var observations: [FieldObservation] = []
+    @Published var exportURL: URL?
 
     private init() { load() }
 
-    func logObservation(bearing: Double, distance: Double, description: String, category: Observation.ObservationCategory = .general) {
+    func logObservation(bearing: Double, distance: Double, description: String, category: FieldObservation.ObservationCategory = .general) {
         let location = LocationManager.shared.lastKnownLocation
             ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)
-        let obs = Observation(location: location, bearing: bearing, distance: distance, description: description, category: category)
+        let obs = FieldObservation(location: location, bearing: bearing, distance: distance, description: description, category: category)
         observations.append(obs)
         save()
         AuditLogger.shared.log(.observationLogged, detail: category.rawValue)
@@ -83,13 +84,10 @@ final class ObservationLogger: ObservableObject {
 
     func share() {
         let text = exportText()
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("ObservationLog.txt")
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let url = docs.appendingPathComponent("ObservationLog-\(Int(Date().timeIntervalSince1970)).txt")
         try? text.write(to: url, atomically: true, encoding: .utf8)
-        let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows.first?.rootViewController?
-            .present(av, animated: true)
+        exportURL = url
     }
 
     // MARK: - Persistence
@@ -106,20 +104,20 @@ final class ObservationLogger: ObservableObject {
 
     private func load() {
         guard let data = try? Data(contentsOf: persistURL),
-              let loaded = try? JSONDecoder().decode([Observation].self, from: data) else { return }
+              let loaded = try? JSONDecoder().decode([FieldObservation].self, from: data) else { return }
         observations = loaded
     }
 }
 
-// MARK: - ObservationLoggerView
+// MARK: - FieldObservationLoggerView
 
 struct ObservationLoggerView: View {
-    @StateObject private var logger = ObservationLogger.shared
+    @ObservedObject private var logger = ObservationLogger.shared
     @State private var showAdd = false
     @State private var newDesc = ""
     @State private var newBearing = ""
     @State private var newDistance = ""
-    @State private var newCategory: Observation.ObservationCategory = .general
+    @State private var newCategory: FieldObservation.ObservationCategory = .general
 
     var body: some View {
         Form {
@@ -130,7 +128,7 @@ struct ObservationLoggerView: View {
                     TextField("Distance (m)", text: $newDistance).keyboardType(.decimalPad)
                 }
                 Picker("Category", selection: $newCategory) {
-                    ForEach(Observation.ObservationCategory.allCases, id: \.self) { Text($0.rawValue) }
+                    ForEach(FieldObservation.ObservationCategory.allCases, id: \.self) { Text($0.rawValue) }
                 }
                 Button {
                     logger.logObservation(
@@ -173,6 +171,9 @@ struct ObservationLoggerView: View {
         }
         .navigationTitle("Observation Log")
         .navigationBarTitleDisplayMode(.large)
+        .sheet(item: $logger.exportURL) { url in
+            ShareSheet(items: [url])
+        }
     }
 }
 

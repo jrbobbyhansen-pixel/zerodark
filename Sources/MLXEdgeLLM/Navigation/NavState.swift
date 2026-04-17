@@ -133,12 +133,4 @@ enum CelestialFallback: String {
     case gyroOnly
 }
 
-// MARK: - ActivityLevel (for hydration calc)
-
-enum ActivityLevel: String, CaseIterable {
-    case rest
-    case light
-    case moderate
-    case heavy
-    case extreme
-}
+// ActivityLevel removed — defined elsewhere

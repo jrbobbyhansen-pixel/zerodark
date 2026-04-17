@@ -1,70 +1,85 @@
 // IntelTabView.swift — Intel Brain: Hybrid RAG + Threat Fusion + Verify Pipeline
-// ZeroDark Intel Tab v6.0
+// ZeroDark Intel Tab v7.0
 
 import SwiftUI
 import PhotosUI
 
-struct IntelTabView: View {
-    @State private var intelMode: IntelMode = .knowledge
-    @State private var showGeoPackageImport = false
+// MARK: - Intel Mode
 
-    enum IntelMode: String, CaseIterable {
-        case dashboard = "Dashboard"
-        case knowledge = "Field Manual"
-        case vision = "Visual Intel"
-        case library = "Library"
-        case threats = "Threats"
+enum IntelMode: String, CaseIterable {
+    case dashboard = "Dashboard"
+    case knowledge = "Field Manual"
+    case vision    = "Vision"
+    case library   = "Docs"
+    case threats   = "Threats"
+
+    var icon: String {
+        switch self {
+        case .dashboard: return "gauge.medium"
+        case .knowledge: return "book.fill"
+        case .vision:    return "eye.fill"
+        case .library:   return "folder.fill"
+        case .threats:   return "exclamationmark.triangle.fill"
+        }
     }
+}
+
+// MARK: - IntelTabView
+
+struct IntelTabView: View {
+    @AppStorage("intel_tab_mode") private var intelMode: IntelMode = .knowledge
+    @State private var showGeoPackageImport = false
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                Picker("Mode", selection: $intelMode) {
+                // Icon + label tab row — 5 equal columns, underline accent
+                HStack(spacing: 0) {
                     ForEach(IntelMode.allCases, id: \.self) { mode in
-                        Text(mode.rawValue).tag(mode)
+                        Button { intelMode = mode } label: {
+                            VStack(spacing: 3) {
+                                Image(systemName: mode.icon)
+                                    .font(.system(size: 18, weight: intelMode == mode ? .semibold : .regular))
+                                    .foregroundColor(intelMode == mode ? ZDDesign.cyanAccent : ZDDesign.mediumGray)
+                                Text(mode.rawValue)
+                                    .font(.system(size: 10, weight: intelMode == mode ? .semibold : .regular))
+                                    .foregroundColor(intelMode == mode ? ZDDesign.cyanAccent : ZDDesign.mediumGray)
+                                Rectangle()
+                                    .fill(intelMode == mode ? ZDDesign.cyanAccent : Color.clear)
+                                    .frame(height: 2)
+                                    .cornerRadius(1)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 52)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
-                .pickerStyle(.segmented)
-                .padding()
-
-                switch intelMode {
-                case .dashboard:
-                    IntelDashboardView()
-                case .knowledge:
-                    KnowledgeContentView()
-                case .vision:
-                    VisionContentView()
-                case .library:
-                    FastLibraryView()
-                case .threats:
-                    ThreatFeedView()
+                .background(ZDDesign.darkBackground)
+                .overlay(alignment: .bottom) {
+                    Divider().opacity(0.3)
                 }
+
+                // Section content
+                Group {
+                    switch intelMode {
+                    case .dashboard:
+                        IntelDashboardView(navigate: { intelMode = $0 })
+                    case .knowledge:
+                        KnowledgeContentView()
+                    case .vision:
+                        VisionContentView()
+                    case .library:
+                        FastLibraryView()
+                    case .threats:
+                        ThreatFeedView()
+                    }
+                }
+                .animation(.easeInOut(duration: 0.15), value: intelMode)
             }
             .navigationTitle("Intel")
             .toolbar {
-                ToolbarItem(placement: .principal) {
-                    if intelMode == .knowledge {
-                        HStack(spacing: 6) {
-                            Circle()
-                                .fill(KnowledgeContentView.inferenceStatusColor)
-                                .frame(width: 8, height: 8)
-                            Text(KnowledgeContentView.inferenceStatusLabel)
-                                .font(.caption2)
-                                .foregroundColor(ZDDesign.mediumGray)
-                        }
-                    } else if intelMode == .vision {
-                        HStack {
-                            Image(systemName: "circle.fill")
-                                .font(.caption)
-                                .foregroundColor(VisionContentView.visionStatusColor)
-                            Text(VisionContentView.visionStatusLabel)
-                                .font(.caption)
-                                .foregroundColor(ZDDesign.mediumGray)
-                        }
-                    } else {
-                        EmptyView()
-                    }
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         showGeoPackageImport = true
@@ -72,6 +87,7 @@ struct IntelTabView: View {
                         Image(systemName: "square.and.arrow.down")
                             .foregroundColor(ZDDesign.cyanAccent)
                     }
+                    .accessibilityLabel("Import GeoPackage")
                 }
             }
             .background(ZDDesign.darkBackground)
@@ -82,29 +98,33 @@ struct IntelTabView: View {
     }
 }
 
-// MARK: - Intel Dashboard (v6 — Threat Score Gauge + Status)
+// MARK: - Intel Dashboard
 
 struct IntelDashboardView: View {
-    @StateObject private var appState = AppState.shared
-    @StateObject private var analyzer = ThreatAnalyzer.shared
-    @StateObject private var corpus = IntelCorpus.shared
-    @StateObject private var embeddingEngine = MLXEmbeddingEngine.shared
+    var navigate: (IntelMode) -> Void = { _ in }
+    @ObservedObject private var appState = AppState.shared
+    @ObservedObject private var analyzer = ThreatAnalyzer.shared
+    @ObservedObject private var corpus = IntelCorpus.shared
+    @ObservedObject private var embeddingEngine = MLXEmbeddingEngine.shared
+    @State private var summaryExpanded = false
 
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                // Threat Score Gauge
-                threatScoreGauge
+                threatScoreBar
 
-                // Status Cards
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                    statusCard(
-                        icon: "brain",
-                        title: "Corpus",
-                        value: "\(corpus.totalDocuments)",
-                        subtitle: corpus.isReady ? "Indexed" : "Building...",
-                        color: corpus.isReady ? ZDDesign.successGreen : ZDDesign.safetyYellow
-                    )
+                    Button { navigate(.library) } label: {
+                        statusCard(
+                            icon: "brain",
+                            title: "Corpus",
+                            value: "\(corpus.totalDocuments)",
+                            subtitle: corpus.isReady ? "Indexed" : "Building...",
+                            color: corpus.isReady ? ZDDesign.successGreen : ZDDesign.safetyYellow
+                        )
+                    }
+                    .buttonStyle(.plain)
+
                     statusCard(
                         icon: "cpu",
                         title: "MLX Server",
@@ -112,13 +132,18 @@ struct IntelDashboardView: View {
                         subtitle: "127.0.0.1:8800",
                         color: embeddingEngine.isReady ? ZDDesign.successGreen : ZDDesign.signalRed
                     )
-                    statusCard(
-                        icon: "exclamationmark.triangle.fill",
-                        title: "Active Threats",
-                        value: "\(appState.activeThreatCount)",
-                        subtitle: appState.currentThreatLevel.description,
-                        color: threatLevelColor(appState.currentThreatLevel)
-                    )
+
+                    Button { navigate(.threats) } label: {
+                        statusCard(
+                            icon: "exclamationmark.triangle.fill",
+                            title: "Active Threats",
+                            value: "\(appState.activeThreatCount)",
+                            subtitle: appState.currentThreatLevel.description,
+                            color: threatLevelColor(appState.currentThreatLevel)
+                        )
+                    }
+                    .buttonStyle(.plain)
+
                     statusCard(
                         icon: "doc.text.magnifyingglass",
                         title: "Intel Updates",
@@ -129,12 +154,23 @@ struct IntelDashboardView: View {
                 }
                 .padding(.horizontal)
 
-                // Threat Breakdown
                 if let breakdown = analyzer.threatScoreBreakdown {
                     threatBreakdownView(breakdown)
+                } else {
+                    HStack(spacing: 8) {
+                        Image(systemName: "chart.bar.xaxis")
+                            .foregroundColor(ZDDesign.mediumGray)
+                        Text("No threat data — submit a report or connect to TAK")
+                            .font(.caption)
+                            .foregroundColor(ZDDesign.mediumGray)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(ZDDesign.darkSage.opacity(0.2))
+                    .cornerRadius(12)
+                    .padding(.horizontal)
                 }
 
-                // Latest Intel Summary
                 if !appState.latestIntelSummary.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Latest Intel")
@@ -142,9 +178,16 @@ struct IntelDashboardView: View {
                             .fontWeight(.semibold)
                             .foregroundColor(ZDDesign.cyanAccent)
                         Text(appState.latestIntelSummary)
-                            .font(.caption)
+                            .font(.footnote)
                             .foregroundColor(ZDDesign.pureWhite)
-                            .lineLimit(4)
+                            .lineLimit(summaryExpanded ? nil : 3)
+                        Button {
+                            withAnimation { summaryExpanded.toggle() }
+                        } label: {
+                            Text(summaryExpanded ? "Show less" : "Show more")
+                                .font(.caption)
+                                .foregroundColor(ZDDesign.cyanAccent)
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding()
@@ -158,56 +201,66 @@ struct IntelDashboardView: View {
     }
 
     @ViewBuilder
-    private var threatScoreGauge: some View {
+    private var threatScoreBar: some View {
         let score = appState.currentThreatScore
         let color = scoreColor(score)
-
         VStack(spacing: 8) {
-            ZStack {
-                Circle()
-                    .stroke(ZDDesign.darkSage.opacity(0.3), lineWidth: 12)
-                    .frame(width: 120, height: 120)
-
-                Circle()
-                    .trim(from: 0, to: CGFloat(score / 10.0))
-                    .stroke(color, style: StrokeStyle(lineWidth: 12, lineCap: .round))
-                    .frame(width: 120, height: 120)
-                    .rotationEffect(.degrees(-90))
+            HStack {
+                Text("THREAT LEVEL")
+                    .font(.caption2.bold())
+                    .foregroundColor(ZDDesign.mediumGray)
+                Spacer()
+                Text(String(format: "%.1f / 10", score))
+                    .font(.system(size: 24, weight: .bold, design: .monospaced))
+                    .foregroundColor(color)
                     .animation(.easeInOut(duration: 0.5), value: score)
+            }
+            Text(appState.currentThreatLevel.description)
+                .font(.caption.bold())
+                .foregroundColor(color)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
-                VStack(spacing: 2) {
-                    Text(String(format: "%.1f", score))
-                        .font(.system(size: 32, weight: .bold, design: .monospaced))
-                        .foregroundColor(color)
-                    Text("THREAT")
-                        .font(.caption2)
-                        .fontWeight(.bold)
-                        .foregroundColor(ZDDesign.mediumGray)
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    LinearGradient(
+                        colors: [.green, .yellow, .orange, .red],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(height: 10)
+                    .cornerRadius(5)
+
+                    let x = geo.size.width * CGFloat(min(score / 10.0, 1.0))
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(ZDDesign.pureWhite)
+                        .frame(width: 4, height: 18)
+                        .offset(x: max(0, x - 2))
+                        .shadow(radius: 2)
+                        .animation(.easeInOut(duration: 0.5), value: score)
                 }
             }
-
-            Text(appState.currentThreatLevel.description)
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundColor(color)
+            .frame(height: 18)
         }
-        .padding(.top, 8)
+        .padding()
+        .background(ZDDesign.darkCard)
+        .cornerRadius(12)
+        .padding(.horizontal)
     }
 
     @ViewBuilder
     private func threatBreakdownView(_ breakdown: ThreatAnalyzer.ThreatScoreBreakdown) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             Text("Threat Breakdown")
                 .font(.caption)
                 .fontWeight(.semibold)
                 .foregroundColor(ZDDesign.cyanAccent)
 
             breakdownRow("Environmental", score: breakdown.environmentalScore, color: ZDDesign.darkSage)
-            breakdownRow("Structural", score: breakdown.structuralScore, color: ZDDesign.earthBrown)
-            breakdownRow("Human", score: breakdown.humanScore, color: ZDDesign.signalRed)
-            breakdownRow("Temporal", score: breakdown.temporalScore, color: ZDDesign.skyBlue)
-            breakdownRow("Network Intel", score: breakdown.networkIntelScore, color: ZDDesign.cyanAccent)
-            breakdownRow("LiDAR Cover", score: breakdown.lidarCoverScore, color: ZDDesign.successGreen)
+            breakdownRow("Structural",    score: breakdown.structuralScore,    color: ZDDesign.earthBrown)
+            breakdownRow("Human",         score: breakdown.humanScore,         color: ZDDesign.signalRed)
+            breakdownRow("Temporal",      score: breakdown.temporalScore,      color: ZDDesign.skyBlue)
+            breakdownRow("Network Intel", score: breakdown.networkIntelScore,  color: ZDDesign.cyanAccent)
+            breakdownRow("LiDAR Cover",   score: breakdown.lidarCoverScore,    color: ZDDesign.successGreen)
         }
         .padding()
         .background(ZDDesign.darkSage.opacity(0.2))
@@ -219,24 +272,24 @@ struct IntelDashboardView: View {
     private func breakdownRow(_ label: String, score: Double, color: Color) -> some View {
         HStack {
             Text(label)
-                .font(.caption2)
+                .font(.caption)
                 .foregroundColor(ZDDesign.mediumGray)
-                .frame(width: 90, alignment: .leading)
+                .frame(width: 100, alignment: .leading)
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Rectangle()
                         .fill(ZDDesign.darkSage.opacity(0.3))
-                        .frame(height: 6)
-                        .cornerRadius(3)
+                        .frame(height: 10)
+                        .cornerRadius(5)
                     Rectangle()
                         .fill(color)
-                        .frame(width: geo.size.width * CGFloat(score / 10.0), height: 6)
-                        .cornerRadius(3)
+                        .frame(width: geo.size.width * CGFloat(score / 10.0), height: 10)
+                        .cornerRadius(5)
                 }
             }
-            .frame(height: 6)
+            .frame(height: 10)
             Text(String(format: "%.1f", score))
-                .font(.caption2)
+                .font(.caption)
                 .foregroundColor(ZDDesign.pureWhite)
                 .frame(width: 30, alignment: .trailing)
         }
@@ -285,30 +338,32 @@ struct IntelDashboardView: View {
     }
 }
 
-// MARK: - Knowledge Content View (v6 — Hybrid Search + Verify)
+// MARK: - Knowledge Content View
 
 struct KnowledgeContentView: View {
-    @StateObject private var rag = KnowledgeRAG.shared
-    @StateObject private var corpus = IntelCorpus.shared
-    @StateObject private var inference = TextInferenceClient.shared
-    @StateObject private var engine = LocalInferenceEngine.shared
-    @StateObject private var protocolDB = ProtocolDatabase.shared
+    @ObservedObject private var rag = KnowledgeRAG.shared
+    @ObservedObject private var corpus = IntelCorpus.shared
+    @ObservedObject private var inference = TextInferenceClient.shared
+    @ObservedObject private var engine = LocalInferenceEngine.shared
+    @ObservedObject private var protocolDB = ProtocolDatabase.shared
     private let verifyPipeline = VerifyPipeline.shared
     @State private var mode: KnowledgeMode = .ask
     @State private var searchQuery = ""
     @State private var userQuestion = ""
     @State private var messages: [IntelMessage] = []
     @State private var isLoading = false
+    @State private var loadingStage = ""
     @State private var streamTask: Task<Void, Never>? = nil
     @State private var fontSize: CGFloat = 14
     @State private var matchedProtocol: TacticalProtocol? = nil
+    @State private var selectedPromptCategory = "Medical"
 
     struct IntelMessage: Identifiable {
         let id = UUID()
         let role: String
         let content: String
-        var verification: VerificationResult?
-        var sources: [MultiModalResult]?
+        var verification: IntelVerificationResult?
+        var sources: [IntelSearchResult]?
     }
 
     enum KnowledgeMode { case ask, browse }
@@ -316,52 +371,45 @@ struct KnowledgeContentView: View {
     static var inferenceStatusColor: Color {
         let engine = LocalInferenceEngine.shared
         switch engine.modelState {
-        case .ready:    return ZDDesign.successGreen
-        case .loading:  return ZDDesign.safetyYellow
+        case .ready:     return ZDDesign.successGreen
+        case .loading:   return ZDDesign.safetyYellow
         case .notLoaded: return TextInferenceClient.shared.isConnected ? ZDDesign.skyBlue : ZDDesign.mediumGray
-        case .error:    return ZDDesign.signalRed
+        case .error:     return ZDDesign.signalRed
         }
     }
 
     static var inferenceStatusLabel: String {
         let engine = LocalInferenceEngine.shared
         switch engine.modelState {
-        case .ready:    return "On-Device"
-        case .loading:  return "Loading..."
+        case .ready:     return "On-Device"
+        case .loading:   return "Loading..."
         case .notLoaded: return TextInferenceClient.shared.isConnected ? "Server" : "Search Only"
-        case .error:    return "Model Error"
+        case .error:     return "Model Error"
         }
     }
 
-    let quickPrompts = [
-        "Sucking chest wound",
-        "Tourniquet",
-        "CPR",
-        "Severe bleeding",
-        "Observation post setup",
-        "Find water",
-        "Start fire",
-        "Emergency shelter",
-        "React to contact",
-        "Being followed"
+    private let promptCategories: [(label: String, icon: String, prompts: [String])] = [
+        ("Medical",  "cross.fill",    ["Sucking chest wound", "Tourniquet", "CPR", "Severe bleeding"]),
+        ("Survival", "flame.fill",    ["Find water", "Start fire", "Emergency shelter"]),
+        ("Tactical", "scope",         ["Observation post setup", "React to contact", "Being followed"]),
     ]
 
     var body: some View {
-        ZStack {
-            switch mode {
-            case .ask:
-                askModeView
-            case .browse:
-                browseModeView
+        VStack(spacing: 0) {
+            // Inline Ask / Browse picker
+            Picker("Mode", selection: $mode) {
+                Text("Ask").tag(KnowledgeMode.ask)
+                Text("Browse").tag(KnowledgeMode.browse)
             }
-        }
-        .toolbar {
-            ToolbarItem(placement: .automatic) {
-                Picker("Mode", selection: $mode) {
-                    Text("Ask").tag(KnowledgeMode.ask)
-                    Text("Browse").tag(KnowledgeMode.browse)
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+
+            ZStack {
+                switch mode {
+                case .ask:   askModeView
+                case .browse: browseModeView
                 }
-                .pickerStyle(.segmented)
             }
         }
         .sheet(item: $matchedProtocol) { proto in
@@ -374,9 +422,7 @@ struct KnowledgeContentView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("Done") {
-                            matchedProtocol = nil
-                        }
+                        Button("Done") { matchedProtocol = nil }
                     }
                 }
                 .background(ZDDesign.darkBackground)
@@ -392,50 +438,7 @@ struct KnowledgeContentView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
                         if messages.isEmpty {
-                            VStack(spacing: 16) {
-                                Text("Intel Search")
-                                    .font(.headline)
-                                    .foregroundColor(ZDDesign.pureWhite)
-                                Text("Hybrid AI search across all intelligence sources")
-                                    .font(.caption)
-                                    .foregroundColor(ZDDesign.mediumGray)
-
-                                // Index status
-                                if corpus.isReady {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundColor(ZDDesign.successGreen)
-                                        Text("\(corpus.totalDocuments) documents indexed")
-                                            .font(.caption2)
-                                            .foregroundColor(ZDDesign.mediumGray)
-                                    }
-                                } else if corpus.isIndexing {
-                                    HStack(spacing: 4) {
-                                        ProgressView()
-                                            .tint(ZDDesign.safetyYellow)
-                                            .scaleEffect(0.7)
-                                        Text("Indexing corpus...")
-                                            .font(.caption2)
-                                            .foregroundColor(ZDDesign.safetyYellow)
-                                    }
-                                }
-
-                                Divider()
-                                VStack(spacing: 8) {
-                                    ForEach(quickPrompts, id: \.self) { prompt in
-                                        Button(action: { askQuestion(prompt) }) {
-                                            Text(prompt)
-                                                .font(.caption)
-                                                .lineLimit(2)
-                                                .frame(maxWidth: .infinity, alignment: .leading)
-                                                .padding(8)
-                                                .background(ZDDesign.darkSage.opacity(0.3))
-                                                .cornerRadius(6)
-                                        }
-                                    }
-                                }
-                            }
-                            .padding()
+                            emptyAskState
                         } else {
                             ForEach(messages) { msg in
                                 MessageBubbleView(message: msg)
@@ -443,9 +446,8 @@ struct KnowledgeContentView: View {
                             }
                             if isLoading {
                                 HStack {
-                                    ProgressView()
-                                        .tint(ZDDesign.skyBlue)
-                                    Text("Thinking...")
+                                    ProgressView().tint(ZDDesign.skyBlue)
+                                    Text(loadingStage.isEmpty ? "Thinking..." : loadingStage)
                                         .font(.caption)
                                         .foregroundColor(ZDDesign.mediumGray)
                                     Spacer()
@@ -469,6 +471,20 @@ struct KnowledgeContentView: View {
                         .padding(.horizontal)
                 }
             }
+
+            // Inline inference status
+            HStack(spacing: 4) {
+                Circle()
+                    .fill(KnowledgeContentView.inferenceStatusColor)
+                    .frame(width: 6, height: 6)
+                Text(KnowledgeContentView.inferenceStatusLabel)
+                    .font(.caption2)
+                    .foregroundColor(ZDDesign.mediumGray)
+                Spacer()
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 2)
+
             Divider()
             HStack(spacing: 8) {
                 TextField("Ask a question...", text: $userQuestion)
@@ -483,7 +499,7 @@ struct KnowledgeContentView: View {
                 }
                 .disabled(isLoading || userQuestion.isEmpty)
                 if isLoading {
-                    Button(action: { streamTask?.cancel(); isLoading = false }) {
+                    Button(action: { streamTask?.cancel(); isLoading = false; loadingStage = "" }) {
                         Image(systemName: "stop.fill")
                             .font(.body)
                             .foregroundColor(ZDDesign.signalRed)
@@ -492,6 +508,84 @@ struct KnowledgeContentView: View {
             }
             .padding()
         }
+    }
+
+    @ViewBuilder
+    private var emptyAskState: some View {
+        VStack(spacing: 16) {
+            Text("Intel Search")
+                .font(.headline)
+                .foregroundColor(ZDDesign.pureWhite)
+            Text("Hybrid AI search across all intelligence sources")
+                .font(.caption)
+                .foregroundColor(ZDDesign.mediumGray)
+
+            if corpus.isReady {
+                HStack(spacing: 4) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(ZDDesign.successGreen)
+                    Text("\(corpus.totalDocuments) documents indexed")
+                        .font(.caption2)
+                        .foregroundColor(ZDDesign.mediumGray)
+                }
+            } else if corpus.isIndexing {
+                HStack(spacing: 4) {
+                    ProgressView().tint(ZDDesign.safetyYellow).scaleEffect(0.7)
+                    Text("Indexing corpus...")
+                        .font(.caption2)
+                        .foregroundColor(ZDDesign.safetyYellow)
+                }
+            }
+
+            Divider()
+
+            // Category filter chips
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(promptCategories, id: \.label) { cat in
+                        Button { selectedPromptCategory = cat.label } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: cat.icon)
+                                    .font(.caption2)
+                                Text(cat.label)
+                                    .font(.caption)
+                                    .fontWeight(.semibold)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(selectedPromptCategory == cat.label ? ZDDesign.cyanAccent : ZDDesign.darkCard)
+                            .foregroundColor(selectedPromptCategory == cat.label ? .black : ZDDesign.pureWhite)
+                            .cornerRadius(16)
+                        }
+                    }
+                }
+            }
+
+            // Filtered prompts — 2-column grid
+            if let category = promptCategories.first(where: { $0.label == selectedPromptCategory }) {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                    ForEach(category.prompts, id: \.self) { prompt in
+                        Button(action: { askQuestion(prompt) }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: category.icon)
+                                    .font(.caption2)
+                                    .foregroundColor(ZDDesign.cyanAccent)
+                                Text(prompt)
+                                    .font(.caption)
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.leading)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .padding(8)
+                            .background(ZDDesign.darkSage.opacity(0.3))
+                            .cornerRadius(8)
+                            .foregroundColor(ZDDesign.pureWhite)
+                        }
+                    }
+                }
+            }
+        }
+        .padding()
     }
 
     @ViewBuilder
@@ -605,6 +699,7 @@ struct KnowledgeContentView: View {
                 Text(chunk.content)
                     .font(.system(size: fontSize))
                     .lineSpacing(4)
+                    .textSelection(.enabled)
                 Spacer()
             }
             .padding()
@@ -614,32 +709,33 @@ struct KnowledgeContentView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: 12) {
                     Button(action: { fontSize = max(10, fontSize - 2) }) {
-                        Image(systemName: "minus.circle.fill")
-                            .foregroundColor(ZDDesign.skyBlue)
+                        Image(systemName: "minus.circle.fill").foregroundColor(ZDDesign.skyBlue)
                     }
                     Button(action: { fontSize = min(20, fontSize + 2) }) {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundColor(ZDDesign.skyBlue)
+                        Image(systemName: "plus.circle.fill").foregroundColor(ZDDesign.skyBlue)
                     }
                 }
             }
         }
     }
 
-    // MARK: - Ask Question (v6 — Hybrid Search + Verify Pipeline)
+    // MARK: - Ask Question
 
     private func askQuestion(_ question: String) {
         messages.append(IntelMessage(role: "user", content: question))
 
-        // LAYER 1: Instant Protocol Match (<100ms)
+        // Layer 1: Instant Protocol Match
+        loadingStage = "Matching protocol..."
         if let proto = protocolDB.quickMatch(query: question) {
             matchedProtocol = proto
             messages.append(IntelMessage(role: "assistant", content: "PROTOCOL MATCHED — Tap to view full card"))
+            loadingStage = ""
             return
         }
 
-        // LAYER 2: Hybrid Multi-Modal RAG Search (<500ms)
+        // Layer 2: Hybrid Multi-Modal RAG Search
         isLoading = true
+        loadingStage = "Searching corpus..."
         streamTask = Task {
             let results = await corpus.search(query: question, topK: 5)
 
@@ -648,7 +744,6 @@ struct KnowledgeContentView: View {
                     "**\(result.title)** _(\(result.sourceLabel))_\n\(result.content)"
                 }.joined(separator: "\n\n---\n\n")
 
-                // Verify the answer
                 let verification = verifyPipeline.verify(
                     response: answer, query: question, sourceResults: results
                 )
@@ -661,15 +756,15 @@ struct KnowledgeContentView: View {
                         sources: results
                     ))
                     isLoading = false
-
-                    // Post intel event
+                    loadingStage = ""
                     AppState.shared.postIntelEvent(.newSearchResult(query: question, resultCount: results.count))
                     AppState.shared.updateIntelSummary(String(answer.prefix(200)))
                 }
                 return
             }
 
-            // LAYER 3: AI Synthesis (5-10s) — Only if no RAG match
+            // Layer 3: AI Synthesis
+            await MainActor.run { loadingStage = "Asking AI..." }
             do {
                 let context = await corpus.buildContext(for: question)
                 let stream = try await inference.ask(question: question, context: context)
@@ -682,15 +777,11 @@ struct KnowledgeContentView: View {
                     await MainActor.run {
                         if let lastIndex = messages.indices.last,
                            messages[lastIndex].role == "assistant" {
-                            messages[lastIndex] = IntelMessage(
-                                role: "assistant",
-                                content: fullResponse
-                            )
+                            messages[lastIndex] = IntelMessage(role: "assistant", content: fullResponse)
                         }
                     }
                 }
 
-                // Post-stream verify
                 let ragResults = await corpus.search(query: question, topK: 3)
                 let verification = verifyPipeline.verify(
                     response: fullResponse, query: question, sourceResults: ragResults
@@ -705,6 +796,7 @@ struct KnowledgeContentView: View {
                         )
                     }
                     isLoading = false
+                    loadingStage = ""
                 }
             } catch {
                 await MainActor.run {
@@ -713,6 +805,7 @@ struct KnowledgeContentView: View {
                         content: "No information found. Try rephrasing your question."
                     ))
                     isLoading = false
+                    loadingStage = ""
                 }
             }
         }
@@ -723,18 +816,20 @@ struct KnowledgeContentView: View {
 
 struct MessageBubbleView: View {
     let message: KnowledgeContentView.IntelMessage
+    @State private var showVerifyInfo = false
 
     var body: some View {
         HStack(alignment: .top) {
             if message.role == "user" {
                 Spacer()
-                VStack(alignment: .trailing) {
-                    Text(message.content)
-                        .font(.body)
-                        .padding(10)
-                        .background(ZDDesign.skyBlue.opacity(0.7))
-                        .cornerRadius(8)
-                }
+                Text(message.content)
+                    .font(.body)
+                    .padding(10)
+                    .background(ZDDesign.cyanAccent.opacity(0.4))
+                    .cornerRadius(8)
+                    .foregroundColor(ZDDesign.pureWhite)
+                    .textSelection(.enabled)
+                    .frame(maxWidth: UIScreen.main.bounds.width * 0.78, alignment: .trailing)
             } else {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(message.content)
@@ -742,43 +837,48 @@ struct MessageBubbleView: View {
                         .padding(10)
                         .background(ZDDesign.darkSage.opacity(0.3))
                         .cornerRadius(8)
+                        .foregroundColor(ZDDesign.pureWhite)
+                        .textSelection(.enabled)
 
-                    // Verification badge
                     if let verification = message.verification {
-                        HStack(spacing: 4) {
-                            Image(systemName: verificationIcon(verification))
-                                .font(.caption2)
-                                .foregroundColor(verificationColor(verification))
-                            Text(verificationLabel(verification))
-                                .font(.caption2)
-                                .foregroundColor(verificationColor(verification))
-
-                            if let disclaimer = verification.suggestedDisclaimer {
-                                Text("— \(disclaimer)")
+                        Button {
+                            showVerifyInfo = true
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: verificationIcon(verification))
                                     .font(.caption2)
-                                    .foregroundColor(ZDDesign.mediumGray)
-                                    .lineLimit(1)
+                                    .foregroundColor(verificationColor(verification))
+                                Text(verificationLabel(verification))
+                                    .font(.caption2)
+                                    .foregroundColor(verificationColor(verification))
+                                if let disclaimer = verification.suggestedDisclaimer {
+                                    Text("— \(disclaimer)")
+                                        .font(.caption2)
+                                        .foregroundColor(ZDDesign.mediumGray)
+                                        .lineLimit(1)
+                                }
                             }
                         }
                         .padding(.horizontal, 4)
+                        .alert("Verification Score", isPresented: $showVerifyInfo) {
+                            Button("OK", role: .cancel) {}
+                        } message: {
+                            Text("Confidence \(Int(verification.confidence * 100))% — this score reflects how closely the answer matches indexed source documents. Higher scores indicate stronger source backing.")
+                        }
                     }
 
-                    // Source attribution badges
                     if let sources = message.sources, !sources.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 6) {
-                                ForEach(Array(Set(sources.map(\.source))), id: \.rawValue) { source in
-                                    let result = sources.first { $0.source == source }!
+                                ForEach(sources) { result in
                                     HStack(spacing: 3) {
-                                        Image(systemName: result.sourceIcon)
-                                            .font(.system(size: 9))
-                                        Text(result.sourceLabel)
-                                            .font(.system(size: 9))
+                                        Image(systemName: "doc.text").font(.system(size: 9))
+                                        Text(result.sourceLabel).font(.system(size: 9))
                                     }
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 3)
-                                    .background(result.sourceColor.opacity(0.2))
-                                    .foregroundColor(result.sourceColor)
+                                    .background(ZDDesign.cyanAccent.opacity(0.2))
+                                    .foregroundColor(ZDDesign.cyanAccent)
                                     .cornerRadius(4)
                                 }
                             }
@@ -792,44 +892,56 @@ struct MessageBubbleView: View {
         .padding(.horizontal)
     }
 
-    private func verificationIcon(_ v: VerificationResult) -> String {
+    private func verificationIcon(_ v: IntelVerificationResult) -> String {
         if v.isVerified && v.confidence > 0.8 { return "checkmark.shield.fill" }
         if v.confidence > 0.5 { return "exclamationmark.shield.fill" }
         return "xmark.shield.fill"
     }
 
-    private func verificationColor(_ v: VerificationResult) -> Color {
+    private func verificationColor(_ v: IntelVerificationResult) -> Color {
         if v.isVerified && v.confidence > 0.8 { return ZDDesign.successGreen }
         if v.confidence > 0.5 { return ZDDesign.safetyYellow }
         return ZDDesign.signalRed
     }
 
-    private func verificationLabel(_ v: VerificationResult) -> String {
+    private func verificationLabel(_ v: IntelVerificationResult) -> String {
         if v.isVerified && v.confidence > 0.8 { return "Verified (\(Int(v.confidence * 100))%)" }
         if v.confidence > 0.5 { return "Partial (\(Int(v.confidence * 100))%)" }
         return "Unverified"
     }
 }
 
-// MARK: - Vision Content View (v6 — Auto-ingest to IntelCorpus)
+// MARK: - Vision Content View
 
 struct VisionContentView: View {
-    @StateObject private var rag = KnowledgeRAG.shared
-    @StateObject private var vision = VisionInferenceClient.shared
-    @StateObject private var corpus = IntelCorpus.shared
+    @ObservedObject private var rag = KnowledgeRAG.shared
+    @ObservedObject private var vision = VisionInferenceClient.shared
+    @ObservedObject private var corpus = IntelCorpus.shared
     @State private var selectedImage: UIImage? = nil
     @State private var selectedMode: VisionMode = .plantId
-    @State private var showImagePicker = false
+    @State private var showCameraPicker = false
+    @State private var showLibraryPicker = false
     @State private var answer = ""
     @State private var isAnalyzing = false
     @State private var customQuestion = ""
+    @State private var analysisTimestamp = Date()
 
     enum VisionMode: String, CaseIterable {
         case plantId = "Plant ID"
-        case wound = "Wound"
+        case wound   = "Wound"
         case terrain = "Terrain"
-        case map = "Map"
-        case ask = "Ask"
+        case map     = "Map"
+        case ask     = "Ask"
+
+        var icon: String {
+            switch self {
+            case .plantId: return "leaf.fill"
+            case .wound:   return "bandage.fill"
+            case .terrain: return "map.fill"
+            case .map:     return "map"
+            case .ask:     return "questionmark.circle.fill"
+            }
+        }
 
         var question: String {
             switch self {
@@ -857,44 +969,76 @@ struct VisionContentView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(VisionMode.allCases, id: \.self) { mode in
-                        Button(action: { selectedMode = mode; answer = "" }) {
-                            Text(mode.rawValue)
-                                .font(.caption)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(selectedMode == mode ? ZDDesign.skyBlue : ZDDesign.darkSage.opacity(0.5))
-                                .cornerRadius(6)
-                        }
-                    }
+            // Mode selector — segmented control
+            Picker("Mode", selection: $selectedMode) {
+                ForEach(VisionMode.allCases, id: \.self) { mode in
+                    Text(mode.rawValue).tag(mode)
                 }
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .onChange(of: selectedMode) { _, _ in answer = "" }
+
+            // Offline banner
+            if !vision.isConnected {
+                HStack(spacing: 8) {
+                    Image(systemName: "wifi.slash").foregroundColor(ZDDesign.signalRed)
+                    Text("Vision server offline — results unavailable")
+                        .font(.caption)
+                        .foregroundColor(ZDDesign.signalRed)
+                    Spacer()
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(ZDDesign.signalRed.opacity(0.1))
+                .cornerRadius(8)
                 .padding(.horizontal)
             }
 
+            // Image area
             if let image = selectedImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(height: 200)
-                    .cornerRadius(8)
-                    .clipped()
-                    .padding(.horizontal)
+                ZStack(alignment: .topTrailing) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 160)
+                        .cornerRadius(8)
+                        .clipped()
+                }
+                .padding(.horizontal)
             } else {
-                Button(action: { showImagePicker = true }) {
-                    VStack(spacing: 12) {
-                        Image(systemName: "camera.fill")
-                            .font(.title)
-                            .foregroundColor(ZDDesign.skyBlue)
-                        Text("Tap to capture or select image")
-                            .font(.body)
-                            .foregroundColor(ZDDesign.mediumGray)
+                // Split camera / library buttons
+                HStack(spacing: 12) {
+                    if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                        Button { showCameraPicker = true } label: {
+                            VStack(spacing: 6) {
+                                Image(systemName: "camera.fill")
+                                    .font(.title2)
+                                    .foregroundColor(ZDDesign.skyBlue)
+                                Text("Camera")
+                                    .font(.caption)
+                                    .foregroundColor(ZDDesign.mediumGray)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 120)
+                            .background(ZDDesign.darkCard)
+                            .cornerRadius(10)
+                        }
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 200)
-                    .background(ZDDesign.darkSage.opacity(0.2))
-                    .cornerRadius(8)
+                    Button { showLibraryPicker = true } label: {
+                        VStack(spacing: 6) {
+                            Image(systemName: "photo.on.rectangle")
+                                .font(.title2)
+                                .foregroundColor(ZDDesign.skyBlue)
+                            Text("Library")
+                                .font(.caption)
+                                .foregroundColor(ZDDesign.mediumGray)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 120)
+                        .background(ZDDesign.darkCard)
+                        .cornerRadius(10)
+                    }
                 }
                 .padding(.horizontal)
             }
@@ -905,11 +1049,22 @@ struct VisionContentView: View {
                     .padding(.horizontal)
             }
 
+            // Inline vision status
+            HStack(spacing: 4) {
+                Circle()
+                    .fill(VisionContentView.visionStatusColor)
+                    .frame(width: 6, height: 6)
+                Text(VisionContentView.visionStatusLabel)
+                    .font(.caption2)
+                    .foregroundColor(ZDDesign.mediumGray)
+                Spacer()
+            }
+            .padding(.horizontal)
+
             Button(action: analyzeImage) {
                 HStack {
                     if isAnalyzing {
-                        ProgressView()
-                            .tint(ZDDesign.safetyYellow)
+                        ProgressView().tint(ZDDesign.safetyYellow)
                     } else {
                         Image(systemName: "sparkles")
                     }
@@ -928,23 +1083,24 @@ struct VisionContentView: View {
             }
             .disabled(!vision.isConnected || selectedImage == nil || isAnalyzing)
 
-            if !vision.isConnected && selectedImage != nil {
-                Text("Vision server not available at \(vision.serverURL)")
-                    .font(.caption)
-                    .foregroundColor(ZDDesign.signalRed)
-                    .padding(.horizontal)
-            }
-
             if !answer.isEmpty {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Analysis")
-                            .font(.headline)
-                            .foregroundColor(ZDDesign.pureWhite)
+                        // Metadata header
+                        HStack {
+                            Label(selectedMode.rawValue, systemImage: selectedMode.icon)
+                                .font(.caption.bold())
+                                .foregroundColor(ZDDesign.cyanAccent)
+                            Spacer()
+                            Text(analysisTimestamp, style: .time)
+                                .font(.caption2)
+                                .foregroundColor(ZDDesign.mediumGray)
+                        }
                         Divider()
                         Text(answer)
                             .font(.body)
                             .lineSpacing(4)
+                            .textSelection(.enabled)
                         Divider()
                         Text("Related Knowledge")
                             .font(.caption)
@@ -974,8 +1130,11 @@ struct VisionContentView: View {
 
             Spacer()
         }
-        .sheet(isPresented: $showImagePicker) {
-            ImagePickerView(selectedImage: $selectedImage)
+        .sheet(isPresented: $showCameraPicker) {
+            ImagePickerView(selectedImage: $selectedImage, sourceType: .camera)
+        }
+        .sheet(isPresented: $showLibraryPicker) {
+            ImagePickerView(selectedImage: $selectedImage, sourceType: .photoLibrary)
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -999,16 +1158,13 @@ struct VisionContentView: View {
                 let result = try await vision.query(image: image, question: question)
                 await MainActor.run {
                     answer = result
+                    analysisTimestamp = Date()
                     isAnalyzing = false
                 }
-                // v6: Auto-ingest analysis into IntelCorpus
                 await corpus.ingestPhotoAnalysis(
                     photoId: UUID(),
                     analysisText: result,
-                    metadata: [
-                        "mode": selectedMode.rawValue,
-                        "question": question
-                    ]
+                    metadata: ["mode": selectedMode.rawValue, "question": question]
                 )
             } catch {
                 await MainActor.run {
@@ -1030,6 +1186,7 @@ struct VisionContentView: View {
                 Text(chunk.content)
                     .font(.body)
                     .lineSpacing(4)
+                    .textSelection(.enabled)
                 Spacer()
             }
             .padding()
@@ -1042,29 +1199,27 @@ struct VisionContentView: View {
 
 struct ImagePickerView: UIViewControllerRepresentable {
     @Binding var selectedImage: UIImage?
-    @Environment(\.dismiss) var dismiss
+    var sourceType: UIImagePickerController.SourceType = .photoLibrary
+    @Environment(\.dismiss) var dismiss: DismissAction
 
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.delegate = context.coordinator
-        picker.sourceType = UIImagePickerController.isSourceTypeAvailable(.camera) ? .camera : .photoLibrary
+        picker.sourceType = UIImagePickerController.isSourceTypeAvailable(sourceType) ? sourceType : .photoLibrary
         return picker
     }
 
     func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
 
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
+    func makeCoordinator() -> Coordinator { Coordinator(self) }
 
     class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
         let parent: ImagePickerView
 
-        init(_ parent: ImagePickerView) {
-            self.parent = parent
-        }
+        init(_ parent: ImagePickerView) { self.parent = parent }
 
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        func imagePickerController(_ picker: UIImagePickerController,
+                                   didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
             if let image = info[.originalImage] as? UIImage {
                 parent.selectedImage = image
             }

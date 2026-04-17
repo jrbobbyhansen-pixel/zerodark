@@ -148,7 +148,7 @@ final class CheckInSystem: ObservableObject {
 // MARK: - CheckInView
 
 struct CheckInView: View {
-    @StateObject private var system = CheckInSystem.shared
+    @ObservedObject private var system = CheckInSystem.shared
     @State private var intervalMinutes = 30
 
     var body: some View {

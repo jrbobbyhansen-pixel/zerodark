@@ -66,6 +66,7 @@ final class VitalSignsLogger: ObservableObject {
     @Published var entries: [VitalSignEntry] = []
     @Published var alerts: [VitalAlert] = []
     @Published var patientLabel: String = "Patient 1"
+    @Published var exportURL: URL?
 
     private init() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .criticalAlert]) { _, _ in }
@@ -176,22 +177,18 @@ final class VitalSignsLogger: ObservableObject {
         let csv = exportCSV()
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("vitals_\(patientLabel).csv")
         try? csv.write(to: tempURL, atomically: true, encoding: .utf8)
-        let av = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows.first?.rootViewController?
-            .present(av, animated: true)
+        exportURL = tempURL
     }
 }
 
 // MARK: - VitalSignsLoggerView
 
 struct VitalSignsLoggerView: View {
-    @StateObject private var logger = VitalSignsLogger.shared
+    @ObservedObject private var logger = VitalSignsLogger.shared
     @State private var showAddSheet = false
 
     var body: some View {
-        Form { _ in
+        Form {
             Section("Patient") {
                 TextField("Patient Label", text: $logger.patientLabel)
             }
@@ -268,6 +265,9 @@ struct VitalSignsLoggerView: View {
         .sheet(isPresented: $showAddSheet) {
             AddVitalsSheet(logger: logger)
         }
+        .sheet(item: $logger.exportURL) { url in
+            ShareSheet(items: [url])
+        }
     }
 }
 
@@ -299,7 +299,7 @@ private struct VitalCard: View {
 
 private struct AddVitalsSheet: View {
     @ObservedObject var logger: VitalSignsLogger
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
     @State private var pulse = ""
     @State private var resp = ""
     @State private var systolic = ""

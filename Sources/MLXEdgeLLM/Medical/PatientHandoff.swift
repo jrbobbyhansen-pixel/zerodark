@@ -52,6 +52,7 @@ final class PatientHandoffViewModel: ObservableObject {
 
     @Published var vitals: [HandoffVital] = []
     @Published var treatments: [HandoffTreatment] = []
+    @Published var exportURL: URL?
 
     func addVital(type: String, value: String) {
         guard !type.isEmpty, !value.isEmpty else { return }
@@ -116,11 +117,7 @@ final class PatientHandoffViewModel: ObservableObject {
         let report = formattedSBAR()
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("SBAR_Handoff.txt")
         try? report.write(to: tempURL, atomically: true, encoding: .utf8)
-        let av = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows.first?.rootViewController?
-            .present(av, animated: true)
+        exportURL = tempURL
         AuditLogger.shared.log(.reportExported, detail: "SBAR handoff exported")
     }
 }
@@ -136,7 +133,7 @@ struct PatientHandoffView: View {
     @State private var newTreatment = ""
 
     var body: some View {
-        Form { _ in
+        Form {
             Section("Patient Info") {
                 TextField("Name / ID", text: $vm.patientName)
                 HStack {
@@ -227,6 +224,9 @@ struct PatientHandoffView: View {
         }
         .navigationTitle("Patient Handoff")
         .navigationBarTitleDisplayMode(.large)
+        .sheet(item: $vm.exportURL) { url in
+            ShareSheet(items: [url])
+        }
     }
 }
 

@@ -7,7 +7,7 @@ import MapKit
 struct Terrain3DView: View {
     let region: MKCoordinateRegion
     let waypoints: [TacticalWaypoint]
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     @State private var scene: SCNScene?
     @State private var exaggeration: Float = 1.5
     @State private var noData = false

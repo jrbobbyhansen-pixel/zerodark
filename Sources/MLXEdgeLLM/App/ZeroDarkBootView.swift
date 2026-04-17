@@ -265,7 +265,7 @@ private struct PhaseRow: View {
 
 private struct BootWarningsSheet: View {
     let warnings: [String]
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     var body: some View {
         NavigationStack {

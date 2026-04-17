@@ -280,7 +280,7 @@ final class LOSRaycastEngine {
         case intersection  // Visible only if ALL observers can see it
     }
 
-    /// GPU-accelerated viewshed (delegates to ViewshedComputeEngine)
+    /// GPU-accelerated viewshed (placeholder — falls back to CPU viewshed)
     func computeViewshedGPU(
         from observer: CLLocationCoordinate2D,
         radius: Double = 2000,
@@ -288,12 +288,15 @@ final class LOSRaycastEngine {
         resolution: Int = 360,
         samplesPerRadial: Int = 200
     ) async -> ViewshedResult? {
-        await ViewshedComputeEngine.shared.computeViewshed(
-            from: observer,
+        let results = computeViewshed(from: observer, radius: radius, observerHeight: observerHeight, resolution: resolution)
+        let visibility = results.map { $0.isVisible ? Float(1.0) : Float(0.0) }
+        return ViewshedResult(
+            observer: observer,
             radius: radius,
-            observerHeight: observerHeight,
             resolution: resolution,
-            samplesPerRadial: samplesPerRadial
+            samplesPerRadial: samplesPerRadial,
+            visibility: visibility,
+            computeTimeMs: 0
         )
     }
 

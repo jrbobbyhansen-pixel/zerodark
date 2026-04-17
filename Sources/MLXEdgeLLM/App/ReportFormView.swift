@@ -3,7 +3,7 @@
 import SwiftUI
 
 struct ReportFormView: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     let reportType: ReportType
 
     // Report data
@@ -12,8 +12,8 @@ struct ReportFormView: View {
     @State private var salute = SALUTEReport()
     @State private var contact = ContactReport()
 
-    @StateObject private var mesh = MeshService.shared
-    @StateObject private var activity = ActivityFeed.shared
+    @ObservedObject private var mesh = MeshService.shared
+    @ObservedObject private var activity = ActivityFeed.shared
 
     var body: some View {
         NavigationStack {

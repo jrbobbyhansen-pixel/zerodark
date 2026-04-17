@@ -1,9 +1,10 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var appState = AppState.shared
-    @StateObject private var haptic = HapticComms.shared
+    @ObservedObject private var appState = AppState.shared
+    @ObservedObject private var haptic = HapticComms.shared
     @State private var bootComplete = false
+    @AppStorage("device_armed") private var deviceArmed = false
 
     var body: some View {
         ZStack {
@@ -17,6 +18,12 @@ struct ContentView: View {
                 .transition(.opacity)
             }
         }
+        .fullScreenCover(isPresented: Binding(
+            get: { bootComplete && !deviceArmed },
+            set: { _ in }
+        )) {
+            ArmDeviceView()
+        }
         .preferredColorScheme(.dark)
         .animation(.easeInOut(duration: 0.5), value: bootComplete)
     }
@@ -29,10 +36,6 @@ struct ContentView: View {
                 MapTabView()
                     .tabItem { Label("Map", systemImage: "map.fill") }
                     .tag(AppTab.map)
-
-                NavTabView()
-                    .tabItem { Label("Nav", systemImage: "location.north.fill") }
-                    .tag(AppTab.nav)
 
                 LiDARTabView()
                     .tabItem { Label("LiDAR", systemImage: "cube.fill") }
@@ -82,7 +85,6 @@ struct ContentView: View {
             SettingsFAB()
         }
         .environmentObject(appState)
-        .environmentObject(NavigationViewModel())
     }
 }
 

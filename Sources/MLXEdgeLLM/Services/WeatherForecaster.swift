@@ -5,6 +5,14 @@ import Foundation
 import CoreLocation
 import CoreMotion
 
+enum ActivityLevel: String, CaseIterable {
+    case rest = "Rest"
+    case light = "Light"
+    case moderate = "Moderate"
+    case heavy = "Heavy"
+    case extreme = "Extreme"
+}
+
 final class WeatherForecaster: ObservableObject {
     static let shared = WeatherForecaster()
     @Published private(set) var barometricPressureTrend: BarometricPressureTrend = .stable
@@ -144,12 +152,14 @@ final class WeatherForecaster: ObservableObject {
             return
         }
 
-        let celestial = CelestialNavigator()
-        let times = celestial.sunTimes(date: Date(), latitude: loc.latitude, longitude: loc.longitude)
-        sunrise = times.sunrise
-        sunset = times.sunset
-        civilTwilight = times.civilTwilight
-        lastEphemerisUpdate = Date()
+        Task { @MainActor in
+            let celestial = CelestialNavigator.shared
+            let times = celestial.sunTimes(date: Date(), latitude: loc.latitude, longitude: loc.longitude)
+            self.sunrise = times.sunrise
+            self.sunset = times.sunset
+            self.civilTwilight = times.civilTwilight
+            self.lastEphemerisUpdate = Date()
+        }
     }
 }
 

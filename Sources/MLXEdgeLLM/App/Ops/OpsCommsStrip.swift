@@ -4,14 +4,13 @@
 import SwiftUI
 
 struct OpsCommsStrip: View {
-    @StateObject private var mesh = MeshService.shared
-    @StateObject private var ptt = PTTController.shared
-    @StateObject private var haptic = HapticComms.shared
-    @StateObject private var hapticPTT = HapticPTTController.shared
-    @StateObject private var activity = ActivityFeed.shared
-    @StateObject private var dtnBuffer = DTNBuffer.shared
-    @StateObject private var incidents = IncidentStore.shared
-    @StateObject private var relay = MeshRelay.shared
+    @ObservedObject private var mesh = MeshService.shared
+    @ObservedObject private var ptt = PTTController.shared
+    @ObservedObject private var haptic = HapticComms.shared
+    @ObservedObject private var hapticPTT = HapticPTTController.shared
+    @ObservedObject private var activity = ActivityFeed.shared
+    @ObservedObject private var dtnBuffer = DTNBuffer.shared
+    @ObservedObject private var relay = MeshRelay.shared
 
     @State private var isExpanded = false
     @State private var showJoinSheet = false
@@ -320,9 +319,6 @@ struct OpsCommsStrip: View {
         }
         if let code = haptic.lastReceivedCode, code == .danger {
             result.append(OpsAlert(type: .danger, message: "DANGER from \(haptic.lastSender ?? "Unknown")", timestamp: Date()))
-        }
-        for incident in incidents.incidents where incident.status == .active && incident.priority == .critical {
-            result.append(OpsAlert(type: .incident, message: incident.title, timestamp: incident.timestamp))
         }
         return result
     }

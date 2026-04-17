@@ -11,8 +11,10 @@ final class SitrepGenerator: ObservableObject {
     static let shared = SitrepGenerator()
 
     @Published var currentSitrep: String = ""
+    @Published var commandersAssessment: String = ""
     @Published var isGenerating = false
     @Published var lastGenerated: Date?
+    @Published var exportURL: URL?
 
     private init() {}
 
@@ -38,26 +40,11 @@ final class SitrepGenerator: ObservableObject {
         }
 
         // Team status
-        let checkIns = CheckInSystem.shared.checkIns
-        let overdue = CheckInSystem.shared.overdueCheckIns
-        let teamLine: String
-        if checkIns.isEmpty {
-            teamLine = "No check-ins recorded"
-        } else {
-            let total = checkIns.count
-            let overdueCount = overdue.count
-            if overdueCount > 0 {
-                let names = overdue.map { $0.callsign }.joined(separator: ", ")
-                teamLine = "\(total) total, \(overdueCount) OVERDUE: \(names)"
-            } else {
-                teamLine = "\(total) check-ins, all current"
-            }
-        }
+        let meshPeers = MeshRelay.shared.relayedPeers
+        let teamLine = "Mesh peers: \(meshPeers.count)"
 
         // Comms
-        let meshPeers = MeshRelay.shared.relayedPeers
-        let channel = ChannelManager.shared.selectedChannel
-        let commsLine = "Mesh peers: \(meshPeers.count), Channel: \(channel?.name ?? "None")"
+        let commsLine = "Mesh peers: \(meshPeers.count)"
 
         // Weather (cached)
         let weatherLine = WeatherService.shared.currentConditions?.description ?? "No weather data"
@@ -84,7 +71,7 @@ final class SitrepGenerator: ObservableObject {
            Device battery: \(batteryLevel())%
 
         5. COMMANDER'S ASSESSMENT
-           (Enter assessment)
+           \(commandersAssessment.isEmpty ? "(No assessment entered)" : commandersAssessment)
         ═══════════════════════════════════
         """
 
@@ -116,25 +103,36 @@ final class SitrepGenerator: ObservableObject {
 
     func exportSitrep() {
         guard !currentSitrep.isEmpty else { return }
-        let tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("SITREP-\(Int(Date().timeIntervalSince1970)).txt")
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let tempURL = docs.appendingPathComponent("SITREP-\(Int(Date().timeIntervalSince1970)).txt")
         try? currentSitrep.write(to: tempURL, atomically: true, encoding: .utf8)
-
-        let av = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows.first?.rootViewController?
-            .present(av, animated: true)
+        exportURL = tempURL
     }
 }
 
 // MARK: - SitrepView
 
 struct SitrepView: View {
-    @StateObject private var gen = SitrepGenerator.shared
+    @ObservedObject private var gen = SitrepGenerator.shared
 
     var body: some View {
         Form {
+            Section("Commander's Assessment") {
+                TextEditor(text: $gen.commandersAssessment)
+                    .frame(minHeight: 80)
+                    .font(.body)
+                    .overlay(alignment: .topLeading) {
+                        if gen.commandersAssessment.isEmpty {
+                            Text("Enter your assessment...")
+                                .foregroundColor(ZDDesign.mediumGray)
+                                .font(.body)
+                                .padding(.top, 8)
+                                .padding(.leading, 5)
+                                .allowsHitTesting(false)
+                        }
+                    }
+            }
+
             Section {
                 Button {
                     gen.generateSitrep()
@@ -173,6 +171,9 @@ struct SitrepView: View {
         }
         .navigationTitle("SITREP Generator")
         .navigationBarTitleDisplayMode(.large)
+        .sheet(item: $gen.exportURL) { url in
+            ShareSheet(items: [url])
+        }
     }
 }
 

@@ -3,7 +3,7 @@
 import SwiftUI
 
 struct PeerDetailsSheet: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss: DismissAction
     let event: CoTEvent
 
     var body: some View {

@@ -61,7 +61,7 @@ final class DecisionLogger: ObservableObject {
 // MARK: - DecisionLogView
 
 struct DecisionLogView: View {
-    @StateObject private var logger = DecisionLogger.shared
+    @ObservedObject private var logger = DecisionLogger.shared
 
     var body: some View {
         List {

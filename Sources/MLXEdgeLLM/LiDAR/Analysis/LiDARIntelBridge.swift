@@ -85,8 +85,8 @@ final class LiDARIntelBridge {
         // Terrain
         if let terrain = terrainAnalysis {
             lines.append("- Cover positions from terrain: \(terrain.coverPositions.count)")
-            if !terrain.routes.isEmpty {
-                lines.append("- Movement routes: \(terrain.routes.count)")
+            if !terrain.routeOptions.isEmpty {
+                lines.append("- Movement routes: \(terrain.routeOptions.count)")
             }
         }
 

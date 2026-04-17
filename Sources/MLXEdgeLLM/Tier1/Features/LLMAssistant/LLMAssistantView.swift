@@ -77,7 +77,7 @@ struct LLMAssistantView: View {
                     Button(action: sendMessage) {
                         Image(systemName: "arrow.up.circle.fill")
                             .font(.title2)
-                            .foregroundStyle(canSend ? .accentColor : .secondary)
+                            .foregroundStyle(canSend ? Color.accentColor : Color.secondary)
                     }
                     .disabled(!canSend)
                 }

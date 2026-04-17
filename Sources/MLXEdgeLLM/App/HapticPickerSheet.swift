@@ -2,8 +2,8 @@
 import SwiftUI
 
 struct HapticPickerSheet: View {
-    @Environment(\.dismiss) var dismiss
-    @StateObject private var haptic = HapticComms.shared
+    @Environment(\.dismiss) var dismiss: DismissAction
+    @ObservedObject private var haptic = HapticComms.shared
     let columns = [GridItem(.flexible()), GridItem(.flexible())]
 
     var body: some View {

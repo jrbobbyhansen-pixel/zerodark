@@ -85,6 +85,18 @@ final class MedicationTracker: ObservableObject {
         lastAlert = nil
     }
 
+    /// Non-throwing wrapper: returns MedicationError if safety check fails, nil on success
+    func tryAddMedication(drug: String, dose: String, route: String, patient: String) -> MedicationError? {
+        do {
+            try addMedication(drug: drug, dose: dose, route: route, patient: patient)
+            return nil
+        } catch let err as MedicationError {
+            return err
+        } catch {
+            return nil
+        }
+    }
+
     /// Force-add bypassing safety checks — requires explicit user override confirmation
     func forceAddMedication(drug: String, dose: String, route: String, time: Date = Date(), patient: String) {
         let normalized = drug.lowercased().trimmingCharacters(in: .whitespaces)
@@ -197,10 +209,11 @@ final class MedicationTracker: ObservableObject {
 // MARK: - MedicationTrackerView
 
 struct MedicationTrackerView: View {
-    @StateObject private var tracker = MedicationTracker.shared
+    @ObservedObject private var tracker = MedicationTracker.shared
     @State private var showAddSheet = false
     @State private var alertError: MedicationError? = nil
     @State private var pendingMedication: PendingMed? = nil
+    @State private var shareURL: URL?
 
     var body: some View {
         NavigationStack {
@@ -232,11 +245,7 @@ struct MedicationTrackerView: View {
                         let url = FileManager.default.temporaryDirectory
                             .appendingPathComponent("medications-\(Int(Date().timeIntervalSince1970)).csv")
                         try? data.write(to: url, atomically: true, encoding: .utf8)
-                        let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-                        UIApplication.shared.connectedScenes
-                            .compactMap { $0 as? UIWindowScene }
-                            .first?.windows.first?.rootViewController?
-                            .present(av, animated: true)
+                        shareURL = url
                     } label: {
                         Label("Export", systemImage: "square.and.arrow.up")
                     }
@@ -244,12 +253,11 @@ struct MedicationTrackerView: View {
             }
             .sheet(isPresented: $showAddSheet) {
                 AddMedicationSheet { drug, dose, route, patient in
-                    do {
-                        try tracker.addMedication(drug: drug, dose: dose, route: route, patient: patient)
-                        showAddSheet = false
-                    } catch let err as MedicationError {
+                    if let err = tracker.tryAddMedication(drug: drug, dose: dose, route: route, patient: patient) {
                         pendingMedication = PendingMed(drug: drug, dose: dose, route: route, patient: patient)
                         alertError = err
+                    } else {
+                        showAddSheet = false
                     }
                 }
             }
@@ -268,6 +276,9 @@ struct MedicationTrackerView: View {
                         pendingMedication = nil
                     }
                 )
+            }
+            .sheet(item: $shareURL) { url in
+                ShareSheet(items: [url])
             }
         }
     }
@@ -317,7 +328,7 @@ struct AddMedicationSheet: View {
     @State private var dose = ""
     @State private var route = "IV"
     @State private var patient = ""
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var dismiss: DismissAction
 
     private let routes = ["IV", "IM", "PO", "SQ", "IN", "IO", "SL", "TD"]
 

@@ -1,12 +1,11 @@
 // MissionPlannerSection.swift — Ops > Planner sub-section
-// Composes: MissionPlanner + FieldExercisePlanner + ControllerConsole + SAR tools
+// Composes: OpOrderBuilder, TimelinePlanner, ContingencyMatrix, SAR patterns
 
 import SwiftUI
 
 struct MissionPlannerSection: View {
     @State private var showSARTools = false
     @State private var showTacticalScanner = false
-    @State private var showTacticalNavigation = false
 
     var body: some View {
         ScrollView {
@@ -15,34 +14,34 @@ struct MissionPlannerSection: View {
                 OpsSectionHeader(icon: "flag.fill", title: "MISSION PLANNING", color: ZDDesign.cyanAccent)
 
                 NavigationLink {
-                    MissionPlanner()
+                    OpOrderBuilderView()
                 } label: {
                     OpsSectionCard(
-                        icon: "map.fill",
-                        title: "Mission Planner",
-                        subtitle: "Create missions, phases, objectives & risk assessment",
+                        icon: "doc.text.fill",
+                        title: "Op Order Builder",
+                        subtitle: "5-paragraph OPORD with PDF & JSON export",
                         color: ZDDesign.cyanAccent
                     )
                 }
 
                 NavigationLink {
-                    FieldExercisePlannerView()
+                    TimelinePlannerView()
                 } label: {
                     OpsSectionCard(
-                        icon: "figure.run",
-                        title: "Field Exercise Planner",
-                        subtitle: "Logistics, safety, objectives & evaluation criteria",
+                        icon: "clock.fill",
+                        title: "Timeline Planner",
+                        subtitle: "Phase tracking with NLT times",
                         color: ZDDesign.forestGreen
                     )
                 }
 
                 NavigationLink {
-                    ControllerConsoleView()
+                    ContingencyMatrixView()
                 } label: {
                     OpsSectionCard(
-                        icon: "slider.horizontal.3",
-                        title: "Controller Console",
-                        subtitle: "Exercise control & scenario management",
+                        icon: "exclamationmark.triangle.fill",
+                        title: "Contingency Matrix",
+                        subtitle: "IF/THEN planning with trigger alerts",
                         color: ZDDesign.darkSage
                     )
                 }
@@ -58,10 +57,6 @@ struct MissionPlannerSection: View {
                     ToolButton(icon: "qrcode.viewfinder", title: "Scanner") {
                         showTacticalScanner = true
                     }
-
-                    ToolButton(icon: "arrow.triangle.turn.up.right.circle", title: "Navigation") {
-                        showTacticalNavigation = true
-                    }
                 }
             }
             .padding(.horizontal)
@@ -71,9 +66,6 @@ struct MissionPlannerSection: View {
         }
         .sheet(isPresented: $showTacticalScanner) {
             TacticalScannerView()
-        }
-        .sheet(isPresented: $showTacticalNavigation) {
-            TacticalNavigationView()
         }
     }
 }

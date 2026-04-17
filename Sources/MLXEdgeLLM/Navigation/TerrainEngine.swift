@@ -174,7 +174,9 @@ final class TerrainEngine {
     func elevationAt(coordinate: CLLocationCoordinate2D) -> Double? {
         let lat = Int(floor(coordinate.latitude))
         let lon = Int(floor(coordinate.longitude))
-        let tileName = "N\(String(format: "%02d", lat))W\(String(format: "%03d", abs(lon)))"
+        let latPrefix = lat >= 0 ? "N" : "S"
+        let lonPrefix = lon >= 0 ? "E" : "W"
+        let tileName = "\(latPrefix)\(String(format: "%02d", abs(lat)))\(lonPrefix)\(String(format: "%03d", abs(lon)))"
 
         guard let tile = loadTile(named: tileName) else { return nil }
 

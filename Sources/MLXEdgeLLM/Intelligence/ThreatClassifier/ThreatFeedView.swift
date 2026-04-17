@@ -3,10 +3,10 @@
 import SwiftUI
 
 struct ThreatFeedView: View {
-    @StateObject private var classifier = ThreatClassifier.shared
+    @ObservedObject private var classifier = ThreatClassifier.shared
     @State private var showSubmitForm = false
     @State private var reportText = ""
-    @State private var reporterID = "SelfReport"
+    @State private var selectedCategory: ReportedThreatCategory = .none
 
     var body: some View {
         ZStack {
@@ -24,7 +24,7 @@ struct ThreatFeedView: View {
 
                     ZStack {
                         Circle()
-                            .fill(ZDDesign.successGreen)
+                            .fill(classifier.unresolvedCount == 0 ? ZDDesign.successGreen : ZDDesign.signalRed)
                             .frame(width: 32, height: 32)
 
                         Text("\(classifier.unresolvedCount)")
@@ -38,19 +38,15 @@ struct ThreatFeedView: View {
                 if classifier.reports.isEmpty {
                     VStack(spacing: 16) {
                         Spacer()
-
                         Image(systemName: "checkmark.shield.fill")
                             .font(.system(size: 48))
                             .foregroundColor(ZDDesign.successGreen)
-
                         Text("No Threats Detected")
                             .font(.headline)
                             .foregroundColor(ZDDesign.pureWhite)
-
                         Text("All clear")
                             .font(.caption)
                             .foregroundColor(ZDDesign.mediumGray)
-
                         Spacer()
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -59,12 +55,16 @@ struct ThreatFeedView: View {
                         ForEach(classifier.reports.filter { !$0.resolved }.sorted { $0.timestamp > $1.timestamp }) { report in
                             ThreatRow(report: report, classifier: classifier)
                                 .listRowBackground(ZDDesign.darkCard)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button("Resolve", role: .destructive) {
+                                        Task { classifier.resolve(report) }
+                                    }
+                                }
                         }
                     }
                     .listStyle(.plain)
                 }
 
-                // Submit button
                 Button(action: { showSubmitForm = true }) {
                     HStack(spacing: 8) {
                         Image(systemName: "plus.circle.fill")
@@ -81,7 +81,12 @@ struct ThreatFeedView: View {
             }
         }
         .sheet(isPresented: $showSubmitForm) {
-            ThreatSubmitSheet(isPresented: $showSubmitForm, classifier: classifier, reportText: $reportText, reporterID: $reporterID)
+            ThreatSubmitSheet(
+                isPresented: $showSubmitForm,
+                classifier: classifier,
+                reportText: $reportText,
+                selectedCategory: $selectedCategory
+            )
         }
         .onAppear {
             classifier.loadReports()
@@ -123,7 +128,7 @@ struct ThreatRow: View {
                         .fontWeight(.bold)
                         .foregroundColor(category.color)
 
-                    Text(formatTime(report.timestamp))
+                    Text(relativeTime(report.timestamp))
                         .font(.caption2)
                         .foregroundColor(ZDDesign.mediumGray)
                 }
@@ -134,32 +139,21 @@ struct ThreatRow: View {
                 .foregroundColor(ZDDesign.pureWhite)
                 .lineLimit(2)
 
-            HStack(spacing: 8) {
-                if let loc = report.location {
-                    Label("\(String(format: "%.2f", loc.latitude)), \(String(format: "%.2f", loc.longitude))", systemImage: "location.fill")
-                        .font(.caption2)
-                        .foregroundColor(ZDDesign.mediumGray)
-                }
-
-                Spacer()
-
-                Button(action: { Task { classifier.resolve(report) } }) {
-                    Text("Resolve")
-                        .font(.caption)
-                        .padding(6)
-                        .background(ZDDesign.successGreen.opacity(0.2))
-                        .cornerRadius(4)
-                        .foregroundColor(ZDDesign.successGreen)
-                }
+            if let loc = report.location {
+                Label("\(String(format: "%.2f", loc.latitude)), \(String(format: "%.2f", loc.longitude))", systemImage: "location.fill")
+                    .font(.caption2)
+                    .foregroundColor(ZDDesign.mediumGray)
             }
         }
         .padding(8)
     }
 
-    private func formatTime(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: date)
+    private func relativeTime(_ date: Date) -> String {
+        let interval = Date().timeIntervalSince(date)
+        if interval < 60 { return "just now" }
+        if interval < 3600 { return "\(Int(interval / 60))m ago" }
+        if interval < 86400 { return "\(Int(interval / 3600))h ago" }
+        return date.formatted(date: .abbreviated, time: .shortened)
     }
 }
 
@@ -167,8 +161,11 @@ struct ThreatSubmitSheet: View {
     @Binding var isPresented: Bool
     let classifier: ThreatClassifier
     @Binding var reportText: String
-    @Binding var reporterID: String
+    @Binding var selectedCategory: ReportedThreatCategory
+    @State private var reporterID = AppConfig.deviceCallsign
     @State private var isSubmitting = false
+    @State private var confirmationMessage = ""
+    @State private var showConfirmation = false
 
     var body: some View {
         ZStack {
@@ -179,15 +176,29 @@ struct ThreatSubmitSheet: View {
                     Text("Report Threat")
                         .font(.headline)
                         .foregroundColor(ZDDesign.pureWhite)
-
                     Spacer()
-
                     Button(action: { isPresented = false }) {
-                        Image(systemName: "xmark")
-                            .foregroundColor(ZDDesign.mediumGray)
+                        Image(systemName: "xmark").foregroundColor(ZDDesign.mediumGray)
                     }
                 }
                 .padding()
+
+                // Category picker
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Category")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(ZDDesign.cyanAccent)
+
+                    Picker("Category", selection: $selectedCategory) {
+                        ForEach(ReportedThreatCategory.allCases, id: \.rawValue) { cat in
+                            Label(cat.displayName, systemImage: cat.icon).tag(cat)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .tint(ZDDesign.cyanAccent)
+                }
+                .padding(.horizontal)
 
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Description")
@@ -216,13 +227,19 @@ struct ThreatSubmitSheet: View {
                 }
                 .padding(.horizontal)
 
+                if showConfirmation {
+                    Text(confirmationMessage)
+                        .font(.caption)
+                        .foregroundColor(ZDDesign.successGreen)
+                        .padding(.horizontal)
+                }
+
                 Spacer()
 
                 Button(action: submit) {
                     if isSubmitting {
                         HStack(spacing: 8) {
-                            ProgressView()
-                                .tint(ZDDesign.darkBackground)
+                            ProgressView().tint(ZDDesign.darkBackground)
                             Text("Classifying...")
                         }
                         .frame(maxWidth: .infinity)
@@ -248,11 +265,19 @@ struct ThreatSubmitSheet: View {
 
     private func submit() {
         isSubmitting = true
+        let category = selectedCategory
         Task {
             _ = await classifier.classify(text: reportText, source: reporterID)
-            reportText = ""
-            isSubmitting = false
-            isPresented = false
+            await MainActor.run {
+                reportText = ""
+                isSubmitting = false
+                confirmationMessage = "Reported as \(category.displayName)"
+                showConfirmation = true
+            }
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            await MainActor.run {
+                isPresented = false
+            }
         }
     }
 }

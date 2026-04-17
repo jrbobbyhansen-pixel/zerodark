@@ -97,6 +97,7 @@ struct LoadCalculatorView: View {
     @State private var newName = ""
     @State private var newLoad = ""
     @State private var newMax = "30"
+    @State private var shareURL: URL?
 
     var body: some View {
         List {
@@ -177,11 +178,7 @@ struct LoadCalculatorView: View {
                         let text = calc.exportText()
                         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("load_report.txt")
                         try? text.write(to: tempURL, atomically: true, encoding: .utf8)
-                        let av = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
-                        UIApplication.shared.connectedScenes
-                            .compactMap { $0 as? UIWindowScene }
-                            .first?.windows.first?.rootViewController?
-                            .present(av, animated: true)
+                        shareURL = tempURL
                     } label: {
                         Label("Export Report", systemImage: "square.and.arrow.up")
                             .frame(maxWidth: .infinity)
@@ -191,6 +188,9 @@ struct LoadCalculatorView: View {
         }
         .navigationTitle("Load Calculator")
         .navigationBarTitleDisplayMode(.large)
+        .sheet(item: $shareURL) { url in
+            ShareSheet(items: [url])
+        }
     }
 }
 

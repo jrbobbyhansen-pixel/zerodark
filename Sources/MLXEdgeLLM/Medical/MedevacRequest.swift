@@ -113,6 +113,7 @@ final class MedevacViewModel: ObservableObject {
     @Published var request = MedevacData()
     @Published var history: [MedevacData] = []
     @Published var transmitStatus: String?
+    @Published var exportURL: URL?
 
     init() {
         autoFillLocation()
@@ -133,9 +134,7 @@ final class MedevacViewModel: ObservableObject {
 
     private func autoFillCallsign() {
         let callsign = AppConfig.deviceCallsign
-        let channel = ChannelManager.shared.selectedChannel
-        let freq = channel?.frequency ?? "MESH"
-        request.line2Frequency = "\(freq) / \(callsign)"
+        request.line2Frequency = "MESH / \(callsign)"
     }
 
     func transmit() {
@@ -167,11 +166,7 @@ final class MedevacViewModel: ObservableObject {
         let text = request.formattedNineLine
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("MEDEVAC-9LINE.txt")
         try? text.write(to: tempURL, atomically: true, encoding: .utf8)
-        let av = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.windows.first?.rootViewController?
-            .present(av, animated: true)
+        exportURL = tempURL
     }
 }
 
@@ -181,7 +176,7 @@ struct MedevacView: View {
     @StateObject private var vm = MedevacViewModel()
 
     var body: some View {
-        Form { _ in
+        Form {
             Section("Line 1 — Pickup Location") {
                 TextField("MGRS / coordinates", text: $vm.request.line1Location)
                     .font(.system(.body, design: .monospaced))
@@ -261,6 +256,9 @@ struct MedevacView: View {
         }
         .navigationTitle("9-Line MEDEVAC")
         .navigationBarTitleDisplayMode(.large)
+        .sheet(item: $vm.exportURL) { url in
+            ShareSheet(items: [url])
+        }
     }
 }
 

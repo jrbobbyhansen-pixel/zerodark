@@ -6,16 +6,17 @@ import RealityKit
 import AVFoundation
 
 struct LiDARTabView: View {
-    @StateObject private var engine = LiDARCaptureEngine.shared
-    @StateObject private var analyzer = TacticalRoomAnalyzer.shared
+    @ObservedObject private var engine = LiDARCaptureEngine.shared
+    @ObservedObject private var analyzer = TacticalRoomAnalyzer.shared
     @State private var showingResults = false
-    @StateObject private var reconEngine = ReconWalkEngine.shared
+    @ObservedObject private var reconEngine = ReconWalkEngine.shared
     @State private var showReconWalk = false
     @State private var lidarMode: LiDARMode = .full
     @State private var scanSpeedMode: ScanSpeedMode = .standard
     @State private var showPermissionAlert = false
     @State private var showRoomIntelReport = false
     @State private var roomIntelReport: RoomIntelReport? = nil
+    @State private var shareURL: URL?
 
     var body: some View {
         NavigationStack {
@@ -43,7 +44,7 @@ struct LiDARTabView: View {
                     Button {
                         showingResults = true
                     } label: {
-                        Image(systemName: "clock.arrow.circlepath")
+                        Image(systemName: "list.bullet.below.rectangle")
                     }
                 }
             }
@@ -53,9 +54,13 @@ struct LiDARTabView: View {
             .fullScreenCover(isPresented: $showReconWalk) {
                 ReconWalkActiveView()
             }
+            // Auto-dismiss Recon Walk full screen when engine stops (handles stop from within the cover)
+            .onChange(of: reconEngine.isRecording) { _, recording in
+                if !recording { showReconWalk = false }
+            }
             .onChange(of: engine.isScanning) { _, scanning in
                 if !scanning, let result = engine.lastScanResult {
-                    // Generate tactical room report from scan
+                    // Generate room intel report — show it alone (not showingResults, which conflicts)
                     Task {
                         let report = await analyzer.analyzeRoom(
                             meshAnchors: result.meshAnchors,
@@ -66,7 +71,6 @@ struct LiDARTabView: View {
                         roomIntelReport = report
                         showRoomIntelReport = true
                     }
-                    showingResults = true
                 }
             }
             .onAppear { checkCameraPermission() }
@@ -83,16 +87,18 @@ struct LiDARTabView: View {
             .sheet(isPresented: $showRoomIntelReport) {
                 if let report = roomIntelReport {
                     RoomIntelReportView(report: report) { text in
-                        let url = FileManager.default.temporaryDirectory
-                            .appendingPathComponent("room-intel-\(Int(Date().timeIntervalSince1970)).txt")
+                        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                        let url = docs.appendingPathComponent("room-intel-\(Int(Date().timeIntervalSince1970)).txt")
                         try? text.write(to: url, atomically: true, encoding: .utf8)
-                        let av = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-                        UIApplication.shared.connectedScenes
-                            .compactMap { $0 as? UIWindowScene }
-                            .first?.windows.first?.rootViewController?
-                            .present(av, animated: true)
+                        showRoomIntelReport = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            shareURL = url
+                        }
                     }
                 }
+            }
+            .sheet(item: $shareURL) { url in
+                ShareSheet(items: [url])
             }
         }
     }
@@ -268,7 +274,7 @@ struct LiDARTabView: View {
                                 Text(mode.rawValue)
                                     .font(.caption2.bold())
                                 Text(mode.description)
-                                    .font(.system(size: 8))
+                                    .font(.caption2)
                                     .multilineTextAlignment(.center)
                                     .lineLimit(2)
                             }
@@ -310,9 +316,7 @@ struct LiDARTabView: View {
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
-            .onChange(of: lidarMode) { _, newMode in
-                engine.pipeline?.activeMode = newMode
-            }
+            .onChange(of: lidarMode) { _, _ in }
 
             // Two-button row: Quick Scan + Recon Walk
             HStack(spacing: 12) {
@@ -452,330 +456,3 @@ struct LiDARARView: UIViewRepresentable {
     }
 }
 
-// MARK: - Post-scan results sheet
-
-struct LiDARResultsView: View {
-    let result: LiDARScanResult
-    @Environment(\.dismiss) var dismiss
-    @State private var selectedTab = 0
-
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                // Summary header card
-                summaryCard
-
-                // Tab picker: Structural / Tactical / Terrain
-                Picker("Analysis", selection: $selectedTab) {
-                    Text("Structural").tag(0)
-                    Text("Tactical").tag(1)
-                    Text("Terrain").tag(2)
-                }
-                .pickerStyle(.segmented)
-                .padding()
-
-                // Tab content
-                ScrollView {
-                    switch selectedTab {
-                    case 0: structuralView
-                    case 1: tacticalView
-                    default: terrainView
-                    }
-                }
-            }
-            .navigationTitle("Scan Results")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Done") { dismiss() }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        shareScanAsCoT(result)
-                    } label: {
-                        Image(systemName: "square.and.arrow.up")
-                    }
-                }
-            }
-            .preferredColorScheme(.dark)
-        }
-    }
-
-    private var summaryCard: some View {
-        HStack(spacing: 16) {
-            // Threat level badge
-            let level = result.tacticalAnalysis?.riskScore ?? 0
-            VStack {
-                Image(systemName: threatIcon(level))
-                    .font(.title)
-                    .foregroundColor(threatColor(level))
-                Text(threatLabel(level))
-                    .font(.caption.bold())
-                    .foregroundColor(threatColor(level))
-            }
-            .frame(width: 80)
-            .padding()
-            .background(ZDDesign.darkBackground.opacity(0.4))
-            .cornerRadius(10)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text("\(result.pointCount.formatted()) points")
-                    .font(.headline)
-                if let structural = result.structuralAnalysis {
-                    Text("\(structural.surfaces.count) surfaces · \(structural.openings.count) openings")
-                        .font(.caption).foregroundColor(ZDDesign.mediumGray)
-                    if !structural.entryPoints.isEmpty {
-                        Text("\(structural.entryPoints.count) entry points")
-                            .font(.caption).foregroundColor(ZDDesign.safetyYellow)
-                    }
-                }
-                if let tactical = result.tacticalAnalysis {
-                    Text("\(tactical.observationPosts.count) OPs · \(tactical.approachRoutes.count) routes")
-                        .font(.caption).foregroundColor(ZDDesign.cyanAccent)
-                }
-                Text(result.timestamp.formatted(date: .abbreviated, time: .shortened))
-                    .font(.caption2).foregroundColor(ZDDesign.mediumGray)
-            }
-
-            Spacer()
-        }
-        .padding()
-        .background(Color(.systemBackground).opacity(0.15))
-    }
-
-    private var structuralView: some View {
-        LazyVStack(spacing: 8) {
-            guard let s = result.structuralAnalysis else {
-                return AnyView(Text("No structural data").foregroundColor(ZDDesign.mediumGray).padding())
-            }
-            return AnyView(VStack(spacing: 8) {
-                // Entry points
-                if !s.entryPoints.isEmpty {
-                    analysisSection(
-                        title: "Entry Points (\(s.entryPoints.count))",
-                        icon: "door.right.hand.open",
-                        color: ZDDesign.safetyYellow
-                    ) {
-                        ForEach(s.entryPoints, id: \.id) { ep in
-                            HStack {
-                                Text(ep.opening.type.description)
-                                Spacer()
-                                Text(String(format: "%.1f × %.1fm", ep.opening.dimensions.x, ep.opening.dimensions.y))
-                                    .font(.caption.monospaced())
-                            }
-                            .padding(.vertical, 2)
-                        }
-                    }
-                }
-
-                // Surfaces
-                analysisSection(title: "Surfaces (\(s.surfaces.count))", icon: "square.3.layers.3d", color: ZDDesign.skyBlue) {
-                    let grouped = Dictionary(grouping: s.surfaces, by: \.type)
-                    ForEach(grouped.keys.sorted(by: { $0.description < $1.description }), id: \.self) { type in
-                        HStack {
-                            Text(type.description)
-                            Spacer()
-                            Text("\(grouped[type]?.count ?? 0)")
-                                .font(.caption.monospaced())
-                                .foregroundColor(ZDDesign.mediumGray)
-                        }
-                    }
-                }
-
-                // Vulnerabilities
-                if !s.structuralVulnerabilities.isEmpty {
-                    analysisSection(title: "Vulnerabilities (\(s.structuralVulnerabilities.count))", icon: "exclamationmark.shield", color: ZDDesign.signalRed) {
-                        ForEach(s.structuralVulnerabilities, id: \.id) { v in
-                            Text(v.description)
-                                .font(.caption)
-                                .padding(.vertical, 2)
-                        }
-                    }
-                }
-            })
-        }
-        .padding()
-    }
-
-    private var tacticalView: some View {
-        LazyVStack(spacing: 8) {
-            guard let t = result.tacticalAnalysis else {
-                return AnyView(Text("No tactical data").foregroundColor(ZDDesign.mediumGray).padding())
-            }
-            return AnyView(VStack(spacing: 8) {
-                // Overall assessment text
-                Text(t.overallAssessment)
-                    .font(.caption)
-                    .padding()
-                    .background(ZDDesign.darkBackground.opacity(0.3))
-                    .cornerRadius(8)
-
-                if !t.observationPosts.isEmpty {
-                    analysisSection(title: "Observation Posts (\(t.observationPosts.count))", icon: "binoculars.fill", color: ZDDesign.cyanAccent) {
-                        ForEach(t.observationPosts.prefix(5), id: \.id) { op in
-                            HStack {
-                                Text("Coverage: \(Int(op.coverage * 100))%")
-                                Spacer()
-                                Text("Concealment: \(Int(op.concealment * 100))%")
-                                    .font(.caption.monospaced())
-                            }
-                            .font(.caption)
-                            .padding(.vertical, 2)
-                        }
-                    }
-                }
-
-                if !t.concealmentPositions.isEmpty {
-                    analysisSection(title: "Concealment (\(t.concealmentPositions.count))", icon: "eye.slash", color: ZDDesign.darkSage) {
-                        ForEach(t.concealmentPositions.prefix(5), id: \.id) { pos in
-                            Text("Radius: \(Int(pos.radius))m")
-                                .font(.caption)
-                                .padding(.vertical, 2)
-                        }
-                    }
-                }
-
-                if !t.approachRoutes.isEmpty {
-                    analysisSection(title: "Approach Routes (\(t.approachRoutes.count))", icon: "arrow.triangle.turn.up.right.circle", color: ZDDesign.forestGreen) {
-                        ForEach(t.approachRoutes.prefix(3), id: \.id) { route in
-                            Text(route.description)
-                                .font(.caption)
-                                .padding(.vertical, 2)
-                        }
-                    }
-                }
-            })
-        }
-        .padding()
-    }
-
-    private var terrainView: some View {
-        LazyVStack(spacing: 8) {
-            guard let t = result.terrainAnalysis else {
-                return AnyView(Text("No terrain data").foregroundColor(ZDDesign.mediumGray).padding())
-            }
-            return AnyView(VStack(spacing: 8) {
-                if !t.coverPositions.isEmpty {
-                    analysisSection(title: "Cover Positions (\(t.coverPositions.count))", icon: "shield.fill", color: ZDDesign.forestGreen) {
-                        ForEach(t.coverPositions.prefix(5), id: \.id) { pos in
-                            HStack {
-                                Text(pos.type.description)
-                                Spacer()
-                                Text("Protection: \(Int(pos.protection * 100))%")
-                                    .font(.caption.monospaced())
-                            }
-                            .font(.caption)
-                            .padding(.vertical, 2)
-                        }
-                    }
-                }
-
-                if !t.deadSpace.isEmpty {
-                    analysisSection(title: "Dead Space (\(t.deadSpace.count) zones)", icon: "eye.trianglebadge.exclamationmark", color: ZDDesign.sunsetOrange) {
-                        Text("Areas not visible from current position — movement corridors available")
-                            .font(.caption)
-                    }
-                }
-            })
-        }
-        .padding()
-    }
-
-    // Helper: section card builder
-    @ViewBuilder
-    private func analysisSection<Content: View>(title: String, icon: String, color: Color, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label(title, systemImage: icon)
-                .font(.subheadline.bold())
-                .foregroundColor(color)
-            content()
-        }
-        .padding()
-        .background(ZDDesign.darkBackground.opacity(0.35))
-        .cornerRadius(10)
-    }
-
-    // Share scan summary as CoT message to TAK peers
-    private func shareScanAsCoT(_ result: LiDARScanResult) {
-        guard let loc = result.location else { return }
-        let summary = """
-        LiDAR Scan Report
-        Points: \(result.pointCount)
-        Surfaces: \(result.structuralAnalysis?.surfaces.count ?? 0)
-        Entry Points: \(result.structuralAnalysis?.entryPoints.count ?? 0)
-        Cover Positions: \(result.terrainAnalysis?.coverPositions.count ?? 0)
-        Risk: \(result.tacticalAnalysis.map { $0.riskScore < 0.3 ? "LOW" : $0.riskScore < 0.7 ? "MEDIUM" : "HIGH" } ?? "UNKNOWN")
-        Location: \(MGRSConverter.toMGRS(coordinate: loc, precision: 4))
-        """
-        FreeTAKConnector.shared.sendPresence(coordinate: loc, callsign: AppConfig.deviceCallsign + "-SCAN")
-        MeshService.shared.broadcastText(summary)
-    }
-
-    // Threat display helpers
-    private func threatColor(_ score: Float) -> Color {
-        score < 0.3 ? ZDDesign.successGreen : score < 0.7 ? ZDDesign.safetyYellow : ZDDesign.signalRed
-    }
-    private func threatIcon(_ score: Float) -> String {
-        score < 0.3 ? "checkmark.shield.fill" : score < 0.7 ? "exclamationmark.triangle.fill" : "xmark.shield.fill"
-    }
-    private func threatLabel(_ score: Float) -> String {
-        score < 0.3 ? "LOW RISK" : score < 0.7 ? "ELEVATED" : "HIGH RISK"
-    }
-}
-
-// MARK: - Scan history view
-
-struct LiDARHistoryView: View {
-    @StateObject private var engine = LiDARCaptureEngine.shared
-    @Environment(\.dismiss) var dismiss
-
-    var body: some View {
-        NavigationStack {
-            Group {
-                if engine.scanHistory.isEmpty {
-                    VStack {
-                        Image(systemName: "clock.arrow.circlepath")
-                            .font(.largeTitle)
-                            .foregroundColor(ZDDesign.mediumGray)
-                        Text("No scans yet")
-                            .foregroundColor(ZDDesign.mediumGray)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    List(engine.scanHistory) { result in
-                        NavigationLink(destination: LiDARResultsView(result: result)) {
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text("\(result.pointCount.formatted()) points")
-                                        .font(.headline)
-                                    Text(result.timestamp.formatted(date: .abbreviated, time: .shortened))
-                                        .font(.caption).foregroundColor(ZDDesign.mediumGray)
-                                    if let t = result.tacticalAnalysis {
-                                        let risk = t.riskScore
-                                        Text(risk < 0.3 ? "Low Risk" : risk < 0.7 ? "Elevated" : "High Risk")
-                                            .font(.caption)
-                                            .foregroundColor(risk < 0.3 ? ZDDesign.successGreen : risk < 0.7 ? ZDDesign.safetyYellow : ZDDesign.signalRed)
-                                    }
-                                }
-                                Spacer()
-                                if let loc = result.location {
-                                    Text(MGRSConverter.toMGRS(coordinate: loc, precision: 4))
-                                        .font(.caption2.monospaced())
-                                        .foregroundColor(ZDDesign.mediumGray)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Scan History")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Done") { dismiss() }
-                }
-            }
-            .preferredColorScheme(.dark)
-        }
-    }
-}

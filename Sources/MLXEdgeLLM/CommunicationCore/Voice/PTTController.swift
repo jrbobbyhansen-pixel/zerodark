@@ -105,7 +105,7 @@ final class PTTController: ObservableObject {
         // Decompress 16-bit PCM back to Float32 buffer
         guard let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: voiceSampleRate, channels: voiceChannels, interleaved: false),
               let buffer = Data.from16BitPCM(data, format: format) else {
-            drainJitterBuffer()
+            Task { @MainActor in self.drainJitterBuffer() }
             return
         }
 
