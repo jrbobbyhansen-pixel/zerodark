@@ -358,3 +358,206 @@ final class KnowledgeRAG: ObservableObject {
         return .tactical
     }
 }
+
+// MARK: - KnowledgeBaseView
+
+struct KnowledgeBaseView: View {
+    @ObservedObject private var rag = KnowledgeRAG.shared
+    @State private var query = ""
+    @State private var results: [KnowledgeChunk] = []
+    @State private var selectedCategory: KnowledgeCategory? = nil
+    @State private var selectedChunk: KnowledgeChunk? = nil
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                VStack(spacing: 0) {
+                    searchBar
+                    categoryFilter
+                    Divider().background(ZDDesign.mediumGray.opacity(0.3))
+                    if !results.isEmpty {
+                        resultsList
+                    } else if !query.isEmpty {
+                        noResultsView
+                    } else {
+                        loadingOrIdleView
+                    }
+                }
+            }
+            .navigationTitle("Knowledge Base")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) { Button("Done") { dismiss() } }
+                ToolbarItem(placement: .topBarTrailing) {
+                    VStack(spacing: 0) {
+                        Text("\(rag.chunkCount) chunks").font(.caption2).foregroundColor(.secondary)
+                        Text("\(rag.fileCount) files").font(.caption2).foregroundColor(.secondary)
+                    }
+                }
+            }
+            .sheet(item: $selectedChunk) { chunk in
+                KnowledgeChunkDetailView(chunk: chunk)
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+
+    // MARK: Search Bar
+
+    private var searchBar: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass").foregroundColor(ZDDesign.mediumGray)
+            TextField("Search tactical knowledge…", text: $query)
+                .foregroundColor(ZDDesign.pureWhite)
+                .submitLabel(.search)
+                .onSubmit { runSearch() }
+                .onChange(of: query) { _, _ in runSearch() }
+            if !query.isEmpty {
+                Button { query = ""; results = [] } label: {
+                    Image(systemName: "xmark.circle.fill").foregroundColor(ZDDesign.mediumGray)
+                }
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(ZDDesign.darkCard)
+    }
+
+    // MARK: Category Filter
+
+    private var categoryFilter: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                categoryChip(nil, label: "All")
+                ForEach(KnowledgeCategory.allCases) { cat in
+                    categoryChip(cat, label: cat.rawValue)
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+        }
+    }
+
+    private func categoryChip(_ cat: KnowledgeCategory?, label: String) -> some View {
+        Button {
+            selectedCategory = cat
+            runSearch()
+        } label: {
+            HStack(spacing: 4) {
+                if let cat = cat {
+                    Image(systemName: cat.icon).font(.caption2)
+                }
+                Text(label).font(.caption.bold())
+            }
+            .padding(.horizontal, 10).padding(.vertical, 5)
+            .background(selectedCategory == cat ? ZDDesign.cyanAccent : ZDDesign.darkCard)
+            .foregroundColor(selectedCategory == cat ? .black : ZDDesign.mediumGray)
+            .cornerRadius(16)
+        }
+    }
+
+    // MARK: Results
+
+    private var resultsList: some View {
+        List(results) { chunk in
+            Button { selectedChunk = chunk } label: {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Image(systemName: chunk.category.icon)
+                            .font(.caption).foregroundColor(ZDDesign.cyanAccent)
+                        Text(chunk.title).font(.subheadline.bold()).foregroundColor(ZDDesign.pureWhite)
+                        Spacer()
+                        Text(chunk.category.rawValue).font(.caption2).foregroundColor(.secondary)
+                    }
+                    Text(chunk.summary)
+                        .font(.caption).foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
+            }
+            .listRowBackground(ZDDesign.darkCard)
+        }
+        .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
+    }
+
+    // MARK: Empty / Loading
+
+    private var noResultsView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "doc.questionmark").font(.largeTitle).foregroundColor(.secondary)
+            Text("No results for \"\(query)\"").font(.subheadline).foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var loadingOrIdleView: some View {
+        VStack(spacing: 12) {
+            if !rag.isLoaded {
+                ProgressView(value: rag.indexProgress)
+                    .tint(ZDDesign.cyanAccent)
+                    .padding(.horizontal, 40)
+                Text("Loading knowledge base…").font(.subheadline).foregroundColor(.secondary)
+            } else {
+                Image(systemName: "text.book.closed").font(.largeTitle).foregroundColor(.secondary)
+                Text("Search tactical knowledge").font(.subheadline).foregroundColor(.secondary)
+                Text("\(rag.chunkCount) chunks from \(rag.fileCount) field manuals")
+                    .font(.caption).foregroundColor(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func runSearch() {
+        if query.isEmpty {
+            results = []
+            return
+        }
+        var r = rag.search(query: query, topK: 20)
+        if let cat = selectedCategory {
+            r = r.filter { $0.category == cat }
+        }
+        results = r
+    }
+}
+
+// MARK: - KnowledgeChunkDetailView
+
+struct KnowledgeChunkDetailView: View {
+    let chunk: KnowledgeChunk
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            Image(systemName: chunk.category.icon).foregroundColor(ZDDesign.cyanAccent)
+                            Text(chunk.category.rawValue).font(.caption.bold()).foregroundColor(.secondary)
+                            Spacer()
+                        }
+                        Text(chunk.content)
+                            .font(.system(.body, design: .monospaced))
+                            .foregroundColor(ZDDesign.pureWhite)
+                            .textSelection(.enabled)
+                        if !chunk.keywords.isEmpty {
+                            Divider().background(ZDDesign.mediumGray.opacity(0.3))
+                            Text("Keywords: " + chunk.keywords.joined(separator: ", "))
+                                .font(.caption2).foregroundColor(.secondary)
+                        }
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle(chunk.title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) { Button("Done") { dismiss() } }
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+}

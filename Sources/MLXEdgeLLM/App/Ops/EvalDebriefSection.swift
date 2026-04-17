@@ -34,6 +34,11 @@ struct EvalDebriefSection: View {
                                    subtitle: "On-device inference latency, memory, throughput. Tradeoff advisor.",
                                    color: .orange)
                 }
+                NavigationLink { KnowledgeBaseView() } label: {
+                    OpsSectionCard(icon: "text.book.closed.fill", title: "Knowledge Base",
+                                   subtitle: "BM25 search across field manuals: first aid, navigation, shelter, water.",
+                                   color: ZDDesign.forestGreen)
+                }
 
                 OpsSectionHeader(icon: "star.fill", title: "EVALUATION", color: ZDDesign.safetyYellow)
 
