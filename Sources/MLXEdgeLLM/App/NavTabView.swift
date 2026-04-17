@@ -14,6 +14,8 @@ struct NavTabView: View {
 
     @State private var showAROverlay = false
     @State private var showLOS = false
+    @State private var showHLZ = false
+    @State private var showWaterCrossing = false
     @State private var viewshedResult: ViewshedResult?
     @State private var isComputingViewshed = false
     @State private var mapPosition: MapCameraPosition = .userLocation(fallback: .automatic)
@@ -103,6 +105,14 @@ struct NavTabView: View {
             }
             .sheet(isPresented: $showLOS) {
                 LineOfSightAnalyzerView()
+                    .preferredColorScheme(.dark)
+            }
+            .sheet(isPresented: $showHLZ) {
+                HLZFinderView()
+                    .preferredColorScheme(.dark)
+            }
+            .sheet(isPresented: $showWaterCrossing) {
+                WaterCrossingAnalyzerView()
                     .preferredColorScheme(.dark)
             }
         }
@@ -195,6 +205,32 @@ struct NavTabView: View {
                 Text("\(celestial.detectedStarCount)")
                     .font(.caption)
                     .foregroundColor(ZDDesign.pureWhite)
+            }
+
+            // HLZ finder
+            Button {
+                showHLZ = true
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "helicopter")
+                        .foregroundColor(ZDDesign.cyanAccent)
+                    Text("HLZ")
+                        .font(.caption)
+                        .foregroundColor(ZDDesign.pureWhite)
+                }
+            }
+
+            // Water crossing
+            Button {
+                showWaterCrossing = true
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "drop.fill")
+                        .foregroundColor(.blue)
+                    Text("H2O")
+                        .font(.caption)
+                        .foregroundColor(ZDDesign.pureWhite)
+                }
             }
 
             // Battery trend
