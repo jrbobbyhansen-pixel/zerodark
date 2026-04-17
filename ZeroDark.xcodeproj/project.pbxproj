@@ -80,6 +80,7 @@
 		2D62B17922EE9EB3BD1C8768 /* 25-weather.md in Resources */ = {isa = PBXBuildFile; fileRef = B3531C0695D949C8AC3F8EED /* 25-weather.md */; };
 		2E4934B0FF93DD0598A37652 /* TeamPackStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2C9B01E5129DEBEE16B1592 /* TeamPackStore.swift */; };
 		2F19735AA48059E4354B9627 /* MilitaryGridOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 746AD25063B9202BD29F2DDF /* MilitaryGridOverlay.swift */; };
+		2F2D3183FD130128763505F8 /* SunExposure.swift in Sources */ = {isa = PBXBuildFile; fileRef = 424A273ACEA47D1CFA3037E4 /* SunExposure.swift */; };
 		2F3614DF3EC60F7CE7628849 /* TacticalOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC90851DEAFE60802B98209F /* TacticalOverlay.swift */; };
 		2F3E7EF67B76A1CEC4EDB820 /* 08-signaling-fire.md in Resources */ = {isa = PBXBuildFile; fileRef = 8B5305616F193B3F7B892794 /* 08-signaling-fire.md */; };
 		2FAAEF34EC472393B2B2615E /* TranscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F8174AD4A628B987D1EDA5A /* TranscriptionManager.swift */; };
@@ -263,6 +264,7 @@
 		AA743F3751E19178855BEB8C /* 50-perimeter-defense.md in Resources */ = {isa = PBXBuildFile; fileRef = 389BF61B395E4B1248132B1D /* 50-perimeter-defense.md */; };
 		AA9383C678D64B6A6482012D /* 67-pattern-of-life.md in Resources */ = {isa = PBXBuildFile; fileRef = 6B4A224AD46D7EB0C1B68092 /* 67-pattern-of-life.md */; };
 		AAD41DFFD27BA08D7EB2233C /* OfflineTileProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E072845538F69AEDDF73D9 /* OfflineTileProvider.swift */; };
+		AD1ACE9AAEE8AFAC85532826 /* TrailDifficulty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEF6ACC618A5AD11E4B4B0 /* TrailDifficulty.swift */; };
 		ADF11E335C4F1C98C6E03286 /* TeamDashSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED97F4BF0B71451748F0DADF /* TeamDashSection.swift */; };
 		AECBC161C3FC06DCAC17CF43 /* FastLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9318C0D3C9316B3B81E7CDDC /* FastLibraryService.swift */; };
 		AED3C74457334CCCA750164E /* 75-obstacle-emplacement.md in Resources */ = {isa = PBXBuildFile; fileRef = 61CA0C1D0CE9ABBA080BA802 /* 75-obstacle-emplacement.md */; };
@@ -2987,6 +2989,8 @@
 				FF168C5FE5E8ED02703A5DBA /* WaterCrossingAnalyzer.swift in Sources */,
 				29C6932063A1472AD539305B /* WatershedAnalysis.swift in Sources */,
 				63925D7884FEEB3944B393A5 /* HlzFinder.swift in Sources */,
+				2F2D3183FD130128763505F8 /* SunExposure.swift in Sources */,
+				AD1ACE9AAEE8AFAC85532826 /* TrailDifficulty.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
