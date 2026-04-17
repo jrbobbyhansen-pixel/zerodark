@@ -29,7 +29,7 @@ class MissionClock: ObservableObject {
         isCountdownActive = true
         countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             self?.updateCurrentTime()
-            if self?.currentTime >= self?.missionEndDate ?? Date() {
+            if let end = self?.missionEndDate, let now = self?.currentTime, now >= end {
                 self?.stopMission()
                 self?.playAlert()
             }

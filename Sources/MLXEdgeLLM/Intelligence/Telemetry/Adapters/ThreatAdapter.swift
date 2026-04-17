@@ -10,9 +10,9 @@ class ThreatTelemetryAdapter: BaseTelemetryAdapter {
     }
 
     override func start() {
-        emitCurrentLevel()
+        scheduleEmit()
         timer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { [weak self] _ in
-            self?.emitCurrentLevel()
+            self?.scheduleEmit()
         }
     }
 
@@ -21,21 +21,24 @@ class ThreatTelemetryAdapter: BaseTelemetryAdapter {
         timer = nil
     }
 
-    private func emitCurrentLevel() {
-        // Derive threat level from active safety violations and mesh anomalies
-        let violations = RuntimeSafetyMonitor.shared.unresolvedViolations
-        let anomalies = MeshAnomalyDetector.shared.alerts
-            .filter { $0.severity >= .high }
+    private func scheduleEmit() {
+        // Both sources are @MainActor — hop to main actor to read them
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            let violations = RuntimeSafetyMonitor.shared.unresolvedViolations
+            let anomalies = MeshAnomalyDetector.shared.alerts
+                .filter { $0.severity >= .high }
 
-        let level: Int
-        if !violations.isEmpty && violations.contains(where: { $0.severity >= 3 }) {
-            level = 3   // High
-        } else if !violations.isEmpty || !anomalies.isEmpty {
-            level = 2   // Medium
-        } else {
-            level = 0   // None
+            let level: Int
+            if !violations.isEmpty && violations.contains(where: { $0.severity >= 3 }) {
+                level = 3   // High
+            } else if !violations.isEmpty || !anomalies.isEmpty {
+                level = 2   // Medium
+            } else {
+                level = 0   // None
+            }
+
+            self.emit(.int(level))
         }
-
-        emit(.int(level))
     }
 }

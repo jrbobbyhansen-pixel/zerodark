@@ -19,6 +19,8 @@ struct LiDARTabView: View {
     @State private var shareURL: URL?
     @State private var showTerrainAnalysis = false
     @State private var terrainPointCloud: [SIMD3<Float>] = []
+    @State private var showContourGenerator = false
+    @State private var scanOrigin: CLLocationCoordinate2D? = nil
 
     var body: some View {
         NavigationStack {
@@ -49,6 +51,11 @@ struct LiDARTabView: View {
                                 showTerrainAnalysis = true
                             } label: {
                                 Image(systemName: "mountain.2")
+                            }
+                            Button {
+                                showContourGenerator = true
+                            } label: {
+                                Image(systemName: "lines.measurement.horizontal")
                             }
                         }
                         Button {
@@ -82,8 +89,9 @@ struct LiDARTabView: View {
                         roomIntelReport = report
                         showRoomIntelReport = true
                     }
-                    // Capture point cloud for terrain slope analysis
+                    // Capture point cloud for terrain slope analysis and contour generation
                     terrainPointCloud = result.pointCloud
+                    scanOrigin = result.location
                 }
             }
             .onAppear { checkCameraPermission() }
@@ -116,6 +124,13 @@ struct LiDARTabView: View {
             .sheet(isPresented: $showTerrainAnalysis) {
                 TerrainSlopeAnalyzerView(pointCloud: terrainPointCloud)
                     .preferredColorScheme(.dark)
+            }
+            .sheet(isPresented: $showContourGenerator) {
+                ContourGeneratorView(
+                    pointCloud: terrainPointCloud,
+                    scanOrigin: scanOrigin
+                )
+                .preferredColorScheme(.dark)
             }
         }
     }

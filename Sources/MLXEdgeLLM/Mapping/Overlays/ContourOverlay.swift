@@ -39,6 +39,11 @@ final class ContourOverlay: NSObject, MKOverlay {
         super.init()
     }
     
+    /// Load pre-computed contour lines (from ContourGeneratorEngine)
+    func load(_ lines: [ContourLine]) {
+        contourLines = lines
+    }
+
     /// Generate contour lines from elevation data (call on background thread)
     func generateContours(resolution: Int = 50) {
         let engine = TerrainEngine.shared
