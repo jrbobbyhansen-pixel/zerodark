@@ -16,6 +16,7 @@ struct SceneTag: Codable, Identifiable {
     var threats: [TaggedThreat]
     var covers: [TaggedCover]
     var assessment: String?
+    var streamingMapRef: String?          // filename of voxel_map.bin in scan dir (LingBot-Map)
 
     struct TaggedThreat: Codable, Identifiable {
         let id: UUID
@@ -87,7 +88,8 @@ extension SceneTag {
         result: LiDARScanResult,
         detections: [YOLODetection],
         coverPositions: [CoverPosition],
-        scanDir: URL
+        scanDir: URL,
+        streamingMapRef: String? = nil
     ) -> SceneTag {
         let threats = detections.map { det in
             TaggedThreat(
@@ -115,6 +117,9 @@ extension SceneTag {
             atPath: scanDir.appendingPathComponent("points.bin").path
         )
 
+        let hasVoxelMap = streamingMapRef != nil ||
+            FileManager.default.fileExists(atPath: scanDir.appendingPathComponent("voxel_map.bin").path)
+
         return SceneTag(
             id: result.id,
             timestamp: result.timestamp,
@@ -125,7 +130,8 @@ extension SceneTag {
             riskScore: result.tacticalAnalysis?.riskScore,
             threats: threats,
             covers: covers,
-            assessment: nil
+            assessment: nil,
+            streamingMapRef: streamingMapRef ?? (hasVoxelMap ? "voxel_map.bin" : nil)
         )
     }
 }

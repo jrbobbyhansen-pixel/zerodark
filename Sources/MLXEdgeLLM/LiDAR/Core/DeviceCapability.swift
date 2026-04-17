@@ -82,6 +82,26 @@ struct DeviceCapability {
         }
     }
 
+    /// Maximum voxel count for VoxelStreamMap (scales with chip/RAM)
+    var maxVoxelCount: Int {
+        switch chipGeneration {
+        case .a18Pro: return 2_000_000
+        case .a17Pro: return 1_500_000
+        case .a16Pro: return 1_000_000
+        case .a15Pro: return 500_000
+        case .unknown: return 300_000
+        }
+    }
+
+    /// Depth image resolution for Metal VoxelFusion kernel dispatch
+    var voxelFusionResolution: (width: Int, height: Int) {
+        switch chipGeneration {
+        case .a18Pro: return (256, 192)
+        case .a17Pro: return (192, 144)
+        default:      return (128, 96)
+        }
+    }
+
     // MARK: - Detection
 
     static let current: DeviceCapability = {

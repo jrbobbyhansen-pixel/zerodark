@@ -46,12 +46,20 @@ struct ThrottleProfile {
     let enableRangeExtension: Bool
     let enableClutterFilter: Bool
 
+    // LingBot-Map streaming state throttle controls
+    let voxelFusionStride: Int           // 1=every pixel, 2=every 4th, 4=every 16th
+    let keyframeIntervalMultiplier: Float // 1.0=normal GCA freq, higher=less frequent
+    let enableLingBotIntegration: Bool   // false at critical — skip integrateFrame entirely
+
     static let nominal = ThrottleProfile(
         gaussianIterationsPerFrame: 100,
         yoloFrameSkipMultiplier: 1,
         kalmanIMURateMultiplier: 1.0,
         enableRangeExtension: true,
-        enableClutterFilter: true
+        enableClutterFilter: true,
+        voxelFusionStride: 1,
+        keyframeIntervalMultiplier: 1.0,
+        enableLingBotIntegration: true
     )
 
     static let fair = ThrottleProfile(
@@ -59,7 +67,10 @@ struct ThrottleProfile {
         yoloFrameSkipMultiplier: 2,
         kalmanIMURateMultiplier: 1.0,
         enableRangeExtension: true,
-        enableClutterFilter: true
+        enableClutterFilter: true,
+        voxelFusionStride: 1,
+        keyframeIntervalMultiplier: 1.5,
+        enableLingBotIntegration: true
     )
 
     static let serious = ThrottleProfile(
@@ -67,7 +78,10 @@ struct ThrottleProfile {
         yoloFrameSkipMultiplier: 3,
         kalmanIMURateMultiplier: 0.5,
         enableRangeExtension: false,   // Disable expensive gaussian training
-        enableClutterFilter: true
+        enableClutterFilter: true,
+        voxelFusionStride: 2,
+        keyframeIntervalMultiplier: 2.0,
+        enableLingBotIntegration: true  // VoxelMap is cheap enough to keep on
     )
 
     static let critical = ThrottleProfile(
@@ -75,7 +89,10 @@ struct ThrottleProfile {
         yoloFrameSkipMultiplier: 5,
         kalmanIMURateMultiplier: 0.5,
         enableRangeExtension: false,
-        enableClutterFilter: false     // Only Kalman + YOLO at low rate
+        enableClutterFilter: false,     // Only Kalman + YOLO at low rate
+        voxelFusionStride: 4,
+        keyframeIntervalMultiplier: 4.0,
+        enableLingBotIntegration: false // Skip entirely at critical — raw accumulation only
     )
 
     static func profile(for level: ThermalLevel) -> ThrottleProfile {
