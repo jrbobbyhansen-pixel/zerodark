@@ -964,7 +964,6 @@
 		BE20514C3F686800A100E36D /* TelemetryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryStore.swift; sourceTree = "<group>"; };
 		BE51EF5DA4224F5291F2F4A1 /* 22-terrain-association.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "22-terrain-association.md"; sourceTree = "<group>"; };
 		BE98D062B47B357543395455 /* 27-cold-weather.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "27-cold-weather.md"; sourceTree = "<group>"; };
-		BEC4E6B1878333201CE47B1C /* CheckInSystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CheckInSystem.swift; path = Sources/MLXEdgeLLM/FieldOps/Team/CheckInSystem.swift; sourceTree = "<group>"; };
 		BED65806E8B74F2C9C73F4D7 /* DemGenerator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DemGenerator.swift; path = Sources/MLXEdgeLLM/LiDAR/Terrain/DemGenerator.swift; sourceTree = "<group>"; };
 		BEDBC1696977BCAF08EA0B6E /* QuizBuilder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QuizBuilder.swift; path = Sources/MLXEdgeLLM/Training/Knowledge/QuizBuilder.swift; sourceTree = "<group>"; };
 		BF4771C437719D869EA5D500 /* YOLOService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = YOLOService.swift; path = Sources/MLXEdgeLLM/LiDAR/Detection/YOLOService.swift; sourceTree = "<group>"; };
@@ -2165,7 +2164,6 @@
 				4E9FF0AFA94DD2E3352220F1 /* HandoffManager.swift */,
 				AE784D10E0FECA0DB91D0DF8 /* TeamChat.swift */,
 				36A116B3A1F0B849E5BAC007 /* TaskAssignment.swift */,
-				BEC4E6B1878333201CE47B1C /* CheckInSystem.swift */,
 				1C9108658A14D286F5227243 /* FormBuilder.swift */,
 				AA7EA1F2B53991C3EAC69790 /* CensusTool.swift */,
 				047756280E0BD857FF66FBEE /* DataSync.swift */,

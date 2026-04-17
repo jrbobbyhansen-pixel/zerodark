@@ -33,6 +33,17 @@ struct TeamDashSection: View {
                     )
                 }
 
+                NavigationLink {
+                    CheckInView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "checkmark.shield.fill",
+                        title: "Check-In System",
+                        subtitle: "Scheduled mesh check-ins, overdue alerts, escalation",
+                        color: .green
+                    )
+                }
+
                 // Safety Monitor
                 safetyMonitorCard
             }
