@@ -26,6 +26,8 @@ enum AppConfig {
         }
     }
 
-    // OSM tile server
-    static let osmTileURLTemplate = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+    // Tile server — OpenFreeMap (free, no API key, App Store-safe, allows offline use)
+    // Raster PNG tiles: https://tile.openfreemap.org/{z}/{x}/{y}.png
+    // Fallback: OpenStreetMap (https://tile.openstreetmap.org/{z}/{x}/{y}.png — ToS restricts bulk use)
+    static let osmTileURLTemplate = "https://tile.openfreemap.org/{z}/{x}/{y}.png"
 }

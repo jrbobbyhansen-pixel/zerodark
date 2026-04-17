@@ -20,30 +20,36 @@ private struct RegionPreset: Identifiable {
 }
 
 private let regionPresets: [RegionPreset] = [
-    RegionPreset(name: "Los Angeles Metro", center: .init(latitude: 34.05, longitude: -118.24),
-                 span: .init(latitudeDelta: 1.2, longitudeDelta: 1.5), recommendedMinZoom: 8, recommendedMaxZoom: 15, icon: "building.2.fill"),
-    RegionPreset(name: "Dallas/Fort Worth", center: .init(latitude: 32.77, longitude: -97.01),
-                 span: .init(latitudeDelta: 1.0, longitudeDelta: 1.2), recommendedMinZoom: 8, recommendedMaxZoom: 15, icon: "building.2.fill"),
-    RegionPreset(name: "Phoenix Metro", center: .init(latitude: 33.45, longitude: -112.07),
-                 span: .init(latitudeDelta: 1.0, longitudeDelta: 1.3), recommendedMinZoom: 8, recommendedMaxZoom: 15, icon: "building.2.fill"),
-    RegionPreset(name: "Houston Metro", center: .init(latitude: 29.76, longitude: -95.37),
-                 span: .init(latitudeDelta: 1.0, longitudeDelta: 1.2), recommendedMinZoom: 8, recommendedMaxZoom: 15, icon: "building.2.fill"),
-    RegionPreset(name: "Chicago Metro", center: .init(latitude: 41.88, longitude: -87.63),
-                 span: .init(latitudeDelta: 0.8, longitudeDelta: 1.0), recommendedMinZoom: 8, recommendedMaxZoom: 15, icon: "building.2.fill"),
-    RegionPreset(name: "I-10 Corridor (TX–AZ)", center: .init(latitude: 31.0, longitude: -103.0),
+    // Broad tactical regions (offline readiness for grid-down scenarios)
+    RegionPreset(name: "Continental_US", center: .init(latitude: 39.5, longitude: -98.35),
+                 span: .init(latitudeDelta: 26.0, longitudeDelta: 58.0), recommendedMinZoom: 4, recommendedMaxZoom: 9, icon: "globe.americas.fill"),
+    RegionPreset(name: "Western_US", center: .init(latitude: 40.15, longitude: -113.35),
+                 span: .init(latitudeDelta: 17.7, longitudeDelta: 22.7), recommendedMinZoom: 5, recommendedMaxZoom: 11, icon: "mountain.2.fill"),
+    RegionPreset(name: "Eastern_US", center: .init(latitude: 36.0, longitude: -75.0),
+                 span: .init(latitudeDelta: 23.0, longitudeDelta: 16.0), recommendedMinZoom: 5, recommendedMaxZoom: 11, icon: "tree.fill"),
+    RegionPreset(name: "Alaska", center: .init(latitude: 61.3, longitude: -154.5),
+                 span: .init(latitudeDelta: 20.2, longitudeDelta: 49.2), recommendedMinZoom: 4, recommendedMaxZoom: 10, icon: "snowflake"),
+    RegionPreset(name: "Hawaii", center: .init(latitude: 20.55, longitude: -157.5),
+                 span: .init(latitudeDelta: 3.3, longitudeDelta: 5.4), recommendedMinZoom: 6, recommendedMaxZoom: 12, icon: "water.waves"),
+    RegionPreset(name: "Central_America", center: .init(latitude: 12.85, longitude: -84.7),
+                 span: .init(latitudeDelta: 11.3, longitudeDelta: 15.0), recommendedMinZoom: 5, recommendedMaxZoom: 11, icon: "globe.americas.fill"),
+    RegionPreset(name: "Europe", center: .init(latitude: 53.5, longitude: 10.5),
+                 span: .init(latitudeDelta: 35.2, longitudeDelta: 42.2), recommendedMinZoom: 4, recommendedMaxZoom: 9, icon: "globe.europe.africa.fill"),
+    // Metro and corridor presets (operational detail)
+    RegionPreset(name: "Los_Angeles_Metro", center: .init(latitude: 34.05, longitude: -118.24),
+                 span: .init(latitudeDelta: 1.2, longitudeDelta: 1.5), recommendedMinZoom: 8, recommendedMaxZoom: 14, icon: "building.2.fill"),
+    RegionPreset(name: "Dallas_Fort_Worth", center: .init(latitude: 32.77, longitude: -97.01),
+                 span: .init(latitudeDelta: 1.0, longitudeDelta: 1.2), recommendedMinZoom: 8, recommendedMaxZoom: 14, icon: "building.2.fill"),
+    RegionPreset(name: "Phoenix_Metro", center: .init(latitude: 33.45, longitude: -112.07),
+                 span: .init(latitudeDelta: 1.0, longitudeDelta: 1.3), recommendedMinZoom: 8, recommendedMaxZoom: 14, icon: "building.2.fill"),
+    RegionPreset(name: "Houston_Metro", center: .init(latitude: 29.76, longitude: -95.37),
+                 span: .init(latitudeDelta: 1.0, longitudeDelta: 1.2), recommendedMinZoom: 8, recommendedMaxZoom: 14, icon: "building.2.fill"),
+    RegionPreset(name: "I-10_Corridor_TX-AZ", center: .init(latitude: 31.0, longitude: -103.0),
                  span: .init(latitudeDelta: 4.0, longitudeDelta: 12.0), recommendedMinZoom: 6, recommendedMaxZoom: 12, icon: "road.lanes"),
-    RegionPreset(name: "I-35 Corridor (TX)", center: .init(latitude: 30.5, longitude: -97.8),
-                 span: .init(latitudeDelta: 3.5, longitudeDelta: 1.0), recommendedMinZoom: 7, recommendedMaxZoom: 13, icon: "road.lanes"),
-    RegionPreset(name: "Colorado Mountains", center: .init(latitude: 39.55, longitude: -105.78),
-                 span: .init(latitudeDelta: 2.5, longitudeDelta: 3.0), recommendedMinZoom: 7, recommendedMaxZoom: 14, icon: "mountain.2.fill"),
-    RegionPreset(name: "Appalachian (VA–NC)", center: .init(latitude: 36.5, longitude: -81.5),
-                 span: .init(latitudeDelta: 3.0, longitudeDelta: 3.5), recommendedMinZoom: 7, recommendedMaxZoom: 14, icon: "mountain.2.fill"),
-    RegionPreset(name: "Pacific Northwest", center: .init(latitude: 47.5, longitude: -121.5),
-                 span: .init(latitudeDelta: 2.5, longitudeDelta: 3.0), recommendedMinZoom: 7, recommendedMaxZoom: 14, icon: "tree.fill"),
-    RegionPreset(name: "Gulf Coast (TX)", center: .init(latitude: 28.0, longitude: -97.0),
-                 span: .init(latitudeDelta: 2.0, longitudeDelta: 3.0), recommendedMinZoom: 7, recommendedMaxZoom: 14, icon: "water.waves"),
-    RegionPreset(name: "US Overview", center: .init(latitude: 39.5, longitude: -98.35),
-                 span: .init(latitudeDelta: 22.0, longitudeDelta: 35.0), recommendedMinZoom: 4, recommendedMaxZoom: 9, icon: "globe.americas.fill"),
+    RegionPreset(name: "Colorado_Mountains", center: .init(latitude: 39.55, longitude: -105.78),
+                 span: .init(latitudeDelta: 2.5, longitudeDelta: 3.0), recommendedMinZoom: 7, recommendedMaxZoom: 13, icon: "mountain.2.fill"),
+    RegionPreset(name: "Pacific_Northwest", center: .init(latitude: 47.5, longitude: -121.5),
+                 span: .init(latitudeDelta: 2.5, longitudeDelta: 3.0), recommendedMinZoom: 7, recommendedMaxZoom: 13, icon: "tree.fill"),
 ]
 
 struct TileDownloadView: View {
@@ -51,8 +57,9 @@ struct TileDownloadView: View {
     @ObservedObject private var offlineTiles = OfflineTileProvider.shared
     @State private var regionName = ""
     @State private var minZoom: Double = 8
-    @State private var maxZoom: Double = 16
+    @State private var maxZoom: Double = 14
     @State private var showPresets = false
+    @State private var showRegionDraw = false
     @State private var showImporter = false
     @State private var importError: String?
     @State private var installedMaps: [URL] = []
@@ -146,6 +153,12 @@ struct TileDownloadView: View {
                             showPresets = true
                         } label: {
                             Label("Load a Region Preset", systemImage: "map.fill")
+                                .foregroundColor(ZDDesign.cyanAccent)
+                        }
+                        Button {
+                            showRegionDraw = true
+                        } label: {
+                            Label("Draw Custom Area", systemImage: "lasso")
                                 .foregroundColor(ZDDesign.cyanAccent)
                         }
                         Button {
@@ -309,11 +322,18 @@ struct TileDownloadView: View {
             }
             .sheet(isPresented: $showPresets) {
                 RegionPresetsSheet { preset in
-                    regionName = preset.name.replacingOccurrences(of: " ", with: "_")
+                    regionName = preset.name
                     mapRegion = preset.region
                     minZoom = Double(preset.recommendedMinZoom)
                     maxZoom = Double(preset.recommendedMaxZoom)
                     showPresets = false
+                }
+            }
+            .sheet(isPresented: $showRegionDraw) {
+                RegionDrawView { drawnRegion, name in
+                    mapRegion = drawnRegion
+                    if !name.isEmpty { regionName = name }
+                    showRegionDraw = false
                 }
             }
         }
@@ -369,10 +389,10 @@ private struct RegionPresetsSheet: View {
                             .foregroundColor(ZDDesign.cyanAccent)
                             .frame(width: 24)
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(preset.name)
+                            Text(preset.name.replacingOccurrences(of: "_", with: " "))
                                 .font(.headline)
                                 .foregroundColor(ZDDesign.pureWhite)
-                            Text("Zoom \(preset.recommendedMinZoom)–\(preset.recommendedMaxZoom)")
+                            Text("Zoom \(preset.recommendedMinZoom)–\(preset.recommendedMaxZoom) · ~\(String(format: "%.0f", TileDownloadJob(regionName: preset.name, bounds: preset.region, minZoom: preset.recommendedMinZoom, maxZoom: preset.recommendedMaxZoom).estimatedStorageMB)) MB")
                                 .font(.caption)
                                 .foregroundColor(ZDDesign.mediumGray)
                         }
