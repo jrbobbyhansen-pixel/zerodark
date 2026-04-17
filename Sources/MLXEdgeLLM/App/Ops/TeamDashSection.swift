@@ -66,6 +66,17 @@ struct TeamDashSection: View {
                     )
                 }
 
+                NavigationLink {
+                    SearchPatternView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "magnifyingglass",
+                        title: "Search Patterns",
+                        subtitle: "SAR parallel track, expanding square, sector, contour; sector assignment & coverage",
+                        color: .purple
+                    )
+                }
+
                 // Safety Monitor
                 safetyMonitorCard
             }

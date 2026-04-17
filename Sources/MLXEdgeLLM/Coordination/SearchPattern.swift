@@ -1,14 +1,21 @@
-// SearchPattern.swift — Geometric Search Pattern Generator
-// Implements expanding-square, creeping-line, and sector-sweep search patterns
+// SearchPattern.swift — SAR Search Pattern Generator + Sector Assignment + Coverage Tracking
+// Patterns: parallel track (creeping line), expanding square, sector search, contour search.
+// Assigns sectors to team members. Tracks per-sector coverage. Broadcasts via mesh.
 
 import Foundation
 import CoreLocation
+import SwiftUI
+import Combine
 
 struct SearchPattern {
-    enum PatternType {
-        case expandingSquare
-        case creepingLine
-        case sectorSweep
+    enum PatternType: String, CaseIterable {
+        case parallelTrack  = "Parallel Track"
+        case expandingSquare = "Expanding Square"
+        case sectorSearch   = "Sector Search"
+        case contourSearch  = "Contour Search"
+        // Legacy
+        case creepingLine   = "Creeping Line"
+        case sectorSweep    = "Sector Sweep"
     }
 
     let type: PatternType
@@ -355,5 +362,329 @@ class LandSARSearchModel: ObservableObject {
 
     private func updateRecommendation() {
         recommendedCell = recommendedSearchSequence().first
+    }
+}
+
+// MARK: - Additional Patterns
+
+extension SearchPattern {
+    /// Parallel track (creeping line alias) — sweeps a rectangular search area.
+    static func parallelTrack(origin: CLLocationCoordinate2D, widthM: Double, lengthM: Double, trackSpacing: Double) -> SearchPattern {
+        return creepingLine(origin: origin, width: widthM, legs: max(2, Int(widthM / trackSpacing)), legLength: lengthM)
+    }
+
+    /// Sector search — divides a circular area into wedges radiating from center.
+    /// Each wedge is one team's assigned sector.
+    static func sectorSearch(origin: CLLocationCoordinate2D, radius: Double, sectors: Int) -> SearchPattern {
+        return sectorSweep(origin: origin, radius: radius, sectors: sectors)
+    }
+
+    /// Contour search — follows a fixed bearing with parallel lateral offset tracks,
+    /// approximating terrain-following when combined with real elevation data.
+    static func contourSearch(origin: CLLocationCoordinate2D, bearingDeg: Double, trackSpacing: Double, numTracks: Int, legLengthM: Double) -> SearchPattern {
+        var waypoints: [CLLocationCoordinate2D] = []
+        let perpendicularBearing = (bearingDeg + 90).truncatingRemainder(dividingBy: 360)
+
+        for track in 0..<numTracks {
+            let lateralOffset = Double(track) * trackSpacing
+            let trackStart = origin.offsetBy(meters: lateralOffset, bearing: perpendicularBearing)
+            let forwardBearing = track % 2 == 0 ? bearingDeg : (bearingDeg + 180).truncatingRemainder(dividingBy: 360)
+            waypoints.append(trackStart)
+            waypoints.append(trackStart.offsetBy(meters: legLengthM, bearing: forwardBearing))
+        }
+
+        return SearchPattern(
+            type: .contourSearch,
+            waypoints: waypoints,
+            coverageArea: trackSpacing * Double(numTracks) * legLengthM,
+            estimatedDuration: TimeInterval(waypoints.count * 90),
+            trackSpacing: trackSpacing
+        )
+    }
+}
+
+// MARK: - Assigned Sector
+
+struct AssignedSector: Identifiable {
+    let id: UUID = UUID()
+    let callsign: String     // peer name or "Self"
+    let sectorIndex: Int
+    let waypoints: [CLLocationCoordinate2D]
+    var isComplete: Bool = false
+    var completedAt: Date?
+}
+
+// MARK: - SearchPatternManager
+
+@MainActor
+class SearchPatternManager: ObservableObject {
+    static let shared = SearchPatternManager()
+
+    @Published var currentPattern: SearchPattern?
+    @Published var assignments: [AssignedSector] = []
+    @Published var searchOrigin: CLLocationCoordinate2D = CLLocationCoordinate2D()
+
+    private let meshPrefix = "[search-assign]"
+
+    private init() {}
+
+    // MARK: - Generate + Assign
+
+    func generate(
+        type: SearchPattern.PatternType,
+        origin: CLLocationCoordinate2D,
+        trackSpacing: Double = 50,
+        radius: Double = 500,
+        sectors: Int = 8,
+        widthM: Double = 400,
+        lengthM: Double = 400
+    ) {
+        searchOrigin = origin
+        let pattern: SearchPattern
+        switch type {
+        case .parallelTrack, .creepingLine:
+            pattern = .parallelTrack(origin: origin, widthM: widthM, lengthM: lengthM, trackSpacing: trackSpacing)
+        case .expandingSquare:
+            pattern = .expandingSquare(origin: origin, trackSpacing: trackSpacing)
+        case .sectorSearch, .sectorSweep:
+            pattern = .sectorSearch(origin: origin, radius: radius, sectors: sectors)
+        case .contourSearch:
+            pattern = .contourSearch(origin: origin, bearingDeg: 0, trackSpacing: trackSpacing, numTracks: Int(widthM / trackSpacing), legLengthM: lengthM)
+        }
+        currentPattern = pattern
+        assignSectors(pattern: pattern)
+    }
+
+    private func assignSectors(pattern: SearchPattern) {
+        // Build team: self + mesh peers
+        var team: [String] = [AppConfig.deviceCallsign]
+        team += MeshService.shared.peers.filter { $0.status != .offline }.map { $0.name }
+
+        guard !team.isEmpty, !pattern.waypoints.isEmpty else { assignments = []; return }
+
+        // Divide waypoints into equal chunks per team member
+        let chunkSize = max(1, (pattern.waypoints.count + team.count - 1) / team.count)
+        assignments = team.enumerated().compactMap { idx, callsign in
+            let start = idx * chunkSize
+            guard start < pattern.waypoints.count else { return nil }
+            let end = min(start + chunkSize, pattern.waypoints.count)
+            let slice = Array(pattern.waypoints[start..<end])
+            return AssignedSector(callsign: callsign, sectorIndex: idx, waypoints: slice)
+        }
+
+        broadcastAssignments()
+    }
+
+    // MARK: - Coverage
+
+    func markComplete(sectorId: UUID) {
+        if let idx = assignments.firstIndex(where: { $0.id == sectorId }) {
+            assignments[idx].isComplete = true
+            assignments[idx].completedAt = Date()
+        }
+    }
+
+    var coveragePercent: Double {
+        guard !assignments.isEmpty else { return 0 }
+        return Double(assignments.filter(\.isComplete).count) / Double(assignments.count) * 100
+    }
+
+    // MARK: - Mesh Broadcast
+
+    private func broadcastAssignments() {
+        guard MeshService.shared.isActive else { return }
+        let assignmentMap = assignments.map { a in
+            [
+                "callsign": a.callsign,
+                "sectorIndex": a.sectorIndex,
+                "waypoints": a.waypoints.map { ["lat": $0.latitude, "lon": $0.longitude] }
+            ] as [String: Any]
+        }
+        if let data = try? JSONSerialization.data(withJSONObject: assignmentMap),
+           let json = String(data: data, encoding: .utf8) {
+            MeshService.shared.sendText(meshPrefix + json)
+        }
+    }
+}
+
+// MARK: - SearchPatternView
+
+struct SearchPatternView: View {
+    @ObservedObject private var manager = SearchPatternManager.shared
+    @State private var patternType: SearchPattern.PatternType = .parallelTrack
+    @State private var trackSpacing: Double = 50
+    @State private var radiusM: Double = 500
+    @State private var widthM: Double = 400
+    @State private var lengthM: Double = 400
+    @State private var sectors: Double = 8
+    @Environment(\.dismiss) private var dismiss
+
+    private let displayTypes: [SearchPattern.PatternType] = [.parallelTrack, .expandingSquare, .sectorSearch, .contourSearch]
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                ScrollView {
+                    VStack(spacing: 16) {
+                        configCard
+                        if !manager.assignments.isEmpty {
+                            coverageCard
+                            sectorList
+                        }
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("Search Patterns")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) { Button("Done") { dismiss() } }
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+
+    // MARK: - Config Card
+
+    private var configCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Pattern Configuration")
+                .font(.caption.bold()).foregroundColor(.secondary)
+
+            Picker("Pattern", selection: $patternType) {
+                ForEach(displayTypes, id: \.self) { Text($0.rawValue).tag($0) }
+            }
+            .pickerStyle(.segmented)
+
+            switch patternType {
+            case .parallelTrack, .contourSearch, .creepingLine:
+                paramRow("Track Spacing", value: $trackSpacing, range: 20...200, unit: "m")
+                paramRow("Width", value: $widthM, range: 100...2000, unit: "m")
+                paramRow("Length", value: $lengthM, range: 100...2000, unit: "m")
+            case .expandingSquare:
+                paramRow("Track Spacing", value: $trackSpacing, range: 20...200, unit: "m")
+            case .sectorSearch, .sectorSweep:
+                paramRow("Radius", value: $radiusM, range: 100...5000, unit: "m")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Sectors: \(Int(sectors))").font(.caption).foregroundColor(.secondary)
+                    Slider(value: $sectors, in: 4...16, step: 1)
+                        .tint(ZDDesign.cyanAccent)
+                }
+            }
+
+            Button {
+                let origin = LocationManager.shared.currentLocation
+                    ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)
+                manager.generate(
+                    type: patternType,
+                    origin: origin,
+                    trackSpacing: trackSpacing,
+                    radius: radiusM,
+                    sectors: Int(sectors),
+                    widthM: widthM,
+                    lengthM: lengthM
+                )
+            } label: {
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                    Text("Generate & Assign").font(.headline.bold())
+                }
+                .foregroundColor(.black)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(ZDDesign.cyanAccent)
+                .cornerRadius(10)
+            }
+        }
+        .padding()
+        .background(ZDDesign.darkCard)
+        .cornerRadius(10)
+    }
+
+    private func paramRow(_ label: String, value: Binding<Double>, range: ClosedRange<Double>, unit: String) -> some View {
+        HStack {
+            Text("\(label): \(Int(value.wrappedValue))\(unit)")
+                .font(.caption).foregroundColor(.secondary).frame(minWidth: 130, alignment: .leading)
+            Slider(value: value, in: range).tint(ZDDesign.cyanAccent)
+        }
+    }
+
+    // MARK: - Coverage Card
+
+    private var coverageCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Coverage").font(.caption.bold()).foregroundColor(.secondary)
+                Spacer()
+                Text(String(format: "%.0f%%", manager.coveragePercent))
+                    .font(.title2.bold().monospaced())
+                    .foregroundColor(coverageColor(manager.coveragePercent))
+            }
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule().fill(Color.white.opacity(0.1)).frame(height: 8)
+                    Capsule()
+                        .fill(coverageColor(manager.coveragePercent))
+                        .frame(width: geo.size.width * CGFloat(manager.coveragePercent / 100), height: 8)
+                }
+            }
+            .frame(height: 8)
+            HStack {
+                Text("\(manager.assignments.filter(\.isComplete).count) / \(manager.assignments.count) sectors complete")
+                    .font(.caption).foregroundColor(.secondary)
+                Spacer()
+                if let p = manager.currentPattern {
+                    Text(String(format: "%.0f m²", p.coverageArea))
+                        .font(.caption.monospaced()).foregroundColor(.secondary)
+                }
+            }
+        }
+        .padding()
+        .background(ZDDesign.darkCard)
+        .cornerRadius(10)
+    }
+
+    private func coverageColor(_ pct: Double) -> Color {
+        switch pct {
+        case 75...: return .green
+        case 50..<75: return .yellow
+        case 25..<50: return .orange
+        default: return .red
+        }
+    }
+
+    // MARK: - Sector List
+
+    private var sectorList: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Sector Assignments").font(.caption.bold()).foregroundColor(.secondary)
+            ForEach(manager.assignments) { sector in
+                HStack(spacing: 12) {
+                    Image(systemName: sector.isComplete ? "checkmark.circle.fill" : "circle")
+                        .foregroundColor(sector.isComplete ? .green : ZDDesign.cyanAccent)
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack {
+                            Text(sector.callsign).font(.subheadline.bold()).foregroundColor(ZDDesign.pureWhite)
+                            Text("Sector \(sector.sectorIndex + 1)").font(.caption).foregroundColor(.secondary)
+                            Spacer()
+                            Text("\(sector.waypoints.count) wpts").font(.caption2.monospaced()).foregroundColor(.secondary)
+                        }
+                        if let done = sector.completedAt {
+                            Text("Completed \(done, style: .relative) ago").font(.caption2).foregroundColor(.green)
+                        }
+                    }
+                    if !sector.isComplete {
+                        Button("Done") { manager.markComplete(sectorId: sector.id) }
+                            .font(.caption.bold()).foregroundColor(.black)
+                            .padding(.horizontal, 10).padding(.vertical, 4)
+                            .background(ZDDesign.cyanAccent).cornerRadius(6)
+                    }
+                }
+                .padding(10)
+                .background(ZDDesign.darkCard)
+                .cornerRadius(8)
+            }
+        }
     }
 }

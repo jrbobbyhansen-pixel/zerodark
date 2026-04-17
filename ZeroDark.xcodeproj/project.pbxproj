@@ -139,6 +139,7 @@
 		4E7F022A640D0B794198E58E /* StarCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E752665F1966C07C2E41DE /* StarCatalog.swift */; };
 		4F1FCB204D8AB3C59739DBCB /* OfflineMapEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E712FB353E8B24FD2F2B58 /* OfflineMapEngine.swift */; };
 		4F3FE2FB30A2EE61097A9842 /* TelemetryDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08624ABBE7384C7B4A999012 /* TelemetryDashboard.swift */; };
+		4F630591518DA9A5EF259DE5 /* SearchPattern.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05F05E1E2708A08D84A8F24B /* SearchPattern.swift */; };
 		4F865A9DB3133EB8321F0070 /* MapTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF6D7DC745F5D3843671CC28 /* MapTabView.swift */; };
 		50B2A0954D08B422311879F5 /* SceneTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5315FB0748B8A2F5C96390AC /* SceneTag.swift */; };
 		50F2415A31D16A2D7870AF5B /* 65-area-reconnaissance.md in Resources */ = {isa = PBXBuildFile; fileRef = ED1B4BAFB0796A70D18FA9D7 /* 65-area-reconnaissance.md */; };
@@ -713,7 +714,6 @@
 		66D44320EB389FEB01DAD4C8 /* ShapefileHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ShapefileHandler.swift; path = Sources/MLXEdgeLLM/Interop/GIS/ShapefileHandler.swift; sourceTree = "<group>"; };
 		671E2D197918B5A7F7E4CDB1 /* 48-react-ambush.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "48-react-ambush.md"; sourceTree = "<group>"; };
 		6761117520C183152AFD2D67 /* AuthManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AuthManager.swift; path = Sources/MLXEdgeLLM/Security/Access/AuthManager.swift; sourceTree = "<group>"; };
-		6792C24F51050B0623EA68F1 /* DroneSearchPatterns.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DroneSearchPatterns.swift; path = Sources/MLXEdgeLLM/Hardware/Drone/DroneSearchPatterns.swift; sourceTree = "<group>"; };
 		67BEA4CB8C8C862A250AF9BF /* BuddySystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BuddySystem.swift; path = Sources/MLXEdgeLLM/Training/Team/BuddySystem.swift; sourceTree = "<group>"; };
 		67CC58CD7CA55A0453E38241 /* 100-counter-surveillance-vehicle.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "100-counter-surveillance-vehicle.md"; sourceTree = "<group>"; };
 		67D48B61C07222909CAB2F40 /* FuelCalculator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FuelCalculator.swift; path = Sources/MLXEdgeLLM/Hardware/Vehicle/FuelCalculator.swift; sourceTree = "<group>"; };
@@ -1775,7 +1775,6 @@
 				89332DFEAB47442B9D20C254 /* DroneController.swift */,
 				3B406CBB7C84AF13119832ED /* OrthoStitcher.swift */,
 				09ADA97D61492CD0FD6CEA2B /* DroneVideoFeed.swift */,
-				6792C24F51050B0623EA68F1 /* DroneSearchPatterns.swift */,
 				7C871FF5A36F4EA5ECB9ABBE /* DroneFleet.swift */,
 				CC2A438FB25F2C7F4D3A960F /* DroneMissionPlanner.swift */,
 				69E8C703CF8A696F92DE8B04 /* PulseOxInterface.swift */,
@@ -2993,6 +2992,7 @@
 				3E292787B9A2C8F11EDB8C43 /* TeamRoster.swift in Sources */,
 				9ECF4E9A297F3298DB3DBE2A /* StatusBoard.swift in Sources */,
 				DE145C59F868B5A44874023E /* RallyPoint.swift in Sources */,
+				4F630591518DA9A5EF259DE5 /* SearchPattern.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
