@@ -18,6 +18,7 @@ struct OpsCommsStrip: View {
     @State private var showMessageQueue = false
     @State private var showChannelManager = false
     @State private var showTopology = false
+    @State private var showQuickMessages = false
     @State private var messageText = ""
 
     var body: some View {
@@ -48,6 +49,9 @@ struct OpsCommsStrip: View {
         }
         .sheet(isPresented: $showTopology) {
             MeshVisualizerView()
+        }
+        .sheet(isPresented: $showQuickMessages) {
+            QuickMessagesView()
         }
     }
 
@@ -327,6 +331,12 @@ struct OpsCommsStrip: View {
                         .cornerRadius(8)
                         .foregroundColor(ZDDesign.pureWhite)
 
+                    Button {
+                        showQuickMessages = true
+                    } label: {
+                        Image(systemName: "list.bullet.rectangle")
+                            .foregroundColor(ZDDesign.cyanAccent)
+                    }
                     Button {
                         if !messageText.isEmpty {
                             mesh.sendText(messageText)
