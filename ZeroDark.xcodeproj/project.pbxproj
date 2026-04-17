@@ -319,6 +319,7 @@
 		D25BA7086C6DD1EFC7491015 /* ViewshedAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879B7918AC440E44267B8F22 /* ViewshedAnalysis.swift */; };
 		D2B5CEFF328AE1F1FD822CF7 /* Geofence.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6767A26259D077FF2BB15EF /* Geofence.swift */; };
 		D35269B572523E2EB49FE402 /* 14-fracture-management.md in Resources */ = {isa = PBXBuildFile; fileRef = B4E10C4D0633F94B1E72E086 /* 14-fracture-management.md */; };
+		D3D8B6DE756FD1DED08FE60E /* TaskAssignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C84CCCFC3C0CB303F6BD283 /* TaskAssignment.swift */; };
 		D3FC8882C490C48BE79C2D62 /* GeofenceMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EFCB72452B77C6B14C02C2D /* GeofenceMonitor.swift */; };
 		D401396C0F362D3D1AC0359C /* 06-management.md in Resources */ = {isa = PBXBuildFile; fileRef = E34409BA7FD64ACC61825661 /* 06-management.md */; };
 		D450D96538633995BCC12E87 /* LLMAssistant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90563F0C745F3D76C52F4371 /* LLMAssistant.swift */; };
@@ -2993,6 +2994,7 @@
 				9ECF4E9A297F3298DB3DBE2A /* StatusBoard.swift in Sources */,
 				DE145C59F868B5A44874023E /* RallyPoint.swift in Sources */,
 				4F630591518DA9A5EF259DE5 /* SearchPattern.swift in Sources */,
+				D3D8B6DE756FD1DED08FE60E /* TaskAssignment.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

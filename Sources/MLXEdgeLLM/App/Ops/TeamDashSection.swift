@@ -77,6 +77,17 @@ struct TeamDashSection: View {
                     )
                 }
 
+                NavigationLink {
+                    TaskAssignmentView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "checklist",
+                        title: "Task Assignment",
+                        subtitle: "Create, assign, prioritize tasks; mesh push notifications; overdue alerts",
+                        color: .blue
+                    )
+                }
+
                 // Safety Monitor
                 safetyMonitorCard
             }
