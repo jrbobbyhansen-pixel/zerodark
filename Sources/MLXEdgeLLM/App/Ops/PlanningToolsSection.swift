@@ -72,6 +72,14 @@ struct PlanningToolsSection: View {
                 )
 
                 PlanningCard(
+                    title: "Cave Mapper",
+                    subtitle: "Indoor SLAM — floor plan from LiDAR, GPS-denied position, mark hazards & exits",
+                    icon: "map.fill",
+                    color: ZDDesign.mediumGray,
+                    destination: CaveMapperView()
+                )
+
+                PlanningCard(
                     title: "Avalanche Analyzer",
                     subtitle: "Identify prone slopes (30-45°), terrain traps, risk rating, safe corridors",
                     icon: "mountain.2.fill",
