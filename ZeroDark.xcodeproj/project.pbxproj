@@ -100,6 +100,7 @@
 		39A26B4FDD9FCA635FC5A5ED /* BurnCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5CA75C591A61A0D411B7AE5 /* BurnCalculator.swift */; };
 		3C00C93DA01B478B4F531A48 /* 10-improvised-tools.md in Resources */ = {isa = PBXBuildFile; fileRef = 64B1EFDB96217FD652ACB113 /* 10-improvised-tools.md */; };
 		3E02E1DD487D1092074EFEF3 /* 113-drone-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = 64D9DDF9276D78A48962CD21 /* 113-drone-operations.md */; };
+		3E292787B9A2C8F11EDB8C43 /* TeamRoster.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41B7D24A3ACA776318041A2 /* TeamRoster.swift */; };
 		3E543F9E2F44A2FD41F42F2C /* 07-cooking-methods.md in Resources */ = {isa = PBXBuildFile; fileRef = 1FC5DEE8DCB8DDA7554AEA45 /* 07-cooking-methods.md */; };
 		3EA693BC0CC7ED713178CEFE /* SessionKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FDEB100AB106752B76D7A9 /* SessionKeyManager.swift */; };
 		3EB69488BFD6A6A0B4B14DCC /* 29-wound-closure.md in Resources */ = {isa = PBXBuildFile; fileRef = 70CDE1DB2823DAFAB4DB6227 /* 29-wound-closure.md */; };
@@ -652,7 +653,6 @@
 		5036B665F1A2FEAAB903D30A /* InferenceCache.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InferenceCache.swift; path = Sources/MLXEdgeLLM/AI/Models/InferenceCache.swift; sourceTree = "<group>"; };
 		5061F949D576F515A91A4F13 /* 46-bounding-overwatch.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "46-bounding-overwatch.md"; sourceTree = "<group>"; };
 		506F6A4B9B002116185E35AC /* ThermalMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ThermalMonitor.swift; path = Sources/MLXEdgeLLM/LiDAR/Core/ThermalMonitor.swift; sourceTree = "<group>"; };
-		50990757169FA6B7C6387962 /* TeamRoster.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TeamRoster.swift; path = Sources/MLXEdgeLLM/FieldOps/Team/TeamRoster.swift; sourceTree = "<group>"; };
 		509ADEEC842C5B2A3BCD7872 /* 111-power-management.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "111-power-management.md"; sourceTree = "<group>"; };
 		509B8BFA3D0F3195450471DB /* NoiseDiscipline.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NoiseDiscipline.swift; path = Sources/MLXEdgeLLM/Services/NoiseDiscipline.swift; sourceTree = "<group>"; };
 		50B65FCEF80A3F10E6A3DA9D /* TeamMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamMapView.swift; sourceTree = "<group>"; };
@@ -2161,7 +2161,6 @@
 				D2F6FF6FAD6ACECD56AAAD0A /* AnnouncementSystem.swift */,
 				E3EC164A644080D73DA9C43C /* BuddySystem.swift */,
 				DD00A32F45A01105D6AE749E /* TeamStatus.swift */,
-				50990757169FA6B7C6387962 /* TeamRoster.swift */,
 				15B10E748E9E46DF85CA79D6 /* SkillTracker.swift */,
 				4E9FF0AFA94DD2E3352220F1 /* HandoffManager.swift */,
 				AE784D10E0FECA0DB91D0DF8 /* TeamChat.swift */,
@@ -2991,6 +2990,7 @@
 				63925D7884FEEB3944B393A5 /* HlzFinder.swift in Sources */,
 				2F2D3183FD130128763505F8 /* SunExposure.swift in Sources */,
 				AD1ACE9AAEE8AFAC85532826 /* TrailDifficulty.swift in Sources */,
+				3E292787B9A2C8F11EDB8C43 /* TeamRoster.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -23,12 +23,12 @@ struct TeamDashSection: View {
                 OpsSectionHeader(icon: "person.3.fill", title: "TEAM MANAGEMENT", color: ZDDesign.cyanAccent)
 
                 NavigationLink {
-                    ComingSoonView(title: "Coordination", icon: "person.2.wave.2.fill", description: "Incident management, unit tracking & search patterns")
+                    TeamRosterView()
                 } label: {
                     OpsSectionCard(
                         icon: "person.2.wave.2.fill",
-                        title: "Coordination",
-                        subtitle: "Incident management, unit tracking & search patterns",
+                        title: "Team Roster",
+                        subtitle: "Manage members, callsigns, roles & medical data",
                         color: ZDDesign.cyanAccent
                     )
                 }
