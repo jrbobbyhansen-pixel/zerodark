@@ -46,6 +46,7 @@ public struct MapLayerConfig: Equatable {
     public var showBreadcrumbs: Bool = true
     public var showMeshPeers: Bool = true
     public var showGISOverlays: Bool = true
+    public var showObservations: Bool = true
 
     public static let `default` = MapLayerConfig()
 }

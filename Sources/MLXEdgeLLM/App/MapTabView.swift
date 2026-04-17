@@ -18,6 +18,7 @@ struct MapTabView: View {
     @ObservedObject private var deadReckoning = DeadReckoningEngine.shared
     @ObservedObject private var weather = WeatherForecaster.shared
     @ObservedObject private var celestial = CelestialNavigator.shared
+    @ObservedObject private var observationLogger = ObservationLogger.shared
     @EnvironmentObject var appState: AppState
 
     // Map state
@@ -41,6 +42,7 @@ struct MapTabView: View {
     @State private var viewshedPoints: [(coordinate: CLLocationCoordinate2D, isVisible: Bool)] = []
     @State private var shareURL: URL?
     @State private var selectedWaypoint: TacticalWaypoint?
+    @State private var selectedObservation: FieldObservation?
     // MGRS grid cached — only regenerated on camera-stop, not every render
     @State private var cachedMGRSLines: [[CLLocationCoordinate2D]] = []
     // Navigation mode (merged from NavTabView)
@@ -63,6 +65,7 @@ struct MapTabView: View {
                         mapPeersContent
                         mapWaypointsContent
                         mapOverlaysContent
+                        mapObservationsContent
                         mapAnalysisContent
                         mapNavContent
                     }
@@ -302,6 +305,9 @@ struct MapTabView: View {
             .sheet(item: $selectedWaypoint) { wp in
                 WaypointDetailSheet(waypoint: wp, store: waypointStore)
             }
+            .sheet(item: $selectedObservation) { obs in
+                ObservationDetailSheet(observation: obs, logger: observationLogger)
+            }
             .alert("No Terrain Data", isPresented: $losTerrainWarning) {
                 Button("OK", role: .cancel) {}
             } message: {
@@ -360,6 +366,14 @@ struct MapTabView: View {
                 activeColor: Color(ZDDesign.signalRed)
             ) {
                 appState.mapLayerConfig.showThreatPins.toggle()
+            }
+
+            ToolbarToggle(
+                icon: "eye.fill",
+                active: appState.mapLayerConfig.showObservations,
+                activeColor: Color(ZDDesign.cyanAccent)
+            ) {
+                appState.mapLayerConfig.showObservations.toggle()
             }
 
             Menu {
@@ -745,6 +759,46 @@ extension MapTabView {
                 }
             }
         }
+    }
+
+    @MapContentBuilder
+    var mapObservationsContent: some MapContent {
+        if appState.mapLayerConfig.showObservations {
+            ForEach(observationLogger.observations.filter { $0.latitude != 0 || $0.longitude != 0 }) { obs in
+                Annotation(obs.category.rawValue, coordinate: obs.coordinate) {
+                    ZStack {
+                        Circle()
+                            .fill(obs.category.mapColor)
+                            .frame(width: 28, height: 28)
+                        Image(systemName: obs.category.mapIcon)
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(.black)
+                    }
+                    .onTapGesture { selectedObservation = obs }
+                }
+                if obs.distance > 0 {
+                    let endpoint = bearingProjection(
+                        from: obs.coordinate,
+                        bearing: obs.bearing,
+                        distanceMeters: obs.distance
+                    )
+                    MapPolyline(coordinates: [obs.coordinate, endpoint])
+                        .stroke(obs.category.mapColor.opacity(0.6), lineWidth: 1.5)
+                }
+            }
+        }
+    }
+
+    /// Projects a coordinate along a bearing by a given distance (meters).
+    private func bearingProjection(from origin: CLLocationCoordinate2D, bearing: Double, distanceMeters: Double) -> CLLocationCoordinate2D {
+        let R = 6_371_000.0
+        let lat1 = origin.latitude * .pi / 180
+        let lon1 = origin.longitude * .pi / 180
+        let brng = bearing * .pi / 180
+        let d = distanceMeters / R
+        let lat2 = asin(sin(lat1) * cos(d) + cos(lat1) * sin(d) * cos(brng))
+        let lon2 = lon1 + atan2(sin(brng) * sin(d) * cos(lat1), cos(d) - sin(lat1) * sin(lat2))
+        return CLLocationCoordinate2D(latitude: lat2 * 180 / .pi, longitude: lon2 * 180 / .pi)
     }
 
     @MapContentBuilder
