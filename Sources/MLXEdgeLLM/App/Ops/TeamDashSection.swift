@@ -9,6 +9,7 @@ struct TeamDashSection: View {
     @ObservedObject private var safetyMonitor = RuntimeSafetyMonitor.shared
     @ObservedObject private var teamPack = TeamPackStore.shared
     @State private var showPaywall = false
+    @State private var showBeacon = false
 
     var body: some View {
         ScrollView {
@@ -18,6 +19,18 @@ struct TeamDashSection: View {
 
                 // Conditions (Weather)
                 conditionsCard
+
+                // Beacon Mode quick card
+                NavigationLink {
+                    BeaconModeView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "dot.radiowaves.left.and.right",
+                        title: "Beacon Mode",
+                        subtitle: "Periodic location/status broadcasts with heading, speed & battery",
+                        color: BeaconMode.shared.isActive ? ZDDesign.successGreen : ZDDesign.mediumGray
+                    )
+                }
 
                 // Team Management Tools
                 OpsSectionHeader(icon: "person.3.fill", title: "TEAM MANAGEMENT", color: ZDDesign.cyanAccent)
@@ -128,6 +141,9 @@ struct TeamDashSection: View {
         }
         .sheet(isPresented: $showPaywall) {
             TeamPackPaywall()
+        }
+        .sheet(isPresented: $showBeacon) {
+            BeaconModeView()
         }
     }
 
