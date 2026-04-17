@@ -43,6 +43,7 @@
 		1D90F37C3F3808D8D42A6D5A /* 61-dead-drops-signals.md in Resources */ = {isa = PBXBuildFile; fileRef = 8520149AC05C658BC74C77A3 /* 61-dead-drops-signals.md */; };
 		1DDF2CEE611A4B68FAB2BB4F /* 101-field-repairs.md in Resources */ = {isa = PBXBuildFile; fileRef = 9D9883D13CD45D005E201135 /* 101-field-repairs.md */; };
 		1E8AF298FC305625BA78C728 /* TourniquetTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F201C28CCF0EA773D71FCA34 /* TourniquetTimer.swift */; };
+		1E9DC8C6569BD01680580845 /* SlopeAspect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BB91372875A2BA3012EE303 /* SlopeAspect.swift */; };
 		1EF8E2376E90B06BC5F87BF5 /* TeamAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80107CDDDFB56C37B087CE41 /* TeamAdapter.swift */; };
 		1F5BB9789D7A96CE565A5A36 /* 42-envenomation.md in Resources */ = {isa = PBXBuildFile; fileRef = B5D9C81FEFB9FD795047091D /* 42-envenomation.md */; };
 		1F6438726263F7005AC814C9 /* 49-defensive-positions.md in Resources */ = {isa = PBXBuildFile; fileRef = E32916B108E825CC232980F5 /* 49-defensive-positions.md */; };
@@ -186,6 +187,7 @@
 		744D9E8CD26305D160978AF8 /* 89-safe-house-setup.md in Resources */ = {isa = PBXBuildFile; fileRef = 2AFAE1521C57272596036842 /* 89-safe-house-setup.md */; };
 		7560CC69A9B2E8F1906A45DE /* GroundClassification.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D698356A4335CF069B059E /* GroundClassification.swift */; };
 		7580400C4695A152AB3059BC /* NavState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E49EA4E2F5E1B015F088E72E /* NavState.swift */; };
+		75A8C177262A3FF205913436 /* TerrainSlopeAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345C60D593D3F962F50B4192 /* TerrainSlopeAnalyzer.swift */; };
 		76CC68AFF9F36F853C291713 /* 14-fractures.md in Resources */ = {isa = PBXBuildFile; fileRef = 6C8D05C178E0E89C34AB2B68 /* 14-fractures.md */; };
 		76E4BDAA4AE2590DF9309691 /* 01-water-procurement.md in Resources */ = {isa = PBXBuildFile; fileRef = DB5904D986F830D22E8C21FE /* 01-water-procurement.md */; };
 		7755D14CE203CA5D0D5B5C31 /* CameraAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B772199593D9D025F163EEC /* CameraAnnotationView.swift */; };
@@ -557,6 +559,7 @@
 		33E35D8EB6F10AA2E82FEE00 /* EncryptedMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptedMessage.swift; sourceTree = "<group>"; };
 		3411CEB34FB7F0CBAF482FAC /* 20-nutritional-priorities.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "20-nutritional-priorities.md"; sourceTree = "<group>"; };
 		3454543ADF6EBA90D0BE1B7D /* NmeaParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NmeaParser.swift; path = Sources/MLXEdgeLLM/Interop/Radio/NmeaParser.swift; sourceTree = "<group>"; };
+		345C60D593D3F962F50B4192 /* TerrainSlopeAnalyzer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TerrainSlopeAnalyzer.swift; path = Sources/MLXEdgeLLM/Navigation/TerrainSlopeAnalyzer.swift; sourceTree = "<group>"; };
 		35018562D3833E580F4878F3 /* HydrationCalc.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HydrationCalc.swift; path = Sources/MLXEdgeLLM/Services/HydrationCalc.swift; sourceTree = "<group>"; };
 		35111BFD9320488FB6DA1210 /* 12-tarp-improvised.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "12-tarp-improvised.md"; sourceTree = "<group>"; };
 		35468663C499521D88FCBBE4 /* EvidenceCollector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EvidenceCollector.swift; path = Sources/MLXEdgeLLM/Security/Incident/EvidenceCollector.swift; sourceTree = "<group>"; };
@@ -2183,6 +2186,7 @@
 				B060DC742D2E17436AEBE358 /* StreamingVoxelMap.swift */,
 				21FE7E45738A8AE9435A8E8D /* VoxelFusion.metal */,
 				28A9D8EAE48107CF18C9523C /* ScanMatching */,
+				345C60D593D3F962F50B4192 /* TerrainSlopeAnalyzer.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -2947,6 +2951,8 @@
 				86D6DC317240ED27A044BE65 /* ScanMatchResult.swift in Sources */,
 				87C94132CC70ED26D723E9E8 /* ScanMatcher.swift in Sources */,
 				2076C256AB02C24528C5C7DF /* ThreatAdapter.swift in Sources */,
+				1E9DC8C6569BD01680580845 /* SlopeAspect.swift in Sources */,
+				75A8C177262A3FF205913436 /* TerrainSlopeAnalyzer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

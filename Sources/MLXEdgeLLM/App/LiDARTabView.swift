@@ -17,6 +17,8 @@ struct LiDARTabView: View {
     @State private var showRoomIntelReport = false
     @State private var roomIntelReport: RoomIntelReport? = nil
     @State private var shareURL: URL?
+    @State private var showTerrainAnalysis = false
+    @State private var terrainPointCloud: [SIMD3<Float>] = []
 
     var body: some View {
         NavigationStack {
@@ -41,10 +43,19 @@ struct LiDARTabView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showingResults = true
-                    } label: {
-                        Image(systemName: "list.bullet.below.rectangle")
+                    HStack(spacing: 16) {
+                        if !terrainPointCloud.isEmpty {
+                            Button {
+                                showTerrainAnalysis = true
+                            } label: {
+                                Image(systemName: "mountain.2")
+                            }
+                        }
+                        Button {
+                            showingResults = true
+                        } label: {
+                            Image(systemName: "list.bullet.below.rectangle")
+                        }
                     }
                 }
             }
@@ -71,6 +82,8 @@ struct LiDARTabView: View {
                         roomIntelReport = report
                         showRoomIntelReport = true
                     }
+                    // Capture point cloud for terrain slope analysis
+                    terrainPointCloud = result.pointCloud
                 }
             }
             .onAppear { checkCameraPermission() }
@@ -99,6 +112,10 @@ struct LiDARTabView: View {
             }
             .sheet(item: $shareURL) { url in
                 ShareSheet(items: [url])
+            }
+            .sheet(isPresented: $showTerrainAnalysis) {
+                TerrainSlopeAnalyzerView(pointCloud: terrainPointCloud)
+                    .preferredColorScheme(.dark)
             }
         }
     }
