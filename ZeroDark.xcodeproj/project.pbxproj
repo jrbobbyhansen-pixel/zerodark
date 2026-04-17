@@ -58,6 +58,7 @@
 		25700C4996B3B8A6A91CEDFD /* 93-arctic-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = A5F38ACDDF55B14E967AB8D0 /* 93-arctic-operations.md */; };
 		25AEE2D3A7DCEE17EB325F73 /* 28-tourniquet-application.md in Resources */ = {isa = PBXBuildFile; fileRef = 8233890AD17DEFD859F02D91 /* 28-tourniquet-application.md */; };
 		271567B42E71D8F3A76BD35D /* ScanGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30F1F16779B61BD07A6E1765 /* ScanGalleryView.swift */; };
+		277BF0FE6EB35C27CDFA42CD /* ArmDeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 692A14D16E601C8DEADC36AB /* ArmDeviceView.swift */; };
 		279D428ACADDB02EBF1CA7FC /* 96-weather-advanced.md in Resources */ = {isa = PBXBuildFile; fileRef = 9FFBCEA83A8B4F5D40F5F38D /* 96-weather-advanced.md */; };
 		28D0BBAD3B988A94BA549AC9 /* 28-opsec.md in Resources */ = {isa = PBXBuildFile; fileRef = CB330F2912EDB5E1F47E0E63 /* 28-opsec.md */; };
 		28E95C622B491D0865EBCADF /* HapticComms.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDE1912091A47874F377EE2 /* HapticComms.swift */; };
@@ -274,12 +275,14 @@
 		C1F98F441481129C70CEB494 /* 09-cold-weather-survival.md in Resources */ = {isa = PBXBuildFile; fileRef = D45117034F95080A8DB0EEC7 /* 09-cold-weather-survival.md */; };
 		C292426197AA105322B1496C /* ScanStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4001FA525C6D6F6A6D91BFB0 /* ScanStorage.swift */; };
 		C38611710B3D93A54317F292 /* TAKBLEBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C30E1D9284457D6BE8ECC5 /* TAKBLEBridge.swift */; };
+		C39E07A71552906DCB09DA11 /* ModelDownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E6A02BF26E61A621C9F3BA7 /* ModelDownloadManager.swift */; };
 		C5057AFFFC53B539D5DB0107 /* 104-aar-format.md in Resources */ = {isa = PBXBuildFile; fileRef = 15C8A5AE9182F7E5EB807EDF /* 104-aar-format.md */; };
 		C671D965B7745ECA24FB8531 /* VitalSignsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1683D153AD2AB45CD66DD82 /* VitalSignsLogger.swift */; };
 		C7FEE0ED0B541AF7EDEFB9BA /* RiskAssessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E423C9A3FB60C5638E9D4F8 /* RiskAssessor.swift */; };
 		C82626DF166D402E3B9EC2B1 /* 34-hypothermia-frostbite.md in Resources */ = {isa = PBXBuildFile; fileRef = 07904812A61151F1049A0474 /* 34-hypothermia-frostbite.md */; };
 		C8E3E064CCD61D2F6B7E1B98 /* SimsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD6ECFF0D3158A5F263BFD2A /* SimsSection.swift */; };
 		C9B17AAF39DA6FD443D8E685 /* OpsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0671CE05939D1E518628428C /* OpsTabView.swift */; };
+		CA151E9861EB1E59092C0535 /* ModelURLs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1914D8E5CA1173A98E8DCC8D /* ModelURLs.swift */; };
 		CC984F2FD3FA2A848CD83332 /* AARBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DD0FF4CB7EF29E012CB7B1A /* AARBundle.swift */; };
 		CD122DD9CEFB0F7FF04FD29D /* CelestialNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B95391919A77B021D35AC2C /* CelestialNavigator.swift */; };
 		CD3AE23A2C08880D464F694C /* ActionBoundary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78F10FC5E26AF10DEC58C25E /* ActionBoundary.swift */; };
@@ -452,6 +455,7 @@
 		1872C494B31D561CD5552407 /* HelpSystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HelpSystem.swift; path = Sources/MLXEdgeLLM/UI/Help/HelpSystem.swift; sourceTree = "<group>"; };
 		18C8218B6996382F3A9B69F4 /* 24-breaching.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "24-breaching.md"; sourceTree = "<group>"; };
 		1901A2BB89E77193EA86A6E1 /* ThermalOverlayMap.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ThermalOverlayMap.swift; path = Sources/MLXEdgeLLM/Hardware/Thermal/ThermalOverlayMap.swift; sourceTree = "<group>"; };
+		1914D8E5CA1173A98E8DCC8D /* ModelURLs.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModelURLs.swift; sourceTree = "<group>"; };
 		199F1C2CA8133816B3768543 /* 84-return-friendly-forces.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "84-return-friendly-forces.md"; sourceTree = "<group>"; };
 		19A7A948FCBEBC49137B6360 /* ThermalCamera.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ThermalCamera.swift; path = Sources/MLXEdgeLLM/Hardware/Thermal/ThermalCamera.swift; sourceTree = "<group>"; };
 		1A007A53E043C3BDEC8C045B /* WeatherAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAdapter.swift; sourceTree = "<group>"; };
@@ -681,6 +685,7 @@
 		67CC58CD7CA55A0453E38241 /* 100-counter-surveillance-vehicle.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "100-counter-surveillance-vehicle.md"; sourceTree = "<group>"; };
 		67D48B61C07222909CAB2F40 /* FuelCalculator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FuelCalculator.swift; path = Sources/MLXEdgeLLM/Hardware/Vehicle/FuelCalculator.swift; sourceTree = "<group>"; };
 		68454E5CAF9ECF9B45126706 /* SceneTagStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SceneTagStore.swift; path = Sources/MLXEdgeLLM/SpatialIntelligence/LiDAR/SceneTagStore.swift; sourceTree = "<group>"; };
+		692A14D16E601C8DEADC36AB /* ArmDeviceView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ArmDeviceView.swift; sourceTree = "<group>"; };
 		69C91095C85D5BB2AA48CB4E /* LandingZoneMarker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LandingZoneMarker.swift; path = Sources/MLXEdgeLLM/Navigation/LandingZoneMarker.swift; sourceTree = "<group>"; };
 		69D8F07ADF3FEC5906E95EE9 /* MeshAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshAdapter.swift; sourceTree = "<group>"; };
 		69E8C703CF8A696F92DE8B04 /* PulseOxInterface.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PulseOxInterface.swift; path = Sources/MLXEdgeLLM/Hardware/Medical/PulseOxInterface.swift; sourceTree = "<group>"; };
@@ -836,6 +841,7 @@
 		9D3773A7A6F0A88FFE0535D3 /* 78-checkpoint-tcp.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "78-checkpoint-tcp.md"; sourceTree = "<group>"; };
 		9D9883D13CD45D005E201135 /* 101-field-repairs.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "101-field-repairs.md"; sourceTree = "<group>"; };
 		9E592D91A5D7834168B0739C /* FastLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FastLibraryView.swift; sourceTree = "<group>"; };
+		9E6A02BF26E61A621C9F3BA7 /* ModelDownloadManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModelDownloadManager.swift; sourceTree = "<group>"; };
 		9F7668AC154CE3C9C27FCEF0 /* 66-route-reconnaissance.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "66-route-reconnaissance.md"; sourceTree = "<group>"; };
 		9FFBCEA83A8B4F5D40F5F38D /* 96-weather-advanced.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "96-weather-advanced.md"; sourceTree = "<group>"; };
 		A01B146251474A12FAC1E62B /* VirtualVictims.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VirtualVictims.swift; path = Sources/MLXEdgeLLM/Training/Scenarios/VirtualVictims.swift; sourceTree = "<group>"; };
@@ -1209,6 +1215,8 @@
 				E14046274825E9B698BF998F /* TacticalScannerView.swift */,
 				367182B7614A513B40322588 /* Terrain3DView.swift */,
 				0A0FFDB15B8762D7E15F6938 /* ZeroDarkApp.swift */,
+				692A14D16E601C8DEADC36AB /* ArmDeviceView.swift */,
+				9E6A02BF26E61A621C9F3BA7 /* ModelDownloadManager.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -2148,6 +2156,7 @@
 			isa = PBXGroup;
 			children = (
 				0A278DB0B0FECD901B1CE1A3 /* AppConfig.swift */,
+				1914D8E5CA1173A98E8DCC8D /* ModelURLs.swift */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -2888,6 +2897,9 @@
 				2C02EC9FE4156DA818DD7C1E /* VolumeMeasure.swift in Sources */,
 				16FACA9012C85AAB20ED9141 /* HeightMeasure.swift in Sources */,
 				E06EFCBF6B8819B77BB36DCF /* LiDARIntelBridge.swift in Sources */,
+				277BF0FE6EB35C27CDFA42CD /* ArmDeviceView.swift in Sources */,
+				C39E07A71552906DCB09DA11 /* ModelDownloadManager.swift in Sources */,
+				CA151E9861EB1E59092C0535 /* ModelURLs.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

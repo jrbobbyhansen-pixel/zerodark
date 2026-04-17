@@ -37,6 +37,7 @@ struct OpsTabView: View {
     @ObservedObject private var activity = ActivityFeed.shared
     @State private var opsMode: OpsMode = .planner
     @State private var exportURL: URL?
+    @State private var showNewIncident = false
 
     var body: some View {
         NavigationStack {
@@ -106,7 +107,7 @@ struct OpsTabView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button("New Incident", systemImage: "plus.circle") {
-                            // Create incident
+                            showNewIncident = true
                         }
                         Button("Export Logs", systemImage: "square.and.arrow.up") {
                             exportURL = activity.exportLogs()
@@ -125,6 +126,17 @@ struct OpsTabView: View {
             }
             .sheet(item: $exportURL) { url in
                 ShareSheet(items: [url])
+            }
+            .sheet(isPresented: $showNewIncident) {
+                NavigationStack {
+                    ObservationLoggerView()
+                        .toolbar {
+                            ToolbarItem(placement: .topBarLeading) {
+                                Button("Done") { showNewIncident = false }
+                            }
+                        }
+                }
+                .preferredColorScheme(.dark)
             }
         }
     }

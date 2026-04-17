@@ -84,7 +84,8 @@ final class ObservationLogger: ObservableObject {
 
     func share() {
         let text = exportText()
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("ObservationLog.txt")
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let url = docs.appendingPathComponent("ObservationLog-\(Int(Date().timeIntervalSince1970)).txt")
         try? text.write(to: url, atomically: true, encoding: .utf8)
         exportURL = url
     }

@@ -64,6 +64,10 @@ struct FastLibraryView: View {
         }
         .padding()
         .background(ZDDesign.darkCard)
+        .overlay(
+            RoundedRectangle(cornerRadius: 0)
+                .stroke(searchFocused ? ZDDesign.cyanAccent : Color.clear, lineWidth: 1.5)
+        )
     }
 
     // MARK: - Indexing View
@@ -86,6 +90,10 @@ struct FastLibraryView: View {
 
             Text("\(Int(library.indexProgress * 100))%")
                 .font(.caption)
+                .foregroundColor(ZDDesign.mediumGray)
+
+            Text("This may take a few minutes")
+                .font(.caption2)
                 .foregroundColor(ZDDesign.mediumGray)
 
             Spacer()
@@ -137,19 +145,29 @@ struct FastLibraryView: View {
     }
 
     var emptyState: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             Image(systemName: "books.vertical")
-                .font(.system(size: 48))
+                .font(.system(size: 40))
                 .foregroundColor(ZDDesign.mediumGray)
 
             Text("No Documents")
                 .font(.headline)
                 .foregroundColor(ZDDesign.pureWhite)
 
-            Text("Add PDFs to Documents/Library/")
+            Text("Transfer PDFs via USB using Finder, or use the Files app to add them to ZeroDark → Documents → Library.")
                 .font(.caption)
                 .foregroundColor(ZDDesign.mediumGray)
+                .multilineTextAlignment(.center)
+
+            Button("Open Files App") {
+                if let url = URL(string: "shareddocuments://") {
+                    UIApplication.shared.open(url)
+                }
+            }
+            .buttonStyle(.bordered)
+            .tint(ZDDesign.cyanAccent)
         }
+        .padding(.horizontal, 32)
         .padding(.top, 60)
     }
 }
@@ -159,6 +177,16 @@ struct FastLibraryView: View {
 struct SearchResultRow: View {
     let chunk: TextChunk
     let onTap: () -> Void
+
+    private func relevanceStars(_ score: Float) -> Int {
+        switch score {
+        case 0.9...: return 5
+        case 0.75...: return 4
+        case 0.55...: return 3
+        case 0.35...: return 2
+        default: return 1
+        }
+    }
 
     var body: some View {
         Button(action: onTap) {
@@ -184,16 +212,13 @@ struct SearchResultRow: View {
                     .foregroundColor(ZDDesign.pureWhite)
                     .lineLimit(3)
 
-                HStack {
-                    Text("Score: \(String(format: "%.2f", chunk.score))")
-                        .font(.caption2)
-                        .foregroundColor(ZDDesign.mediumGray)
-
+                HStack(spacing: 2) {
+                    ForEach(0..<5) { i in
+                        Image(systemName: i < relevanceStars(chunk.score) ? "star.fill" : "star")
+                            .font(.system(size: 9))
+                            .foregroundColor(ZDDesign.safetyYellow)
+                    }
                     Spacer()
-
-                    Text("Tap to open")
-                        .font(.caption2)
-                        .foregroundColor(ZDDesign.cyanAccent)
                 }
             }
             .padding()

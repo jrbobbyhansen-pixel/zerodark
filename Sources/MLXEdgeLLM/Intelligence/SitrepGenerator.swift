@@ -11,6 +11,7 @@ final class SitrepGenerator: ObservableObject {
     static let shared = SitrepGenerator()
 
     @Published var currentSitrep: String = ""
+    @Published var commandersAssessment: String = ""
     @Published var isGenerating = false
     @Published var lastGenerated: Date?
     @Published var exportURL: URL?
@@ -70,7 +71,7 @@ final class SitrepGenerator: ObservableObject {
            Device battery: \(batteryLevel())%
 
         5. COMMANDER'S ASSESSMENT
-           (Enter assessment)
+           \(commandersAssessment.isEmpty ? "(No assessment entered)" : commandersAssessment)
         ═══════════════════════════════════
         """
 
@@ -102,8 +103,8 @@ final class SitrepGenerator: ObservableObject {
 
     func exportSitrep() {
         guard !currentSitrep.isEmpty else { return }
-        let tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("SITREP-\(Int(Date().timeIntervalSince1970)).txt")
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let tempURL = docs.appendingPathComponent("SITREP-\(Int(Date().timeIntervalSince1970)).txt")
         try? currentSitrep.write(to: tempURL, atomically: true, encoding: .utf8)
         exportURL = tempURL
     }
@@ -116,6 +117,22 @@ struct SitrepView: View {
 
     var body: some View {
         Form {
+            Section("Commander's Assessment") {
+                TextEditor(text: $gen.commandersAssessment)
+                    .frame(minHeight: 80)
+                    .font(.body)
+                    .overlay(alignment: .topLeading) {
+                        if gen.commandersAssessment.isEmpty {
+                            Text("Enter your assessment...")
+                                .foregroundColor(ZDDesign.mediumGray)
+                                .font(.body)
+                                .padding(.top, 8)
+                                .padding(.leading, 5)
+                                .allowsHitTesting(false)
+                        }
+                    }
+            }
+
             Section {
                 Button {
                     gen.generateSitrep()

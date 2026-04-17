@@ -48,10 +48,14 @@ private let regionPresets: [RegionPreset] = [
 
 struct TileDownloadView: View {
     @ObservedObject private var downloader = TileDownloadManager.shared
+    @ObservedObject private var offlineTiles = OfflineTileProvider.shared
     @State private var regionName = ""
     @State private var minZoom: Double = 8
     @State private var maxZoom: Double = 16
     @State private var showPresets = false
+    @State private var showImporter = false
+    @State private var importError: String?
+    @State private var installedMaps: [URL] = []
     @State private var mapRegion = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
         span: MKCoordinateSpan(latitudeDelta: 0.5, longitudeDelta: 0.5)
@@ -70,69 +74,139 @@ struct TileDownloadView: View {
         NavigationStack {
             VStack(spacing: 0) {
 
-                // Map region selector
-                Map(coordinateRegion: $mapRegion)
-                    .frame(height: 280)
-                    .overlay(
-                        Rectangle()
-                            .strokeBorder(ZDDesign.safetyYellow, lineWidth: 2)
-                            .padding(20)
-                    )
-                    .overlay(alignment: .bottomTrailing) {
-                        Text("Drag to set download region")
-                            .font(.caption)
-                            .foregroundColor(ZDDesign.pureWhite)
-                            .padding(6)
-                            .background(Color.black.opacity(0.6))
-                            .cornerRadius(6)
-                            .padding(8)
-                    }
+                // Region selector — full width map, no decorative overlay
+                ZStack(alignment: .bottomLeading) {
+                    Map(coordinateRegion: $mapRegion)
+                        .frame(height: 240)
+                    // Crosshair
+                    Image(systemName: "plus")
+                        .font(.title2)
+                        .foregroundColor(ZDDesign.safetyYellow)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    Text("Pan and zoom — entire visible area will be downloaded")
+                        .font(.caption2)
+                        .foregroundColor(ZDDesign.pureWhite)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 4)
+                        .background(Color.black.opacity(0.65))
+                        .cornerRadius(4)
+                        .padding(8)
+                }
 
                 Form {
-                    Section("Quick Presets") {
+
+                    // MARK: Installed Maps — always first
+                    if !installedMaps.isEmpty {
+                        Section {
+                            // Active map picker
+                            Picker("Active", selection: Binding(
+                                get: { offlineTiles.currentMap ?? "" },
+                                set: { offlineTiles.selectMap($0) }
+                            )) {
+                                ForEach(installedMaps, id: \.lastPathComponent) { url in
+                                    Text(url.deletingPathExtension().lastPathComponent)
+                                        .tag(url.deletingPathExtension().lastPathComponent)
+                                }
+                            }
+                            .pickerStyle(.menu)
+
+                            ForEach(installedMaps, id: \.lastPathComponent) { url in
+                                let name = url.deletingPathExtension().lastPathComponent
+                                HStack {
+                                    Image(systemName: "map.fill")
+                                        .foregroundColor(ZDDesign.cyanAccent)
+                                        .frame(width: 20)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(name)
+                                            .font(.subheadline)
+                                        Text(fileSize(url))
+                                            .font(.caption)
+                                            .foregroundColor(ZDDesign.mediumGray)
+                                    }
+                                    Spacer()
+                                    if name == offlineTiles.currentMap {
+                                        Text("ACTIVE")
+                                            .font(.caption2)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(ZDDesign.cyanAccent)
+                                    }
+                                }
+                            }
+                            .onDelete(perform: deleteMap)
+                        } header: {
+                            Text("Installed Maps")
+                        } footer: {
+                            Text("Swipe left to delete. The active map is used when there is no cell service.")
+                        }
+                    }
+
+                    // MARK: Add Map
+                    Section("Add Map") {
                         Button {
                             showPresets = true
                         } label: {
                             Label("Load a Region Preset", systemImage: "map.fill")
                                 .foregroundColor(ZDDesign.cyanAccent)
                         }
+                        Button {
+                            showImporter = true
+                        } label: {
+                            Label("Import .mbtiles / .pmtiles from Files", systemImage: "square.and.arrow.down")
+                                .foregroundColor(ZDDesign.cyanAccent)
+                        }
                     }
 
-                    Section("Region") {
-                        TextField("Region name (e.g. 'Colorado_Mountains')", text: $regionName)
+                    // MARK: Download New Map
+                    Section {
+                        TextField("Region name", text: $regionName)
+                            .autocorrectionDisabled()
+                            .onChange(of: regionName) { _, new in
+                                let cleaned = new.replacingOccurrences(of: " ", with: "_")
+                                if cleaned != new { regionName = cleaned }
+                            }
 
-                        VStack(alignment: .leading) {
-                            Text("Min Zoom: \(Int(minZoom)) (overview)")
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text("Min Zoom")
+                                Spacer()
+                                Text("\(Int(minZoom))  —  overview")
+                                    .foregroundColor(ZDDesign.mediumGray)
+                            }
+                            .font(.caption)
                             Slider(value: $minZoom, in: 4...12, step: 1)
                         }
 
-                        VStack(alignment: .leading) {
-                            Text("Max Zoom: \(Int(maxZoom)) (street detail)")
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text("Max Zoom")
+                                Spacer()
+                                Text("\(Int(maxZoom))  —  street detail")
+                                    .foregroundColor(ZDDesign.mediumGray)
+                            }
+                            .font(.caption)
                             Slider(value: $maxZoom, in: 12...18, step: 1)
                         }
-                    }
 
-                    Section("Estimate") {
+                        // Compact estimate — one row
                         HStack {
-                            Text("Tiles")
+                            Label("\(estimatedTiles.formatted()) tiles", systemImage: "square.grid.2x2")
+                                .foregroundColor(estimatedTiles > 50000 ? ZDDesign.signalRed : ZDDesign.mediumGray)
                             Spacer()
-                            Text("\(estimatedTiles.formatted())")
-                                .foregroundColor(estimatedTiles > 50000 ? ZDDesign.signalRed : ZDDesign.successGreen)
+                            Text(String(format: "~%.0f MB", estimatedMB))
+                                .foregroundColor(estimatedMB > 500 ? ZDDesign.safetyYellow : ZDDesign.mediumGray)
                         }
-                        HStack {
-                            Text("Storage")
-                            Spacer()
-                            Text(String(format: "%.0f MB", estimatedMB))
-                                .foregroundColor(estimatedMB > 500 ? ZDDesign.safetyYellow : ZDDesign.successGreen)
-                        }
+                        .font(.caption)
+
                         if estimatedTiles > 50000 {
-                            Text("Warning: Large download. Reduce zoom range or area.")
+                            Label("Large download — reduce area or max zoom.", systemImage: "exclamationmark.triangle.fill")
                                 .font(.caption)
                                 .foregroundColor(ZDDesign.safetyYellow)
                         }
+                    } header: {
+                        Text("Download New Map")
                     }
 
-                    // Active download progress
+                    // MARK: Active download progress
                     if let job = downloader.activeJob {
                         Section("Downloading: \(job.regionName)") {
                             ProgressView(value: job.progress)
@@ -144,61 +218,24 @@ struct TileDownloadView: View {
                             }
                             .font(.caption)
                             if job.failedTiles > 0 {
-                                Text("\(job.failedTiles) failed (will retry)")
+                                Text("\(job.failedTiles) tiles failed")
                                     .font(.caption)
                                     .foregroundColor(ZDDesign.safetyYellow)
                             }
-                            Button("Cancel") { downloader.cancelDownload() }
+                            Button("Cancel", role: .destructive) { downloader.cancelDownload() }
+                        }
+                    }
+
+                    // MARK: Import error
+                    if let err = importError {
+                        Section {
+                            Label(err, systemImage: "xmark.circle.fill")
                                 .foregroundColor(ZDDesign.signalRed)
+                                .font(.caption)
                         }
                     }
 
-                    // Downloaded regions
-                    if !downloader.jobs.filter({ $0.status == .complete }).isEmpty {
-                        Section("Downloaded Regions") {
-                            ForEach(downloader.jobs.filter({ $0.status == .complete })) { job in
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Text(job.regionName).font(.headline)
-                                        Text("\(job.downloadedTiles) tiles · \(String(format: "%.0f MB", job.estimatedStorageMB))")
-                                            .font(.caption).foregroundColor(ZDDesign.mediumGray)
-                                    }
-                                    Spacer()
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(ZDDesign.successGreen)
-                                }
-                            }
-                            .onDelete { indexSet in
-                                let completed = downloader.jobs.filter { $0.status == .complete }
-                                for i in indexSet {
-                                    downloader.deleteRegion(named: completed[i].regionName)
-                                }
-                            }
-                        }
-                    }
-
-                    Section("Terrain Data") {
-                        let missingTerrain = TerrainEngine.shared.missingTiles(for: mapRegion)
-                        if missingTerrain.isEmpty {
-                            Label("Terrain data available for this region", systemImage: "checkmark.circle.fill")
-                                .font(.caption).foregroundColor(ZDDesign.successGreen)
-                        } else {
-                            Label("\(missingTerrain.count) terrain tile\(missingTerrain.count == 1 ? "" : "s") needed for elevation/LOS", systemImage: "mountain.2.fill")
-                                .font(.caption).foregroundColor(ZDDesign.safetyYellow)
-                            Button {
-                                Task {
-                                    for tile in missingTerrain {
-                                        try? await TerrainEngine.shared.downloadTile(named: tile)
-                                    }
-                                }
-                            } label: {
-                                Label("Download Terrain (\(missingTerrain.count) tiles)", systemImage: "arrow.down.circle.fill")
-                                    .font(.caption)
-                            }
-                            .tint(ZDDesign.forestGreen)
-                        }
-                    }
-
+                    // MARK: Download button
                     Section {
                         Button {
                             guard !regionName.isEmpty, !downloader.isDownloading else { return }
@@ -209,11 +246,12 @@ struct TileDownloadView: View {
                                     minZoom: Int(minZoom),
                                     maxZoom: Int(maxZoom)
                                 )
-                                // Auto-download terrain tiles for same region
                                 let missing = TerrainEngine.shared.missingTiles(for: mapRegion)
                                 for tile in missing {
                                     try? await TerrainEngine.shared.downloadTile(named: tile)
                                 }
+                                offlineTiles.scanForMaps()
+                                loadInstalledMaps()
                             }
                         } label: {
                             Label("Download Map + Terrain", systemImage: "arrow.down.circle.fill")
@@ -223,11 +261,52 @@ struct TileDownloadView: View {
                         .buttonStyle(.borderedProminent)
                         .tint(ZDDesign.forestGreen)
                         .disabled(downloader.isDownloading || regionName.isEmpty)
+                    } footer: {
+                        Text("Elevation data for LOS analysis and contour lines is downloaded automatically along with map tiles.")
                     }
                 }
             }
             .navigationTitle("Offline Maps")
             .preferredColorScheme(.dark)
+            .onAppear {
+                offlineTiles.scanForMaps()
+                loadInstalledMaps()
+            }
+            .fileImporter(
+                isPresented: $showImporter,
+                allowedContentTypes: [
+                    .init(importedAs: "com.zerodark.mbtiles"),
+                    .init(importedAs: "com.zerodark.pmtiles")
+                ],
+                allowsMultipleSelection: false
+            ) { result in
+                importError = nil
+                switch result {
+                case .success(let urls):
+                    guard let src = urls.first else { return }
+                    let accessing = src.startAccessingSecurityScopedResource()
+                    defer { if accessing { src.stopAccessingSecurityScopedResource() } }
+                    let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                    let dest = docs.appendingPathComponent("OfflineMaps", isDirectory: true)
+                        .appendingPathComponent(src.lastPathComponent)
+                    do {
+                        try FileManager.default.createDirectory(
+                            at: dest.deletingLastPathComponent(),
+                            withIntermediateDirectories: true
+                        )
+                        if FileManager.default.fileExists(atPath: dest.path) {
+                            try FileManager.default.removeItem(at: dest)
+                        }
+                        try FileManager.default.copyItem(at: src, to: dest)
+                        offlineTiles.scanForMaps()
+                        loadInstalledMaps()
+                    } catch {
+                        importError = "Import failed: \(error.localizedDescription)"
+                    }
+                case .failure(let error):
+                    importError = "Could not open file: \(error.localizedDescription)"
+                }
+            }
             .sheet(isPresented: $showPresets) {
                 RegionPresetsSheet { preset in
                     regionName = preset.name.replacingOccurrences(of: " ", with: "_")
@@ -238,6 +317,38 @@ struct TileDownloadView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Helpers
+
+    private func loadInstalledMaps() {
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let mapsDir = docs.appendingPathComponent("OfflineMaps", isDirectory: true)
+        installedMaps = ((try? FileManager.default.contentsOfDirectory(
+            at: mapsDir, includingPropertiesForKeys: [.fileSizeKey],
+            options: .skipsHiddenFiles
+        )) ?? [])
+        .filter { ["mbtiles", "pmtiles"].contains($0.pathExtension.lowercased()) }
+        .sorted { $0.lastPathComponent < $1.lastPathComponent }
+    }
+
+    private func deleteMap(at offsets: IndexSet) {
+        for i in offsets {
+            let url = installedMaps[i]
+            let name = url.deletingPathExtension().lastPathComponent
+            try? FileManager.default.removeItem(at: url)
+            downloader.deleteRegion(named: name)
+        }
+        offlineTiles.scanForMaps()
+        loadInstalledMaps()
+    }
+
+    private func fileSize(_ url: URL) -> String {
+        guard let attrs = try? FileManager.default.attributesOfItem(atPath: url.path),
+              let size = attrs[.size] as? Int64 else { return "" }
+        let f = ByteCountFormatter()
+        f.countStyle = .file
+        return f.string(fromByteCount: size)
     }
 }
 

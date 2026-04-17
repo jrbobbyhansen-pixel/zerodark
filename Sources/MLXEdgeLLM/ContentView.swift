@@ -4,6 +4,7 @@ struct ContentView: View {
     @ObservedObject private var appState = AppState.shared
     @ObservedObject private var haptic = HapticComms.shared
     @State private var bootComplete = false
+    @AppStorage("device_armed") private var deviceArmed = false
 
     var body: some View {
         ZStack {
@@ -16,6 +17,12 @@ struct ContentView: View {
                 }
                 .transition(.opacity)
             }
+        }
+        .fullScreenCover(isPresented: Binding(
+            get: { bootComplete && !deviceArmed },
+            set: { _ in }
+        )) {
+            ArmDeviceView()
         }
         .preferredColorScheme(.dark)
         .animation(.easeInOut(duration: 0.5), value: bootComplete)

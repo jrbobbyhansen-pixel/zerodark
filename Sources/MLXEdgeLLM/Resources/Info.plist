@@ -33,5 +33,64 @@
         <string>bluetooth-peripheral</string>
         <string>audio</string>
     </array>
+
+    <!-- Declare .mbtiles / .pmtiles as known types so AirDrop and Files "Open In" route to ZeroDark -->
+    <key>UTImportedTypeDeclarations</key>
+    <array>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>com.zerodark.mbtiles</string>
+            <key>UTTypeDescription</key>
+            <string>MBTiles Map Package</string>
+            <key>UTTypeConformsTo</key>
+            <array><string>public.database</string></array>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array><string>mbtiles</string></array>
+                <key>public.mime-type</key>
+                <array><string>application/vnd.mapbox-mbtiles</string></array>
+            </dict>
+        </dict>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>com.zerodark.pmtiles</string>
+            <key>UTTypeDescription</key>
+            <string>PMTiles Map Archive</string>
+            <key>UTTypeConformsTo</key>
+            <array><string>public.data</string></array>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array><string>pmtiles</string></array>
+            </dict>
+        </dict>
+    </array>
+    <key>CFBundleDocumentTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>MBTiles Map Package</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.zerodark.mbtiles</string>
+                <string>public.database</string>
+            </array>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+        </dict>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>PMTiles Map Archive</string>
+            <key>LSItemContentTypes</key>
+            <array><string>com.zerodark.pmtiles</string></array>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+        </dict>
+    </array>
 </dict>
 </plist>

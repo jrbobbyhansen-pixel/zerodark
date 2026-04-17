@@ -414,6 +414,34 @@ struct MapTabView: View {
                 navMode.toggle()
             }
 
+            if offlineTiles.hasOfflineMaps {
+                Menu {
+                    ForEach(offlineTiles.availableMaps, id: \.self) { name in
+                        Button {
+                            offlineTiles.selectMap(name)
+                        } label: {
+                            if name == offlineTiles.currentMap {
+                                Label(name, systemImage: "checkmark")
+                            } else {
+                                Text(name)
+                            }
+                        }
+                    }
+                } label: {
+                    VStack(spacing: 2) {
+                        Image(systemName: "internaldrive")
+                            .font(.title3)
+                        Text("MAP")
+                            .font(.caption2)
+                    }
+                    .foregroundColor(ZDDesign.cyanAccent)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
+                    .background(Color.black.opacity(0.6))
+                    .cornerRadius(8)
+                }
+            }
+
             Spacer()
         }
         .padding(.horizontal, 12)
