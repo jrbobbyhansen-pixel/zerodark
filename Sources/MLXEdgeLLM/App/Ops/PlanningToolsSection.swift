@@ -72,6 +72,14 @@ struct PlanningToolsSection: View {
                 )
 
                 PlanningCard(
+                    title: "Avalanche Analyzer",
+                    subtitle: "Identify prone slopes (30-45°), terrain traps, risk rating, safe corridors",
+                    icon: "mountain.2.fill",
+                    color: ZDDesign.signalRed,
+                    destination: AvalancheAnalyzerView()
+                )
+
+                PlanningCard(
                     title: "Terrain Classifier",
                     subtitle: "Classify LiDAR voxels: rock, vegetation, water, snow, sand, mud — traversability scores",
                     icon: "mountain.2.fill",
