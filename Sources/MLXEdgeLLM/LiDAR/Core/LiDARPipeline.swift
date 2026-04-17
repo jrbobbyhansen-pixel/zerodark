@@ -53,7 +53,7 @@ final class LiDARPipeline: ObservableObject {
     let yoloDetector: YOLOThreatDetector
     let hapticOverlay: TacticalHapticOverlay
     let personDetector = PersonDetector()
-    private var gaussianEngine: GaussianSplatEngine?
+    var gaussianEngine: GaussianSplatEngine?   // internal — allows Gaussian training from LiDARCaptureEngine
 
     // Thermal monitoring & benchmarking
     let thermalMonitor = ThermalMonitor()
@@ -63,6 +63,9 @@ final class LiDARPipeline: ObservableObject {
     // Configuration
     private let baseConfig: LiDARPipelineConfig
     private let capability: DeviceCapability
+
+    // LingBot-Map streaming state config (stride updated by thermal throttle)
+    var lingBotMapConfig = VoxelStreamMap.Config()
 
     // Active display mode (set from LiDARTabView)
     var activeMode: LiDARMode = .full
@@ -267,6 +270,9 @@ final class LiDARPipeline: ObservableObject {
 
     private func applyThrottleProfile(_ profile: ThrottleProfile) {
         activeThrottleProfile = profile
+
+        // LingBot-Map voxel fusion stride (1 = full-res, 2 = half, 4 = quarter)
+        lingBotMapConfig.voxelFusionStride = profile.voxelFusionStride
 
         // Adjust YOLO frame skip
         effectiveYOLOFrameSkip = capability.yoloFrameSkip * profile.yoloFrameSkipMultiplier

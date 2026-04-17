@@ -405,8 +405,11 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
     var config = LiDARScanConfig()
 
     // Enhanced LiDAR Pipeline (Kalman + ClutterFilter + YOLO + Haptics)
-    // LiDARPipeline integration deferred — uses core scan engine directly
+    // LiDARPipeline integration deferred — pipeline stack not yet in build phase
     private(set) var pipeline: Any?
+
+    // LingBot-Map streaming 3D state (TSDF + GCA keyframes)
+    private(set) var lingBotEngine: (any LingBotMapEngine)?
 
     // Location
     private var locationManager: CLLocationManager?
@@ -483,8 +486,19 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
 
         analysisStatus = "Scanning..."
 
-        // Enhanced pipeline deferred — scan uses core ARKit mesh directly
+        // Enhanced pipeline deferred — LiDAR/Core stack not yet in build phase
         self.pipeline = nil
+
+        // LingBot-Map streaming state (TSDF + GCA keyframes) — active now
+        let lidarAvailable = ARWorldTrackingConfiguration.supportsSceneReconstruction(.mesh)
+        if lidarAvailable {
+            let memGB = Int(ProcessInfo.processInfo.physicalMemory / (1_024 * 1_024 * 1_024))
+            let maxVoxels = memGB >= 8 ? 1_500_000 : (memGB >= 6 ? 1_000_000 : 500_000)
+            let voxelConfig = VoxelStreamMap.Config(maxVoxelCount: maxVoxels)
+            self.lingBotEngine = VoxelLingBotEngine(config: voxelConfig)
+        } else {
+            self.lingBotEngine = nil
+        }
 
         // Reset guidance tracking
         scanGuidance = .goodCoverage
@@ -507,8 +521,10 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
     func stopScan() {
         isScanning = false
         arSession?.pause()
-        // pipeline?.stop()  — deferred
+        // pipeline deferred — no stop() needed
         pipeline = nil
+        let capturedLingBot = lingBotEngine
+        lingBotEngine = nil
 
         guard let startTime = scanStartTime else { return }
 
@@ -553,8 +569,24 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         analysisStatus = "Saving..."
 
         Task.detached(priority: .userInitiated) { [weak self] in
-            await self?.saveScanAsync(result, streamURL: streamURL)
+            await self?.saveScanAsync(result, streamURL: streamURL, lingBotEngine: capturedLingBot)
         }
+    }
+
+    // MARK: - Streaming SceneTag Updates (LingBot-Map)
+
+    @MainActor
+    private func updateStreamingCovers(_ candidates: [(position: SIMD3<Float>, protection: Float)]) {
+        guard var tag = AppState.shared.latestSceneTag as? SceneTag else { return }
+        tag.covers = candidates.map { cand in
+            SceneTag.TaggedCover(
+                center: CodablePoint3D(cand.position),
+                type: "streaming",
+                protection: cand.protection
+            )
+        }
+        AppState.shared.latestSceneTag = tag
+        // Do NOT persist to disk here — SceneTagStore.save only runs at stopScan
     }
 
     private func streamPointsToDisk(_ points: [SIMD3<Float>]) {
@@ -576,7 +608,7 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         }
     }
 
-    private func saveScanAsync(_ result: LiDARScanResult, streamURL: URL?) async {
+    private func saveScanAsync(_ result: LiDARScanResult, streamURL: URL?, lingBotEngine: (any LingBotMapEngine)?) async {
         let scansDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("LiDARScans", isDirectory: true)
         let scanDir = scansDir.appendingPathComponent(result.id.uuidString, isDirectory: true)
@@ -606,10 +638,34 @@ final class LiDARCaptureEngine: NSObject, ObservableObject {
         } catch {
         }
 
-        // Build and save initial SceneTag with YOLO detections + covers
-        let detections: [YOLODetection] = []  // Pipeline YOLO deferred
-        let covers = findCoverPositions(pointCloud: result.pointCloud, meshAnchors: result.meshAnchors)
-        var sceneTag = SceneTag.from(result: result, detections: detections, coverPositions: covers, scanDir: scanDir)
+        // Snapshot voxel map to disk (background, writes voxel_map.bin)
+        let voxelMapRef: String?
+        if let lbe = lingBotEngine as? VoxelLingBotEngine {
+            voxelMapRef = lbe.map.snapshotToDisk(scanDir: scanDir)?.lastPathComponent
+        } else {
+            voxelMapRef = lingBotEngine?.streamingMapRef
+        }
+
+        // Build and save initial SceneTag
+        // Use streaming cover candidates (from VoxelStreamMap) if available,
+        // otherwise fall back to batch cover detection from point cloud.
+        let detections: [YOLODetection] = []  // YOLO detections are in AppState.latestSceneTag via streaming
+        let streamingCandidates = lingBotEngine?.queryCoverCandidates() ?? []
+        let covers: [CoverPosition]
+        if !streamingCandidates.isEmpty {
+            covers = streamingCandidates.map { cand in
+                CoverPosition(center: cand.position, type: .hardCover, protection: cand.protection, exposedDirections: [])
+            }
+        } else {
+            covers = findCoverPositions(pointCloud: result.pointCloud, meshAnchors: result.meshAnchors)
+        }
+        var sceneTag = SceneTag.from(
+            result: result,
+            detections: detections,
+            coverPositions: covers,
+            scanDir: scanDir,
+            streamingMapRef: voxelMapRef
+        )
         SceneTagStore.shared.save(sceneTag)
 
         await MainActor.run {
@@ -1898,14 +1954,14 @@ extension LiDARCaptureEngine: ARSessionDelegate {
         Task { @MainActor [weak self] in
             guard let self, isScanning else { return }
 
-            // Pipeline frame processing deferred
+            // Pipeline Kalman fusion deferred (pipeline stack not yet in build phase)
+            let fusedTransform = transform
 
-            // Use fused transform if Kalman fusion is active, otherwise raw ARKit transform
-            let fusedTransform = transform  // Pipeline Kalman fusion deferred
-
-            // Snapshot config on main actor (safe), then dispatch extraction off-thread
+            // Snapshot config + LingBot engine on main actor (safe), dispatch extraction off-thread
             let capturedConfig = config
-            let capturedPipeline = pipeline
+            let capturedLingBot = lingBotEngine
+            let capturedIntrinsics = camera.intrinsics
+            let capturedTimestamp = Float(frameTimestamp)
 
             Task.detached(priority: .userInitiated) { [weak self] in
                 guard let self else { return }
@@ -1919,10 +1975,22 @@ extension LiDARCaptureEngine: ARSessionDelegate {
                     config: capturedConfig
                 )
 
-                // Pipeline point processing deferred — use raw points
                 let newPointsFinal = newPoints
-                
-                // Minimal main actor hop: just append + increment + update coverage
+
+                // Feed into LingBot-Map streaming state (TSDF + GCA keyframes)
+                if let lbe = capturedLingBot {
+                    Task.detached(priority: .utility) {
+                        await lbe.integrateFrame(
+                            points: newPointsFinal,
+                            normals: nil,
+                            cameraTransform: fusedTransform,
+                            intrinsics: capturedIntrinsics,
+                            timestamp: capturedTimestamp
+                        )
+                    }
+                }
+
+                // Minimal main actor hop: append + update coverage + periodic streaming updates
                 await MainActor.run {
                     guard self.isScanning else { return }
                     self.frameCount += 1
@@ -1940,19 +2008,21 @@ extension LiDARCaptureEngine: ARSessionDelegate {
                     self.streamPointsToDisk(newPointsFinal)
 
                     // Update coverage grid based on camera look direction
-                    // Extract yaw (horizontal) and pitch (vertical) from camera transform
                     let forward = SIMD3<Float>(-transform.columns.2.x, -transform.columns.2.y, -transform.columns.2.z)
                     let yaw = atan2(forward.x, forward.z)  // -π to π
                     let pitch = asin(forward.y)  // -π/2 to π/2
-                    
-                    // Map to 8x8 grid (yaw = columns, pitch = rows)
+
                     let col = Int((yaw + .pi) / (2 * .pi) * 8) % 8
                     let row = Int((pitch + .pi/2) / .pi * 8) % 8
-                    
-                    // Increment cell density
-                    self.coverageGrid[row][col] += Float(newPointsFinal.count) / 10000.0  // Normalize
+
+                    self.coverageGrid[row][col] += Float(newPointsFinal.count) / 10000.0
                     if self.coverageGrid[row][col] > self.maxCellDensity {
                         self.maxCellDensity = self.coverageGrid[row][col]
+                    }
+
+                    // Streaming SceneTag update every 30 frames (~1 Hz at 30 fps)
+                    if self.frameCount % 30 == 0, let lbe = capturedLingBot {
+                        self.updateStreamingCovers(lbe.queryCoverCandidates())
                     }
                 }
             }
