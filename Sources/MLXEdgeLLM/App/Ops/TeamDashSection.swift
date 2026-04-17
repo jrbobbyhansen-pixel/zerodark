@@ -9,6 +9,7 @@ struct TeamDashSection: View {
     @ObservedObject private var safetyMonitor = RuntimeSafetyMonitor.shared
     @ObservedObject private var teamPack = TeamPackStore.shared
     @State private var showPaywall = false
+    @State private var showBeacon = false
 
     var body: some View {
         ScrollView {
@@ -19,17 +20,128 @@ struct TeamDashSection: View {
                 // Conditions (Weather)
                 conditionsCard
 
+                // Beacon Mode quick card
+                NavigationLink {
+                    BeaconModeView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "dot.radiowaves.left.and.right",
+                        title: "Beacon Mode",
+                        subtitle: "Periodic location/status broadcasts with heading, speed & battery",
+                        color: BeaconMode.shared.isActive ? ZDDesign.successGreen : ZDDesign.mediumGray
+                    )
+                }
+
+                NavigationLink {
+                    RelayNodeView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "point.3.connected.trianglepath.dotted",
+                        title: "Relay Node",
+                        subtitle: "Dedicated mesh relay with throughput stats, optimization & battery mgmt",
+                        color: MeshRelayManager.shared.isActive ? .orange : ZDDesign.mediumGray
+                    )
+                }
+
                 // Team Management Tools
                 OpsSectionHeader(icon: "person.3.fill", title: "TEAM MANAGEMENT", color: ZDDesign.cyanAccent)
 
                 NavigationLink {
-                    ComingSoonView(title: "Coordination", icon: "person.2.wave.2.fill", description: "Incident management, unit tracking & search patterns")
+                    TeamRosterView()
                 } label: {
                     OpsSectionCard(
                         icon: "person.2.wave.2.fill",
-                        title: "Coordination",
-                        subtitle: "Incident management, unit tracking & search patterns",
+                        title: "Team Roster",
+                        subtitle: "Manage members, callsigns, roles & medical data",
                         color: ZDDesign.cyanAccent
+                    )
+                }
+
+                NavigationLink {
+                    CheckInView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "checkmark.shield.fill",
+                        title: "Check-In System",
+                        subtitle: "Scheduled mesh check-ins, overdue alerts, escalation",
+                        color: .green
+                    )
+                }
+
+                NavigationLink {
+                    StatusBoardView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "chart.bar.xaxis",
+                        title: "Status Board",
+                        subtitle: "Live team grid: location, battery, status, overdue overlay",
+                        color: ZDDesign.safetyYellow
+                    )
+                }
+
+                NavigationLink {
+                    RallyPointView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "mappin.and.ellipse",
+                        title: "Rally Points",
+                        subtitle: "Primary & alternate RPs, mesh broadcast, peer ETAs",
+                        color: .orange
+                    )
+                }
+
+                NavigationLink {
+                    SearchPatternView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "magnifyingglass",
+                        title: "Search Patterns",
+                        subtitle: "SAR parallel track, expanding square, sector, contour; sector assignment & coverage",
+                        color: .purple
+                    )
+                }
+
+                NavigationLink {
+                    TaskAssignmentView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "checklist",
+                        title: "Task Assignment",
+                        subtitle: "Create, assign, prioritize tasks; mesh push notifications; overdue alerts",
+                        color: .blue
+                    )
+                }
+
+                NavigationLink {
+                    IncidentLogView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "doc.text.magnifyingglass",
+                        title: "Incident Log",
+                        subtitle: "Timestamped incidents, auto-GPS, photo/category; CSV/JSON export",
+                        color: .red
+                    )
+                }
+
+                NavigationLink {
+                    ResourceTrackerView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "bag.fill",
+                        title: "Resource Tracker",
+                        subtitle: "Water, food, batteries, medical, ammo — consumption log & resupply planner",
+                        color: .green
+                    )
+                }
+
+                NavigationLink {
+                    ShiftSchedulerView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "calendar.badge.clock",
+                        title: "Shift Scheduler",
+                        subtitle: "Watch rotations, rest tracking, FAID fatigue score, mesh alerts",
+                        color: .indigo
                     )
                 }
 
@@ -40,6 +152,9 @@ struct TeamDashSection: View {
         }
         .sheet(isPresented: $showPaywall) {
             TeamPackPaywall()
+        }
+        .sheet(isPresented: $showBeacon) {
+            BeaconModeView()
         }
     }
 

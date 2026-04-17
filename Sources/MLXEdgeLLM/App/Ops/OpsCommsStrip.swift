@@ -15,6 +15,10 @@ struct OpsCommsStrip: View {
     @State private var isExpanded = false
     @State private var showJoinSheet = false
     @State private var showHapticPicker = false
+    @State private var showMessageQueue = false
+    @State private var showChannelManager = false
+    @State private var showTopology = false
+    @State private var showQuickMessages = false
     @State private var messageText = ""
 
     var body: some View {
@@ -36,6 +40,18 @@ struct OpsCommsStrip: View {
         }
         .sheet(isPresented: $showHapticPicker) {
             HapticPickerSheet()
+        }
+        .sheet(isPresented: $showMessageQueue) {
+            MessageQueueView()
+        }
+        .sheet(isPresented: $showChannelManager) {
+            ChannelManagerView()
+        }
+        .sheet(isPresented: $showTopology) {
+            MeshVisualizerView()
+        }
+        .sheet(isPresented: $showQuickMessages) {
+            QuickMessagesView()
         }
     }
 
@@ -220,6 +236,26 @@ struct OpsCommsStrip: View {
                 }
             }
 
+            // Quick Channel Switch
+            HStack {
+                Text("CHANNEL")
+                    .font(.system(size: 9, weight: .bold)).foregroundColor(.secondary)
+                Spacer()
+                Button {
+                    showTopology = true
+                } label: {
+                    Image(systemName: "point.3.connected.trianglepath.dotted")
+                        .font(.caption2).foregroundColor(ZDDesign.cyanAccent)
+                }
+                Button {
+                    showChannelManager = true
+                } label: {
+                    Image(systemName: "slider.horizontal.3")
+                        .font(.caption2).foregroundColor(ZDDesign.cyanAccent)
+                }
+            }
+            QuickChannelSwitcher()
+
             // DTN Buffer
             HStack {
                 Label("\(dtnBuffer.pendingCount) Pending", systemImage: "tray.full.fill")
@@ -229,6 +265,16 @@ struct OpsCommsStrip: View {
                 Label("\(dtnBuffer.deliveredCount) Delivered", systemImage: "checkmark.circle.fill")
                     .font(.caption)
                     .foregroundColor(ZDDesign.successGreen)
+                Button {
+                    showMessageQueue = true
+                } label: {
+                    Text("Queue")
+                        .font(.caption2.bold())
+                        .foregroundColor(ZDDesign.cyanAccent)
+                        .padding(.horizontal, 8).padding(.vertical, 3)
+                        .background(ZDDesign.cyanAccent.opacity(0.15))
+                        .cornerRadius(6)
+                }
             }
 
             // Recent activity
@@ -285,6 +331,12 @@ struct OpsCommsStrip: View {
                         .cornerRadius(8)
                         .foregroundColor(ZDDesign.pureWhite)
 
+                    Button {
+                        showQuickMessages = true
+                    } label: {
+                        Image(systemName: "list.bullet.rectangle")
+                            .foregroundColor(ZDDesign.cyanAccent)
+                    }
                     Button {
                         if !messageText.isEmpty {
                             mesh.sendText(messageText)

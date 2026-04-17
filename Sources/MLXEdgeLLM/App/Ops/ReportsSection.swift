@@ -5,6 +5,7 @@ import SwiftUI
 struct ReportsSection: View {
     @State private var selectedReport: ReportType?
     @State private var showAARSheet = false
+    @State private var showSitrep = false
 
     var body: some View {
         ScrollView {
@@ -22,11 +23,33 @@ struct ReportsSection: View {
                     )
                 }
 
+                NavigationLink {
+                    VoiceMemoView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "mic.fill",
+                        title: "Voice Memos",
+                        subtitle: "GPS-tagged audio memos; compressed & queued for DTN mesh relay",
+                        color: .orange
+                    )
+                }
+
+                NavigationLink {
+                    CommsLogView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "text.bubble.fill",
+                        title: "Comms Log",
+                        subtitle: "All sent/received mesh messages — filter, search, export CSV/JSON",
+                        color: ZDDesign.cyanAccent
+                    )
+                }
+
                 OpsSectionHeader(icon: "shield.fill", title: "TACTICAL REPORTS", color: ZDDesign.safetyYellow)
 
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     ToolButton(icon: "doc.plaintext", title: "SITREP") {
-                        selectedReport = .sitrep
+                        showSitrep = true
                     }
                     ToolButton(icon: "cross.fill", title: "9-Line MEDEVAC") {
                         selectedReport = .medevac
@@ -80,6 +103,9 @@ struct ReportsSection: View {
         }
         .sheet(item: $selectedReport) { report in
             ReportFormView(reportType: report)
+        }
+        .sheet(isPresented: $showSitrep) {
+            NavigationStack { SitrepView() }
         }
         .sheet(isPresented: $showAARSheet) {
             NavigationStack {

@@ -32,17 +32,36 @@ final class DecisionLogger: ObservableObject {
 
     @Published var logs: [DecisionLogEntry] = []
 
-    private init() {}
+    private let saveURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        .appendingPathComponent("decision_log.json")
+
+    private init() { load() }
 
     func logDecision(reason: String, context: String, outcome: String, confidence: Double = 1.0) {
         let entry = DecisionLogEntry(reason: reason, context: context, outcome: outcome, confidence: confidence)
         logs.append(entry)
-        // Keep last 500 entries
         if logs.count > 500 { logs.removeFirst(logs.count - 500) }
+        save()
     }
 
     func clear() {
         logs.removeAll()
+        try? FileManager.default.removeItem(at: saveURL)
+    }
+
+    private func save() {
+        let enc = JSONEncoder(); enc.dateEncodingStrategy = .iso8601
+        if let data = try? enc.encode(logs) {
+            try? data.write(to: saveURL, options: .atomic)
+        }
+    }
+
+    private func load() {
+        let dec = JSONDecoder(); dec.dateDecodingStrategy = .iso8601
+        if let data = try? Data(contentsOf: saveURL),
+           let loaded = try? dec.decode([DecisionLogEntry].self, from: data) {
+            logs = loaded
+        }
     }
 
     func exportText() -> String {
