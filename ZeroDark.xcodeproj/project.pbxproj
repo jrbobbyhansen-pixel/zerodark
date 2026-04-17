@@ -34,6 +34,7 @@
 		18957EFFD3366C5817104969 /* 09-fishing.md in Resources */ = {isa = PBXBuildFile; fileRef = 088F99C3EF2772F2075DC725 /* 09-fishing.md */; };
 		1A0D7314221074D1892F536D /* 17-improvised-medicine.md in Resources */ = {isa = PBXBuildFile; fileRef = 6A2457121B0B8701E81B7241 /* 17-improvised-medicine.md */; };
 		1A75CF65B13B41E4CB7C4173 /* TelemetryAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E92B2355979383AD1B3E14DF /* TelemetryAdapter.swift */; };
+		1A7A36531A6FAF3B6E814D38 /* ObservationDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55634899BDF895C6663DC02D /* ObservationDetailSheet.swift */; };
 		1A8349E49891422C5EF7A8C7 /* 33-burns.md in Resources */ = {isa = PBXBuildFile; fileRef = D38277423CF8071BEC3367D0 /* 33-burns.md */; };
 		1C50A89A818D96E849C7DEB8 /* DTNBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACBA992FB37767A262BB3890 /* DTNBundle.swift */; };
 		1C91003C38AF1188D7CC5AB9 /* 15-burns-treatment.md in Resources */ = {isa = PBXBuildFile; fileRef = 87E3C7A55C37F74648654CE7 /* 15-burns-treatment.md */; };
@@ -641,6 +642,7 @@
 		54E8C2B4E7925EFBE7F1C706 /* LostPersonProfile.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LostPersonProfile.swift; path = Sources/MLXEdgeLLM/Scenarios/Wilderness/LostPersonProfile.swift; sourceTree = "<group>"; };
 		55184CDD55B2CD7368591B13 /* HybridSearchIndex.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HybridSearchIndex.swift; path = Sources/MLXEdgeLLM/AI/RAG/HybridSearchIndex.swift; sourceTree = "<group>"; };
 		554A951967AFE1CAEE24956C /* GeofenceEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeofenceEditorView.swift; sourceTree = "<group>"; };
+		55634899BDF895C6663DC02D /* ObservationDetailSheet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ObservationDetailSheet.swift; sourceTree = "<group>"; };
 		5565DB8EF0907709E63BC3BE /* LiDARTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiDARTabView.swift; sourceTree = "<group>"; };
 		55DF986CB353AF2031989AF8 /* DataClassification.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DataClassification.swift; path = Sources/MLXEdgeLLM/Security/Access/DataClassification.swift; sourceTree = "<group>"; };
 		55F7E5D9496D8EFB8000082A /* Terrain3dViewer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Terrain3dViewer.swift; path = Sources/MLXEdgeLLM/Navigation/Terrain3dViewer.swift; sourceTree = "<group>"; };
@@ -1221,6 +1223,7 @@
 				0A0FFDB15B8762D7E15F6938 /* ZeroDarkApp.swift */,
 				692A14D16E601C8DEADC36AB /* ArmDeviceView.swift */,
 				9E6A02BF26E61A621C9F3BA7 /* ModelDownloadManager.swift */,
+				55634899BDF895C6663DC02D /* ObservationDetailSheet.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -2908,6 +2911,7 @@
 				CA151E9861EB1E59092C0535 /* ModelURLs.swift in Sources */,
 				BFB419BB3B9E8326BB7B00B4 /* RegionDrawView.swift in Sources */,
 				23AD3C309F3AB86C23D4F51F /* OnDeviceVisionEngine.swift in Sources */,
+				1A7A36531A6FAF3B6E814D38 /* ObservationDetailSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

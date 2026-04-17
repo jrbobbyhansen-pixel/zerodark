@@ -39,6 +39,28 @@ struct FieldObservation: Identifiable, Codable {
         case hazard     = "Hazard"
         case resource   = "Resource"
         case personnel  = "Personnel"
+
+        var mapColor: Color {
+            switch self {
+            case .general:   return ZDDesign.cyanAccent
+            case .movement:  return ZDDesign.safetyYellow
+            case .structure: return ZDDesign.skyBlue
+            case .hazard:    return ZDDesign.signalRed
+            case .resource:  return ZDDesign.successGreen
+            case .personnel: return .orange
+            }
+        }
+
+        var mapIcon: String {
+            switch self {
+            case .general:   return "eye.fill"
+            case .movement:  return "figure.walk"
+            case .structure: return "building.2.fill"
+            case .hazard:    return "exclamationmark.triangle.fill"
+            case .resource:  return "bag.fill"
+            case .personnel: return "person.fill"
+            }
+        }
     }
 }
 
