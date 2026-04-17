@@ -16,6 +16,7 @@
 		0612C1923F055EF122E17410 /* 27-cold-weather.md in Resources */ = {isa = PBXBuildFile; fileRef = BE98D062B47B357543395455 /* 27-cold-weather.md */; };
 		06DB76F8B043889BD9113C1F /* DTMFLoggerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC6A8BBA08D4DFEB1064D5FC /* DTMFLoggerView.swift */; };
 		089DC9008D6C0B6F30477049 /* 21-surveillance-detection.md in Resources */ = {isa = PBXBuildFile; fileRef = E84A9C29450568EE7975F94D /* 21-surveillance-detection.md */; };
+		09A5B31D616ADBB2533E59B2 /* PointCloudAnnotator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 754D039639F75DE4EE1B2B6E /* PointCloudAnnotator.swift */; };
 		0B3C03F225FA9DB062026516 /* 52-stealth-movement.md in Resources */ = {isa = PBXBuildFile; fileRef = 9968020680F705ECA9D1DE43 /* 52-stealth-movement.md */; };
 		0B910D736FE7C1BE70C59B9D /* AarBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3508CFB369BD5BF7AD59A5F0 /* AarBuilder.swift */; };
 		0CAC99E70DF356124865F5E1 /* 111-power-management.md in Resources */ = {isa = PBXBuildFile; fileRef = 509ADEEC842C5B2A3BCD7872 /* 111-power-management.md */; };
@@ -332,6 +333,7 @@
 		CE5DCC77F0E5BCD3173954C0 /* PlaneDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF2D298928708E941D6247B /* PlaneDetection.swift */; };
 		CF769679AEC8B4C8BD0BFCD9 /* AuditLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 578364AF59AA6F61D63F7CCF /* AuditLogger.swift */; };
 		CFA2D02967A2D8C51EB203B5 /* TimelinePlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0700C1434F4D76A951BE873E /* TimelinePlanner.swift */; };
+		CFF49988DE8E33D608030BB8 /* DistanceBearing.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93C06EF01501B5102A4B678 /* DistanceBearing.swift */; };
 		D173DBB70B06958291BA0999 /* 57-brevity-codes.md in Resources */ = {isa = PBXBuildFile; fileRef = 538CD3192DF07D58DBEBB9D3 /* 57-brevity-codes.md */; };
 		D18313A9511E00CCE76FAC48 /* IncidentLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4598E6D0035BCC7D542FD21C /* IncidentLog.swift */; };
 		D25BA7086C6DD1EFC7491015 /* ViewshedAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879B7918AC440E44267B8F22 /* ViewshedAnalysis.swift */; };
@@ -781,6 +783,7 @@
 		73C693B5B27863C7FAAD2A45 /* DeviceCapability.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeviceCapability.swift; path = Sources/MLXEdgeLLM/LiDAR/Core/DeviceCapability.swift; sourceTree = "<group>"; };
 		744AE652015DC00C19882348 /* PaceCalculator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PaceCalculator.swift; path = Sources/MLXEdgeLLM/Planning/PaceCalculator.swift; sourceTree = "<group>"; };
 		746AD25063B9202BD29F2DDF /* MilitaryGridOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilitaryGridOverlay.swift; sourceTree = "<group>"; };
+		754D039639F75DE4EE1B2B6E /* PointCloudAnnotator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PointCloudAnnotator.swift; path = Sources/MLXEdgeLLM/SpatialIntelligence/PointCloudAnnotator.swift; sourceTree = "<group>"; };
 		756BA45925B2332731FF74B4 /* 12-airway-management.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "12-airway-management.md"; sourceTree = "<group>"; };
 		75B8DA2E805861939C7EDCF2 /* StarDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarDetector.swift; sourceTree = "<group>"; };
 		7614D0A6057F036CBDB03AFB /* AfterAction.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AfterAction.swift; path = Sources/MLXEdgeLLM/FieldOps/Mission/AfterAction.swift; sourceTree = "<group>"; };
@@ -982,6 +985,7 @@
 		B900C2504CDE8A403F6EDA65 /* 103-contingency-planning.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "103-contingency-planning.md"; sourceTree = "<group>"; };
 		B91D5868261625BF9818C37F /* AtakPluginBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AtakPluginBridge.swift; path = Sources/MLXEdgeLLM/Interop/TAK/AtakPluginBridge.swift; sourceTree = "<group>"; };
 		B91E7889F25A1B0A83A9D6B9 /* ProtobufHelpers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProtobufHelpers.swift; path = Sources/MLXEdgeLLM/CommunicationCore/MeshNetworking/ProtobufHelpers.swift; sourceTree = "<group>"; };
+		B93C06EF01501B5102A4B678 /* DistanceBearing.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DistanceBearing.swift; path = Sources/MLXEdgeLLM/SpatialIntelligence/DistanceBearing.swift; sourceTree = "<group>"; };
 		B971A47BE0225EBD22D8C405 /* ChannelManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ChannelManager.swift; path = Sources/MLXEdgeLLM/CommunicationCore/ChannelManager.swift; sourceTree = "<group>"; };
 		B97B52F081DF9C1A5CF43A3E /* DtnBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DtnBundle.swift; path = Sources/MLXEdgeLLM/CommunicationCore/DtnBundle.swift; sourceTree = "<group>"; };
 		BA9692D308790ADA43EF8D2C /* ObjectiveManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ObjectiveManager.swift; path = Sources/MLXEdgeLLM/FieldOps/Mission/ObjectiveManager.swift; sourceTree = "<group>"; };
@@ -2266,6 +2270,8 @@
 				E5D1AE0DF7CFDB9F4C7DFEA9 /* TempLogger.swift */,
 				D25653A5E5F89A505186DADC /* AltitudeTracker.swift */,
 				DE95C74AB14BAF061A2603D8 /* HydrationCalc.swift */,
+				754D039639F75DE4EE1B2B6E /* PointCloudAnnotator.swift */,
+				B93C06EF01501B5102A4B678 /* DistanceBearing.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3071,6 +3077,8 @@
 				C78E222BF416835EC6BB95E7 /* TempLogger.swift in Sources */,
 				235414608782BB2FB3AB27CA /* AltitudeTracker.swift in Sources */,
 				8C8548077815A253DEC42726 /* HydrationCalc.swift in Sources */,
+				09A5B31D616ADBB2533E59B2 /* PointCloudAnnotator.swift in Sources */,
+				CFF49988DE8E33D608030BB8 /* DistanceBearing.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

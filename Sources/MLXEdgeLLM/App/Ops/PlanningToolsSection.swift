@@ -71,6 +71,14 @@ struct PlanningToolsSection: View {
                     destination: RehearsalChecklistView()
                 )
 
+                PlanningCard(
+                    title: "Distance & Bearing",
+                    subtitle: "Distance/bearing between waypoints; reverse bearing; multi-leg routes",
+                    icon: "ruler.fill",
+                    color: ZDDesign.cyanAccent,
+                    destination: DistanceBearingView()
+                )
+
                 OpsSectionHeader(icon: "cloud.sun.fill", title: "ENVIRONMENT", color: ZDDesign.safetyYellow)
                     .padding(.top, 4)
 

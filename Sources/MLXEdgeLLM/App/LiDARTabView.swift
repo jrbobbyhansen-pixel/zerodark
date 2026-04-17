@@ -21,6 +21,7 @@ struct LiDARTabView: View {
     @State private var terrainPointCloud: [SIMD3<Float>] = []
     @State private var showContourGenerator = false
     @State private var scanOrigin: CLLocationCoordinate2D? = nil
+    @State private var showAnnotations = false
 
     var body: some View {
         NavigationStack {
@@ -57,6 +58,11 @@ struct LiDARTabView: View {
                             } label: {
                                 Image(systemName: "lines.measurement.horizontal")
                             }
+                        }
+                        Button {
+                            showAnnotations = true
+                        } label: {
+                            Image(systemName: "mappin.and.ellipse")
                         }
                         Button {
                             showingResults = true
@@ -131,6 +137,9 @@ struct LiDARTabView: View {
                     scanOrigin: scanOrigin
                 )
                 .preferredColorScheme(.dark)
+            }
+            .sheet(isPresented: $showAnnotations) {
+                PointCloudAnnotatorView()
             }
         }
     }
