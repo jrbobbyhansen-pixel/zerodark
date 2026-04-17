@@ -47,6 +47,7 @@ public struct MapLayerConfig: Equatable {
     public var showMeshPeers: Bool = true
     public var showGISOverlays: Bool = true
     public var showObservations: Bool = true
+    public var showLiDARScans: Bool = true
 
     public static let `default` = MapLayerConfig()
 }

@@ -19,6 +19,7 @@ struct MapTabView: View {
     @ObservedObject private var weather = WeatherForecaster.shared
     @ObservedObject private var celestial = CelestialNavigator.shared
     @ObservedObject private var observationLogger = ObservationLogger.shared
+    @ObservedObject private var sceneTagStore = SceneTagStore.shared
     @EnvironmentObject var appState: AppState
 
     // Map state
@@ -43,6 +44,7 @@ struct MapTabView: View {
     @State private var shareURL: URL?
     @State private var selectedWaypoint: TacticalWaypoint?
     @State private var selectedObservation: FieldObservation?
+    @State private var selectedSceneTag: SceneTag?
     // MGRS grid cached — only regenerated on camera-stop, not every render
     @State private var cachedMGRSLines: [[CLLocationCoordinate2D]] = []
     // Navigation mode (merged from NavTabView)
@@ -66,6 +68,7 @@ struct MapTabView: View {
                         mapWaypointsContent
                         mapOverlaysContent
                         mapObservationsContent
+                        mapLiDARScansContent
                         mapAnalysisContent
                         mapNavContent
                     }
@@ -308,6 +311,9 @@ struct MapTabView: View {
             .sheet(item: $selectedObservation) { obs in
                 ObservationDetailSheet(observation: obs, logger: observationLogger)
             }
+            .sheet(item: $selectedSceneTag) { tag in
+                ScanSummarySheet(sceneTag: tag, store: sceneTagStore)
+            }
             .alert("No Terrain Data", isPresented: $losTerrainWarning) {
                 Button("OK", role: .cancel) {}
             } message: {
@@ -374,6 +380,14 @@ struct MapTabView: View {
                 activeColor: Color(ZDDesign.cyanAccent)
             ) {
                 appState.mapLayerConfig.showObservations.toggle()
+            }
+
+            ToolbarToggle(
+                icon: "cube.fill",
+                active: appState.mapLayerConfig.showLiDARScans,
+                activeColor: Color(ZDDesign.skyBlue)
+            ) {
+                appState.mapLayerConfig.showLiDARScans.toggle()
             }
 
             Menu {
@@ -786,6 +800,47 @@ extension MapTabView {
                         .stroke(obs.category.mapColor.opacity(0.6), lineWidth: 1.5)
                 }
             }
+        }
+    }
+
+    @MapContentBuilder
+    var mapLiDARScansContent: some MapContent {
+        if appState.mapLayerConfig.showLiDARScans {
+            ForEach(sceneTagStore.tags.filter { $0.location != nil }) { tag in
+                let coord = CLLocationCoordinate2D(
+                    latitude: tag.location!.latitude,
+                    longitude: tag.location!.longitude
+                )
+                Annotation("Scan", coordinate: coord) {
+                    ZStack {
+                        Circle()
+                            .fill(lidarRiskColor(tag.riskScore ?? 0))
+                            .frame(width: 32, height: 32)
+                            .opacity(0.9)
+                        Image(systemName: "cube.fill")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.black)
+                    }
+                    .overlay(alignment: .topTrailing) {
+                        if let risk = tag.riskScore, risk > 0.6 {
+                            Circle()
+                                .fill(Color(ZDDesign.signalRed))
+                                .frame(width: 10, height: 10)
+                                .offset(x: 2, y: -2)
+                        }
+                    }
+                    .onTapGesture { selectedSceneTag = tag }
+                }
+            }
+        }
+    }
+
+    private func lidarRiskColor(_ risk: Float) -> Color {
+        switch risk {
+        case ..<0.3:  return Color(ZDDesign.successGreen)
+        case ..<0.6:  return Color(ZDDesign.safetyYellow)
+        case ..<0.8:  return Color(ZDDesign.warningOrange)
+        default:      return Color(ZDDesign.signalRed)
         }
     }
 

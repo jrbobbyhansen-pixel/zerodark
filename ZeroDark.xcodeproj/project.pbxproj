@@ -232,6 +232,7 @@
 		972DD1C37F138E69019B0B08 /* 19-plant-toxicity.md in Resources */ = {isa = PBXBuildFile; fileRef = 7BE8737CDED8FC87B239DA42 /* 19-plant-toxicity.md */; };
 		97583D34FDB719729545C5C4 /* 03-shelter-construction.md in Resources */ = {isa = PBXBuildFile; fileRef = 1609247731946F5087752F58 /* 03-shelter-construction.md */; };
 		975EA54B719D3C9ED6DF3EC8 /* 16-hypothermia-treatment.md in Resources */ = {isa = PBXBuildFile; fileRef = 776CAD766E73197EDDD989BE /* 16-hypothermia-treatment.md */; };
+		985A1B86C849623A1FD077F9 /* ScanSummarySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8964B63A421C6127EF4EEB5A /* ScanSummarySheet.swift */; };
 		9A37DA99F78989FD7A8F0169 /* 03-storage-hygiene.md in Resources */ = {isa = PBXBuildFile; fileRef = EAB3F6C805B5B4D24EDEE7D1 /* 03-storage-hygiene.md */; };
 		9B159A7F9F1DE4A4191981D2 /* ThreatAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A59CDB63D6BD0BC49875B9B /* ThreatAnalyzer.swift */; };
 		9D1D2BBDD5CCFB1224544E8E /* 71-ied-recognition.md in Resources */ = {isa = PBXBuildFile; fileRef = 8879117C12F98ADE44EF2511 /* 71-ied-recognition.md */; };
@@ -791,6 +792,7 @@
 		88DCC09381F6B460C18BB2C7 /* ShiftScheduler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ShiftScheduler.swift; path = Sources/MLXEdgeLLM/Coordination/ShiftScheduler.swift; sourceTree = "<group>"; };
 		88E072845538F69AEDDF73D9 /* OfflineTileProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineTileProvider.swift; sourceTree = "<group>"; };
 		89332DFEAB47442B9D20C254 /* DroneController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DroneController.swift; path = Sources/MLXEdgeLLM/Hardware/Drone/DroneController.swift; sourceTree = "<group>"; };
+		8964B63A421C6127EF4EEB5A /* ScanSummarySheet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScanSummarySheet.swift; sourceTree = "<group>"; };
 		8977B7EC07F6A0A155F68C2B /* 70-humint-collection.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "70-humint-collection.md"; sourceTree = "<group>"; };
 		8A4E08162D5FD0F9BC8912F1 /* CommunicationDrill.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CommunicationDrill.swift; path = Sources/MLXEdgeLLM/Training/Team/CommunicationDrill.swift; sourceTree = "<group>"; };
 		8A620845AE3EF9FF3127816E /* RelayNode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RelayNode.swift; path = Sources/MLXEdgeLLM/CommunicationCore/RelayNode.swift; sourceTree = "<group>"; };
@@ -1224,6 +1226,7 @@
 				692A14D16E601C8DEADC36AB /* ArmDeviceView.swift */,
 				9E6A02BF26E61A621C9F3BA7 /* ModelDownloadManager.swift */,
 				55634899BDF895C6663DC02D /* ObservationDetailSheet.swift */,
+				8964B63A421C6127EF4EEB5A /* ScanSummarySheet.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -2912,6 +2915,7 @@
 				BFB419BB3B9E8326BB7B00B4 /* RegionDrawView.swift in Sources */,
 				23AD3C309F3AB86C23D4F51F /* OnDeviceVisionEngine.swift in Sources */,
 				1A7A36531A6FAF3B6E814D38 /* ObservationDetailSheet.swift in Sources */,
+				985A1B86C849623A1FD077F9 /* ScanSummarySheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
