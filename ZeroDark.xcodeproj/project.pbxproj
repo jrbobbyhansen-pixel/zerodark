@@ -316,6 +316,7 @@
 		CF769679AEC8B4C8BD0BFCD9 /* AuditLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 578364AF59AA6F61D63F7CCF /* AuditLogger.swift */; };
 		CFA2D02967A2D8C51EB203B5 /* TimelinePlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0700C1434F4D76A951BE873E /* TimelinePlanner.swift */; };
 		D173DBB70B06958291BA0999 /* 57-brevity-codes.md in Resources */ = {isa = PBXBuildFile; fileRef = 538CD3192DF07D58DBEBB9D3 /* 57-brevity-codes.md */; };
+		D18313A9511E00CCE76FAC48 /* IncidentLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4598E6D0035BCC7D542FD21C /* IncidentLog.swift */; };
 		D25BA7086C6DD1EFC7491015 /* ViewshedAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879B7918AC440E44267B8F22 /* ViewshedAnalysis.swift */; };
 		D2B5CEFF328AE1F1FD822CF7 /* Geofence.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6767A26259D077FF2BB15EF /* Geofence.swift */; };
 		D35269B572523E2EB49FE402 /* 14-fracture-management.md in Resources */ = {isa = PBXBuildFile; fileRef = B4E10C4D0633F94B1E72E086 /* 14-fracture-management.md */; };
@@ -2995,6 +2996,7 @@
 				DE145C59F868B5A44874023E /* RallyPoint.swift in Sources */,
 				4F630591518DA9A5EF259DE5 /* SearchPattern.swift in Sources */,
 				D3D8B6DE756FD1DED08FE60E /* TaskAssignment.swift in Sources */,
+				D18313A9511E00CCE76FAC48 /* IncidentLog.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

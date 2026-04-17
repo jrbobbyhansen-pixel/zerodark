@@ -88,6 +88,17 @@ struct TeamDashSection: View {
                     )
                 }
 
+                NavigationLink {
+                    IncidentLogView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "doc.text.magnifyingglass",
+                        title: "Incident Log",
+                        subtitle: "Timestamped incidents, auto-GPS, photo/category; CSV/JSON export",
+                        color: .red
+                    )
+                }
+
                 // Safety Monitor
                 safetyMonitorCard
             }
