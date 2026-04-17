@@ -47,7 +47,7 @@ struct SunTimes {
 
 // MARK: - SunCalculatorEngine
 
-private enum SunCalculatorEngine {
+enum SunCalculatorEngine {
     struct Results {
         var sunrise: Date?; var sunset: Date?; var solarNoon: Date?
         var civilDawn: Date?; var civilDusk: Date?
