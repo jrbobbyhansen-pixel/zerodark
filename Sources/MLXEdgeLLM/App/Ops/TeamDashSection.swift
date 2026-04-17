@@ -110,6 +110,17 @@ struct TeamDashSection: View {
                     )
                 }
 
+                NavigationLink {
+                    ShiftSchedulerView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "calendar.badge.clock",
+                        title: "Shift Scheduler",
+                        subtitle: "Watch rotations, rest tracking, FAID fatigue score, mesh alerts",
+                        color: .indigo
+                    )
+                }
+
                 // Safety Monitor
                 safetyMonitorCard
             }

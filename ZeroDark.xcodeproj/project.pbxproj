@@ -18,6 +18,7 @@
 		089DC9008D6C0B6F30477049 /* 21-surveillance-detection.md in Resources */ = {isa = PBXBuildFile; fileRef = E84A9C29450568EE7975F94D /* 21-surveillance-detection.md */; };
 		0B3C03F225FA9DB062026516 /* 52-stealth-movement.md in Resources */ = {isa = PBXBuildFile; fileRef = 9968020680F705ECA9D1DE43 /* 52-stealth-movement.md */; };
 		0CAC99E70DF356124865F5E1 /* 111-power-management.md in Resources */ = {isa = PBXBuildFile; fileRef = 509ADEEC842C5B2A3BCD7872 /* 111-power-management.md */; };
+		0DBF5913CF4137E39354A214 /* ShiftScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88DCC09381F6B460C18BB2C7 /* ShiftScheduler.swift */; };
 		0F93543927968F66D62308D5 /* 74-counter-drone.md in Resources */ = {isa = PBXBuildFile; fileRef = FE6748FDE4E63095BE652A0B /* 74-counter-drone.md */; };
 		0FA097B29AEE18A434A6B6C3 /* 31-shock-treatment.md in Resources */ = {isa = PBXBuildFile; fileRef = 9396EB8BE3E0C59D957F63D9 /* 31-shock-treatment.md */; };
 		101155C8161E7867AFD18449 /* FreeTAKConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1236A84CA53FB933D59B17D7 /* FreeTAKConnector.swift */; };
@@ -627,7 +628,6 @@
 		4343299DD8C2719A4ACCC63F /* ScenarioLibrary.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScenarioLibrary.swift; path = Sources/MLXEdgeLLM/Training/Scenarios/ScenarioLibrary.swift; sourceTree = "<group>"; };
 		43E02E2BC5F85724BAFBFA25 /* 08-hunting-trapping.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "08-hunting-trapping.md"; sourceTree = "<group>"; };
 		445B5A1F8C73451866B753AC /* 63-observation-post.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "63-observation-post.md"; sourceTree = "<group>"; };
-		4506BFD2AF1ADA487D807A72 /* ShiftScheduler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ShiftScheduler.swift; path = Sources/MLXEdgeLLM/FieldOps/Team/ShiftScheduler.swift; sourceTree = "<group>"; };
 		4598E6D0035BCC7D542FD21C /* IncidentLog.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IncidentLog.swift; path = Sources/MLXEdgeLLM/Coordination/IncidentLog.swift; sourceTree = "<group>"; };
 		46976C0E685C8A40F3A3EF7C /* TacticalCorpus.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TacticalCorpus.swift; path = Sources/MLXEdgeLLM/AI/RAG/TacticalCorpus.swift; sourceTree = "<group>"; };
 		46D522BF9E6F1DAC113DE981 /* BatteryManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BatteryManager.swift; path = Sources/MLXEdgeLLM/Logistics/BatteryManager.swift; sourceTree = "<group>"; };
@@ -2160,7 +2160,6 @@
 				CE32BDF3B19C8996C8B9FBAE /* MissionLog.swift */,
 				7614D0A6057F036CBDB03AFB /* AfterAction.swift */,
 				5FB320B0FD38AD49F76D93FA /* MissionBriefing.swift */,
-				4506BFD2AF1ADA487D807A72 /* ShiftScheduler.swift */,
 				D2F6FF6FAD6ACECD56AAAD0A /* AnnouncementSystem.swift */,
 				E3EC164A644080D73DA9C43C /* BuddySystem.swift */,
 				DD00A32F45A01105D6AE749E /* TeamStatus.swift */,
@@ -2999,6 +2998,7 @@
 				D3D8B6DE756FD1DED08FE60E /* TaskAssignment.swift in Sources */,
 				D18313A9511E00CCE76FAC48 /* IncidentLog.swift in Sources */,
 				F8DE2235277E64DE3CB6BF69 /* ResourceTracker.swift in Sources */,
+				0DBF5913CF4137E39354A214 /* ShiftScheduler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
