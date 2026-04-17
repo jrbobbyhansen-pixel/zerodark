@@ -2,6 +2,7 @@
 
 import Foundation
 import Observation
+import CoreLocation
 
 /// Main navigation orchestrator: planner → optimizer → controller
 @MainActor
@@ -19,6 +20,11 @@ public class TacticalNavigationStack: NSObject, ObservableObject {
 
     private var currentPath: NavPath?
     private var navigationTimer: Timer?
+
+    // MARK: - Long-Range Mission State (graph planning layer)
+    @Published public private(set) var missionWaypoints: [GraphNode] = []
+    @Published public private(set) var currentLegIndex: Int = 0
+    @Published public private(set) var isMissionActive: Bool = false
 
     private override init() {
         // Initialize with default implementations
@@ -79,8 +85,13 @@ public class TacticalNavigationStack: NSObject, ObservableObject {
         // Check if we've completed the path
         guard let lastWaypoint = path.waypoints.last else { return }
         if pose.coordinate.distance(to: lastWaypoint.coordinate) < 5.0 {
-            stop()
-            status = .completed
+            if isMissionActive {
+                // Advance to next graph waypoint rather than stopping
+                advanceToNextLeg()
+            } else {
+                stop()
+                status = .completed
+            }
         } else {
             // Update status with progress
             let distRemaining = calculateRemainingDistance(from: pose, in: path)
@@ -113,5 +124,71 @@ public class TacticalNavigationStack: NSObject, ObservableObject {
     /// Update current pose (called from location services)
     public func updatePose(_ pose: NavPose) {
         self.currentPose = pose
+    }
+
+    // MARK: - Long-Range Mission (graph planning layer)
+
+    /// Begin a multi-waypoint mission. The graph planner hands an ordered [GraphNode] list;
+    /// HybridAStarPlanner handles local obstacle avoidance on each individual leg.
+    /// - Parameter waypoints: Ordered nodes from NavigationGraph.findPath(from:to:).
+    public func startMission(waypoints: [GraphNode]) {
+        guard waypoints.count >= 2 else {
+            // Single node: treat as a direct navigation destination
+            if let node = waypoints.first {
+                let dest = NavWaypoint(
+                    coordinate: CLLocationCoordinate2D(
+                        latitude: node.coordinate.latitude,
+                        longitude: node.coordinate.longitude
+                    ),
+                    name: node.name
+                )
+                Task { await start(destination: dest) }
+            }
+            return
+        }
+
+        missionWaypoints = waypoints
+        currentLegIndex = 0
+        isMissionActive = true
+        advanceToNextLeg()
+    }
+
+    /// Abort the active multi-waypoint mission and stop navigation.
+    public func cancelMission() {
+        isMissionActive = false
+        missionWaypoints = []
+        currentLegIndex = 0
+        stop()
+    }
+
+    private func advanceToNextLeg() {
+        // Skip the first leg if we're just starting (index 0 = current position node)
+        let nextIndex = currentLegIndex + 1
+        guard nextIndex < missionWaypoints.count else {
+            missionComplete()
+            return
+        }
+
+        currentLegIndex = nextIndex
+        let targetNode = missionWaypoints[nextIndex]
+        let dest = NavWaypoint(
+            coordinate: CLLocationCoordinate2D(
+                latitude: targetNode.coordinate.latitude,
+                longitude: targetNode.coordinate.longitude
+            ),
+            name: targetNode.name
+        )
+
+        Task {
+            await start(destination: dest)
+        }
+    }
+
+    private func missionComplete() {
+        isMissionActive = false
+        stop()
+        status = .completed
+        missionWaypoints = []
+        currentLegIndex = 0
     }
 }
