@@ -131,7 +131,9 @@ struct ScanDetailView: View {
     @State private var scanName: String = ""
     @State private var isEditingName = false
     @State private var showMetadata = false
-    
+    @State private var showExporter = false
+    @State private var showComparison = false
+
     var body: some View {
         GeometryReader { geo in
             VStack(spacing: 0) {
@@ -183,6 +185,28 @@ struct ScanDetailView: View {
         .background(Color.black)
         .navigationTitle("Scan Details")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                HStack(spacing: 16) {
+                    Button { showExporter = true } label: {
+                        Image(systemName: "square.and.arrow.up").foregroundColor(ZDDesign.cyanAccent)
+                    }
+                    Button { showComparison = true } label: {
+                        Image(systemName: "arrow.left.arrow.right.circle").foregroundColor(.orange)
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showExporter) {
+            PointCloudExporterView()
+                .onAppear { PointCloudExporterManager.shared.config = PointCloudExportConfig() }
+        }
+        .sheet(isPresented: $showComparison) {
+            TerrainComparisonView()
+                .onAppear {
+                    TerrainComparisonManager.shared.result = nil
+                }
+        }
         .onAppear { scanName = scan.name }
     }
     

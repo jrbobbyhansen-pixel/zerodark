@@ -154,6 +154,7 @@
 		51B0F0B7034A1DD363727295 /* 73-convoy-security.md in Resources */ = {isa = PBXBuildFile; fileRef = D82BFD382428A7A3359E7496 /* 73-convoy-security.md */; };
 		539EB73E1CEDE0295D1E7408 /* RehearsalChecklist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A3FA34768D726E3D227AC3 /* RehearsalChecklist.swift */; };
 		53B7672AD95B67B05AB4320B /* Platform.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3668A1EA0A3AEDD1E740C88 /* Platform.swift */; };
+		5405D35EC824CBE9E36E97E5 /* PointCloudExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19CE4A6C3ABFFD17B23735A2 /* PointCloudExporter.swift */; };
 		567C81BA97BBF614709796F5 /* DTMFDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A0221F06BC674ABA7660240 /* DTMFDetector.swift */; };
 		57486A7C9C6BF1833B77AB9C /* 90-urban-evasion.md in Resources */ = {isa = PBXBuildFile; fileRef = 9B7E10627D2F41D1963707F2 /* 90-urban-evasion.md */; };
 		5988FC4D2ABFF75A2511D736 /* 108-cache-construction.md in Resources */ = {isa = PBXBuildFile; fileRef = 1C9D9BCF9E71D29027E626B8 /* 108-cache-construction.md */; };
@@ -263,6 +264,7 @@
 		985A1B86C849623A1FD077F9 /* ScanSummarySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8964B63A421C6127EF4EEB5A /* ScanSummarySheet.swift */; };
 		9A37DA99F78989FD7A8F0169 /* 03-storage-hygiene.md in Resources */ = {isa = PBXBuildFile; fileRef = EAB3F6C805B5B4D24EDEE7D1 /* 03-storage-hygiene.md */; };
 		9B159A7F9F1DE4A4191981D2 /* ThreatAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A59CDB63D6BD0BC49875B9B /* ThreatAnalyzer.swift */; };
+		9B80CA96462D402B906FC3AD /* TerrainComparison.swift in Sources */ = {isa = PBXBuildFile; fileRef = E690A8988D7E0E4CF095250B /* TerrainComparison.swift */; };
 		9D1D2BBDD5CCFB1224544E8E /* 71-ied-recognition.md in Resources */ = {isa = PBXBuildFile; fileRef = 8879117C12F98ADE44EF2511 /* 71-ied-recognition.md */; };
 		9ECF4E9A297F3298DB3DBE2A /* StatusBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17353E18924F55A52513EAEC /* StatusBoard.swift */; };
 		9FEAC1EF1AA8321D6E1275A2 /* DecisionLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = E588A2E798291A0B52BD52B0 /* DecisionLogger.swift */; };
@@ -471,7 +473,6 @@
 		0EBCCD9919DA4A74833BC140 /* SearchMarking.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SearchMarking.swift; path = Sources/MLXEdgeLLM/Scenarios/Urban/SearchMarking.swift; sourceTree = "<group>"; };
 		0EE849824AA120C445B1B3EE /* ChangeDetector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ChangeDetector.swift; path = Sources/MLXEdgeLLM/LiDAR/Detection/ChangeDetector.swift; sourceTree = "<group>"; };
 		0EFA00C72CC1F09BF49B76AD /* IMUBuffer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IMUBuffer.swift; path = Sources/MLXEdgeLLM/LiDAR/Fusion/IMUBuffer.swift; sourceTree = "<group>"; };
-		0EFB364ED80F223A7F2FF15F /* MeshExporter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MeshExporter.swift; path = Sources/MLXEdgeLLM/SpatialIntelligence/MeshExporter.swift; sourceTree = "<group>"; };
 		0EFCB72452B77C6B14C02C2D /* GeofenceMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeofenceMonitor.swift; sourceTree = "<group>"; };
 		0FB413682170DE1F18AA4378 /* SimBandOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimBandOptimizer.swift; sourceTree = "<group>"; };
 		0FB5497CF56763FCBBB2CBFB /* WatershedAnalysis.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WatershedAnalysis.swift; path = Sources/MLXEdgeLLM/LiDAR/Terrain/WatershedAnalysis.swift; sourceTree = "<group>"; };
@@ -515,6 +516,7 @@
 		1914D8E5CA1173A98E8DCC8D /* ModelURLs.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModelURLs.swift; sourceTree = "<group>"; };
 		199F1C2CA8133816B3768543 /* 84-return-friendly-forces.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "84-return-friendly-forces.md"; sourceTree = "<group>"; };
 		19A7A948FCBEBC49137B6360 /* ThermalCamera.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ThermalCamera.swift; path = Sources/MLXEdgeLLM/Hardware/Thermal/ThermalCamera.swift; sourceTree = "<group>"; };
+		19CE4A6C3ABFFD17B23735A2 /* PointCloudExporter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PointCloudExporter.swift; path = Sources/MLXEdgeLLM/SpatialIntelligence/PointCloudExporter.swift; sourceTree = "<group>"; };
 		1A007A53E043C3BDEC8C045B /* WeatherAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAdapter.swift; sourceTree = "<group>"; };
 		1A86003B81E71516F528FE5E /* CotParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CotParser.swift; path = Sources/MLXEdgeLLM/Interop/TAK/CotParser.swift; sourceTree = "<group>"; };
 		1AD9568DDC980C9C766F6C58 /* OpOrderBuilder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OpOrderBuilder.swift; path = Sources/MLXEdgeLLM/Planning/OpOrderBuilder.swift; sourceTree = "<group>"; };
@@ -1165,6 +1167,7 @@
 		E6199385173A5E352E48E55C /* EdxlHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EdxlHandler.swift; path = Sources/MLXEdgeLLM/Interop/Emergency/EdxlHandler.swift; sourceTree = "<group>"; };
 		E65473DB374D3FF53B4BC3EC /* 109-ammunition-management.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "109-ammunition-management.md"; sourceTree = "<group>"; };
 		E676E83F9F6A07C7049D89BD /* ShareSheet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ShareSheet.swift; path = Sources/MLXEdgeLLM/App/ShareSheet.swift; sourceTree = "<group>"; };
+		E690A8988D7E0E4CF095250B /* TerrainComparison.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TerrainComparison.swift; path = Sources/MLXEdgeLLM/SpatialIntelligence/TerrainComparison.swift; sourceTree = "<group>"; };
 		E6E479C0C2F1806942EB7F3E /* MissionPlanner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MissionPlanner.swift; path = Sources/MLXEdgeLLM/FieldOps/Mission/MissionPlanner.swift; sourceTree = "<group>"; };
 		E70351539D2F9D73FE0ABACB /* 24-mgrs-coordinates.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "24-mgrs-coordinates.md"; sourceTree = "<group>"; };
 		E79436D8BC046E680FFFA11D /* TacticalScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalScanner.swift; sourceTree = "<group>"; };
@@ -2087,7 +2090,6 @@
 				5315FB0748B8A2F5C96390AC /* SceneTag.swift */,
 				68454E5CAF9ECF9B45126706 /* SceneTagStore.swift */,
 				097F31B258A519A36214367C /* AreaCalculator.swift */,
-				0EFB364ED80F223A7F2FF15F /* MeshExporter.swift */,
 				D3B89494F9050E1C893B5C86 /* ElevationProfile.swift */,
 				7989C451C7505B6DE0704CB4 /* ToolFeedback.swift */,
 				1EE2F51C53D77E852269AAA8 /* ToolChainExecutor.swift */,
@@ -2278,6 +2280,8 @@
 				B93C06EF01501B5102A4B678 /* DistanceBearing.swift */,
 				55B1DB9B2CA0652F91619FF2 /* AreaCalculator.swift */,
 				3E1BF5FD5F6B32873C8544D6 /* ElevationProfile.swift */,
+				E690A8988D7E0E4CF095250B /* TerrainComparison.swift */,
+				19CE4A6C3ABFFD17B23735A2 /* PointCloudExporter.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3087,6 +3091,8 @@
 				CFF49988DE8E33D608030BB8 /* DistanceBearing.swift in Sources */,
 				C195DF9A0FB15700338D4A27 /* AreaCalculator.swift in Sources */,
 				7F0350E8D3865C5BA2D44CAE /* ElevationProfile.swift in Sources */,
+				9B80CA96462D402B906FC3AD /* TerrainComparison.swift in Sources */,
+				5405D35EC824CBE9E36E97E5 /* PointCloudExporter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
