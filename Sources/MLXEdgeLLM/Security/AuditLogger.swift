@@ -46,6 +46,7 @@ enum AuditEventType: String, Codable {
     case contingencyTriggered = "CONTINGENCY"
     case checkInRecorded    = "CHECKIN"
     case observationLogged  = "OBSERVATION"
+    case rallyPointSet      = "RALLY_POINT"
 }
 
 struct AuditEntry: Codable, Identifiable {

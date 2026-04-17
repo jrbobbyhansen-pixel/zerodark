@@ -331,6 +331,7 @@
 		D84967C548C34DC351CA87EF /* WaypointManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B475BE61386B7168CC375A96 /* WaypointManager.swift */; };
 		D91CAFB36AA58FE875CAD662 /* EncryptedMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33E35D8EB6F10AA2E82FEE00 /* EncryptedMessage.swift */; };
 		DB25D494682A5B86382108AD /* TacticalMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80078D4C2D966C969BA473AE /* TacticalMapView.swift */; };
+		DE145C59F868B5A44874023E /* RallyPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56649452C79C12CDDB460A0 /* RallyPoint.swift */; };
 		DEA160C018B4DD52C229D9E5 /* 12-tarp-improvised.md in Resources */ = {isa = PBXBuildFile; fileRef = 35111BFD9320488FB6DA1210 /* 12-tarp-improvised.md */; };
 		DF82FBE42219A3EBC93D7EA4 /* 16-tccc.md in Resources */ = {isa = PBXBuildFile; fileRef = 15204427AE21956C0F89BA03 /* 16-tccc.md */; };
 		E027443BECD49E91BD0B3F13 /* 24-mgrs-coordinates.md in Resources */ = {isa = PBXBuildFile; fileRef = E70351539D2F9D73FE0ABACB /* 24-mgrs-coordinates.md */; };
@@ -2991,6 +2992,7 @@
 				AD1ACE9AAEE8AFAC85532826 /* TrailDifficulty.swift in Sources */,
 				3E292787B9A2C8F11EDB8C43 /* TeamRoster.swift in Sources */,
 				9ECF4E9A297F3298DB3DBE2A /* StatusBoard.swift in Sources */,
+				DE145C59F868B5A44874023E /* RallyPoint.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

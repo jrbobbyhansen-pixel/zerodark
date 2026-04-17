@@ -55,6 +55,17 @@ struct TeamDashSection: View {
                     )
                 }
 
+                NavigationLink {
+                    RallyPointView()
+                } label: {
+                    OpsSectionCard(
+                        icon: "mappin.and.ellipse",
+                        title: "Rally Points",
+                        subtitle: "Primary & alternate RPs, mesh broadcast, peer ETAs",
+                        color: .orange
+                    )
+                }
+
                 // Safety Monitor
                 safetyMonitorCard
             }
