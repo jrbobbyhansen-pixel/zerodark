@@ -72,6 +72,22 @@ struct PlanningToolsSection: View {
                 )
 
                 PlanningCard(
+                    title: "Drift Calculator",
+                    subtitle: "SAR lost person probability distribution — ISRID profiles, terrain barriers",
+                    icon: "arrow.triangle.branch",
+                    color: .orange,
+                    destination: DriftCalculatorView()
+                )
+
+                PlanningCard(
+                    title: "Road & Trail Detector",
+                    subtitle: "Detect roads/trails from LiDAR ground returns — maintained vs unmaintained",
+                    icon: "road.lanes",
+                    color: ZDDesign.forestGreen,
+                    destination: RoadTrailDetectorView()
+                )
+
+                PlanningCard(
                     title: "Climb Route Finder",
                     subtitle: "Analyze cliff face LiDAR for holds, ledges, protection placements, YDS grade",
                     icon: "mountain.2.fill",
