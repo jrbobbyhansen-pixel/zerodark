@@ -72,6 +72,14 @@ struct PlanningToolsSection: View {
                 )
 
                 PlanningCard(
+                    title: "Climb Route Finder",
+                    subtitle: "Analyze cliff face LiDAR for holds, ledges, protection placements, YDS grade",
+                    icon: "mountain.2.fill",
+                    color: .brown,
+                    destination: ClimbRouteFinderView()
+                )
+
+                PlanningCard(
                     title: "Current Estimator",
                     subtitle: "River current speed (Manning's eq.), drift calculation for water crossings",
                     icon: "drop.fill",

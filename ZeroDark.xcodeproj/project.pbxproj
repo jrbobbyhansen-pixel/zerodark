@@ -56,6 +56,7 @@
 		21778BD6C389C950790377DA /* 98-vehicle-recovery.md in Resources */ = {isa = PBXBuildFile; fileRef = CFE9734B320EB33B158C4DC6 /* 98-vehicle-recovery.md */; };
 		21ECBAA1A6508466E9A7AD46 /* 37-medevac-9line.md in Resources */ = {isa = PBXBuildFile; fileRef = 2FA4D5224172FF3A14A3293F /* 37-medevac-9line.md */; };
 		21FE4E858B8A8D93A194517A /* 55-radio-procedures.md in Resources */ = {isa = PBXBuildFile; fileRef = 863151A64A3628AB38F2D873 /* 55-radio-procedures.md */; };
+		2270D50BAE30CC11200AC27D /* ClimbRouteFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2330231710D85A21869E586 /* ClimbRouteFinder.swift */; };
 		235414608782BB2FB3AB27CA /* AltitudeTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D25653A5E5F89A505186DADC /* AltitudeTracker.swift */; };
 		2380EF92D4C23FE690DB1AB8 /* MedicationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099124A40789475E376A6AE9 /* MedicationTracker.swift */; };
 		238AF7E4317D3ED77662702F /* VaultManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C17F15267CD4FBAD6B83939 /* VaultManager.swift */; };
@@ -1161,6 +1162,7 @@
 		E1437D5183C989C012F5D5E0 /* ErgGuide.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ErgGuide.swift; path = Sources/MLXEdgeLLM/Scenarios/Hazmat/ErgGuide.swift; sourceTree = "<group>"; };
 		E1AC40D81B2B290261CC590D /* VisionInferenceEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionInferenceEngine.swift; sourceTree = "<group>"; };
 		E1B8B2D98B8397F420D0C1DD /* 56-pace-planning.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "56-pace-planning.md"; sourceTree = "<group>"; };
+		E2330231710D85A21869E586 /* ClimbRouteFinder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ClimbRouteFinder.swift; path = Sources/MLXEdgeLLM/Navigation/ClimbRouteFinder.swift; sourceTree = "<group>"; };
 		E2D264D724831685FB53A3AB /* ScenarioEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScenarioEngine.swift; path = Sources/MLXEdgeLLM/Training/Scenarios/ScenarioEngine.swift; sourceTree = "<group>"; };
 		E325ECC26BC344AB2CA0B57F /* LocationAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationAdapter.swift; sourceTree = "<group>"; };
 		E32916B108E825CC232980F5 /* 49-defensive-positions.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "49-defensive-positions.md"; sourceTree = "<group>"; };
@@ -2306,6 +2308,7 @@
 				73BA45C2BDF07851304AB566 /* AvalancheAnalyzer.swift */,
 				419103F531C320340714ED8A /* CaveMapper.swift */,
 				694B8A0A3FB6A9148FFDEB23 /* CurrentEstimator.swift */,
+				E2330231710D85A21869E586 /* ClimbRouteFinder.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3125,6 +3128,7 @@
 				D835665B0DA6DBF7EA968AF7 /* AvalancheAnalyzer.swift in Sources */,
 				3928F2979538447BAEF26D86 /* CaveMapper.swift in Sources */,
 				61A04E32E57B04A2A7422CF3 /* CurrentEstimator.swift in Sources */,
+				2270D50BAE30CC11200AC27D /* ClimbRouteFinder.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
