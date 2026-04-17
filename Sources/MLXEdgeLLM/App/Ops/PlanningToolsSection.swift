@@ -72,6 +72,14 @@ struct PlanningToolsSection: View {
                 )
 
                 PlanningCard(
+                    title: "Current Estimator",
+                    subtitle: "River current speed (Manning's eq.), drift calculation for water crossings",
+                    icon: "drop.fill",
+                    color: ZDDesign.cyanAccent,
+                    destination: CurrentEstimatorView()
+                )
+
+                PlanningCard(
                     title: "Cave Mapper",
                     subtitle: "Indoor SLAM — floor plan from LiDAR, GPS-denied position, mark hazards & exits",
                     icon: "map.fill",
