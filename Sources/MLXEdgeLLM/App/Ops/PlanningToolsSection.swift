@@ -97,6 +97,46 @@ struct PlanningToolsSection: View {
                     color: .yellow,
                     destination: MoonPhaseView()
                 )
+
+                PlanningCard(
+                    title: "Light Estimator",
+                    subtitle: "Predict lux by time and cloud cover; NVG transition windows",
+                    icon: "eye.fill",
+                    color: ZDDesign.mediumGray,
+                    destination: LightEstimatorView()
+                )
+
+                PlanningCard(
+                    title: "Wind Estimator",
+                    subtitle: "Beaufort field observations, terrain channeling, history",
+                    icon: "wind",
+                    color: ZDDesign.cyanAccent,
+                    destination: WindEstimatorView()
+                )
+
+                PlanningCard(
+                    title: "Temperature Log",
+                    subtitle: "Log temps, overnight low prediction, cold injury risk",
+                    icon: "thermometer.snowflake",
+                    color: .blue,
+                    destination: TempLoggerView()
+                )
+
+                PlanningCard(
+                    title: "Altitude Tracker",
+                    subtitle: "Acclimatization time, AMS risk, ascent rate warnings",
+                    icon: "mountain.2.fill",
+                    color: .orange,
+                    destination: AltitudeTrackerView()
+                )
+
+                PlanningCard(
+                    title: "Hydration",
+                    subtitle: "Water needs by weight/activity/temp/altitude, intake tracker",
+                    icon: "drop.fill",
+                    color: .blue,
+                    destination: HydrationView()
+                )
             }
             .padding(.horizontal)
             .padding(.top, 8)
