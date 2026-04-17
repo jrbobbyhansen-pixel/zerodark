@@ -94,6 +94,9 @@ struct IntelTabView: View {
             .sheet(isPresented: $showGeoPackageImport) {
                 GeoPackageImportView()
             }
+            .task {
+                await IntelCorpus.shared.indexAllSources()
+            }
         }
     }
 }
@@ -127,10 +130,10 @@ struct IntelDashboardView: View {
 
                     statusCard(
                         icon: "cpu",
-                        title: "MLX Server",
-                        value: embeddingEngine.isReady ? "Online" : "Offline",
-                        subtitle: "127.0.0.1:8800",
-                        color: embeddingEngine.isReady ? ZDDesign.successGreen : ZDDesign.signalRed
+                        title: "Embedding",
+                        value: embeddingEngine.isReady ? "On-Device" : "Loading",
+                        subtitle: embeddingEngine.modelName,
+                        color: embeddingEngine.isReady ? ZDDesign.successGreen : ZDDesign.safetyYellow
                     )
 
                     Button { navigate(.threats) } label: {
