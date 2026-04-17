@@ -918,10 +918,10 @@ struct MessageBubbleView: View {
 
 struct VisionContentView: View {
     @ObservedObject private var rag = KnowledgeRAG.shared
-    @ObservedObject private var vision = VisionInferenceClient.shared
+    @ObservedObject private var vision = OnDeviceVisionEngine.shared
     @ObservedObject private var corpus = IntelCorpus.shared
     @State private var selectedImage: UIImage? = nil
-    @State private var selectedMode: VisionMode = .plantId
+    @State private var selectedMode: OnDeviceVisionMode = .plantId
     @State private var showCameraPicker = false
     @State private var showLibraryPicker = false
     @State private var answer = ""
@@ -929,74 +929,20 @@ struct VisionContentView: View {
     @State private var customQuestion = ""
     @State private var analysisTimestamp = Date()
 
-    enum VisionMode: String, CaseIterable {
-        case plantId = "Plant ID"
-        case wound   = "Wound"
-        case terrain = "Terrain"
-        case map     = "Map"
-        case ask     = "Ask"
-
-        var icon: String {
-            switch self {
-            case .plantId: return "leaf.fill"
-            case .wound:   return "bandage.fill"
-            case .terrain: return "map.fill"
-            case .map:     return "map"
-            case .ask:     return "questionmark.circle.fill"
-            }
-        }
-
-        var question: String {
-            switch self {
-            case .plantId:
-                return "Identify this plant. Is it edible or toxic? What are the identifying features and any lookalikes?"
-            case .wound:
-                return "Assess this wound. What type is it? What immediate field treatment is required? What are warning signs of complications?"
-            case .terrain:
-                return "Analyze this terrain. Where is cover, concealment, high ground, and likely avenues of approach or escape?"
-            case .map:
-                return "Analyze this map or document. What key information does it contain?"
-            case .ask:
-                return "Describe what you see and analyze it."
-            }
-        }
-    }
-
-    static var visionStatusColor: Color {
-        VisionInferenceClient.shared.isConnected ? ZDDesign.successGreen : ZDDesign.warmGray
-    }
-
-    static var visionStatusLabel: String {
-        VisionInferenceClient.shared.isConnected ? "moondream2" : "Offline"
-    }
+    static var visionStatusColor: Color { ZDDesign.successGreen }
+    static var visionStatusLabel: String { OnDeviceVisionEngine.shared.visionStatusLabel }
 
     var body: some View {
         VStack(spacing: 16) {
             // Mode selector — segmented control
             Picker("Mode", selection: $selectedMode) {
-                ForEach(VisionMode.allCases, id: \.self) { mode in
+                ForEach(OnDeviceVisionMode.allCases, id: \.self) { mode in
                     Text(mode.rawValue).tag(mode)
                 }
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
             .onChange(of: selectedMode) { _, _ in answer = "" }
-
-            // Offline banner
-            if !vision.isConnected {
-                HStack(spacing: 8) {
-                    Image(systemName: "wifi.slash").foregroundColor(ZDDesign.signalRed)
-                    Text("Vision server offline — results unavailable")
-                        .font(.caption)
-                        .foregroundColor(ZDDesign.signalRed)
-                    Spacer()
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(ZDDesign.signalRed.opacity(0.1))
-                .cornerRadius(8)
-                .padding(.horizontal)
-            }
 
             // Image area
             if let image = selectedImage {
@@ -1075,16 +1021,12 @@ struct VisionContentView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(12)
-                .background(
-                    vision.isConnected && selectedImage != nil
-                        ? ZDDesign.safetyYellow
-                        : ZDDesign.warmGray.opacity(0.5)
-                )
+                .background(selectedImage != nil ? ZDDesign.safetyYellow : ZDDesign.warmGray.opacity(0.5))
                 .foregroundColor(.black)
                 .cornerRadius(8)
                 .padding(.horizontal)
             }
-            .disabled(!vision.isConnected || selectedImage == nil || isAnalyzing)
+            .disabled(selectedImage == nil || isAnalyzing)
 
             if !answer.isEmpty {
                 ScrollView {
@@ -1155,10 +1097,12 @@ struct VisionContentView: View {
         guard let image = selectedImage else { return }
         isAnalyzing = true
         answer = ""
-        let question = selectedMode == .ask && !customQuestion.isEmpty ? customQuestion : selectedMode.question
+        let question = selectedMode == .ask && !customQuestion.isEmpty
+            ? customQuestion
+            : selectedMode.defaultQuestion
         Task {
             do {
-                let result = try await vision.query(image: image, question: question)
+                let result = try await vision.query(image: image, question: question, mode: selectedMode)
                 await MainActor.run {
                     answer = result
                     analysisTimestamp = Date()
@@ -1171,7 +1115,7 @@ struct VisionContentView: View {
                 )
             } catch {
                 await MainActor.run {
-                    answer = "Error analyzing image: \(error.localizedDescription)"
+                    answer = "Error: \(error.localizedDescription)"
                     isAnalyzing = false
                 }
             }

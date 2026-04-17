@@ -52,6 +52,7 @@
 		21FE4E858B8A8D93A194517A /* 55-radio-procedures.md in Resources */ = {isa = PBXBuildFile; fileRef = 863151A64A3628AB38F2D873 /* 55-radio-procedures.md */; };
 		2380EF92D4C23FE690DB1AB8 /* MedicationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099124A40789475E376A6AE9 /* MedicationTracker.swift */; };
 		238AF7E4317D3ED77662702F /* VaultManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C17F15267CD4FBAD6B83939 /* VaultManager.swift */; };
+		23AD3C309F3AB86C23D4F51F /* OnDeviceVisionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050298E122600367BE9B28E9 /* OnDeviceVisionEngine.swift */; };
 		242E8E5169D9BD6E504727C1 /* ThreatReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBA39794A0C757A71306F7B3 /* ThreatReport.swift */; };
 		24AFDE63C8BDA9F2235F1FDD /* 11-bleeding-control.md in Resources */ = {isa = PBXBuildFile; fileRef = 6322701F2CDE6ED0883BC374 /* 11-bleeding-control.md */; };
 		24CBD6D3ED24C9A73FBACB17 /* 26-urban-navigation.md in Resources */ = {isa = PBXBuildFile; fileRef = C25FD27D86B616E5DA084208 /* 26-urban-navigation.md */; };
@@ -371,6 +372,7 @@
 		04857ADF4C39F38393D8E3E0 /* TelemetryObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryObject.swift; sourceTree = "<group>"; };
 		04B6CF9FAD455F12F573F0C6 /* TriageSystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TriageSystem.swift; path = Sources/MLXEdgeLLM/Medical/TriageSystem.swift; sourceTree = "<group>"; };
 		04B8D55E8C220EB541470FC2 /* RadiationMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RadiationMonitor.swift; path = Sources/MLXEdgeLLM/Hardware/Sensors/RadiationMonitor.swift; sourceTree = "<group>"; };
+		050298E122600367BE9B28E9 /* OnDeviceVisionEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OnDeviceVisionEngine.swift; sourceTree = "<group>"; };
 		05D54BEF52F8D1CBB8924BAA /* TeamChallenge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TeamChallenge.swift; path = Sources/MLXEdgeLLM/Training/Team/TeamChallenge.swift; sourceTree = "<group>"; };
 		05F05E1E2708A08D84A8F24B /* SearchPattern.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPattern.swift; sourceTree = "<group>"; };
 		061BAAFF0D99EF8B6B51BDCE /* MeshService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshService.swift; sourceTree = "<group>"; };
@@ -2341,6 +2343,7 @@
 				C4A804BD3E2B0A07AC3712B9 /* Telemetry */,
 				CE2808734FC3211CCD86FB8E /* ThreatClassifier */,
 				338C5483C713E723096E8283 /* IntelStubs.swift */,
+				050298E122600367BE9B28E9 /* OnDeviceVisionEngine.swift */,
 			);
 			path = Intelligence;
 			sourceTree = "<group>";
@@ -2904,6 +2907,7 @@
 				C39E07A71552906DCB09DA11 /* ModelDownloadManager.swift in Sources */,
 				CA151E9861EB1E59092C0535 /* ModelURLs.swift in Sources */,
 				BFB419BB3B9E8326BB7B00B4 /* RegionDrawView.swift in Sources */,
+				23AD3C309F3AB86C23D4F51F /* OnDeviceVisionEngine.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
