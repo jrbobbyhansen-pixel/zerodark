@@ -220,6 +220,7 @@
 		8A795C3540599A2553CB7822 /* ReconWalkActiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B157534765F3DF9A705FCA /* ReconWalkActiveView.swift */; };
 		8B2AE8C85F297C82A48EE66E /* MedevacRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB437DF924AB6E702B66D004 /* MedevacRequest.swift */; };
 		8B4447888C8622C8E1073B43 /* 02-purification.md in Resources */ = {isa = PBXBuildFile; fileRef = EB7F32C80AC9259D6BEF990B /* 02-purification.md */; };
+		8C0A80FBAB06FD64F3E1C24B /* LineOfSightAnalyzerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34747187204B8E27AE46AFD7 /* LineOfSightAnalyzerView.swift */; };
 		8C7E147172F8BF929A1CAE8A /* ModelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F0BDDF8C061C19F452BAAC6 /* ModelManager.swift */; };
 		8D0182E4FD5302165BBC76C8 /* 95-maritime-survival.md in Resources */ = {isa = PBXBuildFile; fileRef = 9807F71CC933DB8E73B4BA0F /* 95-maritime-survival.md */; };
 		8D3135FE6CC7FB4EF036A157 /* MeshCryptoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1284B4B83EA8D3B0FF3A0EB /* MeshCryptoManager.swift */; };
@@ -308,6 +309,7 @@
 		CF769679AEC8B4C8BD0BFCD9 /* AuditLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 578364AF59AA6F61D63F7CCF /* AuditLogger.swift */; };
 		CFA2D02967A2D8C51EB203B5 /* TimelinePlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0700C1434F4D76A951BE873E /* TimelinePlanner.swift */; };
 		D173DBB70B06958291BA0999 /* 57-brevity-codes.md in Resources */ = {isa = PBXBuildFile; fileRef = 538CD3192DF07D58DBEBB9D3 /* 57-brevity-codes.md */; };
+		D25BA7086C6DD1EFC7491015 /* ViewshedAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879B7918AC440E44267B8F22 /* ViewshedAnalysis.swift */; };
 		D2B5CEFF328AE1F1FD822CF7 /* Geofence.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6767A26259D077FF2BB15EF /* Geofence.swift */; };
 		D35269B572523E2EB49FE402 /* 14-fracture-management.md in Resources */ = {isa = PBXBuildFile; fileRef = B4E10C4D0633F94B1E72E086 /* 14-fracture-management.md */; };
 		D3FC8882C490C48BE79C2D62 /* GeofenceMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EFCB72452B77C6B14C02C2D /* GeofenceMonitor.swift */; };
@@ -566,6 +568,7 @@
 		3411CEB34FB7F0CBAF482FAC /* 20-nutritional-priorities.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "20-nutritional-priorities.md"; sourceTree = "<group>"; };
 		3454543ADF6EBA90D0BE1B7D /* NmeaParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NmeaParser.swift; path = Sources/MLXEdgeLLM/Interop/Radio/NmeaParser.swift; sourceTree = "<group>"; };
 		345C60D593D3F962F50B4192 /* TerrainSlopeAnalyzer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TerrainSlopeAnalyzer.swift; path = Sources/MLXEdgeLLM/Navigation/TerrainSlopeAnalyzer.swift; sourceTree = "<group>"; };
+		34747187204B8E27AE46AFD7 /* LineOfSightAnalyzerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LineOfSightAnalyzerView.swift; path = Sources/MLXEdgeLLM/Navigation/LineOfSightAnalyzerView.swift; sourceTree = "<group>"; };
 		35018562D3833E580F4878F3 /* HydrationCalc.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HydrationCalc.swift; path = Sources/MLXEdgeLLM/Services/HydrationCalc.swift; sourceTree = "<group>"; };
 		35111BFD9320488FB6DA1210 /* 12-tarp-improvised.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "12-tarp-improvised.md"; sourceTree = "<group>"; };
 		35468663C499521D88FCBBE4 /* EvidenceCollector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EvidenceCollector.swift; path = Sources/MLXEdgeLLM/Security/Incident/EvidenceCollector.swift; sourceTree = "<group>"; };
@@ -2200,6 +2203,7 @@
 				AB442DB3DEE3519E24FB074C /* ContourGeneratorEngine.swift */,
 				CB56F184C1F3D2F235B9AE1A /* ContourGeneratorView.swift */,
 				CF66DAEF8C784386B842DBAD /* ScanMatcher.swift */,
+				34747187204B8E27AE46AFD7 /* LineOfSightAnalyzerView.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -2973,6 +2977,8 @@
 				1AFBD3871F569D560C17466B /* ContourExtraction.swift in Sources */,
 				3479EB82283B493AEA3ADD2B /* MissionClock.swift in Sources */,
 				749A3D0889830C0FC82E4358 /* CheckInSystem.swift in Sources */,
+				D25BA7086C6DD1EFC7491015 /* ViewshedAnalysis.swift in Sources */,
+				8C0A80FBAB06FD64F3E1C24B /* LineOfSightAnalyzerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

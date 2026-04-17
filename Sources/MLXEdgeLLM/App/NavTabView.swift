@@ -13,6 +13,7 @@ struct NavTabView: View {
     @ObservedObject private var weather = WeatherForecaster.shared
 
     @State private var showAROverlay = false
+    @State private var showLOS = false
     @State private var viewshedResult: ViewshedResult?
     @State private var isComputingViewshed = false
     @State private var mapPosition: MapCameraPosition = .userLocation(fallback: .automatic)
@@ -67,6 +68,14 @@ struct NavTabView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
+                        showLOS = true
+                    } label: {
+                        Image(systemName: "rays")
+                            .foregroundColor(ZDDesign.cyanAccent)
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
                         showAROverlay.toggle()
                     } label: {
                         Image(systemName: "camera.viewfinder")
@@ -91,6 +100,10 @@ struct NavTabView: View {
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showAROverlay) {
                 celestialARSheet
+            }
+            .sheet(isPresented: $showLOS) {
+                LineOfSightAnalyzerView()
+                    .preferredColorScheme(.dark)
             }
         }
     }
