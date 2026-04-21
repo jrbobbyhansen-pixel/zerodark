@@ -207,6 +207,7 @@ struct MapTabView: View {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundColor(Color(ZDDesign.signalRed))
                     }
+                    .accessibilityLabel("Open Ops Panel")
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
@@ -222,6 +223,7 @@ struct MapTabView: View {
                         Image(systemName: appState.mapLayerConfig.showCameras ? "video.fill" : "video")
                             .foregroundColor(appState.mapLayerConfig.showCameras ? Color(ZDDesign.cyanAccent) : .white)
                     }
+                    .accessibilityLabel(appState.mapLayerConfig.showCameras ? "Hide Cameras" : "Show Cameras")
                 }
                 ToolbarItem(placement: .automatic) {
                     Menu {
@@ -250,6 +252,7 @@ struct MapTabView: View {
                         Image(systemName: "ellipsis.circle")
                             .foregroundColor(Color(ZDDesign.cyanAccent))
                     }
+                    .accessibilityLabel("Map Options")
                 }
             }
             .sheet(isPresented: $showPeerDetails) {

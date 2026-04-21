@@ -43,6 +43,7 @@ final class ScanStorage: ObservableObject {
     static let shared = ScanStorage()
 
     @Published var savedScans: [SavedScan] = []
+    @Published var lastError: String?
 
     private init() {
         loadScanIndex()
@@ -134,35 +135,37 @@ final class ScanStorage: ObservableObject {
 
     func updateScanName(_ scan: SavedScan, newName: String) {
         let metaURL = scan.scanDir.appendingPathComponent("metadata.json")
-        guard var json = try? JSONSerialization.jsonObject(with: Data(contentsOf: metaURL)) as? [String: Any] else { return }
-
-        json["name"] = newName
-
-        if let updatedData = try? JSONSerialization.data(withJSONObject: json) {
-            try? updatedData.write(to: metaURL)
+        do {
+            guard var json = try JSONSerialization.jsonObject(with: Data(contentsOf: metaURL)) as? [String: Any] else { return }
+            json["name"] = newName
+            let updatedData = try JSONSerialization.data(withJSONObject: json)
+            try updatedData.write(to: metaURL, options: .atomic)
+        } catch {
+            lastError = "Failed to save scan name: \(error.localizedDescription)"
         }
-
-        // Reload index to reflect changes
         loadScanIndex()
     }
 
     func updateRiskScore(for id: UUID, riskScore: Float) {
         guard let scan = savedScans.first(where: { $0.id == id }) else { return }
         let metaURL = scan.scanDir.appendingPathComponent("metadata.json")
-        guard var json = try? JSONSerialization.jsonObject(with: Data(contentsOf: metaURL)) as? [String: Any] else { return }
-
-        json["riskScore"] = riskScore
-
-        if let updatedData = try? JSONSerialization.data(withJSONObject: json) {
-            try? updatedData.write(to: metaURL)
+        do {
+            guard var json = try JSONSerialization.jsonObject(with: Data(contentsOf: metaURL)) as? [String: Any] else { return }
+            json["riskScore"] = riskScore
+            let updatedData = try JSONSerialization.data(withJSONObject: json)
+            try updatedData.write(to: metaURL, options: .atomic)
+        } catch {
+            lastError = "Failed to save risk score: \(error.localizedDescription)"
         }
-
-        // Reload index to reflect changes
         loadScanIndex()
     }
 
     func deleteScan(_ scan: SavedScan) {
-        try? FileManager.default.removeItem(at: scan.scanDir)
+        do {
+            try FileManager.default.removeItem(at: scan.scanDir)
+        } catch {
+            lastError = "Failed to delete scan: \(error.localizedDescription)"
+        }
         savedScans.removeAll { $0.id == scan.id }
         loadScanIndex()
     }

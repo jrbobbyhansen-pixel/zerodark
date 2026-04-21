@@ -501,12 +501,14 @@ struct KnowledgeContentView: View {
                         .foregroundColor(ZDDesign.successGreen)
                 }
                 .disabled(isLoading || userQuestion.isEmpty)
+                .accessibilityLabel("Send Question")
                 if isLoading {
                     Button(action: { streamTask?.cancel(); isLoading = false; loadingStage = "" }) {
                         Image(systemName: "stop.fill")
                             .font(.body)
                             .foregroundColor(ZDDesign.signalRed)
                     }
+                    .accessibilityLabel("Cancel")
                 }
             }
             .padding()

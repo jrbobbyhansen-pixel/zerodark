@@ -43,6 +43,7 @@ enum VerificationFlag: String, Hashable {
 
 // MARK: - Verify Pipeline
 
+@MainActor
 final class VerifyPipeline: ObservableObject {
     static let shared = VerifyPipeline()
 

@@ -443,7 +443,7 @@ struct RallyPointSetFormView: View {
                 ToolbarItem(placement: .topBarLeading) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
-                        var newSet = RallyPointSet(
+                        let newSet = RallyPointSet(
                             id: set?.id ?? UUID(),
                             name: name,
                             primary: primary,
