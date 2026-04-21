@@ -207,13 +207,18 @@ final class PMTilesReader {
     
     func getTile(at coord: TileCoordinate) -> Data? {
         guard let header = header else { return nil }
-        
-        // Convert z/x/y to Hilbert curve tile ID
+
+        // Hilbert-curve-based tile ID per PMTiles v3 spec (see zxyToTileId).
         let tileId = zxyToTileId(z: coord.z, x: coord.x, y: coord.y)
-        
-        // Search for tile in directory (simplified - full impl needs directory traversal)
-        // For now, calculate offset directly for clustered tiles
-        
+
+        // LIMITATION: A correct PMTiles v3 tile fetch requires traversing the
+        // root directory (compressed variable-length entries keyed by tile_id)
+        // and possibly delegating into leaf directories — hundreds of LOC of
+        // format work plus zstd / gzip dependencies. This reader stays on the
+        // MBTiles/SQLite path for production use; PMTiles support is
+        // best-effort (clustered archives only, fixed-size-tile assumption).
+        // Use MBTiles for reliable offline maps until the directory traversal
+        // lands in a follow-up.
         do {
             try fileHandle.seek(toOffset: header.tileDataOffset + tileId * 256)
             guard let tileData = try fileHandle.read(upToCount: 256) else { return nil }
@@ -223,17 +228,45 @@ final class PMTilesReader {
         }
     }
     
+    /// PMTiles v3 Hilbert-curve tile ID. Matches the reference algorithm from
+    /// github.com/protomaps/PMTiles/blob/main/spec/v3/spec.md:
+    ///   tile_id = sum_for_zooms<z>(4^zoom) + hilbert(x, y, z)
+    /// Where hilbert(x, y, z) walks the curve at zoom z with a 2^z × 2^z grid,
+    /// rotating into quadrants per Skilling 2003.
     private func zxyToTileId(z: Int, x: Int, y: Int) -> UInt64 {
-        // Simplified tile ID calculation
-        // Full implementation would use Hilbert curve
-        var id: UInt64 = 0
-        for i in 0..<z {
-            let level = z - 1 - i
-            let rx = (x >> level) & 1
-            let ry = (y >> level) & 1
-            id += UInt64((1 << (2 * level)) * ((3 * rx) ^ ry))
+        guard z >= 0, z <= 26 else { return 0 }
+
+        // Accumulator for all lower zooms: 4^0 + 4^1 + ... + 4^(z-1)
+        // = (4^z - 1) / 3
+        var acc: UInt64 = 0
+        if z > 0 {
+            acc = (UInt64(1) << UInt64(2 * z) &- 1) / 3
         }
-        return id
+
+        // Hilbert index at this zoom level. Classic rotate + reflect walk.
+        var tx = UInt64(x)
+        var ty = UInt64(y)
+        var d: UInt64 = 0
+        var s: UInt64 = UInt64(1) << UInt64(z - 1)
+        if z > 0 {
+            while s > 0 {
+                let rx: UInt64 = (tx & s) > 0 ? 1 : 0
+                let ry: UInt64 = (ty & s) > 0 ? 1 : 0
+                d &+= s &* s &* ((3 &* rx) ^ ry)
+                // Rotate quadrant
+                if ry == 0 {
+                    if rx == 1 {
+                        tx = s &- 1 &- tx
+                        ty = s &- 1 &- ty
+                    }
+                    let tmp = tx
+                    tx = ty
+                    ty = tmp
+                }
+                s >>= 1
+            }
+        }
+        return acc &+ d
     }
 }
 
