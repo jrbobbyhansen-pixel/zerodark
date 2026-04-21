@@ -238,6 +238,7 @@
 		81E163D5914F99BEB771B696 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		83FB96B78E63A60672E24504 /* 18-processing-preservation.md in Resources */ = {isa = PBXBuildFile; fileRef = 9B3E1BEF799BAC3D170E4CCA /* 18-processing-preservation.md */; };
 		84434F61464B4D2BC25D89F2 /* TileDownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BA5CED150F1A39A4EE719FE /* TileDownloadManager.swift */; };
+		84776844F0FA561234F3C876 /* BallisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20151E59E2009589D8C58FB7 /* BallisticsView.swift */; };
 		8530F289B00E5992F8D69E44 /* IntelTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0B90C9F32FE518C3FC7626E /* IntelTabView.swift */; };
 		85D1FC4B11058CE8EADF28F3 /* 23-tracking.md in Resources */ = {isa = PBXBuildFile; fileRef = 1CA79DF8290B4D707FCFEBE6 /* 23-tracking.md */; };
 		86CCE33EDE7F54057F43A351 /* OfflineMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFCCC3FCE9B88BCD695B6B11 /* OfflineMapView.swift */; };
@@ -396,6 +397,7 @@
 		E67F42281411722DFD8E6438 /* 109-ammunition-management.md in Resources */ = {isa = PBXBuildFile; fileRef = E65473DB374D3FF53B4BC3EC /* 109-ammunition-management.md */; };
 		E6F1C2EBA03F80770BE4B4BA /* LocalInferenceEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BF5DD46FDF79FD55F409E19 /* LocalInferenceEngine.swift */; };
 		E6F68BE7E7E6157BA1426284 /* ContingencyMatrix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5707880910599D296F1B2A25 /* ContingencyMatrix.swift */; };
+		E833078E8CC4EF560514CF13 /* BallisticsEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079B724A85FC76A588BA2870 /* BallisticsEngine.swift */; };
 		E86DEB0FE91E2DBA9E9F84FB /* 10-insects.md in Resources */ = {isa = PBXBuildFile; fileRef = B09332EFBD909E42665AD67F /* 10-insects.md */; };
 		E86E049921B5F9D62A3A12EB /* 04-scarcity-extreme.md in Resources */ = {isa = PBXBuildFile; fileRef = CD4FF9F07873C64B1993FAAF /* 04-scarcity-extreme.md */; };
 		E93690666C280E0A249A5082 /* 11-snow-arctic-shelters.md in Resources */ = {isa = PBXBuildFile; fileRef = 32CAB9E6F7437B892092F577 /* 11-snow-arctic-shelters.md */; };
@@ -460,6 +462,7 @@
 		0700C1434F4D76A951BE873E /* TimelinePlanner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimelinePlanner.swift; path = Sources/MLXEdgeLLM/Planning/TimelinePlanner.swift; sourceTree = "<group>"; };
 		072B275D5F30AB7A07F64D97 /* DebrisFieldMapper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DebrisFieldMapper.swift; path = Sources/MLXEdgeLLM/Scenarios/Avalanche/DebrisFieldMapper.swift; sourceTree = "<group>"; };
 		07904812A61151F1049A0474 /* 34-hypothermia-frostbite.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "34-hypothermia-frostbite.md"; sourceTree = "<group>"; };
+		079B724A85FC76A588BA2870 /* BallisticsEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BallisticsEngine.swift; path = Sources/MLXEdgeLLM/Navigation/Ballistics/BallisticsEngine.swift; sourceTree = "<group>"; };
 		07B11424B7A767D0C03C0E15 /* WeatherSimulator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WeatherSimulator.swift; path = Sources/MLXEdgeLLM/Training/Scenarios/WeatherSimulator.swift; sourceTree = "<group>"; };
 		07D63B33998E1D545A23E671 /* LiDARCaptureEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiDARCaptureEngine.swift; sourceTree = "<group>"; };
 		07E5002543BCF87C54FD97A4 /* RouteOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteOverlay.swift; sourceTree = "<group>"; };
@@ -568,6 +571,7 @@
 		1FDEF6ACC618A5AD11E4B4B0 /* TrailDifficulty.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TrailDifficulty.swift; path = Sources/MLXEdgeLLM/Navigation/TrailDifficulty.swift; sourceTree = "<group>"; };
 		1FFDD51268109B32A850A686 /* WeatherForecaster.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WeatherForecaster.swift; path = Sources/MLXEdgeLLM/Services/WeatherForecaster.swift; sourceTree = "<group>"; };
 		2014A5AE2E3BC7D68D5ED97A /* 01-procurement.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "01-procurement.md"; sourceTree = "<group>"; };
+		20151E59E2009589D8C58FB7 /* BallisticsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BallisticsView.swift; path = Sources/MLXEdgeLLM/Navigation/Ballistics/BallisticsView.swift; sourceTree = "<group>"; };
 		2060861DE474DFF0D4E329BF /* PatientHandoff.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PatientHandoff.swift; path = Sources/MLXEdgeLLM/Medical/PatientHandoff.swift; sourceTree = "<group>"; };
 		2089C06C6AD748D74164A6BA /* 88-urban-camouflage.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "88-urban-camouflage.md"; sourceTree = "<group>"; };
 		2093A4A500BE78F511EFA956 /* ScenarioReplay.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScenarioReplay.swift; path = Sources/MLXEdgeLLM/Training/Scenarios/ScenarioReplay.swift; sourceTree = "<group>"; };
@@ -2348,6 +2352,8 @@
 				509A9A981F6516A36597B41A /* ARWaypointNavigator.swift */,
 				F3027861535C928FA4D4BEA7 /* MARCHAssessment.swift */,
 				A1B1EB40C1E122F11F6E754E /* MARCHView.swift */,
+				079B724A85FC76A588BA2870 /* BallisticsEngine.swift */,
+				20151E59E2009589D8C58FB7 /* BallisticsView.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3181,6 +3187,8 @@
 				AEC42F033B65F559DEF107DE /* ARWaypointNavigator.swift in Sources */,
 				034390A3D0FC3900921B4894 /* MARCHAssessment.swift in Sources */,
 				210EEF778E4BFB29AF37A556 /* MARCHView.swift in Sources */,
+				E833078E8CC4EF560514CF13 /* BallisticsEngine.swift in Sources */,
+				84776844F0FA561234F3C876 /* BallisticsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
