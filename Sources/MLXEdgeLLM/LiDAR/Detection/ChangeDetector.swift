@@ -21,22 +21,22 @@ import simd
 // MARK: - VoxelRecord
 
 /// Single voxel entry as stored in voxel_map.bin.
-public struct VoxelRecord: Hashable {
-    public let x: Int32
-    public let y: Int32
-    public let z: Int32
-    public let hitCount: UInt32
-    public let flags: UInt16
+struct VoxelRecord: Hashable {
+    let x: Int32
+    let y: Int32
+    let z: Int32
+    let hitCount: UInt32
+    let flags: UInt16
 
     /// Packed key used as the hash bucket for diff operations.
-    public struct Key: Hashable {
-        public let x: Int32
-        public let y: Int32
-        public let z: Int32
+    struct Key: Hashable {
+        let x: Int32
+        let y: Int32
+        let z: Int32
     }
-    public var key: Key { Key(x: x, y: y, z: z) }
+    var key: Key { Key(x: x, y: y, z: z) }
 
-    public func worldCentre(voxelSize: Float) -> SIMD3<Float> {
+    func worldCentre(voxelSize: Float) -> SIMD3<Float> {
         SIMD3<Float>(
             Float(x) * voxelSize + voxelSize * 0.5,
             Float(y) * voxelSize + voxelSize * 0.5,
@@ -47,29 +47,29 @@ public struct VoxelRecord: Hashable {
 
 // MARK: - ScanDiffResult
 
-public struct ScanDiffResult {
-    public let addedKeys: Set<VoxelRecord.Key>
-    public let removedKeys: Set<VoxelRecord.Key>
-    public let commonKeys: Set<VoxelRecord.Key>
-    public let addedRecords: [VoxelRecord]
-    public let removedRecords: [VoxelRecord]
-    public let voxelSize: Float
-    public let olderScanId: UUID
-    public let newerScanId: UUID
+struct ScanDiffResult {
+    let addedKeys: Set<VoxelRecord.Key>
+    let removedKeys: Set<VoxelRecord.Key>
+    let commonKeys: Set<VoxelRecord.Key>
+    let addedRecords: [VoxelRecord]
+    let removedRecords: [VoxelRecord]
+    let voxelSize: Float
+    let olderScanId: UUID
+    let newerScanId: UUID
 
-    public var addedCount: Int   { addedKeys.count }
-    public var removedCount: Int { removedKeys.count }
-    public var commonCount: Int  { commonKeys.count }
+    var addedCount: Int   { addedKeys.count }
+    var removedCount: Int { removedKeys.count }
+    var commonCount: Int  { commonKeys.count }
 
     /// Fraction of the newer scan that is new. 1.0 = everything is new.
-    public var noveltyRatio: Double {
+    var noveltyRatio: Double {
         let total = addedCount + commonCount
         return total == 0 ? 0 : Double(addedCount) / Double(total)
     }
 
     /// Bounding box of the union of added + removed voxels, in voxel-cell space.
-    public var changeBoundsMin: SIMD3<Int32>? { bounds.min }
-    public var changeBoundsMax: SIMD3<Int32>? { bounds.max }
+    var changeBoundsMin: SIMD3<Int32>? { bounds.min }
+    var changeBoundsMax: SIMD3<Int32>? { bounds.max }
 
     private var bounds: (min: SIMD3<Int32>?, max: SIMD3<Int32>?) {
         var minV: SIMD3<Int32>? = nil
@@ -83,7 +83,7 @@ public struct ScanDiffResult {
     }
 
     /// Worldspace diagonal length of the change bounding box, meters.
-    public func changeDiagonalMeters() -> Float {
+    func changeDiagonalMeters() -> Float {
         guard let lo = changeBoundsMin, let hi = changeBoundsMax else { return 0 }
         let diag = SIMD3<Float>(Float(hi.x - lo.x), Float(hi.y - lo.y), Float(hi.z - lo.z)) * voxelSize
         return simd_length(diag)
@@ -92,10 +92,10 @@ public struct ScanDiffResult {
 
 // MARK: - VoxelDiffEngine
 
-public enum VoxelDiffEngine {
+enum VoxelDiffEngine {
 
     /// Read a voxel_map.bin file into a dictionary keyed by VoxelRecord.Key.
-    public static func read(_ url: URL) throws -> [VoxelRecord.Key: VoxelRecord] {
+    static func read(_ url: URL) throws -> [VoxelRecord.Key: VoxelRecord] {
         let data = try Data(contentsOf: url)
         // 20 bytes per voxel. Truncated files are tolerated by ignoring the tail.
         let count = data.count / 20
@@ -124,7 +124,7 @@ public enum VoxelDiffEngine {
     ///   - newer: the later  scan
     ///   - voxelSize: must match the voxelSize VoxelStreamMap was configured
     ///     with when the scans were captured (default 0.08 m).
-    public static func diff(
+    static func diff(
         older: SavedScan,
         newer: SavedScan,
         voxelSize: Float = 0.08
@@ -159,16 +159,16 @@ public enum VoxelDiffEngine {
 // MARK: - ScanDiffViewModel
 
 @MainActor
-public final class ScanDiffViewModel: ObservableObject {
-    @Published public var olderScan: SavedScan?
-    @Published public var newerScan: SavedScan?
-    @Published public var result: ScanDiffResult?
-    @Published public var isRunning: Bool = false
-    @Published public var errorMessage: String?
+final class ScanDiffViewModel: ObservableObject {
+    @Published var olderScan: SavedScan?
+    @Published var newerScan: SavedScan?
+    @Published var result: ScanDiffResult?
+    @Published var isRunning: Bool = false
+    @Published var errorMessage: String?
 
-    public init() {}
+    init() {}
 
-    public func runDiff() {
+    func runDiff() {
         guard let older = olderScan, let newer = newerScan else { return }
         errorMessage = nil
         isRunning = true
@@ -195,15 +195,15 @@ public final class ScanDiffViewModel: ObservableObject {
 /// Scan-to-scan change detection UI. Pick an older and newer scan, run the diff,
 /// see added / removed voxel counts and the change region's bounding box size.
 /// Reachable from TacticalQueryParser's .terrainComparison route.
-public struct ChangeDetectionView: View {
+struct ChangeDetectionView: View {
     @StateObject private var vm = ScanDiffViewModel()
     @ObservedObject private var storage = ScanStorage.shared
     @State private var showingOlderPicker = false
     @State private var showingNewerPicker = false
 
-    public init() {}
+    init() {}
 
-    public var body: some View {
+    var body: some View {
         List {
             Section("Scans") {
                 scanRow(title: "Older", scan: vm.olderScan) { showingOlderPicker = true }
