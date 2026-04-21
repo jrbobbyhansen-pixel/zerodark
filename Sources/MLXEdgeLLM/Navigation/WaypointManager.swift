@@ -41,7 +41,7 @@ struct WaypointCoordinates: Codable {
 }
 
 // MARK: - Waypoint
-struct NavWaypoint: Identifiable, Codable {
+struct GPXWaypoint: Identifiable, Codable {
     let id = UUID()
     var name: String
     var coordinates: WaypointCoordinates
@@ -51,19 +51,19 @@ struct NavWaypoint: Identifiable, Codable {
 
 // MARK: - WaypointManager
 class WaypointManager: ObservableObject {
-    @Published var waypoints: [NavWaypoint] = []
+    @Published var waypoints: [GPXWaypoint] = []
     
-    func addNavWaypoint(_ waypoint: NavWaypoint) {
+    func addGPXWaypoint(_ waypoint: GPXWaypoint) {
         waypoints.append(waypoint)
     }
     
-    func updateNavWaypoint(_ waypoint: NavWaypoint) {
+    func updateGPXWaypoint(_ waypoint: GPXWaypoint) {
         if let index = waypoints.firstIndex(where: { $0.id == waypoint.id }) {
             waypoints[index] = waypoint
         }
     }
     
-    func deleteNavWaypoint(_ waypoint: NavWaypoint) {
+    func deleteGPXWaypoint(_ waypoint: GPXWaypoint) {
         waypoints.removeAll { $0.id == waypoint.id }
     }
     
@@ -83,12 +83,12 @@ class WaypointManager: ObservableObject {
 
 class GPXParser: NSObject, XMLParserDelegate {
 
-    static func parse(data: Data) throws -> [NavWaypoint] {
+    static func parse(data: Data) throws -> [GPXWaypoint] {
         let parser = GPXParser()
         return parser.parseGPX(data: data)
     }
 
-    static func generate(from waypoints: [NavWaypoint]) throws -> Data {
+    static func generate(from waypoints: [GPXWaypoint]) throws -> Data {
         var gpx = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
         gpx += "<gpx version=\"1.1\" creator=\"ZeroDark\" xmlns=\"http://www.topografix.com/GPX/1/1\">\n"
         for wp in waypoints {
@@ -109,7 +109,7 @@ class GPXParser: NSObject, XMLParserDelegate {
     }
 
     // Instance parsing
-    private var waypoints: [NavWaypoint] = []
+    private var waypoints: [GPXWaypoint] = []
     private var currentElement = ""
     private var currentLat: Double?
     private var currentLon: Double?
@@ -118,7 +118,7 @@ class GPXParser: NSObject, XMLParserDelegate {
     private var currentType = ""
     private var inWpt = false
 
-    private func parseGPX(data: Data) -> [NavWaypoint] {
+    private func parseGPX(data: Data) -> [GPXWaypoint] {
         let xmlParser = XMLParser(data: data)
         xmlParser.delegate = self
         xmlParser.parse()
@@ -151,7 +151,7 @@ class GPXParser: NSObject, XMLParserDelegate {
         if (elementName == "wpt" || elementName == "rtept" || elementName == "trkpt") && inWpt {
             if let lat = currentLat, let lon = currentLon {
                 let type = WaypointType(rawValue: currentType) ?? .objective
-                waypoints.append(NavWaypoint(
+                waypoints.append(GPXWaypoint(
                     name: currentName.isEmpty ? "WP\(waypoints.count + 1)" : currentName,
                     coordinates: WaypointCoordinates(latitude: lat, longitude: lon),
                     type: type,

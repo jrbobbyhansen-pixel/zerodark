@@ -94,13 +94,3 @@ struct ControllerDetailView: View {
     }
 }
 
-// MARK: - Entry Point
-
-@main
-struct MLXEdgeLLMApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ControllerConsoleView()
-        }
-    }
-}
