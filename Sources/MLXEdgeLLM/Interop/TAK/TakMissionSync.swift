@@ -84,7 +84,7 @@ actor NetworkManager {
         guard let url = URL(string: "https://example.com/api/missions/\(missionID)/data") else {
             throw NSError(domain: "Invalid URL", code: 400, userInfo: nil)
         }
-        let (data, _) = try await URLSession.shared.data(from: url)
+        let (data, _) = try await PinnedURLSession.shared.session.data(from: url)
         return data
     }
 
@@ -98,7 +98,7 @@ actor NetworkManager {
         request.httpMethod = "POST"
         request.httpBody = data
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        let (_, response) = try await URLSession.shared.data(for: request)
+        let (_, response) = try await PinnedURLSession.shared.session.data(for: request)
         guard (response as? HTTPURLResponse)?.statusCode == 200 else {
             throw NSError(domain: "Upload failed", code: 500, userInfo: nil)
         }

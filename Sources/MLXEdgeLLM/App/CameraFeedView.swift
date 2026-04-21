@@ -279,7 +279,7 @@ struct CameraFeedView: View {
         Task {
             do {
                 guard let url = URL(string: camera.feedURL) else { throw CameraError.invalidURL }
-                let (data, response) = try await URLSession.shared.data(from: url)
+                let (data, response) = try await PinnedURLSession.shared.session.data(from: url)
                 if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
                     throw CameraError.httpError(http.statusCode)
                 }

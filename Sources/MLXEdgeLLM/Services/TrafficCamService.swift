@@ -277,7 +277,7 @@ final class TrafficCamService: ObservableObject {
         guard let url = URL(string: camera.feedURL) else { return nil }
 
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await PinnedURLSession.shared.session.data(from: url)
 
             // Cache the frame
             imageCache[camera.id] = data
@@ -323,7 +323,7 @@ final class TrafficCamService: ObservableObject {
     private func fetchTxDOTCameras() async -> [TrafficCamera] {
         let urlStr = "https://services.arcgis.com/KTcxiTD9dsQw4r7Z/arcgis/rest/services/TxDOT_CCTV_Cameras/FeatureServer/0/query?where=1%3D1&outFields=*&f=json"
         guard let url = URL(string: urlStr),
-              let (data, _) = try? await URLSession.shared.data(from: url) else {
+              let (data, _) = try? await PinnedURLSession.shared.session.data(from: url) else {
             return loadCachedTxDOTCameras()
         }
         let cameras = parseTxDOTResponse(data)
@@ -572,7 +572,7 @@ final class TrafficCamService: ObservableObject {
     private func fetchInciWebCameras() async -> [TrafficCamera] {
         let urlStr = "https://inciweb.wildfire.gov/incidents/feeds/rss/"
         guard let url = URL(string: urlStr),
-              let (data, _) = try? await URLSession.shared.data(from: url) else {
+              let (data, _) = try? await PinnedURLSession.shared.session.data(from: url) else {
             return []
         }
         // Parse RSS feed — extract incident locations and create synthetic cameras

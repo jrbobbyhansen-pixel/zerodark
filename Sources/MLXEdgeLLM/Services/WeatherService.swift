@@ -69,7 +69,7 @@ final class WeatherService: ObservableObject {
             throw URLError(.badURL)
         }
 
-        let (data, _) = try await URLSession.shared.data(from: url)
+        let (data, _) = try await PinnedURLSession.shared.session.data(from: url)
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
         guard let current = (json?["current_condition"] as? [[String: Any]])?.first,

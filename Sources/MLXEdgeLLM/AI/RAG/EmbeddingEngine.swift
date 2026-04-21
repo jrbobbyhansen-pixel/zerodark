@@ -29,7 +29,7 @@ final class MLXEmbeddingEngine: ObservableObject {
             return
         }
         do {
-            let (_, response) = try await URLSession.shared.data(from: url)
+            let (_, response) = try await PinnedURLSession.shared.session.data(from: url)
             isReady = (response as? HTTPURLResponse)?.statusCode == 200
         } catch {
             isReady = false
@@ -129,7 +129,7 @@ final class MLXEmbeddingEngine: ObservableObject {
 
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await PinnedURLSession.shared.session.data(for: request)
 
             guard let httpResponse = response as? HTTPURLResponse,
                   httpResponse.statusCode == 200 else {

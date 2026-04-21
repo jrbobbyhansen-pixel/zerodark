@@ -52,7 +52,7 @@ final class JsonApiClient: ObservableObject {
             request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
 
-        URLSession.shared.dataTaskPublisher(for: request)
+        PinnedURLSession.shared.session.dataTaskPublisher(for: request)
             .map { data, response in
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
                     throw NSError(domain: "Invalid response", code: (response as? HTTPURLResponse)?.statusCode ?? -1, userInfo: nil)

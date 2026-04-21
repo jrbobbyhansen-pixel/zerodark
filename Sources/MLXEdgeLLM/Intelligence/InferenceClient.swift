@@ -24,7 +24,7 @@ final class TextInferenceClient: ObservableObject {
     func checkConnection() async {
         guard let url = URL(string: "\(serverURL)/health") else { isConnected = false; return }
         do {
-            let (_, response) = try await URLSession.shared.data(from: url)
+            let (_, response) = try await PinnedURLSession.shared.session.data(from: url)
             isConnected = (response as? HTTPURLResponse)?.statusCode == 200
         } catch {
             isConnected = false
@@ -81,7 +81,7 @@ final class TextInferenceClient: ObservableObject {
         request.timeoutInterval = 30
         isGenerating = true
         return AsyncStream { [weak self] continuation in
-            let task = URLSession.shared.dataTask(with: request) { data, _, error in
+            let task = PinnedURLSession.shared.session.dataTask(with: request) { data, _, error in
                 defer {
                     Task { @MainActor in self?.isGenerating = false }
                     continuation.finish()
@@ -158,7 +158,7 @@ final class VisionInferenceClient: ObservableObject {
     func checkConnection() async {
         guard let url = URL(string: "\(serverURL)/health") else { isConnected = false; return }
         do {
-            let (_, response) = try await URLSession.shared.data(from: url)
+            let (_, response) = try await PinnedURLSession.shared.session.data(from: url)
             isConnected = (response as? HTTPURLResponse)?.statusCode == 200
         } catch {
             isConnected = false
@@ -182,7 +182,7 @@ final class VisionInferenceClient: ObservableObject {
         request.timeoutInterval = 45
         isProcessing = true
         defer { isProcessing = false }
-        let (data, _) = try await URLSession.shared.data(for: request)
+        let (data, _) = try await PinnedURLSession.shared.session.data(for: request)
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let answer = json["answer"] as? String else {
             throw InferenceError.invalidResponse
