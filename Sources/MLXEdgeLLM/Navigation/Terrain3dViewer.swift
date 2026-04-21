@@ -24,6 +24,11 @@ final class Terrain3DViewModel: ObservableObject {
     @Published var showWaypoints: Bool  = true
     @Published var showTeam: Bool       = true
 
+    // Scan overlay editor state
+    @Published var editMode: OverlayEditMode = .view
+    @Published var pendingPoints: [SIMD3<Float>] = []
+    @Published var selectedOverlayID: UUID? = nil
+
     private init() {}
 
     // MARK: Load
@@ -32,6 +37,9 @@ final class Terrain3DViewModel: ObservableObject {
         currentScan = scan
         errorMessage = nil
         isLoading = true
+        editMode = .view
+        pendingPoints = []
+        selectedOverlayID = nil
 
         Task.detached(priority: .userInitiated) { [weak self] in
             guard let self else { return }
@@ -41,12 +49,78 @@ final class Terrain3DViewModel: ObservableObject {
                 case .success(let built):
                     self.scene = built.scene
                     self.pointCount = built.count
+                    // Load sidecar overlays + render them into the fresh scene.
+                    ScanOverlayStore.shared.load(for: scan)
+                    ScanOverlayRenderer.rebuild(for: scan.id, in: built.scene)
                 case .failure(let err):
                     self.errorMessage = err.localizedDescription
                 }
                 self.isLoading = false
             }
         }
+    }
+
+    // MARK: - Scan Overlay Editor
+
+    /// Called by the tap-gesture coordinator when the user taps the point cloud.
+    /// `worldPoint` is in scene coordinates — equal to scan-local coordinates
+    /// since Terrain3DSceneBuilder centers the cloud at origin without transforms.
+    func handleTap(worldPoint: SIMD3<Float>) {
+        guard case .placing(let kind) = editMode,
+              let scan = currentScan else { return }
+
+        pendingPoints.append(worldPoint)
+        ScanOverlayRenderer.addPreviewPoint(worldPoint, kind: kind, in: scene)
+
+        // Finalize based on kind
+        switch kind {
+        case .wall:
+            if pendingPoints.count == 2 {
+                finalizePendingOverlay(kind: kind, points: pendingPoints, in: scan)
+            }
+        case .zone:
+            // Zone requires explicit "Done" tap — do nothing here beyond preview
+            break
+        default:
+            // Single-tap primitives: finalize immediately
+            finalizePendingOverlay(kind: kind, points: [worldPoint], in: scan)
+        }
+    }
+
+    /// Explicit finalize for zone (called from toolbar "Done" button).
+    func finalizeZone() {
+        guard case .placing(.zone) = editMode, let scan = currentScan else { return }
+        guard pendingPoints.count >= 3 else { return }
+        finalizePendingOverlay(kind: .zone, points: pendingPoints, in: scan)
+    }
+
+    func cancelPlacement() {
+        pendingPoints = []
+        ScanOverlayRenderer.clearPreviews(in: scene)
+        editMode = .view
+    }
+
+    private func finalizePendingOverlay(kind: ScanOverlayKind, points: [SIMD3<Float>], in scan: SavedScan) {
+        let overlay = ScanOverlay(
+            kind: kind,
+            points: points,
+            rotationY: 0,
+            label: "",
+            notes: "",
+            createdBy: AppConfig.deviceCallsign
+        )
+        ScanOverlayStore.shared.add(overlay, to: scan)
+        pendingPoints = []
+        ScanOverlayRenderer.clearPreviews(in: scene)
+        ScanOverlayRenderer.rebuild(for: scan.id, in: scene)
+        editMode = .view
+    }
+
+    /// Rebuild scan-overlay nodes in the current scene.
+    /// Called when ScanOverlayStore receives an incoming mesh update.
+    func rebuildScanOverlays() {
+        guard let scan = currentScan else { return }
+        ScanOverlayRenderer.rebuild(for: scan.id, in: scene)
     }
 
     func rebuildOverlays() {
@@ -252,6 +326,11 @@ private enum Terrain3DOverlays {
 
 struct SceneKitView: UIViewRepresentable {
     let scene: SCNScene
+    var onTapWorldPoint: ((SIMD3<Float>) -> Void)? = nil
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onTapWorldPoint: onTapWorldPoint)
+    }
 
     func makeUIView(context: Context) -> SCNView {
         let scnView = SCNView()
@@ -268,11 +347,46 @@ struct SceneKitView: UIViewRepresentable {
         scene.rootNode.addChildNode(camNode)
         scnView.pointOfView = camNode
         scnView.scene = scene
+
+        // Tap gesture — coexists with allowsCameraControl because it does not
+        // cancel touches and the camera controller uses pan/pinch/rotate gestures.
+        let tap = UITapGestureRecognizer(target: context.coordinator,
+                                         action: #selector(Coordinator.handleTap(_:)))
+        tap.cancelsTouchesInView = false
+        scnView.addGestureRecognizer(tap)
+
         return scnView
     }
 
     func updateUIView(_ uiView: SCNView, context: Context) {
         uiView.scene = scene
+        context.coordinator.onTapWorldPoint = onTapWorldPoint
+    }
+
+    final class Coordinator: NSObject {
+        var onTapWorldPoint: ((SIMD3<Float>) -> Void)?
+
+        init(onTapWorldPoint: ((SIMD3<Float>) -> Void)?) {
+            self.onTapWorldPoint = onTapWorldPoint
+        }
+
+        @objc func handleTap(_ sender: UITapGestureRecognizer) {
+            guard let handler = onTapWorldPoint,
+                  let scnView = sender.view as? SCNView else { return }
+            let location = sender.location(in: scnView)
+            let opts: [SCNHitTestOption: Any] = [
+                .searchMode: SCNHitTestSearchMode.closest.rawValue,
+                .ignoreHiddenNodes: true
+            ]
+            let hits = scnView.hitTest(location, options: opts)
+            // Prefer a hit on the point cloud; ignore overlay nodes so users can
+            // place new overlays near existing ones without grabbing them.
+            let pcHit = hits.first { $0.node.name == "pointcloud" }
+                ?? hits.first { !(($0.node.name ?? "").hasPrefix(ScanOverlayRenderer.nodeNamePrefix)) }
+            guard let hit = pcHit else { return }
+            let w = hit.worldCoordinates
+            handler(SIMD3<Float>(Float(w.x), Float(w.y), Float(w.z)))
+        }
     }
 }
 
@@ -280,6 +394,7 @@ struct SceneKitView: UIViewRepresentable {
 
 struct Terrain3DViewer: View {
     @ObservedObject private var vm = Terrain3DViewModel.shared
+    @ObservedObject private var overlayStore = ScanOverlayStore.shared
     @Environment(\.dismiss) private var dismiss
     @State private var showScanPicker = false
 
@@ -297,13 +412,27 @@ struct Terrain3DViewer: View {
                 } else if vm.currentScan == nil {
                     noScanView
                 } else {
-                    SceneKitView(scene: vm.scene)
-                        .ignoresSafeArea()
+                    SceneKitView(
+                        scene: vm.scene,
+                        onTapWorldPoint: { p in vm.handleTap(worldPoint: p) }
+                    )
+                    .ignoresSafeArea()
                 }
 
                 // HUD overlay
                 VStack {
                     Spacer()
+                    if vm.currentScan != nil {
+                        ScanOverlayToolbar(
+                            editMode: $vm.editMode,
+                            pendingPointCount: Binding(
+                                get: { vm.pendingPoints.count },
+                                set: { _ in }
+                            ),
+                            onFinalizeZone: { vm.finalizeZone() },
+                            onCancel: { vm.cancelPlacement() }
+                        )
+                    }
                     bottomHUD
                 }
             }
@@ -320,12 +449,17 @@ struct Terrain3DViewer: View {
                         Image(systemName: "square.stack.3d.up.fill")
                             .foregroundColor(ZDDesign.cyanAccent)
                     }
+                    .accessibilityLabel("Choose Scan")
                 }
             }
             .onAppear {
                 if let s = scan {
                     vm.loadScan(s)
                 }
+            }
+            .onChange(of: overlayStore.overlays) { _, _ in
+                // Redraw overlays when the store changes (e.g. incoming mesh update)
+                vm.rebuildScanOverlays()
             }
             .sheet(isPresented: $showScanPicker) {
                 ScanPickerSheet { selected in

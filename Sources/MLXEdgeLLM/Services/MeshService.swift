@@ -23,6 +23,7 @@ enum ZDMessageType: String, Codable {
     case audioChunk
     case haptic
     case dtn
+    case scanOverlay
 }
 
 struct ZDMeshMessage: Codable {
@@ -319,6 +320,9 @@ final class MeshService: ObservableObject {
                     content: "HAPTIC: \(code.displayName)"
                 ))
             }
+
+        case .scanOverlay:
+            ScanOverlayStore.shared.applyIncoming(decrypted)
 
         @unknown default:
             break
