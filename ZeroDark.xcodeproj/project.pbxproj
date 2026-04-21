@@ -15,6 +15,7 @@
 		0612317F2FEA96E15A8591D7 /* 18-cqb-fundamentals.md in Resources */ = {isa = PBXBuildFile; fileRef = D9E73C31F8D79B035F7F06CF /* 18-cqb-fundamentals.md */; };
 		0612C1923F055EF122E17410 /* 27-cold-weather.md in Resources */ = {isa = PBXBuildFile; fileRef = BE98D062B47B357543395455 /* 27-cold-weather.md */; };
 		06DB76F8B043889BD9113C1F /* DTMFLoggerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC6A8BBA08D4DFEB1064D5FC /* DTMFLoggerView.swift */; };
+		080BB1E16C82D37EB9B7C908 /* MinHeap.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0EF8E008AF20DDE97D0DAEA /* MinHeap.swift */; };
 		089DC9008D6C0B6F30477049 /* 21-surveillance-detection.md in Resources */ = {isa = PBXBuildFile; fileRef = E84A9C29450568EE7975F94D /* 21-surveillance-detection.md */; };
 		09A5B31D616ADBB2533E59B2 /* PointCloudAnnotator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 754D039639F75DE4EE1B2B6E /* PointCloudAnnotator.swift */; };
 		0B3C03F225FA9DB062026516 /* 52-stealth-movement.md in Resources */ = {isa = PBXBuildFile; fileRef = 9968020680F705ECA9D1DE43 /* 52-stealth-movement.md */; };
@@ -1051,6 +1052,7 @@
 		C074F63AA8BB6497CC5C47BE /* TerrainMeshGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerrainMeshGenerator.swift; sourceTree = "<group>"; };
 		C09182EE953C1EFA2323D9E7 /* ScreenPrivacy.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScreenPrivacy.swift; path = Sources/MLXEdgeLLM/Security/OpSec/ScreenPrivacy.swift; sourceTree = "<group>"; };
 		C091E96A43C1BEE7AB715155 /* StreamingProcessor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StreamingProcessor.swift; path = Sources/MLXEdgeLLM/LiDAR/Core/StreamingProcessor.swift; sourceTree = "<group>"; };
+		C0EF8E008AF20DDE97D0DAEA /* MinHeap.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MinHeap.swift; path = Sources/MLXEdgeLLM/Navigation/GraphPlanning/MinHeap.swift; sourceTree = "<group>"; };
 		C1D73119996A9C3DD5F24EAB /* BoatOperations.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoatOperations.swift; path = Sources/MLXEdgeLLM/Scenarios/Flood/BoatOperations.swift; sourceTree = "<group>"; };
 		C1E712FB353E8B24FD2F2B58 /* OfflineMapEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineMapEngine.swift; sourceTree = "<group>"; };
 		C1E9B9337408C638B558FCB7 /* LeadershipScenarios.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LeadershipScenarios.swift; path = Sources/MLXEdgeLLM/Training/Team/LeadershipScenarios.swift; sourceTree = "<group>"; };
@@ -2336,6 +2338,7 @@
 				AA80C8ABCA9DBEFAC7B01953 /* ScanOverlayToolbar.swift */,
 				AFAE762D50B8F762C61FFB23 /* AppLockManager.swift */,
 				400F34ED1F268F00852B7E71 /* AppLockGate.swift */,
+				C0EF8E008AF20DDE97D0DAEA /* MinHeap.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3165,6 +3168,7 @@
 				F1CD0CB6D9F6F32B804C20B2 /* ScanOverlayToolbar.swift in Sources */,
 				9D88D596AFB7AF55A54FCBD3 /* AppLockManager.swift in Sources */,
 				C5112513285358D3E288249A /* AppLockGate.swift in Sources */,
+				080BB1E16C82D37EB9B7C908 /* MinHeap.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
