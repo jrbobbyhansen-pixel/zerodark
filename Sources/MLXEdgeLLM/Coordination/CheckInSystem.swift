@@ -7,6 +7,23 @@ import SwiftUI
 import CoreLocation
 import UserNotifications
 import Combine
+import CryptoKit
+
+// MARK: - Mesh payload (wire format)
+
+/// Typed Codable payload for check-in messages — replaces the brittle text-prefix
+/// parsing from older builds. Transported inside an AES-256-GCM-encrypted
+/// ZDMeshMessage of type .checkIn, so lat/lon are never exposed on the wire.
+/// The `request` variant carries no coordinates.
+struct CheckInMeshPayload: Codable {
+    enum Kind: String, Codable { case request, response }
+
+    let kind: Kind
+    let callsign: String
+    let timestamp: TimeInterval
+    let latitude: Double?
+    let longitude: Double?
+}
 
 // MARK: - CheckIn
 
@@ -113,56 +130,101 @@ final class CheckInSystem: ObservableObject {
         let checkIn = CheckIn(location: location)
         checkIns.append(checkIn)
         checkOverdue()
-        AuditLogger.shared.log(.checkInRecorded, detail: "lat:\(checkIn.latitude) lon:\(checkIn.longitude)")
+        // Redact coordinates in the local audit log — store only a coarsened cell
+        // plus a hash of the exact position. Forensic read of Documents can't
+        // recover the exact location, but the audit trail still proves activity.
+        AuditLogger.shared.log(
+            .checkInRecorded,
+            detail: Self.redactedLocation(lat: checkIn.latitude, lon: checkIn.longitude)
+        )
+    }
+
+    // MARK: - Audit Redaction
+
+    /// Coarsen to ~1 km cell (2 decimal places) and append a short SHA-256 hash
+    /// of the exact coord. Audit integrity preserved without exposing team positions.
+    static func redactedLocation(lat: Double, lon: Double) -> String {
+        let coarseLat = (lat * 100).rounded() / 100
+        let coarseLon = (lon * 100).rounded() / 100
+        let raw = "\(lat),\(lon)"
+        let digest = SHA256.hash(data: Data(raw.utf8))
+        let hex = digest.prefix(4).map { String(format: "%02x", $0) }.joined()
+        return String(format: "cell:%.2f,%.2f hash:%@", coarseLat, coarseLon, hex)
     }
 
     // MARK: - Mesh Broadcast
 
-    /// Send a check-in request to all peers over mesh.
+    /// Send a typed check-in request to all peers over the encrypted mesh.
     private func broadcastCheckInRequest() {
         guard MeshService.shared.isActive else { return }
-        let payload = meshReqPrefix + AppConfig.deviceCallsign
-        MeshService.shared.sendText(payload)
+        let payload = CheckInMeshPayload(
+            kind: .request,
+            callsign: AppConfig.deviceCallsign,
+            timestamp: Date().timeIntervalSince1970,
+            latitude: nil,
+            longitude: nil
+        )
+        guard let data = try? JSONEncoder().encode(payload) else { return }
+        MeshService.shared.broadcastData(data, type: .checkIn)
     }
 
     /// Respond to a received check-in request (answer for self).
     private func respondViaMesh() {
         guard MeshService.shared.isActive else { return }
         let location = locationManager.location ?? CLLocation(latitude: 0, longitude: 0)
-        let rsp: [String: Any] = [
-            "callsign": AppConfig.deviceCallsign,
-            "lat": location.coordinate.latitude,
-            "lon": location.coordinate.longitude,
-            "ts": Date().timeIntervalSince1970
-        ]
-        if let data = try? JSONSerialization.data(withJSONObject: rsp),
-           let json = String(data: data, encoding: .utf8) {
-            MeshService.shared.sendText(meshRspPrefix + json)
-        }
+        let payload = CheckInMeshPayload(
+            kind: .response,
+            callsign: AppConfig.deviceCallsign,
+            timestamp: Date().timeIntervalSince1970,
+            latitude: location.coordinate.latitude,
+            longitude: location.coordinate.longitude
+        )
+        guard let data = try? JSONEncoder().encode(payload) else { return }
+        MeshService.shared.broadcastData(data, type: .checkIn)
     }
 
     // MARK: - Mesh Receive
 
     private func subscribeMesh() {
+        // Primary path: typed .checkIn messages posted by MeshService after decrypt.
         meshCancellable = NotificationCenter.default
-            .publisher(for: Notification.Name("ZD.meshMessage"))
+            .publisher(for: Notification.Name("ZD.checkInReceived"))
             .receive(on: RunLoop.main)
             .sink { [weak self] notification in
-                guard let text = notification.userInfo?["text"] as? String else { return }
-                self?.handleMeshMessage(text)
+                guard let data = notification.userInfo?["data"] as? Data else { return }
+                self?.handleCheckInPayload(data)
             }
+
+        // Legacy compatibility: older peers still speak text-prefix format.
+        // Kept so a mixed-version deployment keeps working during rollout.
+        _ = NotificationCenter.default.addObserver(
+            forName: Notification.Name("ZD.meshMessage"),
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let text = notification.userInfo?["text"] as? String else { return }
+            Task { @MainActor in self?.handleLegacyTextMessage(text) }
+        }
     }
 
-    private func handleMeshMessage(_ text: String) {
+    private func handleCheckInPayload(_ data: Data) {
+        guard let payload = try? JSONDecoder().decode(CheckInMeshPayload.self, from: data) else { return }
+        switch payload.kind {
+        case .request:
+            if payload.callsign != AppConfig.deviceCallsign { respondViaMesh() }
+        case .response:
+            guard let lat = payload.latitude, let lon = payload.longitude else { return }
+            applyPeerCheckIn(callsign: payload.callsign, lat: lat, lon: lon, ts: payload.timestamp)
+        }
+    }
+
+    private func handleLegacyTextMessage(_ text: String) {
         if text.hasPrefix(meshReqPrefix) {
-            // Another peer is requesting check-in from everyone — respond
             let requester = String(text.dropFirst(meshReqPrefix.count))
             if requester != AppConfig.deviceCallsign {
                 respondViaMesh()
             }
-
         } else if text.hasPrefix(meshRspPrefix) {
-            // A peer has checked in
             let jsonStr = String(text.dropFirst(meshRspPrefix.count))
             guard let data = jsonStr.data(using: .utf8),
                   let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -170,30 +232,33 @@ final class CheckInSystem: ObservableObject {
                   let lat = obj["lat"] as? Double,
                   let lon = obj["lon"] as? Double,
                   let ts = obj["ts"] as? Double else { return }
-
-            let checkIn = CheckIn(
-                location: CLLocation(latitude: lat, longitude: lon),
-                callsign: callsign
-            )
-            // Avoid duplicate (same callsign + same ~minute)
-            let isDuplicate = checkIns.contains {
-                $0.callsign == callsign && abs($0.timestamp.timeIntervalSince(checkIn.timestamp)) < 60
-            }
-            if !isDuplicate {
-                checkIns.append(checkIn)
-            }
-
-            // Update peer status table
-            if let idx = peerStatuses.firstIndex(where: { $0.callsign == callsign }) {
-                peerStatuses[idx].lastCheckIn = Date(timeIntervalSince1970: ts)
-                peerStatuses[idx].isOverdue = false
-            } else {
-                var s = CheckInStatus(callsign: callsign)
-                s.lastCheckIn = Date(timeIntervalSince1970: ts)
-                peerStatuses.append(s)
-            }
-            checkOverdue()
+            applyPeerCheckIn(callsign: callsign, lat: lat, lon: lon, ts: ts)
         }
+    }
+
+    private func applyPeerCheckIn(callsign: String, lat: Double, lon: Double, ts: TimeInterval) {
+        let checkIn = CheckIn(
+            location: CLLocation(latitude: lat, longitude: lon),
+            callsign: callsign
+        )
+        // Avoid duplicate (same callsign + same ~minute)
+        let isDuplicate = checkIns.contains {
+            $0.callsign == callsign && abs($0.timestamp.timeIntervalSince(checkIn.timestamp)) < 60
+        }
+        if !isDuplicate {
+            checkIns.append(checkIn)
+        }
+
+        // Update peer status table
+        if let idx = peerStatuses.firstIndex(where: { $0.callsign == callsign }) {
+            peerStatuses[idx].lastCheckIn = Date(timeIntervalSince1970: ts)
+            peerStatuses[idx].isOverdue = false
+        } else {
+            var s = CheckInStatus(callsign: callsign)
+            s.lastCheckIn = Date(timeIntervalSince1970: ts)
+            peerStatuses.append(s)
+        }
+        checkOverdue()
     }
 
     // MARK: - Overdue Detection
@@ -253,7 +318,10 @@ final class CheckInSystem: ObservableObject {
             ]
         )
 
+        // Callsigns identify peers but expose no coordinates.
         AuditLogger.shared.log(.checkInRecorded, detail: "OVERDUE count:\(count) callsigns:\(names)")
+        // No lat/lon in overdue audit — only counts + callsigns, consistent with
+        // the coordinate-redaction policy applied in recordSelfCheckIn.
     }
 
     // MARK: - Notification Permission
