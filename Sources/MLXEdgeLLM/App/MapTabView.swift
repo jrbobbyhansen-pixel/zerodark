@@ -440,6 +440,7 @@ struct MapTabView: View {
                 .background(Color.black.opacity(0.6))
                 .cornerRadius(8)
             }
+            .accessibilityLabel("Line-of-sight tools")
 
             ToolbarToggle(text: "NAV", active: navMode) {
                 navMode.toggle()
@@ -471,6 +472,7 @@ struct MapTabView: View {
                     .background(Color.black.opacity(0.6))
                     .cornerRadius(8)
                 }
+                .accessibilityLabel("Offline map selector")
             }
 
             Spacer()
@@ -634,29 +636,40 @@ struct MapTabView: View {
                 Text(appState.navState.canopyDetected ? "CANOPY" : "OPEN")
                     .font(.caption).foregroundColor(ZDDesign.pureWhite)
             }
+            .a11yStatus(label: "Canopy cover",
+                        value: appState.navState.canopyDetected ? "Under canopy" : "Open sky")
             HStack(spacing: 4) {
                 Image(systemName: "shoeprints.fill").foregroundColor(ZDDesign.cyanAccent)
                 Text("ZUPT:\(appState.navState.zuptCount)")
                     .font(.caption).foregroundColor(ZDDesign.pureWhite)
             }
+            .a11yStatus(label: "Zero-velocity updates",
+                        value: "\(appState.navState.zuptCount) recorded")
             HStack(spacing: 4) {
                 Image(systemName: "star.fill")
                     .foregroundColor(celestial.detectedStarCount >= 2 ? .yellow : ZDDesign.mediumGray)
                 Text("\(celestial.detectedStarCount)★")
                     .font(.caption).foregroundColor(ZDDesign.pureWhite)
             }
+            .a11yStatus(label: "Celestial stars detected",
+                        value: "\(celestial.detectedStarCount)")
             Spacer()
             HStack(spacing: 4) {
                 Image(systemName: navBatteryIcon).foregroundColor(navBatteryColor)
                 Text(String(format: "%.0fm", appState.navState.batteryMinutesRemaining))
                     .font(.caption).foregroundColor(ZDDesign.pureWhite)
             }
+            .a11yStatus(label: "Battery runtime",
+                        value: String(format: "%.0f minutes remaining", appState.navState.batteryMinutesRemaining))
             HStack(spacing: 4) {
                 Image(systemName: navBaroIcon).foregroundColor(ZDDesign.cyanAccent)
                 Text(weather.barometricPressureTrend == .stable ? "STABLE" :
                      weather.barometricPressureTrend == .rapidDrop ? "DROP" : "RISE")
                     .font(.caption).foregroundColor(ZDDesign.pureWhite)
             }
+            .a11yStatus(label: "Barometric pressure trend",
+                        value: weather.barometricPressureTrend == .stable ? "Stable" :
+                               weather.barometricPressureTrend == .rapidDrop ? "Dropping" : "Rising")
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 7)

@@ -235,6 +235,7 @@
 		7FEA29DA2B2AEBCD8B427319 /* ConsumptionPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 814A654AF6E536A6B243C7C8 /* ConsumptionPlanner.swift */; };
 		80013E7D2322A16135F0A4EC /* LiDARMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 514B24D7BA096A486268D43D /* LiDARMode.swift */; };
 		81827F0A15235DE2D387EE99 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27E6105E6E1033F3B4342E71 /* ContentView.swift */; };
+		81B45618294435F19E2AB97D /* A11yIconButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DA2FC87EC6A408E69BAB763 /* A11yIconButton.swift */; };
 		81C0C93D6C4177B92524D40C /* TacticalReports.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE966864E62F069EFF8E0A7A /* TacticalReports.swift */; };
 		81E163D5914F99BEB771B696 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		83FB96B78E63A60672E24504 /* 18-processing-preservation.md in Resources */ = {isa = PBXBuildFile; fileRef = 9B3E1BEF799BAC3D170E4CCA /* 18-processing-preservation.md */; };
@@ -860,6 +861,7 @@
 		7BE8737CDED8FC87B239DA42 /* 19-plant-toxicity.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "19-plant-toxicity.md"; sourceTree = "<group>"; };
 		7C871FF5A36F4EA5ECB9ABBE /* DroneFleet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DroneFleet.swift; path = Sources/MLXEdgeLLM/Hardware/Drone/DroneFleet.swift; sourceTree = "<group>"; };
 		7D9543BE59DA8BB17645D89A /* QuickReference.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QuickReference.swift; path = Sources/MLXEdgeLLM/Training/Knowledge/QuickReference.swift; sourceTree = "<group>"; };
+		7DA2FC87EC6A408E69BAB763 /* A11yIconButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = A11yIconButton.swift; path = Sources/MLXEdgeLLM/App/Accessibility/A11yIconButton.swift; sourceTree = "<group>"; };
 		7E4D4DA759473B002DFB2ACB /* EncryptionAudit.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EncryptionAudit.swift; path = Sources/MLXEdgeLLM/Security/Encryption/EncryptionAudit.swift; sourceTree = "<group>"; };
 		7E93F38550DED3C65C8C1CD4 /* ContingencyPlanner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ContingencyPlanner.swift; path = Sources/MLXEdgeLLM/FieldOps/Mission/ContingencyPlanner.swift; sourceTree = "<group>"; };
 		7F19BC0F2CE9798A99CF0101 /* SettingsFAB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFAB.swift; sourceTree = "<group>"; };
@@ -2360,6 +2362,7 @@
 				20151E59E2009589D8C58FB7 /* BallisticsView.swift */,
 				F7003865C938679215A5D7E1 /* GPUViewshed.swift */,
 				9C9B6DA673642971D1F463B8 /* Viewshed.metal */,
+				7DA2FC87EC6A408E69BAB763 /* A11yIconButton.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3197,6 +3200,7 @@
 				84776844F0FA561234F3C876 /* BallisticsView.swift in Sources */,
 				24360EAEA291400B20C90874 /* GPUViewshed.swift in Sources */,
 				94D5DA36411D22FC5375F9C0 /* Viewshed.metal in Sources */,
+				81B45618294435F19E2AB97D /* A11yIconButton.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

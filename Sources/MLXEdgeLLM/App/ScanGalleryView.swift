@@ -192,12 +192,15 @@ struct ScanDetailView: View {
                     Button { show3DViewer = true } label: {
                         Image(systemName: "cube.transparent.fill").foregroundColor(ZDDesign.cyanAccent)
                     }
+                    .accessibilityLabel("Open 3D Viewer")
                     Button { showExporter = true } label: {
                         Image(systemName: "square.and.arrow.up").foregroundColor(ZDDesign.cyanAccent)
                     }
+                    .accessibilityLabel("Export Scan")
                     Button { showComparison = true } label: {
                         Image(systemName: "arrow.left.arrow.right.circle").foregroundColor(.orange)
                     }
+                    .accessibilityLabel("Compare Scans")
                 }
             }
         }
