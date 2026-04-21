@@ -280,7 +280,10 @@ final class LOSRaycastEngine {
         case intersection  // Visible only if ALL observers can see it
     }
 
-    /// GPU-accelerated viewshed (placeholder — falls back to CPU viewshed)
+    /// GPU-accelerated viewshed via Metal compute kernel (Viewshed.metal).
+    /// Computes a square visibility grid centred on the observer; each cell = 1.0
+    /// if LoS is clear, 0.0 if terrain blocks it.
+    /// Falls back to the radial CPU viewshed only if Metal is unavailable.
     func computeViewshedGPU(
         from observer: CLLocationCoordinate2D,
         radius: Double = 2000,
@@ -288,6 +291,22 @@ final class LOSRaycastEngine {
         resolution: Int = 360,
         samplesPerRadial: Int = 200
     ) async -> ViewshedResult? {
+        if let grid = await GPUViewshed.compute(
+            observer: observer,
+            radiusMeters: radius,
+            cellSizeMeters: 30,
+            observerHeight: Float(observerHeight)
+        ) {
+            return ViewshedResult(
+                observer: observer,
+                radius: radius,
+                resolution: grid.width,
+                samplesPerRadial: grid.height,
+                visibility: grid.visibility,
+                computeTimeMs: grid.computeTimeMs
+            )
+        }
+        // Fallback when no Metal device (simulator w/o GPU, or shader failed to compile).
         let results = computeViewshed(from: observer, radius: radius, observerHeight: observerHeight, resolution: resolution)
         let visibility = results.map { $0.isVisible ? Float(1.0) : Float(0.0) }
         return ViewshedResult(
