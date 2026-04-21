@@ -17,7 +17,9 @@ public class TacticalScanner: NSObject, ObservableObject {
     @Published public var lastResult: TacticalScanResult?
     @Published public var isScanning = false
 
-    private let captureSession = AVCaptureSession()
+    /// Exposed so SwiftUI views (TacticalScannerView) can attach an
+    /// AVCaptureVideoPreviewLayer to show the live feed.
+    public let captureSession = AVCaptureSession()
     private let output = AVCaptureVideoDataOutput()
     private let queue = DispatchQueue(label: "com.zerodark.scanner")
     private var torchDevice: AVCaptureDevice?

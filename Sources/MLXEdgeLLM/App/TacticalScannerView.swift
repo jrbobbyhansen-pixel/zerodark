@@ -58,17 +58,25 @@ struct TacticalScannerView: View {
                 Spacer()
 
                 if selectedMode != .torch {
-                    // Placeholder for camera view
-                    VStack(spacing: 16) {
-                        Image(systemName: "viewfinder")
-                            .font(.system(size: 60))
-                            .foregroundColor(ZDDesign.cyanAccent.opacity(0.3))
+                    // Live camera preview tied to the scanner's capture session.
+                    // Reticle overlay tells the operator where to point the device.
+                    ZStack {
+                        CameraPreviewView(session: scanner.captureSession)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                        Text("Point at \(selectedMode == .qr ? "QR code" : "document")")
-                            .foregroundColor(ZDDesign.pureWhite)
+                        // Reticle + hint
+                        VStack(spacing: 10) {
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(ZDDesign.cyanAccent, lineWidth: 2)
+                                .frame(width: 260, height: 260)
+                            Text("Point at \(selectedMode == .qr ? "QR code" : "document")")
+                                .font(.caption)
+                                .foregroundColor(ZDDesign.pureWhite)
+                                .padding(6)
+                                .background(Color.black.opacity(0.5))
+                                .cornerRadius(6)
+                        }
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.black.opacity(0.3))
                 }
 
                 Spacer()
