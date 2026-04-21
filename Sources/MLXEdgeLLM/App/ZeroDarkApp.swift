@@ -66,12 +66,14 @@ struct ZeroDarkApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .task {
-                    if LocalInferenceEngine.shared.modelFileExists {
-                        await LocalInferenceEngine.shared.loadModel()
+            AppLockGate {
+                ContentView()
+                    .task {
+                        if LocalInferenceEngine.shared.modelFileExists {
+                            await LocalInferenceEngine.shared.loadModel()
+                        }
                     }
-                }
+            }
         }
     }
 }
