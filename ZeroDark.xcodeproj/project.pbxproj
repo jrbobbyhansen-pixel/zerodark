@@ -101,6 +101,7 @@
 		31FA2C8EAFA9F12AF6BF665F /* Terrain3dViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B8E11DCC999C4F24024965 /* Terrain3dViewer.swift */; };
 		321294AC9D0BDF998FFCDE48 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		32FC1C3EE2A263565524856B /* MeasurementTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F96FA0F140B9E0C4AF14CF /* MeasurementTypes.swift */; };
+		33FB4D3E70C46F73315584AE /* ChangeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D119607E3570AC27B462A3E /* ChangeDetector.swift */; };
 		342DA780974B126D355CA8F9 /* HapticPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F6DF63D6D97C8EFC7C0C60 /* HapticPickerSheet.swift */; };
 		3479EB82283B493AEA3ADD2B /* MissionClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32BCE4E96379317ED6809CEB /* MissionClock.swift */; };
 		34A3B7BC672F17CCF12BA8CC /* MeasurementOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF811EF989D9D3BB05CB59ED /* MeasurementOverlayView.swift */; };
@@ -912,6 +913,7 @@
 		8CA0E00A286A79273BAC326D /* 30-airway-management.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "30-airway-management.md"; sourceTree = "<group>"; };
 		8CC3E97EC61C9C0FAB6B8C21 /* ScanMatchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanMatchResult.swift; sourceTree = "<group>"; };
 		8CC73F383F9A82D2967CB010 /* 54-breaching.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "54-breaching.md"; sourceTree = "<group>"; };
+		8D119607E3570AC27B462A3E /* ChangeDetector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ChangeDetector.swift; path = Sources/MLXEdgeLLM/LiDAR/Detection/ChangeDetector.swift; sourceTree = "<group>"; };
 		8D7F0242C2225903F7003DBF /* RopeRescueCalc.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RopeRescueCalc.swift; path = Sources/MLXEdgeLLM/Scenarios/Technical/RopeRescueCalc.swift; sourceTree = "<group>"; };
 		8E55F19C19E75628E06C1C1D /* PointCloudViewer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PointCloudViewer.swift; path = Sources/MLXEdgeLLM/LiDAR/Core/PointCloudViewer.swift; sourceTree = "<group>"; };
 		8E574707E910145CD06394B2 /* AreaMeasure.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AreaMeasure.swift; path = Sources/MLXEdgeLLM/LiDAR/Measure/AreaMeasure.swift; sourceTree = "<group>"; };
@@ -2363,6 +2365,7 @@
 				F7003865C938679215A5D7E1 /* GPUViewshed.swift */,
 				9C9B6DA673642971D1F463B8 /* Viewshed.metal */,
 				7DA2FC87EC6A408E69BAB763 /* A11yIconButton.swift */,
+				8D119607E3570AC27B462A3E /* ChangeDetector.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3201,6 +3204,7 @@
 				24360EAEA291400B20C90874 /* GPUViewshed.swift in Sources */,
 				94D5DA36411D22FC5375F9C0 /* Viewshed.metal in Sources */,
 				81B45618294435F19E2AB97D /* A11yIconButton.swift in Sources */,
+				33FB4D3E70C46F73315584AE /* ChangeDetector.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -2,6 +2,7 @@
 // NavigationLinks to all planning features
 
 import SwiftUI
+import CoreLocation
 
 struct PlanningToolsSection: View {
     var body: some View {
@@ -233,10 +234,110 @@ struct PlanningToolsSection: View {
                     color: .blue,
                     destination: HydrationView()
                 )
+
+                OpsSectionHeader(icon: "cross.case.fill", title: "MEDICAL", color: ZDDesign.signalRed)
+                    .padding(.top, 4)
+
+                PlanningCard(
+                    title: "MARCH Casualty Card",
+                    subtitle: "TCCC primary survey + indicated interventions + vitals + persistence",
+                    icon: "heart.text.square.fill",
+                    color: ZDDesign.signalRed,
+                    destination: MARCHView()
+                )
+
+                OpsSectionHeader(icon: "scope", title: "TACTICAL", color: ZDDesign.cyanAccent)
+                    .padding(.top, 4)
+
+                PlanningCard(
+                    title: "Ballistics Calculator",
+                    subtitle: "G1 drag model, 6 preset cartridges, MOA + MIL holdover + wind drift",
+                    icon: "target",
+                    color: ZDDesign.cyanAccent,
+                    destination: BallisticsView()
+                )
+
+                PlanningCard(
+                    title: "AR Waypoint Navigator",
+                    subtitle: "Camera-overlay heading arrow to a target coordinate; GPS-denied tolerant",
+                    icon: "arrow.up.forward.app.fill",
+                    color: .green,
+                    destination: ARWaypointPickerView()
+                )
+
+                PlanningCard(
+                    title: "Scan Diff",
+                    subtitle: "Voxel-delta change detection between two captured scans",
+                    icon: "arrow.left.arrow.right.square.fill",
+                    color: .orange,
+                    destination: ChangeDetectionView()
+                )
             }
             .padding(.horizontal)
             .padding(.top, 8)
         }
+    }
+}
+
+// MARK: - AR Waypoint Picker
+
+/// Wrapper that selects a waypoint before handing off to ARWaypointNavigatorView.
+/// Pulls from WaypointManager's saved list; falls back to a manual lat/lon entry.
+private struct ARWaypointPickerView: View {
+    @StateObject private var wm = WaypointManager()
+    @State private var manualLat: String = ""
+    @State private var manualLon: String = ""
+    @State private var manualName: String = ""
+
+    var body: some View {
+        List {
+            Section("Saved Waypoints") {
+                if wm.waypoints.isEmpty {
+                    Text("No waypoints saved.").foregroundColor(.secondary).font(.caption)
+                } else {
+                    ForEach(wm.waypoints) { wp in
+                        NavigationLink {
+                            ARWaypointNavigatorView(
+                                target: CLLocationCoordinate2D(
+                                    latitude: wp.coordinates.latitude,
+                                    longitude: wp.coordinates.longitude
+                                ),
+                                targetName: wp.name
+                            )
+                        } label: {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(wp.name).font(.body)
+                                Text(String(format: "%.5f, %.5f",
+                                            wp.coordinates.latitude,
+                                            wp.coordinates.longitude))
+                                    .font(.caption2.monospacedDigit())
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                }
+            }
+
+            Section("Manual Entry") {
+                TextField("Name", text: $manualName)
+                TextField("Latitude", text: $manualLat)
+                    .keyboardType(.decimalPad)
+                TextField("Longitude", text: $manualLon)
+                    .keyboardType(.decimalPad)
+                NavigationLink("Navigate to Manual Target") {
+                    if let lat = Double(manualLat), let lon = Double(manualLon) {
+                        ARWaypointNavigatorView(
+                            target: CLLocationCoordinate2D(latitude: lat, longitude: lon),
+                            targetName: manualName.isEmpty ? "Target" : manualName
+                        )
+                    } else {
+                        Text("Enter valid decimal lat/lon").foregroundColor(.red)
+                    }
+                }
+                .disabled(Double(manualLat) == nil || Double(manualLon) == nil)
+            }
+        }
+        .navigationTitle("AR Waypoint")
     }
 }
 
