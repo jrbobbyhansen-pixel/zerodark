@@ -218,18 +218,168 @@ final class IntelCorpus: ObservableObject {
 
 // MARK: - VerifyPipeline (stub)
 
+/// Three-stage, <50ms, no-LLM verification of generated responses against retrieval
+/// source chunks. Ported from AI/RAG/VerifyPipeline.swift to operate on
+/// IntelSearchResult — the type IntelTabView already uses.
+///
+/// Stage 1: Sentence-level BM25-ish grounding (token overlap vs. source chunks).
+/// Stage 2: Safety-domain keyword flag — when the response touches
+///          medical/tactical/coord-sensitive topics AND has ungrounded claims,
+///          attach a disclaimer.
+/// Stage 3: Contradiction detection — if the response says "don't X" but the
+///          sources recommend X, flag as contradictory.
 @MainActor
 final class VerifyPipeline: ObservableObject {
     static let shared = VerifyPipeline()
 
+    private let groundingThreshold: Double = 0.4
+    private let minVerifiedConfidence: Double = 0.6
+
+    private let safetyDomains: Set<String> = [
+        "tourniquet", "cpr", "bleeding", "wound", "fracture", "poison",
+        "explosive", "detonation", "ied", "mine",
+        "bearing", "azimuth", "coordinates", "grid",
+        "dosage", "medication", "injection", "airway"
+    ]
+    private let negationPatterns: [String] = [
+        "do not", "don't", "never", "avoid", "stop", "cease",
+        "prohibited", "forbidden", "dangerous to", "fatal if"
+    ]
+    private let stopWords: Set<String> = [
+        "the", "and", "for", "with", "this", "that", "from", "are", "was",
+        "will", "can", "not", "but", "you", "your", "have", "they", "their",
+        "when", "then", "into", "over", "each", "only", "also", "both",
+        "been", "more", "very", "should", "would", "could", "may", "might"
+    ]
+
     private init() {}
 
+    // MARK: - Claim verification (one-shot)
+
     func verify(claim: String) async -> IntelVerificationResult {
-        IntelVerificationResult(isVerified: false, confidence: 0, sources: [], explanation: "Verification pipeline not yet initialized", suggestedDisclaimer: nil)
+        // No sources passed → we cannot ground anything.
+        IntelVerificationResult(
+            isVerified: false,
+            confidence: 0,
+            sources: [],
+            explanation: "No source material supplied for verification.",
+            suggestedDisclaimer: "This claim was not cross-checked against any source — treat as unverified."
+        )
     }
 
+    // MARK: - Response verification (RAG output)
+
     func verify(response: String, query: String, sourceResults: [IntelSearchResult]) -> IntelVerificationResult {
-        IntelVerificationResult(isVerified: false, confidence: 0, sources: [], explanation: "Verification pipeline not yet initialized", suggestedDisclaimer: nil)
+        let sentences = splitSentences(response)
+        guard !sentences.isEmpty else {
+            return IntelVerificationResult(
+                isVerified: false,
+                confidence: 0,
+                sources: [],
+                explanation: "Response had no analyzable sentences.",
+                suggestedDisclaimer: nil
+            )
+        }
+
+        let sourceTexts = sourceResults.map { $0.content.lowercased() }
+        let sourceJoined = sourceTexts.joined(separator: " ")
+        let sourceLabels = sourceResults.map { $0.sourceLabel }
+
+        // Stage 1: sentence-level grounding
+        var grounded = 0
+        var ungrounded = 0
+        for sentence in sentences {
+            let trimmed = sentence.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard trimmed.count > 10 else { continue }
+            if computeOverlap(sentence: trimmed.lowercased(), sources: sourceTexts) >= groundingThreshold {
+                grounded += 1
+            } else {
+                ungrounded += 1
+            }
+        }
+        let totalClaims = grounded + ungrounded
+        let confidence = totalClaims == 0 ? 0.5 : Double(grounded) / Double(totalClaims)
+
+        // Stage 2: safety-domain disclaimer
+        let responseLower = response.lowercased()
+        let touchesSafety = safetyDomains.contains(where: { responseLower.contains($0) })
+        var disclaimer: String? = nil
+        if touchesSafety && ungrounded > 0 {
+            disclaimer = "This response contains safety-critical advice that could not be fully verified against source material. Cross-reference with official protocols."
+        }
+
+        // Stage 3: contradiction detection
+        var contradictory = false
+        for sentence in sentences {
+            let lower = sentence.lowercased()
+            for pattern in negationPatterns where lower.contains(pattern) {
+                let action = extractActionAfterNegation(lower, pattern: pattern)
+                if !action.isEmpty {
+                    let sourceRecommends = sourceJoined.contains(action)
+                        && !sourceJoined.contains("\(pattern) \(action)")
+                    if sourceRecommends { contradictory = true; break }
+                }
+            }
+            if contradictory { break }
+        }
+
+        let isVerified = confidence >= minVerifiedConfidence && !contradictory
+
+        let explanation: String
+        if contradictory {
+            explanation = "Response appears to contradict source material."
+        } else if touchesSafety && ungrounded > 0 {
+            explanation = "Safety-critical claims partially unverified (\(grounded)/\(totalClaims) grounded)."
+        } else if totalClaims == 0 {
+            explanation = "Response too short to verify."
+        } else {
+            explanation = "\(grounded)/\(totalClaims) claims grounded in sources."
+        }
+
+        return IntelVerificationResult(
+            isVerified: isVerified,
+            confidence: confidence,
+            sources: Array(Set(sourceLabels)),
+            explanation: explanation,
+            suggestedDisclaimer: disclaimer
+        )
+    }
+
+    // MARK: - Helpers
+
+    private func splitSentences(_ text: String) -> [String] {
+        let pattern = "[.!?]\\s+"
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return [text] }
+        let range = NSRange(text.startIndex..., in: text)
+        var sentences: [String] = []
+        var lastEnd = text.startIndex
+        regex.enumerateMatches(in: text, range: range) { match, _, _ in
+            guard let r = match?.range, let sr = Range(r, in: text) else { return }
+            sentences.append(String(text[lastEnd..<sr.upperBound]))
+            lastEnd = sr.upperBound
+        }
+        if lastEnd < text.endIndex { sentences.append(String(text[lastEnd...])) }
+        return sentences.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+    }
+
+    private func computeOverlap(sentence: String, sources: [String]) -> Double {
+        let words = tokenize(sentence)
+        guard !words.isEmpty else { return 0 }
+        var matches = 0
+        for word in words where sources.contains(where: { $0.contains(word) }) { matches += 1 }
+        return Double(matches) / Double(words.count)
+    }
+
+    private func tokenize(_ text: String) -> [String] {
+        text.lowercased()
+            .components(separatedBy: .alphanumerics.inverted)
+            .filter { $0.count > 2 && !stopWords.contains($0) }
+    }
+
+    private func extractActionAfterNegation(_ text: String, pattern: String) -> String {
+        guard let range = text.range(of: pattern) else { return "" }
+        let after = text[range.upperBound...].trimmingCharacters(in: .whitespaces)
+        return after.split(separator: " ").prefix(4).joined(separator: " ")
     }
 }
 
