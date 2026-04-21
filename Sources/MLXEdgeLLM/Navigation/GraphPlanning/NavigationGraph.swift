@@ -54,43 +54,53 @@ public class NavigationGraph: NSObject, ObservableObject {
 
     // MARK: - Dijkstra Path Finding
 
-    /// Find the lowest-cost path from `fromID` to `toID` using Dijkstra's algorithm.
+    /// Adjacency index rebuilt on demand: nodeID → outgoing edges. Much cheaper than
+    /// filtering the full edges dict on every relax step during Dijkstra.
+    private func buildAdjacency() -> [UUID: [GraphEdge]] {
+        var adj: [UUID: [GraphEdge]] = [:]
+        adj.reserveCapacity(nodes.count)
+        for edge in edges.values {
+            adj[edge.fromID, default: []].append(edge)
+        }
+        return adj
+    }
+
+    /// Find the lowest-cost path from `fromID` to `toID` using Dijkstra's algorithm
+    /// backed by a binary min-heap. Complexity: O((V + E) log V).
     /// Edge weight represents cost (distance in meters or travel time).
     /// - Returns: Ordered array of nodes from source to destination, or `nil` if no path exists.
     public func findPath(from fromID: UUID, to toID: UUID) -> [GraphNode]? {
         guard nodes[fromID] != nil, nodes[toID] != nil else { return nil }
         if fromID == toID { return nodes[fromID].map { [$0] } }
 
-        // Priority queue entry: (cost, nodeID)
         var dist: [UUID: Double] = [fromID: 0]
         var prev: [UUID: UUID] = [:]
-        // Simple min-heap via sorted array (graph is small — hundreds of nodes max)
-        var queue: [(cost: Double, id: UUID)] = [(0, fromID)]
+        var heap = MinHeap<HeapEntry>()
+        heap.push(HeapEntry(cost: 0, id: fromID))
 
-        while !queue.isEmpty {
-            // Pop minimum-cost entry
-            queue.sort { $0.cost < $1.cost }
-            let (currentCost, currentID) = queue.removeFirst()
+        let adjacency = buildAdjacency()
+
+        while let top = heap.pop() {
+            let currentCost = top.cost
+            let currentID = top.id
 
             if currentID == toID { break }
 
-            // Skip stale queue entries
+            // Skip stale heap entries (a cheaper path was found after this was enqueued)
             if currentCost > (dist[currentID] ?? .infinity) { continue }
 
-            for edge in outgoingEdges(from: currentID) {
-                // Skip restricted edges
+            for edge in adjacency[currentID] ?? [] {
                 if edge.edgeType == .restricted { continue }
 
                 let newCost = currentCost + edge.weight
                 if newCost < (dist[edge.toID] ?? .infinity) {
                     dist[edge.toID] = newCost
                     prev[edge.toID] = currentID
-                    queue.append((newCost, edge.toID))
+                    heap.push(HeapEntry(cost: newCost, id: edge.toID))
                 }
             }
         }
 
-        // Reconstruct path by walking prev[] backwards
         guard dist[toID] != nil else { return nil }
 
         var path: [GraphNode] = []
@@ -101,9 +111,15 @@ public class NavigationGraph: NSObject, ObservableObject {
             current = prev[nodeID]
         }
 
-        // Validate path starts from source
         guard path.first?.id == fromID else { return nil }
         return path
+    }
+
+    /// Heap entry for Dijkstra. Comparable by cost.
+    private struct HeapEntry: Comparable {
+        let cost: Double
+        let id: UUID
+        static func < (a: HeapEntry, b: HeapEntry) -> Bool { a.cost < b.cost }
     }
 
     /// Persist to file

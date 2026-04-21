@@ -15,6 +15,7 @@
 		0612317F2FEA96E15A8591D7 /* 18-cqb-fundamentals.md in Resources */ = {isa = PBXBuildFile; fileRef = D9E73C31F8D79B035F7F06CF /* 18-cqb-fundamentals.md */; };
 		0612C1923F055EF122E17410 /* 27-cold-weather.md in Resources */ = {isa = PBXBuildFile; fileRef = BE98D062B47B357543395455 /* 27-cold-weather.md */; };
 		06DB76F8B043889BD9113C1F /* DTMFLoggerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC6A8BBA08D4DFEB1064D5FC /* DTMFLoggerView.swift */; };
+		080BB1E16C82D37EB9B7C908 /* MinHeap.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0EF8E008AF20DDE97D0DAEA /* MinHeap.swift */; };
 		089DC9008D6C0B6F30477049 /* 21-surveillance-detection.md in Resources */ = {isa = PBXBuildFile; fileRef = E84A9C29450568EE7975F94D /* 21-surveillance-detection.md */; };
 		09A5B31D616ADBB2533E59B2 /* PointCloudAnnotator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 754D039639F75DE4EE1B2B6E /* PointCloudAnnotator.swift */; };
 		0B3C03F225FA9DB062026516 /* 52-stealth-movement.md in Resources */ = {isa = PBXBuildFile; fileRef = 9968020680F705ECA9D1DE43 /* 52-stealth-movement.md */; };
@@ -295,6 +296,7 @@
 		AAD41DFFD27BA08D7EB2233C /* OfflineTileProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E072845538F69AEDDF73D9 /* OfflineTileProvider.swift */; };
 		AD1ACE9AAEE8AFAC85532826 /* TrailDifficulty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEF6ACC618A5AD11E4B4B0 /* TrailDifficulty.swift */; };
 		ADF11E335C4F1C98C6E03286 /* TeamDashSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED97F4BF0B71451748F0DADF /* TeamDashSection.swift */; };
+		AEC42F033B65F559DEF107DE /* ARWaypointNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509A9A981F6516A36597B41A /* ARWaypointNavigator.swift */; };
 		AECBC161C3FC06DCAC17CF43 /* FastLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9318C0D3C9316B3B81E7CDDC /* FastLibraryService.swift */; };
 		AED3C74457334CCCA750164E /* 75-obstacle-emplacement.md in Resources */ = {isa = PBXBuildFile; fileRef = 61CA0C1D0CE9ABBA080BA802 /* 75-obstacle-emplacement.md */; };
 		AF3E5D8FABB34CF974E873AE /* 13-shock-treatment.md in Resources */ = {isa = PBXBuildFile; fileRef = CDD6275CF2C0D9919CA46B2B /* 13-shock-treatment.md */; };
@@ -714,6 +716,7 @@
 		5036B665F1A2FEAAB903D30A /* InferenceCache.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InferenceCache.swift; path = Sources/MLXEdgeLLM/AI/Models/InferenceCache.swift; sourceTree = "<group>"; };
 		5061F949D576F515A91A4F13 /* 46-bounding-overwatch.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "46-bounding-overwatch.md"; sourceTree = "<group>"; };
 		506F6A4B9B002116185E35AC /* ThermalMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ThermalMonitor.swift; path = Sources/MLXEdgeLLM/LiDAR/Core/ThermalMonitor.swift; sourceTree = "<group>"; };
+		509A9A981F6516A36597B41A /* ARWaypointNavigator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ARWaypointNavigator.swift; path = Sources/MLXEdgeLLM/Navigation/ARWaypoint/ARWaypointNavigator.swift; sourceTree = "<group>"; };
 		509ADEEC842C5B2A3BCD7872 /* 111-power-management.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "111-power-management.md"; sourceTree = "<group>"; };
 		509B8BFA3D0F3195450471DB /* NoiseDiscipline.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NoiseDiscipline.swift; path = Sources/MLXEdgeLLM/Services/NoiseDiscipline.swift; sourceTree = "<group>"; };
 		50B65FCEF80A3F10E6A3DA9D /* TeamMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamMapView.swift; sourceTree = "<group>"; };
@@ -1051,6 +1054,7 @@
 		C074F63AA8BB6497CC5C47BE /* TerrainMeshGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerrainMeshGenerator.swift; sourceTree = "<group>"; };
 		C09182EE953C1EFA2323D9E7 /* ScreenPrivacy.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScreenPrivacy.swift; path = Sources/MLXEdgeLLM/Security/OpSec/ScreenPrivacy.swift; sourceTree = "<group>"; };
 		C091E96A43C1BEE7AB715155 /* StreamingProcessor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StreamingProcessor.swift; path = Sources/MLXEdgeLLM/LiDAR/Core/StreamingProcessor.swift; sourceTree = "<group>"; };
+		C0EF8E008AF20DDE97D0DAEA /* MinHeap.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MinHeap.swift; path = Sources/MLXEdgeLLM/Navigation/GraphPlanning/MinHeap.swift; sourceTree = "<group>"; };
 		C1D73119996A9C3DD5F24EAB /* BoatOperations.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BoatOperations.swift; path = Sources/MLXEdgeLLM/Scenarios/Flood/BoatOperations.swift; sourceTree = "<group>"; };
 		C1E712FB353E8B24FD2F2B58 /* OfflineMapEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineMapEngine.swift; sourceTree = "<group>"; };
 		C1E9B9337408C638B558FCB7 /* LeadershipScenarios.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LeadershipScenarios.swift; path = Sources/MLXEdgeLLM/Training/Team/LeadershipScenarios.swift; sourceTree = "<group>"; };
@@ -2336,6 +2340,8 @@
 				AA80C8ABCA9DBEFAC7B01953 /* ScanOverlayToolbar.swift */,
 				AFAE762D50B8F762C61FFB23 /* AppLockManager.swift */,
 				400F34ED1F268F00852B7E71 /* AppLockGate.swift */,
+				C0EF8E008AF20DDE97D0DAEA /* MinHeap.swift */,
+				509A9A981F6516A36597B41A /* ARWaypointNavigator.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3165,6 +3171,8 @@
 				F1CD0CB6D9F6F32B804C20B2 /* ScanOverlayToolbar.swift in Sources */,
 				9D88D596AFB7AF55A54FCBD3 /* AppLockManager.swift in Sources */,
 				C5112513285358D3E288249A /* AppLockGate.swift in Sources */,
+				080BB1E16C82D37EB9B7C908 /* MinHeap.swift in Sources */,
+				AEC42F033B65F559DEF107DE /* ARWaypointNavigator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
