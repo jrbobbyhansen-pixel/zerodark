@@ -6,6 +6,7 @@ import Foundation
 import Combine
 import Accelerate
 import NaturalLanguage
+import CryptoKit
 
 // MARK: - IntelSearchResult
 
@@ -142,15 +143,76 @@ final class IntelCorpus: ObservableObject {
 
     private init() {}
 
+    // MARK: - Incremental indexing
+
+    /// Cache file on disk. Contains `{signature, chunks}`. On cold start we
+    /// re-use it if and only if the signature matches the current bundle.
+    private var cacheURL: URL {
+        let dir = FileManager.default
+            .urls(for: .cachesDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("IntelCorpus", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        return dir.appendingPathComponent("index.json")
+    }
+
+    /// Codable wire format for the persisted index.
+    private struct CachedIndex: Codable {
+        let signature: String
+        let chunks: [CachedChunk]
+    }
+    private struct CachedChunk: Codable {
+        let id: String
+        let title: String
+        let content: String
+        let embedding: [Float]
+    }
+
+    /// SHA-256 over the sorted list of bundled .md file paths + their byte
+    /// contents. Any content change flips the signature and invalidates the
+    /// cache. Empty bundle → empty signature, loaded state is empty-but-ready.
+    private func computeBundleSignature(paths: [String]) -> String {
+        let sorted = paths.sorted()
+        var hasher = SHA256()
+        for p in sorted {
+            hasher.update(data: Data(p.utf8))
+            if let data = try? Data(contentsOf: URL(fileURLWithPath: p)) {
+                hasher.update(data: data)
+            }
+        }
+        let digest = hasher.finalize()
+        return Data(digest).base64EncodedString()
+    }
+
     func indexAllSources() async {
-        guard !isReady, !isIndexing else { return }
+        guard !isIndexing else { return }
         isIndexing = true
         indexProgress = 0
+        defer { isIndexing = false }
 
         let mdFiles = Bundle.main.paths(forResourcesOfType: "md", inDirectory: nil)
-        let total = mdFiles.count
-        guard total > 0 else {
-            isIndexing = false
+        let signature = computeBundleSignature(paths: mdFiles)
+
+        // Fast path: in-memory already populated and bundle unchanged.
+        if isReady, signature == currentSignature { return }
+
+        // Disk cache path: if the persisted index matches the current bundle
+        // signature, rehydrate from it — no re-embedding needed.
+        if let cached = loadCachedIndex(), cached.signature == signature {
+            self.index = cached.chunks.map {
+                IndexedChunk(id: $0.id, title: $0.title, content: $0.content, embedding: $0.embedding)
+            }
+            self.totalDocuments = index.count
+            self.currentSignature = signature
+            self.indexProgress = 1.0
+            self.isReady = true
+            return
+        }
+
+        // Full rebuild path.
+        guard !mdFiles.isEmpty else {
+            index = []
+            totalDocuments = 0
+            currentSignature = signature
             isReady = true
             return
         }
@@ -159,7 +221,6 @@ final class IntelCorpus: ObservableObject {
         for path in mdFiles {
             let title = URL(fileURLWithPath: path).deletingPathExtension().lastPathComponent
             guard let text = try? String(contentsOfFile: path, encoding: .utf8) else { continue }
-            // Split by double newline (paragraphs), keep substantial chunks
             let paragraphs = text.components(separatedBy: "\n\n")
                 .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
                 .filter { $0.count >= 40 }
@@ -183,8 +244,31 @@ final class IntelCorpus: ObservableObject {
 
         index = built
         totalDocuments = built.count
-        isIndexing = false
+        currentSignature = signature
         isReady = true
+        persistCachedIndex(signature: signature, chunks: built)
+    }
+
+    /// In-memory record of which bundle signature the current `index` was built against.
+    private var currentSignature: String = ""
+
+    private func loadCachedIndex() -> CachedIndex? {
+        guard FileManager.default.fileExists(atPath: cacheURL.path),
+              let data = try? Data(contentsOf: cacheURL),
+              let decoded = try? JSONDecoder().decode(CachedIndex.self, from: data) else { return nil }
+        return decoded
+    }
+
+    private func persistCachedIndex(signature: String, chunks: [IndexedChunk]) {
+        let payload = CachedIndex(
+            signature: signature,
+            chunks: chunks.map {
+                CachedChunk(id: $0.id, title: $0.title, content: $0.content, embedding: $0.embedding)
+            }
+        )
+        if let data = try? JSONEncoder().encode(payload) {
+            try? data.write(to: cacheURL, options: .atomic)
+        }
     }
 
     func search(query: String, topK: Int = 5) async -> [IntelSearchResult] {
