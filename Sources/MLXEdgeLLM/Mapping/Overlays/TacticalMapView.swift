@@ -51,6 +51,8 @@ struct TacticalMapView: UIViewRepresentable {
                 return ThreatZoneRenderer(overlay: threatZone)
             } else if let route = overlay as? TacticalRouteOverlay {
                 return TacticalRouteRenderer(overlay: route)
+            } else if let contour = overlay as? ContourOverlay {
+                return ContourOverlayRenderer(overlay: contour)
             } else {
                 // Default renderer for unknown overlays
                 return MKOverlayRenderer(overlay: overlay)

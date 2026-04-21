@@ -70,6 +70,169 @@ struct PlanningToolsSection: View {
                     color: .green,
                     destination: RehearsalChecklistView()
                 )
+
+                PlanningCard(
+                    title: "Drop Zone Marker",
+                    subtitle: "Mark airdrop LZ, parachute drift offset, mesh transmission of coordinates",
+                    icon: "shippingbox.fill",
+                    color: ZDDesign.safetyYellow,
+                    destination: LandingZoneMarkerView()
+                )
+
+                PlanningCard(
+                    title: "Drift Calculator",
+                    subtitle: "SAR lost person probability distribution — ISRID profiles, terrain barriers",
+                    icon: "arrow.triangle.branch",
+                    color: .orange,
+                    destination: DriftCalculatorView()
+                )
+
+                PlanningCard(
+                    title: "Road & Trail Detector",
+                    subtitle: "Detect roads/trails from LiDAR ground returns — maintained vs unmaintained",
+                    icon: "road.lanes",
+                    color: ZDDesign.forestGreen,
+                    destination: RoadTrailDetectorView()
+                )
+
+                PlanningCard(
+                    title: "Climb Route Finder",
+                    subtitle: "Analyze cliff face LiDAR for holds, ledges, protection placements, YDS grade",
+                    icon: "mountain.2.fill",
+                    color: .brown,
+                    destination: ClimbRouteFinderView()
+                )
+
+                PlanningCard(
+                    title: "Current Estimator",
+                    subtitle: "River current speed (Manning's eq.), drift calculation for water crossings",
+                    icon: "drop.fill",
+                    color: ZDDesign.cyanAccent,
+                    destination: CurrentEstimatorView()
+                )
+
+                PlanningCard(
+                    title: "Cave Mapper",
+                    subtitle: "Indoor SLAM — floor plan from LiDAR, GPS-denied position, mark hazards & exits",
+                    icon: "map.fill",
+                    color: ZDDesign.mediumGray,
+                    destination: CaveMapperView()
+                )
+
+                PlanningCard(
+                    title: "Avalanche Analyzer",
+                    subtitle: "Identify prone slopes (30-45°), terrain traps, risk rating, safe corridors",
+                    icon: "mountain.2.fill",
+                    color: ZDDesign.signalRed,
+                    destination: AvalancheAnalyzerView()
+                )
+
+                PlanningCard(
+                    title: "Terrain Classifier",
+                    subtitle: "Classify LiDAR voxels: rock, vegetation, water, snow, sand, mud — traversability scores",
+                    icon: "mountain.2.fill",
+                    color: .brown,
+                    destination: TerrainClassifierView()
+                )
+
+                PlanningCard(
+                    title: "Route Optimizer",
+                    subtitle: "Multi-objective Pareto routes: distance, elevation, hazard, cover, exposure",
+                    icon: "point.topleft.down.to.point.bottomright.curvepath.fill",
+                    color: ZDDesign.forestGreen,
+                    destination: RouteOptimizerView()
+                )
+
+                PlanningCard(
+                    title: "Distance & Bearing",
+                    subtitle: "Distance/bearing between waypoints; reverse bearing; multi-leg routes",
+                    icon: "ruler.fill",
+                    color: ZDDesign.cyanAccent,
+                    destination: DistanceBearingView()
+                )
+
+                PlanningCard(
+                    title: "Area Calculator",
+                    subtitle: "Draw polygons on map, calculate enclosed area in m²/ha/acres",
+                    icon: "pentagon.fill",
+                    color: ZDDesign.safetyYellow,
+                    destination: AreaCalculatorView()
+                )
+
+                PlanningCard(
+                    title: "Elevation Profile",
+                    subtitle: "Cumulative gain/loss, high points, saddles from breadcrumb track",
+                    icon: "mountain.2.fill",
+                    color: .orange,
+                    destination: ElevationProfileView()
+                )
+
+                OpsSectionHeader(icon: "cloud.sun.fill", title: "ENVIRONMENT", color: ZDDesign.safetyYellow)
+                    .padding(.top, 4)
+
+                PlanningCard(
+                    title: "Weather Forecaster",
+                    subtitle: "Barometric pressure trend, 12-24hr prediction, storm warning",
+                    icon: "barometer",
+                    color: ZDDesign.cyanAccent,
+                    destination: WeatherForecasterView()
+                )
+
+                PlanningCard(
+                    title: "Sun Calculator",
+                    subtitle: "Sunrise/sunset, twilight windows, golden hour, solar altitude",
+                    icon: "sun.max.fill",
+                    color: .orange,
+                    destination: SunCalculatorView()
+                )
+
+                PlanningCard(
+                    title: "Moon Phase",
+                    subtitle: "Phase, illumination, moonrise/moonset, shadow angle, night ops",
+                    icon: "moonphase.full.moon",
+                    color: .yellow,
+                    destination: MoonPhaseView()
+                )
+
+                PlanningCard(
+                    title: "Light Estimator",
+                    subtitle: "Predict lux by time and cloud cover; NVG transition windows",
+                    icon: "eye.fill",
+                    color: ZDDesign.mediumGray,
+                    destination: LightEstimatorView()
+                )
+
+                PlanningCard(
+                    title: "Wind Estimator",
+                    subtitle: "Beaufort field observations, terrain channeling, history",
+                    icon: "wind",
+                    color: ZDDesign.cyanAccent,
+                    destination: WindEstimatorView()
+                )
+
+                PlanningCard(
+                    title: "Temperature Log",
+                    subtitle: "Log temps, overnight low prediction, cold injury risk",
+                    icon: "thermometer.snowflake",
+                    color: .blue,
+                    destination: TempLoggerView()
+                )
+
+                PlanningCard(
+                    title: "Altitude Tracker",
+                    subtitle: "Acclimatization time, AMS risk, ascent rate warnings",
+                    icon: "mountain.2.fill",
+                    color: .orange,
+                    destination: AltitudeTrackerView()
+                )
+
+                PlanningCard(
+                    title: "Hydration",
+                    subtitle: "Water needs by weight/activity/temp/altitude, intake tracker",
+                    icon: "drop.fill",
+                    color: .blue,
+                    destination: HydrationView()
+                )
             }
             .padding(.horizontal)
             .padding(.top, 8)
