@@ -24,6 +24,7 @@ enum ZDMessageType: String, Codable {
     case haptic
     case dtn
     case scanOverlay
+    case checkIn
 }
 
 struct ZDMeshMessage: Codable {
@@ -323,6 +324,18 @@ final class MeshService: ObservableObject {
 
         case .scanOverlay:
             ScanOverlayStore.shared.applyIncoming(decrypted)
+
+        case .checkIn:
+            // Post raw decrypted bytes; CheckInSystem decodes the CheckInMeshPayload.
+            NotificationCenter.default.post(
+                name: Notification.Name("ZD.checkInReceived"),
+                object: nil,
+                userInfo: [
+                    "data": decrypted,
+                    "senderId": message.senderId,
+                    "senderName": message.senderName
+                ]
+            )
 
         @unknown default:
             break

@@ -68,6 +68,16 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         manager.startUpdatingLocation()
     }
 
+    /// Nudge the Core Location manager to produce a fresh position fix.
+    /// Called by RuntimeSafetyMonitor when `positionKnown` violates.
+    func forcePositionUpdate() {
+        manager.stopUpdatingLocation()
+        manager.startUpdatingLocation()
+        if CLLocationManager.headingAvailable() {
+            manager.startUpdatingHeading()
+        }
+    }
+
     nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let loc = locations.last else { return }
         Task { @MainActor in

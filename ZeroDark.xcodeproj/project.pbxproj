@@ -274,6 +274,7 @@
 		9B159A7F9F1DE4A4191981D2 /* ThreatAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A59CDB63D6BD0BC49875B9B /* ThreatAnalyzer.swift */; };
 		9B80CA96462D402B906FC3AD /* TerrainComparison.swift in Sources */ = {isa = PBXBuildFile; fileRef = E690A8988D7E0E4CF095250B /* TerrainComparison.swift */; };
 		9D1D2BBDD5CCFB1224544E8E /* 71-ied-recognition.md in Resources */ = {isa = PBXBuildFile; fileRef = 8879117C12F98ADE44EF2511 /* 71-ied-recognition.md */; };
+		9D88D596AFB7AF55A54FCBD3 /* AppLockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFAE762D50B8F762C61FFB23 /* AppLockManager.swift */; };
 		9E40D8E5108CB08B22182753 /* RouteOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FA8ADE3944340ACE22978C /* RouteOptimizer.swift */; };
 		9ECF4E9A297F3298DB3DBE2A /* StatusBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17353E18924F55A52513EAEC /* StatusBoard.swift */; };
 		9FEAC1EF1AA8321D6E1275A2 /* DecisionLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = E588A2E798291A0B52BD52B0 /* DecisionLogger.swift */; };
@@ -329,6 +330,7 @@
 		C38611710B3D93A54317F292 /* TAKBLEBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C30E1D9284457D6BE8ECC5 /* TAKBLEBridge.swift */; };
 		C39E07A71552906DCB09DA11 /* ModelDownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E6A02BF26E61A621C9F3BA7 /* ModelDownloadManager.swift */; };
 		C5057AFFFC53B539D5DB0107 /* 104-aar-format.md in Resources */ = {isa = PBXBuildFile; fileRef = 15C8A5AE9182F7E5EB807EDF /* 104-aar-format.md */; };
+		C5112513285358D3E288249A /* AppLockGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 400F34ED1F268F00852B7E71 /* AppLockGate.swift */; };
 		C59209285CE3D386ED016C69 /* MergeClouds.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D1D57C0A2740088530F0E0 /* MergeClouds.swift */; };
 		C671D965B7745ECA24FB8531 /* VitalSignsLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1683D153AD2AB45CD66DD82 /* VitalSignsLogger.swift */; };
 		C78E222BF416835EC6BB95E7 /* TempLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D1AE0DF7CFDB9F4C7DFEA9 /* TempLogger.swift */; };
@@ -662,6 +664,7 @@
 		3F9E2338C04AFE2F41318EC1 /* PointCloudEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PointCloudEngine.swift; path = Sources/MLXEdgeLLM/LiDAR/Core/PointCloudEngine.swift; sourceTree = "<group>"; };
 		3FECBD049F220C8EDEC20EFC /* VegetationFilter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VegetationFilter.swift; path = Sources/MLXEdgeLLM/LiDAR/Core/VegetationFilter.swift; sourceTree = "<group>"; };
 		4001FA525C6D6F6A6D91BFB0 /* ScanStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanStorage.swift; sourceTree = "<group>"; };
+		400F34ED1F268F00852B7E71 /* AppLockGate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppLockGate.swift; path = Sources/MLXEdgeLLM/Security/AppLock/AppLockGate.swift; sourceTree = "<group>"; };
 		407D756080B2FAACD13E3C9D /* ProtocolLibrary.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProtocolLibrary.swift; path = Sources/MLXEdgeLLM/AI/RAG/ProtocolLibrary.swift; sourceTree = "<group>"; };
 		4084AFF59F767C576B1D774C /* ModelPerformanceMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ModelPerformanceMonitor.swift; path = Sources/MLXEdgeLLM/Intelligence/ModelPerformanceMonitor.swift; sourceTree = "<group>"; };
 		40F7C43E1C21E6B85C924C64 /* CertTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CertTracker.swift; path = Sources/MLXEdgeLLM/Training/Skills/CertTracker.swift; sourceTree = "<group>"; };
@@ -993,6 +996,7 @@
 		AF4CA855D56FC2D2017B609F /* LightEstimator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LightEstimator.swift; path = Sources/MLXEdgeLLM/Services/LightEstimator.swift; sourceTree = "<group>"; };
 		AF5B8A9B22C4E26C6A386BCA /* 80-anti-tracking-advanced.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "80-anti-tracking-advanced.md"; sourceTree = "<group>"; };
 		AF76CE972A63B150DD91DA4D /* WildernessDashboard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WildernessDashboard.swift; path = Sources/MLXEdgeLLM/Scenarios/Wilderness/WildernessDashboard.swift; sourceTree = "<group>"; };
+		AFAE762D50B8F762C61FFB23 /* AppLockManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppLockManager.swift; path = Sources/MLXEdgeLLM/Security/AppLock/AppLockManager.swift; sourceTree = "<group>"; };
 		B060DC742D2E17436AEBE358 /* StreamingVoxelMap.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StreamingVoxelMap.swift; path = Sources/MLXEdgeLLM/LiDAR/NeRF/StreamingVoxelMap.swift; sourceTree = "<group>"; };
 		B09332EFBD909E42665AD67F /* 10-insects.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "10-insects.md"; sourceTree = "<group>"; };
 		B0C322A89479A257DF73BD56 /* ThreatCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreatCategory.swift; sourceTree = "<group>"; };
@@ -2330,6 +2334,8 @@
 				85BC127021785E3E9F509FC3 /* ScanOverlayStore.swift */,
 				5D37CF74F8F215A90BC3A52B /* ScanOverlayRenderer.swift */,
 				AA80C8ABCA9DBEFAC7B01953 /* ScanOverlayToolbar.swift */,
+				AFAE762D50B8F762C61FFB23 /* AppLockManager.swift */,
+				400F34ED1F268F00852B7E71 /* AppLockGate.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3157,6 +3163,8 @@
 				AF9464A226331C49A275ED3C /* ScanOverlayStore.swift in Sources */,
 				9AC0C283E58AFE3128DB620F /* ScanOverlayRenderer.swift in Sources */,
 				F1CD0CB6D9F6F32B804C20B2 /* ScanOverlayToolbar.swift in Sources */,
+				9D88D596AFB7AF55A54FCBD3 /* AppLockManager.swift in Sources */,
+				C5112513285358D3E288249A /* AppLockGate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

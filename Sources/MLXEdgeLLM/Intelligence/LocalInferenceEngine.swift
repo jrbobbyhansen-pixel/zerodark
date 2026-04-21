@@ -77,6 +77,17 @@ final class LocalInferenceEngine: ObservableObject {
         }
     }
 
+    /// Reload the model if it is not currently ready. No-op when already ready or loading.
+    /// Called by RuntimeSafetyMonitor when `modelLoaded` violates.
+    func reloadIfNeeded() async {
+        switch modelState {
+        case .ready, .loading:
+            return
+        case .notLoaded, .error:
+            await loadModel()
+        }
+    }
+
     // MARK: - Text Generation
 
     func generate(
