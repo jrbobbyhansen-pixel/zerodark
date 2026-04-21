@@ -65,6 +65,7 @@
 		238AF7E4317D3ED77662702F /* VaultManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C17F15267CD4FBAD6B83939 /* VaultManager.swift */; };
 		23AD3C309F3AB86C23D4F51F /* OnDeviceVisionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050298E122600367BE9B28E9 /* OnDeviceVisionEngine.swift */; };
 		242E8E5169D9BD6E504727C1 /* ThreatReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBA39794A0C757A71306F7B3 /* ThreatReport.swift */; };
+		24360EAEA291400B20C90874 /* GPUViewshed.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7003865C938679215A5D7E1 /* GPUViewshed.swift */; };
 		24AFDE63C8BDA9F2235F1FDD /* 11-bleeding-control.md in Resources */ = {isa = PBXBuildFile; fileRef = 6322701F2CDE6ED0883BC374 /* 11-bleeding-control.md */; };
 		24CBD6D3ED24C9A73FBACB17 /* 26-urban-navigation.md in Resources */ = {isa = PBXBuildFile; fileRef = C25FD27D86B616E5DA084208 /* 26-urban-navigation.md */; };
 		25700C4996B3B8A6A91CEDFD /* 93-arctic-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = A5F38ACDDF55B14E967AB8D0 /* 93-arctic-operations.md */; };
@@ -264,6 +265,7 @@
 		9272A8565247D3D27B36A395 /* HapticPTTController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDDE5C27CFDB8269091DDED9 /* HapticPTTController.swift */; };
 		93E920C0D8195F2D78693770 /* LOSRaycastEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF40E3781847FC9E7F7F5C6 /* LOSRaycastEngine.swift */; };
 		946B05F2DB6F366FF783BE3E /* 112-sigint-awareness.md in Resources */ = {isa = PBXBuildFile; fileRef = 73349F848007B5AE6D947D7A /* 112-sigint-awareness.md */; };
+		94D5DA36411D22FC5375F9C0 /* Viewshed.metal in Sources */ = {isa = PBXBuildFile; fileRef = 9C9B6DA673642971D1F463B8 /* Viewshed.metal */; };
 		953278740947D2015263447E /* 19-recon-op-setup.md in Resources */ = {isa = PBXBuildFile; fileRef = A1B90A5CDA98EC58EF49328F /* 19-recon-op-setup.md */; };
 		954CE306F44D1733FE17F5C3 /* 79-evasion-planning.md in Resources */ = {isa = PBXBuildFile; fileRef = 0ABBCCD7AC760250D758D995 /* 79-evasion-planning.md */; };
 		9585674FA11CDC01495DF180 /* TeamPositionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B9D3B68E0C7D6D6C1DC0FC /* TeamPositionOverlay.swift */; };
@@ -949,6 +951,7 @@
 		9B7E10627D2F41D1963707F2 /* 90-urban-evasion.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "90-urban-evasion.md"; sourceTree = "<group>"; };
 		9BB91372875A2BA3012EE303 /* SlopeAspect.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SlopeAspect.swift; path = Sources/MLXEdgeLLM/LiDAR/Terrain/SlopeAspect.swift; sourceTree = "<group>"; };
 		9C8A29E2FC9EDBB6E992F061 /* IncidentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncidentStore.swift; sourceTree = "<group>"; };
+		9C9B6DA673642971D1F463B8 /* Viewshed.metal */ = {isa = PBXFileReference; includeInIndex = 1; name = Viewshed.metal; path = Sources/MLXEdgeLLM/Navigation/Viewshed/Viewshed.metal; sourceTree = "<group>"; };
 		9C9E8581F35A439AF26B2A9A /* PurePursuitController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurePursuitController.swift; sourceTree = "<group>"; };
 		9CA8E307D2BBE77C2A1868FF /* MultiGnss.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MultiGnss.swift; path = Sources/MLXEdgeLLM/Hardware/GPS/MultiGnss.swift; sourceTree = "<group>"; };
 		9CC71388F0EA43764FF7A713 /* AvyDogCoordinator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AvyDogCoordinator.swift; path = Sources/MLXEdgeLLM/Scenarios/Avalanche/AvyDogCoordinator.swift; sourceTree = "<group>"; };
@@ -1263,6 +1266,7 @@
 		F5CE094E0F00AF8C27AC907C /* CloudComparison.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CloudComparison.swift; path = Sources/MLXEdgeLLM/LiDAR/Core/CloudComparison.swift; sourceTree = "<group>"; };
 		F67319773E2D0055A66E26E1 /* BluetoothSensorHub.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BluetoothSensorHub.swift; path = Sources/MLXEdgeLLM/Hardware/Sensors/BluetoothSensorHub.swift; sourceTree = "<group>"; };
 		F6767A26259D077FF2BB15EF /* Geofence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Geofence.swift; sourceTree = "<group>"; };
+		F7003865C938679215A5D7E1 /* GPUViewshed.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GPUViewshed.swift; path = Sources/MLXEdgeLLM/Navigation/Viewshed/GPUViewshed.swift; sourceTree = "<group>"; };
 		F7AA266D960A29F4C8BA604B /* InreachInterface.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InreachInterface.swift; path = Sources/MLXEdgeLLM/Hardware/Satellite/InreachInterface.swift; sourceTree = "<group>"; };
 		F7CFE1EAB0E8C620F0BE7CDB /* MeshVisualizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MeshVisualizer.swift; path = Sources/MLXEdgeLLM/CommunicationCore/MeshVisualizer.swift; sourceTree = "<group>"; };
 		F7F96FA0F140B9E0C4AF14CF /* MeasurementTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementTypes.swift; sourceTree = "<group>"; };
@@ -2354,6 +2358,8 @@
 				A1B1EB40C1E122F11F6E754E /* MARCHView.swift */,
 				079B724A85FC76A588BA2870 /* BallisticsEngine.swift */,
 				20151E59E2009589D8C58FB7 /* BallisticsView.swift */,
+				F7003865C938679215A5D7E1 /* GPUViewshed.swift */,
+				9C9B6DA673642971D1F463B8 /* Viewshed.metal */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3189,6 +3195,8 @@
 				210EEF778E4BFB29AF37A556 /* MARCHView.swift in Sources */,
 				E833078E8CC4EF560514CF13 /* BallisticsEngine.swift in Sources */,
 				84776844F0FA561234F3C876 /* BallisticsView.swift in Sources */,
+				24360EAEA291400B20C90874 /* GPUViewshed.swift in Sources */,
+				94D5DA36411D22FC5375F9C0 /* Viewshed.metal in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
