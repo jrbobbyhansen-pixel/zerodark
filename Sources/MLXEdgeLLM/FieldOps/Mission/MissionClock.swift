@@ -4,6 +4,7 @@ import AVFoundation
 
 // MARK: - MissionClock
 
+@MainActor
 class MissionClock: ObservableObject {
     static let shared = MissionClock()
 

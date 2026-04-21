@@ -175,7 +175,7 @@ enum RouteOptimizerEngine {
     private static func coverScore(for wps: [CLLocationCoordinate2D]) -> Double {
         // Heuristic: southern arcs typically offer less cover than northern arcs in NH.
         guard wps.count >= 2 else { return 0.5 }
-        let bearing = bearingDeg(from: wps.first!, to: wps.last!)
+        let bearing = bearingDeg(from: wps[0], to: wps[wps.count - 1])
         // Routes heading N (0°) score best for cover; S (180°) worst.
         let northward = cos(bearing * .pi / 180)
         return Double((1 - northward) / 2)

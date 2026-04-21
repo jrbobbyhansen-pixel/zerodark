@@ -136,17 +136,20 @@ enum DriftCalculatorEngine {
                 if [0, 90, 180, 270].contains(Int(bearing)) { prob += 0.1 }
             }
 
-            // Cognitive impairment: random scatter
-            if mode == .dementia || mode == .intoxicated {
-                prob += Double.random(in: -0.1...0.1)
-            }
-
             probs[i] = max(0, prob)
         }
 
-        // Normalize to sum 1
+        // Normalize to sum 1 before adding per-mode scatter so mass is conserved
         let total = probs.reduce(0, +)
-        let normalized = probs.map { $0 / max(0.001, total) }
+        var normalized = probs.map { $0 / max(0.001, total) }
+
+        // Cognitive impairment: scatter applied post-normalization then re-normalized
+        // so the distribution remains a valid probability measure.
+        if mode == .dementia || mode == .intoxicated {
+            normalized = normalized.map { max(0, $0 + Double.random(in: -0.05...0.05)) }
+            let scatterTotal = normalized.reduce(0, +)
+            normalized = normalized.map { $0 / max(0.001, scatterTotal) }
+        }
 
         // Build sector objects
         for i in 0..<sectorCount {

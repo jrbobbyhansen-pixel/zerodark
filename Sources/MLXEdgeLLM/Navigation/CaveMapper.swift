@@ -242,7 +242,7 @@ extension CaveMapper: ARSessionDelegate {
             self.frameCount += 1
 
             let pos = self.currentPosition
-            if self.trackPoints.isEmpty || simd_distance(pos, self.trackPoints.last!) > 0.5 {
+            if self.trackPoints.last.map({ simd_distance(pos, $0) > 0.5 }) ?? true {
                 self.trackPoints.append(pos)
                 if self.floorPlan == nil {
                     self.floorPlan = FloorPlanMap(centred: pos)

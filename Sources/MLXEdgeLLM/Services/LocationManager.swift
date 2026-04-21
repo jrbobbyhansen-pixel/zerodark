@@ -1,30 +1,60 @@
 // LocationManager.swift — Persistent location tracking singleton
 import Foundation
 import CoreLocation
+import Security
 
 @MainActor
 final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     static let shared = LocationManager()
 
     @Published var currentLocation: CLLocationCoordinate2D?
-    
+
     /// Returns current location or last known, never hardcoded cities
     var locationOrDefault: CLLocationCoordinate2D {
         currentLocation ?? lastKnownLocation ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)
     }
-    
-    /// Persisted last known location (survives app restart)
+
+    // MARK: - Keychain-backed last known location
+    // Stored in Keychain with AfterFirstUnlockThisDeviceOnly — not included in backups,
+    // not accessible pre-unlock, and excluded from iCloud sync.
+
+    private static let keychainService = "com.zerodark.location"
+    private static let keychainAccount = "lastKnownCoord"
+
+    /// Persisted last known location (survives app restart, stored in Keychain)
     private(set) var lastKnownLocation: CLLocationCoordinate2D? {
         get {
-            guard let lat = UserDefaults.standard.object(forKey: "lastKnownLat") as? Double,
-                  let lon = UserDefaults.standard.object(forKey: "lastKnownLon") as? Double else { return nil }
+            let query: [CFString: Any] = [
+                kSecClass: kSecClassGenericPassword,
+                kSecAttrService: Self.keychainService,
+                kSecAttrAccount: Self.keychainAccount,
+                kSecReturnData: true,
+                kSecMatchLimit: kSecMatchLimitOne
+            ]
+            var result: AnyObject?
+            guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess,
+                  let data = result as? Data,
+                  data.count == 16 else { return nil }
+            let lat = data.withUnsafeBytes { $0.load(fromByteOffset: 0, as: Double.self) }
+            let lon = data.withUnsafeBytes { $0.load(fromByteOffset: 8, as: Double.self) }
             return CLLocationCoordinate2D(latitude: lat, longitude: lon)
         }
         set {
-            if let coord = newValue {
-                UserDefaults.standard.set(coord.latitude, forKey: "lastKnownLat")
-                UserDefaults.standard.set(coord.longitude, forKey: "lastKnownLon")
+            guard let coord = newValue else { return }
+            var data = Data(count: 16)
+            data.withUnsafeMutableBytes {
+                $0.storeBytes(of: coord.latitude,  toByteOffset: 0, as: Double.self)
+                $0.storeBytes(of: coord.longitude, toByteOffset: 8, as: Double.self)
             }
+            let attrs: [CFString: Any] = [
+                kSecClass: kSecClassGenericPassword,
+                kSecAttrService: Self.keychainService,
+                kSecAttrAccount: Self.keychainAccount,
+                kSecValueData: data,
+                kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+            ]
+            SecItemDelete(attrs as CFDictionary)
+            SecItemAdd(attrs as CFDictionary, nil)
         }
     }
 

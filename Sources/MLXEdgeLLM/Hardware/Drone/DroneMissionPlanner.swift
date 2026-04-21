@@ -153,13 +153,3 @@ struct SurveyPatternView: View {
     }
 }
 
-// MARK: - Entry Point
-
-@main
-struct DroneMissionPlannerApp: App {
-    var body: some Scene {
-        WindowGroup {
-            DroneMissionPlannerView()
-        }
-    }
-}

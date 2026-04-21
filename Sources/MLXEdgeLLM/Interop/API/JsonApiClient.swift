@@ -3,6 +3,7 @@ import Combine
 
 // MARK: - JsonApiClient
 
+@MainActor
 final class JsonApiClient: ObservableObject {
     @Published private(set) var isAuthenticated = false
     private var authenticationToken: String?

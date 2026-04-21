@@ -50,7 +50,7 @@ final class SitrepGenerator: ObservableObject {
         let weatherLine = WeatherService.shared.currentConditions?.description ?? "No weather data"
 
         // Assemble SITREP
-        var sitrep = """
+        let sitrep = """
         ═══════════════════════════════════
         SITUATION REPORT (SITREP)
         ═══════════════════════════════════

@@ -61,6 +61,7 @@ final class ReconWalkEngine: NSObject, ObservableObject {
     @Published var segmentCount: Int = 0
     @Published var coverageArea: Double = 0
     @Published var currentSpeed: Double = 0
+    @Published var exportError: String?
 
     var config = ReconWalkConfig()
     var arSession: ARSession?
@@ -205,7 +206,11 @@ final class ReconWalkEngine: NSObject, ObservableObject {
         guard !collectedPoints.isEmpty else { return }
         var ply = "ply\nformat ascii 1.0\nelement vertex \(collectedPoints.count)\nproperty float x\nproperty float y\nproperty float z\nend_header\n"
         for p in collectedPoints { ply += "\(p.x) \(p.y) \(p.z)\n" }
-        try? ply.write(to: url, atomically: true, encoding: .utf8)
+        do {
+            try ply.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            exportError = "Point cloud export failed: \(error.localizedDescription)"
+        }
     }
 
     private func exportMeshToUSDZ(_ url: URL) {
@@ -278,8 +283,11 @@ final class ReconWalkEngine: NSObject, ObservableObject {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         encoder.outputFormatting = .prettyPrinted
-        if let data = try? encoder.encode(session) {
-            try? data.write(to: dir.appendingPathComponent("session.json"))
+        do {
+            let data = try encoder.encode(session)
+            try data.write(to: dir.appendingPathComponent("session.json"), options: .atomic)
+        } catch {
+            exportError = "Session metadata save failed: \(error.localizedDescription)"
         }
         saveGPX(session.breadcrumbs, to: dir.appendingPathComponent("track.gpx"))
     }
@@ -291,7 +299,11 @@ final class ReconWalkEngine: NSObject, ObservableObject {
             gpx += "    <trkpt lat=\"\(c.latitude)\" lon=\"\(c.longitude)\"><ele>\(c.altitude)</ele><time>\(fmt.string(from: c.timestamp))</time></trkpt>\n"
         }
         gpx += "  </trkseg></trk>\n</gpx>"
-        try? gpx.write(to: url, atomically: true, encoding: .utf8)
+        do {
+            try gpx.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            exportError = "GPX track save failed: \(error.localizedDescription)"
+        }
     }
 }
 

@@ -97,8 +97,11 @@ final class IncidentLogManager: ObservableObject {
 
     // MARK: - CRUD
 
+    private let maxEntries = 1000
+
     func add(_ entry: IncidentEntry) {
         entries.insert(entry, at: 0)  // newest first
+        if entries.count > maxEntries { entries = Array(entries.prefix(maxEntries)) }
         save()
         AuditLogger.shared.log(.observationLogged, detail: "incident:\(entry.category.rawValue) at \(entry.latitude),\(entry.longitude)")
     }

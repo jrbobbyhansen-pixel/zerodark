@@ -231,8 +231,8 @@ enum ClimbRouteFinderEngine {
 
         // Sort by Y (height)
         let sorted = features.sorted { $0.position.y < $1.position.y }
-        let minY = sorted.first!.position.y
-        let maxY = sorted.last!.position.y
+        let minY = sorted[0].position.y
+        let maxY = sorted[sorted.count - 1].position.y
         let heightM = Double(maxY - minY)
 
         // Partition into 3 horizontal corridors (left, centre, right)

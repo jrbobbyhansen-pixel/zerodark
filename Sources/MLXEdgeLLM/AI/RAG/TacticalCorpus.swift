@@ -8,6 +8,7 @@ import SwiftUI
 
 // MARK: - TacticalCorpus
 
+@MainActor
 class TacticalCorpus: ObservableObject {
     static let shared = TacticalCorpus()
 

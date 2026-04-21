@@ -503,7 +503,7 @@ struct TaskFormView: View {
                 ToolbarItem(placement: .topBarLeading) { Button("Cancel") { dismiss() } }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Save") {
-                        var saved = AssignedTask(
+                        let saved = AssignedTask(
                             id: task?.id ?? UUID(),
                             title: title,
                             description: description,
