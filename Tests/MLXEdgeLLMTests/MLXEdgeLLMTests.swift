@@ -1,5 +1,5 @@
 import XCTest
-@testable import MLXEdgeLLM
+@testable import ZeroDark
 
 final class MLXEdgeLLMTests: XCTestCase {
     func testTextModelEnum() {

@@ -189,6 +189,7 @@
 		646F413A4BF1A14BA0D71741 /* SafetyViolation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B45BF206ECBA83CD6AB4A9E /* SafetyViolation.swift */; };
 		647E94DA333763543BA18234 /* MLX in Frameworks */ = {isa = PBXBuildFile; productRef = AA97FEE2AEDBA8EEF1AD0265 /* MLX */; };
 		65B09AAE8B3487C1C0BF1800 /* 38-mass-casualty-triage.md in Resources */ = {isa = PBXBuildFile; fileRef = C9A8F2C3E7338EFF0AF7239B /* 38-mass-casualty-triage.md */; };
+		66D3E7FD4B4477FA83626B67 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 798C5185F562D7405CDBC72F /* Foundation.framework */; };
 		6934C172E5626C7D448F3F63 /* 68-opord-format.md in Resources */ = {isa = PBXBuildFile; fileRef = 6B2C38D1AC29776F35012D4F /* 68-opord-format.md */; };
 		6B4C591F1B814D217F97DF7D /* 102-decision-making.md in Resources */ = {isa = PBXBuildFile; fileRef = D42619C2036F7D8DE57F3D9F /* 102-decision-making.md */; };
 		6B73DFAF99286601BAFF4F65 /* 60-comsec-opsec.md in Resources */ = {isa = PBXBuildFile; fileRef = 637BF6B41662CB6803CBC5DD /* 60-comsec-opsec.md */; };
@@ -273,6 +274,7 @@
 		953278740947D2015263447E /* 19-recon-op-setup.md in Resources */ = {isa = PBXBuildFile; fileRef = A1B90A5CDA98EC58EF49328F /* 19-recon-op-setup.md */; };
 		954CE306F44D1733FE17F5C3 /* 79-evasion-planning.md in Resources */ = {isa = PBXBuildFile; fileRef = 0ABBCCD7AC760250D758D995 /* 79-evasion-planning.md */; };
 		9585674FA11CDC01495DF180 /* TeamPositionOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B9D3B68E0C7D6D6C1DC0FC /* TeamPositionOverlay.swift */; };
+		95B78807B3BE6BF33F1FF76F /* MeshCryptoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69DF1E4D4B2B5DD153DE4EF1 /* MeshCryptoTests.swift */; };
 		9621F439B474D77BB87C5397 /* LiDARTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5565DB8EF0907709E63BC3BE /* LiDARTabView.swift */; };
 		972DD1C37F138E69019B0B08 /* 19-plant-toxicity.md in Resources */ = {isa = PBXBuildFile; fileRef = 7BE8737CDED8FC87B239DA42 /* 19-plant-toxicity.md */; };
 		97583D34FDB719729545C5C4 /* 03-shelter-construction.md in Resources */ = {isa = PBXBuildFile; fileRef = 1609247731946F5087752F58 /* 03-shelter-construction.md */; };
@@ -299,6 +301,7 @@
 		A678D1B2F4F506963B36AB8B /* ThreatCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C322A89479A257DF73BD56 /* ThreatCategory.swift */; };
 		A70547DEA274D0F49C208B41 /* StarDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B8DA2E805861939C7EDCF2 /* StarDetector.swift */; };
 		A749133B7839E12100BBD650 /* MLXLLM in Frameworks */ = {isa = PBXBuildFile; productRef = D5C39CF09FC950266A971D4F /* MLXLLM */; };
+		A8265D1074B851697E1FDB83 /* PureLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4196DFBBC092015E79E6750 /* PureLogicTests.swift */; };
 		A90DEA3D3C3BB2906873F1C3 /* 13-airway.md in Resources */ = {isa = PBXBuildFile; fileRef = CD96E09EF4937BD71C92C612 /* 13-airway.md */; };
 		AA743F3751E19178855BEB8C /* 50-perimeter-defense.md in Resources */ = {isa = PBXBuildFile; fileRef = 389BF61B395E4B1248132B1D /* 50-perimeter-defense.md */; };
 		AA9383C678D64B6A6482012D /* 67-pattern-of-life.md in Resources */ = {isa = PBXBuildFile; fileRef = 6B4A224AD46D7EB0C1B68092 /* 67-pattern-of-life.md */; };
@@ -446,6 +449,16 @@
 		FF168C5FE5E8ED02703A5DBA /* WaterCrossingAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6199DC8C9263F93324D82FF /* WaterCrossingAnalyzer.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		D38433C3F0E23EF8191CE0D5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DD09C9E169D3A267817EA875 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DC38F0FAEAB99E98AB801F38;
+			remoteInfo = ZeroDark;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		001A0DB317464528450B12F6 /* DiscussionTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DiscussionTracker.swift; path = Sources/MLXEdgeLLM/Training/Tabletop/DiscussionTracker.swift; sourceTree = "<group>"; };
 		007B0CE6CBE12CB052F751AE /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
@@ -468,6 +481,7 @@
 		062DC643CB7392FE3C28DAB2 /* IridiumInterface.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IridiumInterface.swift; path = Sources/MLXEdgeLLM/Hardware/Satellite/IridiumInterface.swift; sourceTree = "<group>"; };
 		0671CE05939D1E518628428C /* OpsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpsTabView.swift; sourceTree = "<group>"; };
 		0699F381887EE411E655B2A5 /* NavLogStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NavLogStore.swift; path = Sources/MLXEdgeLLM/Navigation/Persistence/NavLogStore.swift; sourceTree = "<group>"; };
+		06B44C1457F22D1E02008839 /* HAMMERTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HAMMERTests.swift; path = Tests/MLXEdgeLLMTests/HAMMERTests.swift; sourceTree = "<group>"; };
 		06E62B277634576F3A260B48 /* EncryptedBackup.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EncryptedBackup.swift; path = Sources/MLXEdgeLLM/Security/Encryption/EncryptedBackup.swift; sourceTree = "<group>"; };
 		0700C1434F4D76A951BE873E /* TimelinePlanner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimelinePlanner.swift; path = Sources/MLXEdgeLLM/Planning/TimelinePlanner.swift; sourceTree = "<group>"; };
 		072B275D5F30AB7A07F64D97 /* DebrisFieldMapper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DebrisFieldMapper.swift; path = Sources/MLXEdgeLLM/Scenarios/Avalanche/DebrisFieldMapper.swift; sourceTree = "<group>"; };
@@ -610,6 +624,7 @@
 		27BBEABE32CB1CBB7AF5C79B /* TerrainComparison.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TerrainComparison.swift; path = Sources/MLXEdgeLLM/SpatialIntelligence/TerrainComparison.swift; sourceTree = "<group>"; };
 		27E6105E6E1033F3B4342E71 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		28564186BE92E8FE366E39B4 /* 15-burns-temperature.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "15-burns-temperature.md"; sourceTree = "<group>"; };
+		285770D838A843A65EF6AD1F /* ZeroDarkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ZeroDarkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		28ABCA6934BF2BB9077D9CF5 /* SolarChargerOptimizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SolarChargerOptimizer.swift; path = Sources/MLXEdgeLLM/Services/SolarChargerOptimizer.swift; sourceTree = "<group>"; };
 		28FF2133F6A05ED953CC0C14 /* 53-tracking.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "53-tracking.md"; sourceTree = "<group>"; };
 		29CCC3BFD9A20E36AB1CE929 /* ImprovementTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ImprovementTracker.swift; path = Sources/MLXEdgeLLM/Training/Tabletop/ImprovementTracker.swift; sourceTree = "<group>"; };
@@ -768,6 +783,7 @@
 		5A0221F06BC674ABA7660240 /* DTMFDetector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DTMFDetector.swift; path = Sources/MLXEdgeLLM/Tier1/Features/DTMFLogger/DTMFDetector.swift; sourceTree = "<group>"; };
 		5A17BC5554129F72303F66D0 /* SunCalculator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SunCalculator.swift; path = Sources/MLXEdgeLLM/Services/SunCalculator.swift; sourceTree = "<group>"; };
 		5A4866F478E54AFA78B1624E /* 04-food-procurement.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "04-food-procurement.md"; sourceTree = "<group>"; };
+		5A6DEF80AED90337BDA2A718 /* NavigationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NavigationTests.swift; path = Tests/MLXEdgeLLMTests/NavigationTests.swift; sourceTree = "<group>"; };
 		5A9D0B0BDC1E4CB15EDCAF47 /* HillshadeGenerator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HillshadeGenerator.swift; path = Sources/MLXEdgeLLM/LiDAR/Terrain/HillshadeGenerator.swift; sourceTree = "<group>"; };
 		5AD3A26103EF18FBF66E2FD3 /* MeshGateway.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MeshGateway.swift; path = Sources/MLXEdgeLLM/Interop/Mesh/MeshGateway.swift; sourceTree = "<group>"; };
 		5B2C24F19C4FD00583823CED /* 43-cqb-room-clearing.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "43-cqb-room-clearing.md"; sourceTree = "<group>"; };
@@ -805,6 +821,7 @@
 		694B8A0A3FB6A9148FFDEB23 /* CurrentEstimator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CurrentEstimator.swift; path = Sources/MLXEdgeLLM/Navigation/CurrentEstimator.swift; sourceTree = "<group>"; };
 		69C91095C85D5BB2AA48CB4E /* LandingZoneMarker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LandingZoneMarker.swift; path = Sources/MLXEdgeLLM/Navigation/LandingZoneMarker.swift; sourceTree = "<group>"; };
 		69D8F07ADF3FEC5906E95EE9 /* MeshAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeshAdapter.swift; sourceTree = "<group>"; };
+		69DF1E4D4B2B5DD153DE4EF1 /* MeshCryptoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MeshCryptoTests.swift; path = Tests/MLXEdgeLLMTests/MeshCryptoTests.swift; sourceTree = "<group>"; };
 		69E8C703CF8A696F92DE8B04 /* PulseOxInterface.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PulseOxInterface.swift; path = Sources/MLXEdgeLLM/Hardware/Medical/PulseOxInterface.swift; sourceTree = "<group>"; };
 		6A0C9535B3907F3B290FC7EE /* MeshDiagnostics.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MeshDiagnostics.swift; path = Sources/MLXEdgeLLM/CommunicationCore/MeshDiagnostics.swift; sourceTree = "<group>"; };
 		6A1D9F50E9DCAE887BBB0A6F /* SarForms.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SarForms.swift; path = Sources/MLXEdgeLLM/Interop/Emergency/SarForms.swift; sourceTree = "<group>"; };
@@ -858,6 +875,7 @@
 		78E71461B0C2D2713D64E72D /* GISOverlayProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GISOverlayProvider.swift; path = Sources/MLXEdgeLLM/Mapping/GISOverlayProvider.swift; sourceTree = "<group>"; };
 		78F10FC5E26AF10DEC58C25E /* ActionBoundary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionBoundary.swift; sourceTree = "<group>"; };
 		7989C451C7505B6DE0704CB4 /* ToolFeedback.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ToolFeedback.swift; path = Sources/MLXEdgeLLM/AI/Tools/ToolFeedback.swift; sourceTree = "<group>"; };
+		798C5185F562D7405CDBC72F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		79B61EBA71619273CA562AC1 /* SubmapStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmapStore.swift; sourceTree = "<group>"; };
 		79F3254A66C316B191F8F88E /* DeviceTrust.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeviceTrust.swift; path = Sources/MLXEdgeLLM/Security/Access/DeviceTrust.swift; sourceTree = "<group>"; };
 		79FCDEE101F833B067023889 /* FieldManualLoader.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FieldManualLoader.swift; path = Sources/MLXEdgeLLM/AI/RAG/FieldManualLoader.swift; sourceTree = "<group>"; };
@@ -1045,7 +1063,9 @@
 		B4F50B873F0BAD1AF8CAAC6E /* TrafficCamService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrafficCamService.swift; sourceTree = "<group>"; };
 		B51C8E1B96A631B32B9C0A4F /* ConversationMemory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConversationMemory.swift; path = Sources/MLXEdgeLLM/AI/Context/ConversationMemory.swift; sourceTree = "<group>"; };
 		B5D9C81FEFB9FD795047091D /* 42-envenomation.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "42-envenomation.md"; sourceTree = "<group>"; };
+		B6D7FEA64EA9007C77306854 /* MLXEdgeLLMTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MLXEdgeLLMTests.swift; path = Tests/MLXEdgeLLMTests/MLXEdgeLLMTests.swift; sourceTree = "<group>"; };
 		B71D00E1186E7BFEA768C7B7 /* ResourceTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ResourceTracker.swift; path = Sources/MLXEdgeLLM/FieldOps/Mission/ResourceTracker.swift; sourceTree = "<group>"; };
+		B891D80DC423B96A0C134315 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = Tests/MLXEdgeLLMTests/Info.plist; sourceTree = "<group>"; };
 		B89E8BD8B53DF2AE91C4F8D9 /* 39-improvised-medicine.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "39-improvised-medicine.md"; sourceTree = "<group>"; };
 		B8A7309E1AD788D9443ACBCC /* WindEstimator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WindEstimator.swift; path = Sources/MLXEdgeLLM/Services/WindEstimator.swift; sourceTree = "<group>"; };
 		B900C2504CDE8A403F6EDA65 /* 103-contingency-planning.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "103-contingency-planning.md"; sourceTree = "<group>"; };
@@ -1088,6 +1108,7 @@
 		C2934D7BA269DC2C887394C4 /* 107-load-planning.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "107-load-planning.md"; sourceTree = "<group>"; };
 		C2CF4AD38F50D7CC3F2EEBB1 /* FeedbackCollector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FeedbackCollector.swift; path = Sources/MLXEdgeLLM/UI/Feedback/FeedbackCollector.swift; sourceTree = "<group>"; };
 		C2FD249C741B48A1F4C3622A /* ExportScheduler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExportScheduler.swift; path = Sources/MLXEdgeLLM/Interop/API/ExportScheduler.swift; sourceTree = "<group>"; };
+		C3021068284488D4AA32A55A /* CursorOnTargetTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CursorOnTargetTests.swift; path = Tests/MLXEdgeLLMTests/CursorOnTargetTests.swift; sourceTree = "<group>"; };
 		C30C7DA9337F19E5D891686F /* VictimExtrication.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VictimExtrication.swift; path = Sources/MLXEdgeLLM/Scenarios/Urban/VictimExtrication.swift; sourceTree = "<group>"; };
 		C4160796BC3B6E5771EAD64A /* MeshSimplifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MeshSimplifier.swift; path = Sources/MLXEdgeLLM/LiDAR/Mesh/MeshSimplifier.swift; sourceTree = "<group>"; };
 		C43957FE3DF070171C5AA6CC /* Colorization.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Colorization.swift; path = Sources/MLXEdgeLLM/LiDAR/Core/Colorization.swift; sourceTree = "<group>"; };
@@ -1158,6 +1179,7 @@
 		D2F6FF6FAD6ACECD56AAAD0A /* AnnouncementSystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AnnouncementSystem.swift; path = Sources/MLXEdgeLLM/FieldOps/Team/AnnouncementSystem.swift; sourceTree = "<group>"; };
 		D38277423CF8071BEC3367D0 /* 33-burns.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "33-burns.md"; sourceTree = "<group>"; };
 		D3B89494F9050E1C893B5C86 /* ElevationProfile.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ElevationProfile.swift; path = Sources/MLXEdgeLLM/SpatialIntelligence/ElevationProfile.swift; sourceTree = "<group>"; };
+		D4196DFBBC092015E79E6750 /* PureLogicTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PureLogicTests.swift; path = Tests/MLXEdgeLLMTests/PureLogicTests.swift; sourceTree = "<group>"; };
 		D42619C2036F7D8DE57F3D9F /* 102-decision-making.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "102-decision-making.md"; sourceTree = "<group>"; };
 		D44C845FB33CF2A9CF854A1B /* NetworkIsolation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NetworkIsolation.swift; path = Sources/MLXEdgeLLM/Security/OpSec/NetworkIsolation.swift; sourceTree = "<group>"; };
 		D45117034F95080A8DB0EEC7 /* 09-cold-weather-survival.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "09-cold-weather-survival.md"; sourceTree = "<group>"; };
@@ -1304,6 +1326,7 @@
 		FE70C6EBBFE87A1C0FD24A50 /* RecoveryManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RecoveryManager.swift; path = Sources/MLXEdgeLLM/Security/Incident/RecoveryManager.swift; sourceTree = "<group>"; };
 		FE764DAB7F918D93DAD65018 /* DroneTelemetry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DroneTelemetry.swift; path = Sources/MLXEdgeLLM/Hardware/Drone/DroneTelemetry.swift; sourceTree = "<group>"; };
 		FE911D5E00AA6B9050869C14 /* SecureVoice.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SecureVoice.swift; path = Sources/MLXEdgeLLM/Security/Comms/SecureVoice.swift; sourceTree = "<group>"; };
+		FEB806DE02BA2681C438914C /* MeshRelayTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MeshRelayTests.swift; path = Tests/MLXEdgeLLMTests/MeshRelayTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1320,6 +1343,14 @@
 				81E163D5914F99BEB771B696 /* BuildFile in Frameworks */,
 				321294AC9D0BDF998FFCDE48 /* BuildFile in Frameworks */,
 				7EF0D06E7EA7E6DD378E58AF /* Accelerate.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FB62E2BC5699DD6C4DBD79A2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				66D3E7FD4B4477FA83626B67 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1400,10 +1431,19 @@
 			path = intel;
 			sourceTree = "<group>";
 		};
+		0EDA975515CD786304FE18B9 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				798C5185F562D7405CDBC72F /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
 		1A4AAF57146BB7D27C77F518 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				7A623377610C8D143B7DAD0F /* ZeroDark.app */,
+				285770D838A843A65EF6AD1F /* ZeroDarkTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1792,6 +1832,7 @@
 			isa = PBXGroup;
 			children = (
 				007B0CE6CBE12CB052F751AE /* Accelerate.framework */,
+				0EDA975515CD786304FE18B9 /* iOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -2384,6 +2425,14 @@
 				DDCFE7DFCEC121283440A5B8 /* SignalPropagation.swift */,
 				B32E2A6020316F9A32478312 /* FieldReport.swift */,
 				209FC7B151376E5B3EF666B3 /* PinnedURLSession.swift */,
+				C3021068284488D4AA32A55A /* CursorOnTargetTests.swift */,
+				06B44C1457F22D1E02008839 /* HAMMERTests.swift */,
+				B6D7FEA64EA9007C77306854 /* MLXEdgeLLMTests.swift */,
+				69DF1E4D4B2B5DD153DE4EF1 /* MeshCryptoTests.swift */,
+				FEB806DE02BA2681C438914C /* MeshRelayTests.swift */,
+				5A6DEF80AED90337BDA2A718 /* NavigationTests.swift */,
+				D4196DFBBC092015E79E6750 /* PureLogicTests.swift */,
+				B891D80DC423B96A0C134315 /* Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -2722,6 +2771,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		7E0EEE6076E5625B632A738E /* ZeroDarkTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E3CF23721D1AA363C3A95A68 /* Build configuration list for PBXNativeTarget "ZeroDarkTests" */;
+			buildPhases = (
+				8DE511FA3B6BAC976B600D8F /* Sources */,
+				FB62E2BC5699DD6C4DBD79A2 /* Frameworks */,
+				31FD5BE13689EE28DE2C72C5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				96E2220BF163149A0014E6EB /* PBXTargetDependency */,
+			);
+			name = ZeroDarkTests;
+			productName = ZeroDarkTests;
+			productReference = 285770D838A843A65EF6AD1F /* ZeroDarkTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		DC38F0FAEAB99E98AB801F38 /* ZeroDark */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8DBBDB84226412A5D0E6125C /* Build configuration list for PBXNativeTarget "ZeroDark" */;
@@ -2782,11 +2849,19 @@
 			projectRoot = "";
 			targets = (
 				DC38F0FAEAB99E98AB801F38 /* ZeroDark */,
+				7E0EEE6076E5625B632A738E /* ZeroDarkTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		31FD5BE13689EE28DE2C72C5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		7756D9E0F2970E9238833DBA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2956,6 +3031,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		8DE511FA3B6BAC976B600D8F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				95B78807B3BE6BF33F1FF76F /* MeshCryptoTests.swift in Sources */,
+				A8265D1074B851697E1FDB83 /* PureLogicTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		93B65E3B493755AC09C17265 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -3234,6 +3318,15 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		96E2220BF163149A0014E6EB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = ZeroDark;
+			target = DC38F0FAEAB99E98AB801F38 /* ZeroDark */;
+			targetProxy = D38433C3F0E23EF8191CE0D5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
 		25015E5B09734DF392EB1EF8 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -3295,6 +3388,30 @@
 			};
 			name = Debug;
 		};
+		47F72B4A66A1FA58BE2FA01F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HWV3Q7B59G;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Tests/MLXEdgeLLMTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.bobbyhansen.zerodark.Tests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ZeroDark.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ZeroDark";
+			};
+			name = Debug;
+		};
 		7C8D63DD53D71FD38F8F0F49 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -3349,6 +3466,31 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		9639AA87ADDD1738555B58B4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = HWV3Q7B59G;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Tests/MLXEdgeLLMTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.bobbyhansen.zerodark.Tests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ZeroDark.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ZeroDark";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
@@ -3427,6 +3569,15 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
+		};
+		E3CF23721D1AA363C3A95A68 /* Build configuration list for PBXNativeTarget "ZeroDarkTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9639AA87ADDD1738555B58B4 /* Release */,
+				47F72B4A66A1FA58BE2FA01F /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		E671A76EB39E884D934B5856 /* Build configuration list for PBXProject "ZeroDark" */ = {
 			isa = XCConfigurationList;

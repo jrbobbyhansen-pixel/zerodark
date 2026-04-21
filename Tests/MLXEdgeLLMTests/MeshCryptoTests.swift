@@ -3,7 +3,7 @@
 
 import XCTest
 import CryptoKit
-@testable import MLXEdgeLLM
+@testable import ZeroDark
 
 final class MeshCryptoTests: XCTestCase {
 

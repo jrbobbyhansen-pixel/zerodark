@@ -25,12 +25,14 @@ final class PureLogicTests: XCTestCase {
     // MARK: - Haversine
 
     func test_haversineDistance_knownPairs() {
-        // Known-good check: San Francisco City Hall → LAX ≈ 543 km (reference).
+        // Known-good check: SF City Hall → LAX ≈ 559 km great-circle.
+        // (Note: SFO airport → LAX is ~543 km; City Hall is ~16 km further
+        // north which bumps the arc to ~559 km.)
         let sfCityHall = CLLocationCoordinate2D(latitude: 37.7793, longitude: -122.4192)
         let lax        = CLLocationCoordinate2D(latitude: 33.9416, longitude: -118.4085)
         let d = sfCityHall.distance(to: lax)
-        XCTAssertEqual(d, 543_000, accuracy: 5_000,  // ±5 km tolerance
-                       "SF→LAX haversine should be ~543 km")
+        XCTAssertEqual(d, 559_000, accuracy: 5_000,  // ±5 km tolerance
+                       "SF City Hall → LAX haversine should be ~559 km")
     }
 
     func test_haversineDistance_sameCoordinateIsZero() {
