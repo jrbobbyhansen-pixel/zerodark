@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import UserNotifications
 
 /// Runtime safety monitor (NASA Ogma pattern)
 @MainActor
@@ -19,6 +20,11 @@ public class RuntimeSafetyMonitor: ObservableObject {
     public var batteryThreshold: Float = 0.10  // 10%
     public var positionAgeThreshold: TimeInterval = 600  // 10 minutes
     public var storageThreshold: Int64 = 100_000_000  // 100 MB
+
+    // Escalation tracking: how long a single property has been in violation.
+    // Used to escalate from passive alert → active SOS after sustained failure.
+    private var violationStartedAt: [SafetyProperty: Date] = [:]
+    public var sosEscalationDelay: TimeInterval = 300  // 5 min of sustained loss → auto-SOS on reachability
 
     private init() {
         // Initialize all properties as unknown
@@ -91,6 +97,7 @@ public class RuntimeSafetyMonitor: ObservableObject {
                     activeViolations[i].resolvedAt = Date()
                 }
             }
+            clearEscalation(for: property)
         }
     }
 
@@ -176,44 +183,97 @@ public class RuntimeSafetyMonitor: ObservableObject {
             activeViolations[idx].handlerTriggered = true
         }
 
-        // Execute property-specific handler
+        // Track first time we saw this property in violation (for escalation timing).
+        if violationStartedAt[property] == nil {
+            violationStartedAt[property] = Date()
+        }
+
+        // User-visible alert: local notification + haptic.
+        postNotification(for: property, violation: violation)
+        triggerHaptic(for: property)
+
+        // Property-specific actions.
         switch property {
         case .teamMemberReachable:
-            // Attempt reconnection, escalate to SOS if prolonged
-            break
+            // Attempt mesh reconnect; if prolonged loss, auto-broadcast SOS so survivors
+            // are alerted even if the operator is incapacitated. Opt-in via the duration cap.
+            if let started = violationStartedAt[property],
+               Date().timeIntervalSince(started) >= sosEscalationDelay,
+               !MeshService.shared.sosActive {
+                MeshService.shared.broadcastSOS()
+            }
 
         case .meshNetworkHealthy:
-            // Alert user immediately
+            // Mesh stack is already auto-restarting — alert + haptic above are the visible action.
             break
 
         case .positionKnown:
-            // Attempt position fix methods in order
-            break
+            // Request an immediate CLLocation update. Breadcrumb EKF / celestial fallback
+            // already run passively; this nudges the location manager to try again.
+            LocationManager.shared.forcePositionUpdate()
 
         case .withinGeofence:
-            // Alert user, suggest return path
+            // Alert handled by the notification above. UI surfaces the violation in TeamDashSection.
             break
 
         case .batteryAboveThreshold:
-            // Enable power saving
-            break
+            // Enter conservation mode: tell downstream subsystems to shed non-essential load.
+            NotificationCenter.default.post(name: .zdEnterPowerSave, object: nil)
 
         case .storageAvailable:
-            // Suggest cleanup
+            // Suggest cleanup via notification (handled above).
             break
 
         case .modelLoaded:
-            // Attempt reload (try to avoid main thread blocking)
-            break
+            // Fire-and-forget reload attempt; LocalInferenceEngine is @MainActor.
+            Task { await LocalInferenceEngine.shared.reloadIfNeeded() }
 
         case .checkInOnSchedule:
-            // Prompt user to check in
+            // Prompt handled by notification; CheckInSystem UI already shows overdue state.
             break
 
         case .missionTimeRemaining:
-            // Reminder notification
+            // Notification + haptic are the actionable signal; countdown is visible in MissionClock UI.
             break
         }
+    }
+
+    /// Clear escalation start time when property transitions back to satisfied.
+    /// Called from checkProperty whenever an existing violation resolves.
+    private func clearEscalation(for property: SafetyProperty) {
+        violationStartedAt.removeValue(forKey: property)
+    }
+
+    // MARK: - Alert delivery
+
+    private func postNotification(for property: SafetyProperty, violation: SafetyViolation) {
+        let content = UNMutableNotificationContent()
+        content.title = "Safety Alert"
+        content.body = violation.details
+        content.sound = property.rawValue == SafetyProperty.teamMemberReachable.rawValue
+            ? .defaultCritical
+            : .default
+        content.categoryIdentifier = "zd.safety.\(property.rawValue)"
+
+        let request = UNNotificationRequest(
+            identifier: violation.id.uuidString,
+            content: content,
+            trigger: nil  // deliver immediately
+        )
+        UNUserNotificationCenter.current().add(request) { _ in }
+    }
+
+    private func triggerHaptic(for property: SafetyProperty) {
+        #if canImport(UIKit)
+        switch property {
+        case .teamMemberReachable, .positionKnown, .batteryAboveThreshold:
+            UINotificationFeedbackGenerator().notificationOccurred(.warning)
+        case .meshNetworkHealthy, .withinGeofence, .missionTimeRemaining:
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
+        case .storageAvailable, .modelLoaded, .checkInOnSchedule:
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }
+        #endif
     }
 
     /// Get all unresolved violations sorted by severity
@@ -230,4 +290,13 @@ public class RuntimeSafetyMonitor: ObservableObject {
             $0.resolved && ($0.resolvedAt ?? Date()) < cutoff
         }
     }
+}
+
+// MARK: - Notification Names
+
+public extension Notification.Name {
+    /// Posted when a safety violation requires the app to shed non-essential load.
+    /// Downstream subsystems (AI inference, LiDAR capture, mesh audio) can subscribe
+    /// to pause or degrade accordingly. Payload: none.
+    static let zdEnterPowerSave = Notification.Name("ZDEnterPowerSave")
 }
