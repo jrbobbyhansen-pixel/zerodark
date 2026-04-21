@@ -2,7 +2,7 @@
 // Unit tests for HAMMER acoustic modem Viterbi decoder
 
 import XCTest
-@testable import MLXEdgeLLM
+@testable import ZeroDark
 
 final class HAMMERTests: XCTestCase {
     let modem = HAMMERAcousticModem.shared

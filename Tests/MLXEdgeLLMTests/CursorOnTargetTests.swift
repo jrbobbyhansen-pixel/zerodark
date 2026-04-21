@@ -2,7 +2,7 @@
 // Unit tests for CoT XML encoder/decoder roundtrip
 
 import XCTest
-@testable import MLXEdgeLLM
+@testable import ZeroDark
 
 final class CursorOnTargetTests: XCTestCase {
     let encoder = CoTEncoder.shared

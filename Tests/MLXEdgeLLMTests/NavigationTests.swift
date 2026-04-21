@@ -1,7 +1,7 @@
 // NavigationTests.swift — Unit tests for Navigation/FieldOps v6.1 components
 
 import XCTest
-@testable import MLXEdgeLLM
+@testable import ZeroDark
 
 final class NavigationTests: XCTestCase {
 

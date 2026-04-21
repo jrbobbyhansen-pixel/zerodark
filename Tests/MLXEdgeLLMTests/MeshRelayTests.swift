@@ -3,7 +3,7 @@
 
 import XCTest
 import CoreLocation
-@testable import MLXEdgeLLM
+@testable import ZeroDark
 
 final class MeshRelayTests: XCTestCase {
 
