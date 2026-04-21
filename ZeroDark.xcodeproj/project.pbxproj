@@ -10,6 +10,7 @@
 		009F1B2E9357A4601A4701C3 /* 35-heat-injuries.md in Resources */ = {isa = PBXBuildFile; fileRef = 428A93DEE055293DB509BBC0 /* 35-heat-injuries.md */; };
 		01CD9BC0A9C34877E82138F7 /* 40-infections-sepsis.md in Resources */ = {isa = PBXBuildFile; fileRef = 5D63E6E785FB6E0400A3087E /* 40-infections-sepsis.md */; };
 		021392BFE0544F5A799DD9A3 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		034390A3D0FC3900921B4894 /* MARCHAssessment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3027861535C928FA4D4BEA7 /* MARCHAssessment.swift */; };
 		03D59C53CA5D84FF1BDE6374 /* 22-terrain-association.md in Resources */ = {isa = PBXBuildFile; fileRef = BE51EF5DA4224F5291F2F4A1 /* 22-terrain-association.md */; };
 		05A0D50BA5D0DBE22F0A4FB0 /* 43-cqb-room-clearing.md in Resources */ = {isa = PBXBuildFile; fileRef = 5B2C24F19C4FD00583823CED /* 43-cqb-room-clearing.md */; };
 		0612317F2FEA96E15A8591D7 /* 18-cqb-fundamentals.md in Resources */ = {isa = PBXBuildFile; fileRef = D9E73C31F8D79B035F7F06CF /* 18-cqb-fundamentals.md */; };
@@ -53,6 +54,7 @@
 		1F5BB9789D7A96CE565A5A36 /* 42-envenomation.md in Resources */ = {isa = PBXBuildFile; fileRef = B5D9C81FEFB9FD795047091D /* 42-envenomation.md */; };
 		1F6438726263F7005AC814C9 /* 49-defensive-positions.md in Resources */ = {isa = PBXBuildFile; fileRef = E32916B108E825CC232980F5 /* 49-defensive-positions.md */; };
 		20E76B0E038ED4D52DA48602 /* ThreatFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A3BDB8484E013936AC1F2DC /* ThreatFeedView.swift */; };
+		210EEF778E4BFB29AF37A556 /* MARCHView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B1EB40C1E122F11F6E754E /* MARCHView.swift */; };
 		21288BBE9BC5471E08D4C0AC /* PaceCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 744AE652015DC00C19882348 /* PaceCalculator.swift */; };
 		21778BD6C389C950790377DA /* 98-vehicle-recovery.md in Resources */ = {isa = PBXBuildFile; fileRef = CFE9734B320EB33B158C4DC6 /* 98-vehicle-recovery.md */; };
 		21ECBAA1A6508466E9A7AD46 /* 37-medevac-9line.md in Resources */ = {isa = PBXBuildFile; fileRef = 2FA4D5224172FF3A14A3293F /* 37-medevac-9line.md */; };
@@ -956,6 +958,7 @@
 		A01B146251474A12FAC1E62B /* VirtualVictims.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VirtualVictims.swift; path = Sources/MLXEdgeLLM/Training/Scenarios/VirtualVictims.swift; sourceTree = "<group>"; };
 		A0B1E461581BC84EE04C8486 /* KalmanFuse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = KalmanFuse.swift; path = Sources/MLXEdgeLLM/LiDAR/Fusion/KalmanFuse.swift; sourceTree = "<group>"; };
 		A12C823CAE3165D6CA8F1640 /* 12-shock.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "12-shock.md"; sourceTree = "<group>"; };
+		A1B1EB40C1E122F11F6E754E /* MARCHView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MARCHView.swift; path = Sources/MLXEdgeLLM/Medical/TCCC/MARCHView.swift; sourceTree = "<group>"; };
 		A1B90A5CDA98EC58EF49328F /* 19-recon-op-setup.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "19-recon-op-setup.md"; sourceTree = "<group>"; };
 		A1C6B137F0FBEEB028777676 /* VoiceMemo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VoiceMemo.swift; path = Sources/MLXEdgeLLM/CommunicationCore/VoiceMemo.swift; sourceTree = "<group>"; };
 		A31D4EC02A80A21AE48BB8FC /* IAPManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IAPManager.swift; path = Sources/MLXEdgeLLM/Store/IAPManager.swift; sourceTree = "<group>"; };
@@ -1239,6 +1242,7 @@
 		F1ACFCE8478F5F4DA80C619A /* 07-foraging-plants.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "07-foraging-plants.md"; sourceTree = "<group>"; };
 		F201C28CCF0EA773D71FCA34 /* TourniquetTimer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TourniquetTimer.swift; path = Sources/MLXEdgeLLM/Medical/TourniquetTimer.swift; sourceTree = "<group>"; };
 		F2FAA5006752DD62EDD300C5 /* ToolSelector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ToolSelector.swift; path = Sources/MLXEdgeLLM/AI/Tools/ToolSelector.swift; sourceTree = "<group>"; };
+		F3027861535C928FA4D4BEA7 /* MARCHAssessment.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MARCHAssessment.swift; path = Sources/MLXEdgeLLM/Medical/TCCC/MARCHAssessment.swift; sourceTree = "<group>"; };
 		F316997A124DD2B71D9AC060 /* FieldExercisePlanner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FieldExercisePlanner.swift; path = Sources/MLXEdgeLLM/Training/Field/FieldExercisePlanner.swift; sourceTree = "<group>"; };
 		F35AC12ED106173F9F3E982A /* LoadCalculator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LoadCalculator.swift; path = Sources/MLXEdgeLLM/Planning/LoadCalculator.swift; sourceTree = "<group>"; };
 		F3926D03700876E844860380 /* WaypointOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaypointOverlay.swift; sourceTree = "<group>"; };
@@ -2342,6 +2346,8 @@
 				400F34ED1F268F00852B7E71 /* AppLockGate.swift */,
 				C0EF8E008AF20DDE97D0DAEA /* MinHeap.swift */,
 				509A9A981F6516A36597B41A /* ARWaypointNavigator.swift */,
+				F3027861535C928FA4D4BEA7 /* MARCHAssessment.swift */,
+				A1B1EB40C1E122F11F6E754E /* MARCHView.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3173,6 +3179,8 @@
 				C5112513285358D3E288249A /* AppLockGate.swift in Sources */,
 				080BB1E16C82D37EB9B7C908 /* MinHeap.swift in Sources */,
 				AEC42F033B65F559DEF107DE /* ARWaypointNavigator.swift in Sources */,
+				034390A3D0FC3900921B4894 /* MARCHAssessment.swift in Sources */,
+				210EEF778E4BFB29AF37A556 /* MARCHView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
