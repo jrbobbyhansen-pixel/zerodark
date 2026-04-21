@@ -296,6 +296,7 @@
 		AAD41DFFD27BA08D7EB2233C /* OfflineTileProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E072845538F69AEDDF73D9 /* OfflineTileProvider.swift */; };
 		AD1ACE9AAEE8AFAC85532826 /* TrailDifficulty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FDEF6ACC618A5AD11E4B4B0 /* TrailDifficulty.swift */; };
 		ADF11E335C4F1C98C6E03286 /* TeamDashSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED97F4BF0B71451748F0DADF /* TeamDashSection.swift */; };
+		AEC42F033B65F559DEF107DE /* ARWaypointNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509A9A981F6516A36597B41A /* ARWaypointNavigator.swift */; };
 		AECBC161C3FC06DCAC17CF43 /* FastLibraryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9318C0D3C9316B3B81E7CDDC /* FastLibraryService.swift */; };
 		AED3C74457334CCCA750164E /* 75-obstacle-emplacement.md in Resources */ = {isa = PBXBuildFile; fileRef = 61CA0C1D0CE9ABBA080BA802 /* 75-obstacle-emplacement.md */; };
 		AF3E5D8FABB34CF974E873AE /* 13-shock-treatment.md in Resources */ = {isa = PBXBuildFile; fileRef = CDD6275CF2C0D9919CA46B2B /* 13-shock-treatment.md */; };
@@ -715,6 +716,7 @@
 		5036B665F1A2FEAAB903D30A /* InferenceCache.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InferenceCache.swift; path = Sources/MLXEdgeLLM/AI/Models/InferenceCache.swift; sourceTree = "<group>"; };
 		5061F949D576F515A91A4F13 /* 46-bounding-overwatch.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "46-bounding-overwatch.md"; sourceTree = "<group>"; };
 		506F6A4B9B002116185E35AC /* ThermalMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ThermalMonitor.swift; path = Sources/MLXEdgeLLM/LiDAR/Core/ThermalMonitor.swift; sourceTree = "<group>"; };
+		509A9A981F6516A36597B41A /* ARWaypointNavigator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ARWaypointNavigator.swift; path = Sources/MLXEdgeLLM/Navigation/ARWaypoint/ARWaypointNavigator.swift; sourceTree = "<group>"; };
 		509ADEEC842C5B2A3BCD7872 /* 111-power-management.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "111-power-management.md"; sourceTree = "<group>"; };
 		509B8BFA3D0F3195450471DB /* NoiseDiscipline.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NoiseDiscipline.swift; path = Sources/MLXEdgeLLM/Services/NoiseDiscipline.swift; sourceTree = "<group>"; };
 		50B65FCEF80A3F10E6A3DA9D /* TeamMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamMapView.swift; sourceTree = "<group>"; };
@@ -2339,6 +2341,7 @@
 				AFAE762D50B8F762C61FFB23 /* AppLockManager.swift */,
 				400F34ED1F268F00852B7E71 /* AppLockGate.swift */,
 				C0EF8E008AF20DDE97D0DAEA /* MinHeap.swift */,
+				509A9A981F6516A36597B41A /* ARWaypointNavigator.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3169,6 +3172,7 @@
 				9D88D596AFB7AF55A54FCBD3 /* AppLockManager.swift in Sources */,
 				C5112513285358D3E288249A /* AppLockGate.swift in Sources */,
 				080BB1E16C82D37EB9B7C908 /* MinHeap.swift in Sources */,
+				AEC42F033B65F559DEF107DE /* ARWaypointNavigator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
