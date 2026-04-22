@@ -31,6 +31,31 @@ final class GaussianTrainer {
     /// Current thermal-adjusted max iterations per frame (set by pipeline)
     var maxIterationsPerFrame: Int = 100
 
+    // MARK: - Training control
+
+    /// Gradient L2-norm cap per parameter group. Gradients above the cap are
+    /// rescaled so the vector norm equals `gradientClipNorm`. Prevents runaway
+    /// updates when the photometric loss lands on a pathological pixel.
+    var gradientClipNorm: Float = 10.0
+
+    /// Convergence: training exits early if the running mean of the last N
+    /// per-iteration L2 losses changes by less than `convergenceEpsilon`
+    /// across `convergenceWindow` iterations.
+    var convergenceWindow: Int = 50
+    var convergenceEpsilon: Float = 1.0e-5
+
+    /// Rolling loss history for convergence detection. Capped at
+    /// `convergenceWindow * 2` entries so memory stays bounded.
+    private var lossHistory: [Float] = []
+
+    /// Number of consecutive training steps skipped because they produced
+    /// NaN / Inf. Surfaces for diagnostics.
+    private(set) var skippedNaNSteps: Int = 0
+
+    /// Becomes true when the training loop detects convergence. Callers can
+    /// stop supplying new frames until a fresh scene arrives.
+    private(set) var hasConverged: Bool = false
+
     init(cloud: GaussianCloud, device: MTLDevice?, trainingResolution: (width: Int, height: Int)) {
         self.cloud = cloud
         self.device = device
@@ -76,14 +101,106 @@ final class GaussianTrainer {
                 lidarMaxRange: lidarMaxRange
             )
 
+            // NaN/Inf guard: if ANY gradient component is non-finite, the
+            // rasterizer or loss math diverged. Skip the update and mark the
+            // step as dropped. Continuing would corrupt the cloud forever.
+            if hasNonFiniteGradient(gradients) {
+                skippedNaNSteps += 1
+                continue
+            }
+
+            // Gradient clipping — rescale any per-parameter vector whose L2
+            // norm exceeds `gradientClipNorm`.
+            let clipped = clipGradients(gradients)
+
             // Apply gradients (SGD)
-            applyGradients(gradients)
+            applyGradients(clipped)
+
+            // Running loss — mean absolute color error across rendered image
+            // (cheap proxy for MSE without another pass).
+            let loss = meanAbsoluteLoss(rendered: rendered, targetRGB: targetRGB)
+            if loss.isFinite {
+                lossHistory.append(loss)
+                if lossHistory.count > convergenceWindow * 2 {
+                    lossHistory.removeFirst(lossHistory.count - convergenceWindow * 2)
+                }
+            }
+
+            // Early-exit convergence: when the mean of the last window matches
+            // the mean of the previous window within epsilon, we're done.
+            if lossHistory.count >= convergenceWindow * 2 {
+                let firstHalf = lossHistory.prefix(convergenceWindow)
+                let secondHalf = lossHistory.suffix(convergenceWindow)
+                let m1 = firstHalf.reduce(0, +) / Float(convergenceWindow)
+                let m2 = secondHalf.reduce(0, +) / Float(convergenceWindow)
+                if abs(m1 - m2) < convergenceEpsilon {
+                    hasConverged = true
+                    return
+                }
+            }
 
             // Periodic densification
             if iterationCount % densifyInterval == 0 {
                 densifyAndPrune()
             }
         }
+    }
+
+    // MARK: - Numerical safety helpers
+
+    /// Returns true if ANY gradient component in any parameter group is
+    /// non-finite (NaN or ±Inf). Used to skip diverged steps.
+    private func hasNonFiniteGradient(_ gradients: [GaussianGradient]) -> Bool {
+        for g in gradients {
+            if !g.positionGrad.x.isFinite || !g.positionGrad.y.isFinite || !g.positionGrad.z.isFinite { return true }
+            if !g.scaleGrad.x.isFinite    || !g.scaleGrad.y.isFinite    || !g.scaleGrad.z.isFinite    { return true }
+            if !g.opacityGrad.isFinite                                                                { return true }
+            if !g.colorGrad.x.isFinite    || !g.colorGrad.y.isFinite    || !g.colorGrad.z.isFinite    { return true }
+        }
+        return false
+    }
+
+    /// Clip each gradient vector to `gradientClipNorm` L2 norm.
+    private func clipGradients(_ gradients: [GaussianGradient]) -> [GaussianGradient] {
+        let maxNorm = gradientClipNorm
+        return gradients.map { g in
+            var out = g
+            let posN = simd_length(g.positionGrad)
+            if posN > maxNorm { out.positionGrad = g.positionGrad * (maxNorm / posN) }
+            let scaN = simd_length(g.scaleGrad)
+            if scaN > maxNorm { out.scaleGrad = g.scaleGrad * (maxNorm / scaN) }
+            if abs(g.opacityGrad) > maxNorm { out.opacityGrad = g.opacityGrad > 0 ? maxNorm : -maxNorm }
+            let colN = simd_length(g.colorGrad)
+            if colN > maxNorm { out.colorGrad = g.colorGrad * (maxNorm / colN) }
+            return out
+        }
+    }
+
+    /// Cheap mean-absolute-error between rendered and target RGB. Used for
+    /// convergence tracking; not the exact objective being optimized.
+    private func meanAbsoluteLoss(
+        rendered: [[RasterizedPixel]],
+        targetRGB: [[SIMD3<Float>]]
+    ) -> Float {
+        var sum: Float = 0
+        var count: Int = 0
+        for y in 0..<trainingHeight {
+            for x in 0..<trainingWidth {
+                let r = rendered[y][x].color
+                let t = targetRGB[y][x]
+                let d = abs(r.x - t.x) + abs(r.y - t.y) + abs(r.z - t.z)
+                if d.isFinite { sum += d; count += 1 }
+            }
+        }
+        return count > 0 ? sum / Float(count) : 0
+    }
+
+    /// Reset convergence tracking when a fresh scene / camera pose arrives.
+    /// Callers should invoke this on scan boundaries so convergence from a
+    /// previous room doesn't short-circuit new training.
+    func resetConvergence() {
+        lossHistory.removeAll(keepingCapacity: true)
+        hasConverged = false
     }
 
     // MARK: - Software Rasterizer (CPU fallback)
