@@ -45,8 +45,54 @@ final class ScanStorage: ObservableObject {
     @Published var savedScans: [SavedScan] = []
     @Published var lastError: String?
 
+    /// Hard cap on total scan storage on disk, in bytes. 10 GB matches
+    /// the roadmap's PR-C1 spec. When exceeded, oldest-first eviction
+    /// runs at the end of loadScanIndex().
+    var maxTotalBytes: Int64 = 10 * 1024 * 1024 * 1024
+
     private init() {
         loadScanIndex()
+    }
+
+    /// Compute total on-disk size of scans + recon walks, in bytes.
+    private func totalStorageBytes() -> Int64 {
+        var total: Int64 = 0
+        for scan in savedScans {
+            total += directorySize(at: scan.scanDir)
+        }
+        return total
+    }
+
+    private func directorySize(at url: URL) -> Int64 {
+        guard let enumerator = FileManager.default.enumerator(
+            at: url,
+            includingPropertiesForKeys: [.fileSizeKey],
+            options: [.skipsHiddenFiles]
+        ) else { return 0 }
+        var sum: Int64 = 0
+        for case let fileURL as URL in enumerator {
+            if let size = (try? fileURL.resourceValues(forKeys: [.fileSizeKey]))?.fileSize {
+                sum += Int64(size)
+            }
+        }
+        return sum
+    }
+
+    /// Evict oldest scans until total storage fits within `maxTotalBytes`.
+    /// Safe to call repeatedly — no-op when under the cap.
+    private func enforceStorageCapacity() {
+        var total = totalStorageBytes()
+        guard total > maxTotalBytes else { return }
+
+        // Oldest-first.
+        let sorted = savedScans.sorted { $0.timestamp < $1.timestamp }
+        for scan in sorted {
+            guard total > maxTotalBytes else { break }
+            let size = directorySize(at: scan.scanDir)
+            try? FileManager.default.removeItem(at: scan.scanDir)
+            savedScans.removeAll { $0.id == scan.id }
+            total -= size
+        }
     }
 
     // MARK: - Index Loading
@@ -129,6 +175,10 @@ final class ScanStorage: ObservableObject {
         }
 
         savedScans = loadedScans.sorted { $0.timestamp > $1.timestamp }
+
+        // After every index load, make sure we're under the storage cap.
+        // If this evicts anything, savedScans is updated in place.
+        enforceStorageCapacity()
     }
 
     // MARK: - Update Scan
