@@ -151,6 +151,7 @@
 		4BF90C18A8341814121CA44E /* 83-isolation-procedures.md in Resources */ = {isa = PBXBuildFile; fileRef = 634AC23447A314BF7E91004B /* 83-isolation-procedures.md */; };
 		4C09900D93F7A7E4ECB0E0C6 /* OpOrderBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD9568DDC980C9C766F6C58 /* OpOrderBuilder.swift */; };
 		4C5ACCA71156D3A27B7A4FFA /* BreadcrumbEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2149600A31F68A82031CC037 /* BreadcrumbEngine.swift */; };
+		4CF91094B8BA6E49B4EFF325 /* IOTimeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47BEDA9148707BF91C52F78A /* IOTimeout.swift */; };
 		4DFA23CC013921B8B1C96920 /* 05-navigation-land.md in Resources */ = {isa = PBXBuildFile; fileRef = 788B09ED58675CE2713C7506 /* 05-navigation-land.md */; };
 		4E1D9B498085D774791B9CF2 /* MeshExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48C98D581F186CDD9B019FD3 /* MeshExporter.swift */; };
 		4E6AFC815DA8F10F06CDAB25 /* ZDKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 706AE4996AC35BD5E02F160F /* ZDKeychain.swift */; };
@@ -719,6 +720,7 @@
 		4599080C4D5179970BD2F404 /* TerrainClassifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TerrainClassifier.swift; path = Sources/MLXEdgeLLM/Navigation/TerrainClassifier.swift; sourceTree = "<group>"; };
 		46976C0E685C8A40F3A3EF7C /* TacticalCorpus.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TacticalCorpus.swift; path = Sources/MLXEdgeLLM/AI/RAG/TacticalCorpus.swift; sourceTree = "<group>"; };
 		46D522BF9E6F1DAC113DE981 /* BatteryManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BatteryManager.swift; path = Sources/MLXEdgeLLM/Logistics/BatteryManager.swift; sourceTree = "<group>"; };
+		47BEDA9148707BF91C52F78A /* IOTimeout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IOTimeout.swift; path = Sources/MLXEdgeLLM/Hardware/Common/IOTimeout.swift; sourceTree = "<group>"; };
 		483670A4D6550D7CFBB977A4 /* SkillTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SkillTracker.swift; path = Sources/MLXEdgeLLM/Training/Skills/SkillTracker.swift; sourceTree = "<group>"; };
 		4885B2171261ADAA73226B07 /* 106-stress-leadership.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "106-stress-leadership.md"; sourceTree = "<group>"; };
 		48C98D581F186CDD9B019FD3 /* MeshExporter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MeshExporter.swift; path = Sources/MLXEdgeLLM/LiDAR/IO/MeshExporter.swift; sourceTree = "<group>"; };
@@ -2433,6 +2435,7 @@
 				5A6DEF80AED90337BDA2A718 /* NavigationTests.swift */,
 				D4196DFBBC092015E79E6750 /* PureLogicTests.swift */,
 				B891D80DC423B96A0C134315 /* Info.plist */,
+				47BEDA9148707BF91C52F78A /* IOTimeout.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3313,6 +3316,7 @@
 				493165FD78590E2F5A9752C0 /* SignalPropagation.swift in Sources */,
 				F249AEAF91DBF1F575D89C98 /* FieldReport.swift in Sources */,
 				AC1B664E170AB853567DF87E /* PinnedURLSession.swift in Sources */,
+				4CF91094B8BA6E49B4EFF325 /* IOTimeout.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
