@@ -94,24 +94,75 @@ class HypothermiaViewModel: ObservableObject {
 }
 
 // MARK: - Rewarming Recommendations
+//
+// PR-C12 split rewarming into active vs passive paths based on the Swiss
+// staging system (Durrer et al., Wilderness Med Soc). Passive (shivering,
+// insulation, warm fluids) works when the patient can still thermoregulate —
+// typically stage 1 and mild stage 2 with intact shiver response. Active
+// (heat packs to trunk, forced-air warming, warmed IV) is required when
+// shiver has failed or core temp is severely low.
 
-struct RewarmingRecommendations {
-    let stage: HypothermiaStage
-    let recommendations: [String]
+public enum RewarmingMethod: String {
+    case passive = "Passive external"
+    case activeExternal = "Active external"
+    case activeInternal = "Active internal"
+    case noneRequired = "None required"
+
+    public var description: String {
+        switch self {
+        case .passive:
+            return "Shelter, dry insulation, warm sweet fluids. Relies on the patient's own shiver to rewarm."
+        case .activeExternal:
+            return "Heat packs to trunk (axilla, groin, chest), forced-air warming, warmed blankets."
+        case .activeInternal:
+            return "Warmed IV fluids (40–42 °C), warmed humidified oxygen, consider ECMO at hospital."
+        case .noneRequired:
+            return "No rewarming needed. Continue monitoring for latent symptoms."
+        }
+    }
 }
 
-extension RewarmingRecommendations {
-    init(stage: HypothermiaStage) {
+public struct RewarmingRecommendations {
+    public let stage: HypothermiaStage
+    public let primaryMethod: RewarmingMethod
+    public let recommendations: [String]
+
+    public init(stage: HypothermiaStage) {
         self.stage = stage
         switch stage {
         case .noRisk:
-            self.recommendations = ["Stay warm and dry."]
+            self.primaryMethod = .noneRequired
+            self.recommendations = [
+                "Stay warm and dry.",
+                "Monitor for shivering if conditions deteriorate."
+            ]
         case .stage1:
-            self.recommendations = ["Move to a warm environment.", "Change into dry clothes.", "Drink warm fluids."]
+            self.primaryMethod = .passive
+            self.recommendations = [
+                "Passive rewarming: move to a warm environment, change into dry clothes.",
+                "Warm sweet fluids if patient can swallow safely.",
+                "Expect shivering — this is the body's primary rewarming mechanism.",
+                "Monitor every 5 minutes; if shivering stops, escalate to active external."
+            ]
         case .stage2:
-            self.recommendations = ["Seek medical attention.", "Warm the body gradually.", "Avoid hot baths or showers."]
+            self.primaryMethod = .activeExternal
+            self.recommendations = [
+                "Active external rewarming: heat packs to axilla, groin, chest wall.",
+                "Forced-air warming blanket if available; warmed sleeping bag otherwise.",
+                "Warm IV fluids if available (NS, 40–42 °C).",
+                "Do NOT rewarm extremities aggressively — risk of core afterdrop.",
+                "Transport to definitive care; monitor for arrhythmia on handling."
+            ]
         case .stage3:
-            self.recommendations = ["Emergency medical care is required.", "Do not attempt to warm the body.", "Handle gently and seek immediate help."]
+            self.primaryMethod = .activeInternal
+            self.recommendations = [
+                "Active internal rewarming — hospital level.",
+                "Warmed humidified oxygen (40–46 °C) immediately.",
+                "Warmed IV crystalloid via large-bore access.",
+                "Handle gently — jostling can trigger V-fib in severe hypothermia.",
+                "Consider ECMO / cardiopulmonary bypass at receiving facility.",
+                "\"Not dead until warm and dead\": continue CPR even with prolonged arrest."
+            ]
         }
     }
 }

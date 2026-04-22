@@ -16,6 +16,7 @@
 		05A0D50BA5D0DBE22F0A4FB0 /* 43-cqb-room-clearing.md in Resources */ = {isa = PBXBuildFile; fileRef = 5B2C24F19C4FD00583823CED /* 43-cqb-room-clearing.md */; };
 		0612317F2FEA96E15A8591D7 /* 18-cqb-fundamentals.md in Resources */ = {isa = PBXBuildFile; fileRef = D9E73C31F8D79B035F7F06CF /* 18-cqb-fundamentals.md */; };
 		0612C1923F055EF122E17410 /* 27-cold-weather.md in Resources */ = {isa = PBXBuildFile; fileRef = BE98D062B47B357543395455 /* 27-cold-weather.md */; };
+		069A178ACEDCC41948CAEE18 /* MedicalC12Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 889E1563D338ED07AA996B79 /* MedicalC12Tests.swift */; };
 		06DB76F8B043889BD9113C1F /* DTMFLoggerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC6A8BBA08D4DFEB1064D5FC /* DTMFLoggerView.swift */; };
 		080BB1E16C82D37EB9B7C908 /* MinHeap.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0EF8E008AF20DDE97D0DAEA /* MinHeap.swift */; };
 		089DC9008D6C0B6F30477049 /* 21-surveillance-detection.md in Resources */ = {isa = PBXBuildFile; fileRef = E84A9C29450568EE7975F94D /* 21-surveillance-detection.md */; };
@@ -974,6 +975,7 @@
 		8805FA88BCEC7581A6B31BA4 /* TrainingLog.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TrainingLog.swift; path = Sources/MLXEdgeLLM/Training/Skills/TrainingLog.swift; sourceTree = "<group>"; };
 		884834DFDFF519A6EAF18555 /* FloodDashboard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FloodDashboard.swift; path = Sources/MLXEdgeLLM/Scenarios/Flood/FloodDashboard.swift; sourceTree = "<group>"; };
 		8879117C12F98ADE44EF2511 /* 71-ied-recognition.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "71-ied-recognition.md"; sourceTree = "<group>"; };
+		889E1563D338ED07AA996B79 /* MedicalC12Tests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MedicalC12Tests.swift; path = Tests/MLXEdgeLLMTests/MedicalC12Tests.swift; sourceTree = "<group>"; };
 		88DCC09381F6B460C18BB2C7 /* ShiftScheduler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ShiftScheduler.swift; path = Sources/MLXEdgeLLM/Coordination/ShiftScheduler.swift; sourceTree = "<group>"; };
 		88E072845538F69AEDDF73D9 /* OfflineTileProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineTileProvider.swift; sourceTree = "<group>"; };
 		89332DFEAB47442B9D20C254 /* DroneController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DroneController.swift; path = Sources/MLXEdgeLLM/Hardware/Drone/DroneController.swift; sourceTree = "<group>"; };
@@ -1590,6 +1592,7 @@
 				2F1D8A0C717787CF8C88CC1B /* VersionedTests.swift */,
 				86AA35612A03140766C6F2BB /* DeepLinkRouterTests.swift */,
 				419FE0AA25B5628999934D9C /* UVIndexEstimatorTests.swift */,
+				889E1563D338ED07AA996B79 /* MedicalC12Tests.swift */,
 			);
 			name = MLXEdgeLLMTests;
 			sourceTree = "<group>";
@@ -3208,6 +3211,7 @@
 				1AEC807A20F016AF73C49044 /* VersionedTests.swift in Sources */,
 				6924702D8B96E93E60096460 /* DeepLinkRouterTests.swift in Sources */,
 				742BD980C13647979FD5547B /* UVIndexEstimatorTests.swift in Sources */,
+				069A178ACEDCC41948CAEE18 /* MedicalC12Tests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
