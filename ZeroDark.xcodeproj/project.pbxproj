@@ -78,6 +78,7 @@
 		25700C4996B3B8A6A91CEDFD /* 93-arctic-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = A5F38ACDDF55B14E967AB8D0 /* 93-arctic-operations.md */; };
 		25AEE2D3A7DCEE17EB325F73 /* 28-tourniquet-application.md in Resources */ = {isa = PBXBuildFile; fileRef = 8233890AD17DEFD859F02D91 /* 28-tourniquet-application.md */; };
 		271567B42E71D8F3A76BD35D /* ScanGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30F1F16779B61BD07A6E1765 /* ScanGalleryView.swift */; };
+		27437A4009AE392CC8A845E8 /* LiDARExportWritersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E12D4B3FD6B968ECE391F4B /* LiDARExportWritersTests.swift */; };
 		2758F515D34B455FC655EB19 /* AfterAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60C29F91BE2FA3967D7591BC /* AfterAction.swift */; };
 		277BF0FE6EB35C27CDFA42CD /* ArmDeviceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 692A14D16E601C8DEADC36AB /* ArmDeviceView.swift */; };
 		279D428ACADDB02EBF1CA7FC /* 96-weather-advanced.md in Resources */ = {isa = PBXBuildFile; fileRef = 9FFBCEA83A8B4F5D40F5F38D /* 96-weather-advanced.md */; };
@@ -358,6 +359,7 @@
 		C292426197AA105322B1496C /* ScanStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4001FA525C6D6F6A6D91BFB0 /* ScanStorage.swift */; };
 		C38611710B3D93A54317F292 /* TAKBLEBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C30E1D9284457D6BE8ECC5 /* TAKBLEBridge.swift */; };
 		C39E07A71552906DCB09DA11 /* ModelDownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E6A02BF26E61A621C9F3BA7 /* ModelDownloadManager.swift */; };
+		C4F546892A6B599E49FDED7B /* LiDARExportWriters.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02340ECFEBBF466552C3DD7 /* LiDARExportWriters.swift */; };
 		C5057AFFFC53B539D5DB0107 /* 104-aar-format.md in Resources */ = {isa = PBXBuildFile; fileRef = 15C8A5AE9182F7E5EB807EDF /* 104-aar-format.md */; };
 		C5112513285358D3E288249A /* AppLockGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 400F34ED1F268F00852B7E71 /* AppLockGate.swift */; };
 		C59209285CE3D386ED016C69 /* MergeClouds.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D1D57C0A2740088530F0E0 /* MergeClouds.swift */; };
@@ -858,6 +860,7 @@
 		6C84CCCFC3C0CB303F6BD283 /* TaskAssignment.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TaskAssignment.swift; path = Sources/MLXEdgeLLM/Coordination/TaskAssignment.swift; sourceTree = "<group>"; };
 		6C8D05C178E0E89C34AB2B68 /* 14-fractures.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "14-fractures.md"; sourceTree = "<group>"; };
 		6E054367161C876318A82B69 /* CommsAudit.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CommsAudit.swift; path = Sources/MLXEdgeLLM/Security/Comms/CommsAudit.swift; sourceTree = "<group>"; };
+		6E12D4B3FD6B968ECE391F4B /* LiDARExportWritersTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LiDARExportWritersTests.swift; path = Tests/MLXEdgeLLMTests/LiDARExportWritersTests.swift; sourceTree = "<group>"; };
 		6E4AF54B3F4C9E3C0A7171AC /* SearchUrgency.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SearchUrgency.swift; path = Sources/MLXEdgeLLM/Scenarios/Wilderness/SearchUrgency.swift; sourceTree = "<group>"; };
 		6E51C7B1F5B94C1E33C16ED7 /* AarBuilder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AarBuilder.swift; sourceTree = "<group>"; };
 		6EA63AEDE537027A7CA173B5 /* 13-urban-improvised.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "13-urban-improvised.md"; sourceTree = "<group>"; };
@@ -1067,6 +1070,7 @@
 		AF5B8A9B22C4E26C6A386BCA /* 80-anti-tracking-advanced.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "80-anti-tracking-advanced.md"; sourceTree = "<group>"; };
 		AF76CE972A63B150DD91DA4D /* WildernessDashboard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WildernessDashboard.swift; path = Sources/MLXEdgeLLM/Scenarios/Wilderness/WildernessDashboard.swift; sourceTree = "<group>"; };
 		AFAE762D50B8F762C61FFB23 /* AppLockManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppLockManager.swift; path = Sources/MLXEdgeLLM/Security/AppLock/AppLockManager.swift; sourceTree = "<group>"; };
+		B02340ECFEBBF466552C3DD7 /* LiDARExportWriters.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LiDARExportWriters.swift; path = Sources/MLXEdgeLLM/SpatialIntelligence/LiDAR/LiDARExportWriters.swift; sourceTree = "<group>"; };
 		B060DC742D2E17436AEBE358 /* StreamingVoxelMap.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StreamingVoxelMap.swift; path = Sources/MLXEdgeLLM/LiDAR/NeRF/StreamingVoxelMap.swift; sourceTree = "<group>"; };
 		B09332EFBD909E42665AD67F /* 10-insects.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "10-insects.md"; sourceTree = "<group>"; };
 		B0C322A89479A257DF73BD56 /* ThreatCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreatCategory.swift; sourceTree = "<group>"; };
@@ -1539,6 +1543,14 @@
 			path = Control;
 			sourceTree = "<group>";
 		};
+		2DEFF5F6794B755E69CD5CFD /* LiDAR */ = {
+			isa = PBXGroup;
+			children = (
+				B02340ECFEBBF466552C3DD7 /* LiDARExportWriters.swift */,
+			);
+			name = LiDAR;
+			sourceTree = "<group>";
+		};
 		3239AE5148A749508B47CB5E /* MLXEdgeLLMTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -1550,6 +1562,7 @@
 				4A883C63820FAD5E975FF249 /* AppLockTests.swift */,
 				C87D265C8B72A108F5C33919 /* IntegrationHealthMonitorTests.swift */,
 				4A91EE7AE887E6BE3765B9E0 /* MGRSGridLinesTests.swift */,
+				6E12D4B3FD6B968ECE391F4B /* LiDARExportWritersTests.swift */,
 			);
 			name = MLXEdgeLLMTests;
 			sourceTree = "<group>";
@@ -1621,6 +1634,14 @@
 			path = DTN;
 			sourceTree = "<group>";
 		};
+		55FE6C77FAB3CC00D5A16BD6 /* SpatialIntelligence */ = {
+			isa = PBXGroup;
+			children = (
+				2DEFF5F6794B755E69CD5CFD /* LiDAR */,
+			);
+			name = SpatialIntelligence;
+			sourceTree = "<group>";
+		};
 		561C81285D676560BC5E5430 /* MLXEdgeLLM */ = {
 			isa = PBXGroup;
 			children = (
@@ -1628,6 +1649,7 @@
 				6E51C7B1F5B94C1E33C16ED7 /* AarBuilder.swift */,
 				65DC1D338888B222FC3E437B /* Services */,
 				5659CFEE6ED740B9C9D9543C /* Navigation */,
+				55FE6C77FAB3CC00D5A16BD6 /* SpatialIntelligence */,
 			);
 			name = MLXEdgeLLM;
 			sourceTree = "<group>";
@@ -3123,6 +3145,7 @@
 				17DEFB38AA33233C797A518F /* AppLockTests.swift in Sources */,
 				B7D248A00107BA30C394C06D /* IntegrationHealthMonitorTests.swift in Sources */,
 				D4CAF7D09C6488A1E132CF6F /* MGRSGridLinesTests.swift in Sources */,
+				27437A4009AE392CC8A845E8 /* LiDARExportWritersTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3405,6 +3428,7 @@
 				1134D7155B4F55FA12F5B98A /* LoggerConvenience.swift in Sources */,
 				F25B7F68C83A26922AE33EEE /* IntegrationHealthMonitor.swift in Sources */,
 				2B1A8018490D1A1D86B18F9E /* MGRSGridLines.swift in Sources */,
+				C4F546892A6B599E49FDED7B /* LiDARExportWriters.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
