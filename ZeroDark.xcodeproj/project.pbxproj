@@ -434,6 +434,7 @@
 		E9BD5312B94135BCC73C68D1 /* 36-tccc-march.md in Resources */ = {isa = PBXBuildFile; fileRef = 63821674F693DB8745526EDA /* 36-tccc-march.md */; };
 		E9D2FD2CAD7184580E52A5D8 /* EvalDebriefSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9224B7AACF64FF22C3AE2B70 /* EvalDebriefSection.swift */; };
 		EA7A4034987EDB996F08A98B /* ThreatClassMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0214192C5A2E167F1F323284 /* ThreatClassMap.swift */; };
+		EB8C4BA029F3B6FB431E3F5E /* ScanStorageCapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B6B7DB5C56D875C9149869 /* ScanStorageCapTests.swift */; };
 		ECE41A05D145C3981D511B88 /* 07-rope-knots.md in Resources */ = {isa = PBXBuildFile; fileRef = EFDB2E779DF353E787B2A3F6 /* 07-rope-knots.md */; };
 		ED17189D3C656A0FAF6A3C2B /* 107-load-planning.md in Resources */ = {isa = PBXBuildFile; fileRef = C2934D7BA269DC2C887394C4 /* 107-load-planning.md */; };
 		EE33462CB258C856335BCE0B /* WeatherForecaster.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFDD51268109B32A850A686 /* WeatherForecaster.swift */; };
@@ -700,6 +701,7 @@
 		374A8F51518ACC8A70A0B1BA /* MetadataScrubber.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MetadataScrubber.swift; path = Sources/MLXEdgeLLM/Security/OpSec/MetadataScrubber.swift; sourceTree = "<group>"; };
 		37519CBC8FFCC6DCD0F40F9A /* CsvGeoImport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CsvGeoImport.swift; path = Sources/MLXEdgeLLM/Interop/GIS/CsvGeoImport.swift; sourceTree = "<group>"; };
 		37642FE0C4F8737854DC4072 /* 82-resistance-interrogation.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "82-resistance-interrogation.md"; sourceTree = "<group>"; };
+		37B6B7DB5C56D875C9149869 /* ScanStorageCapTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ScanStorageCapTests.swift; path = Tests/MLXEdgeLLMTests/ScanStorageCapTests.swift; sourceTree = "<group>"; };
 		389BF61B395E4B1248132B1D /* 50-perimeter-defense.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "50-perimeter-defense.md"; sourceTree = "<group>"; };
 		39021A0C857CE739E0B492DF /* NavigationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationViewModel.swift; sourceTree = "<group>"; };
 		3A860644C00313AF1FECBECA /* CaveMapper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CaveMapper.swift; path = Sources/MLXEdgeLLM/Navigation/CaveMapper.swift; sourceTree = "<group>"; };
@@ -1569,6 +1571,7 @@
 				6E12D4B3FD6B968ECE391F4B /* LiDARExportWritersTests.swift */,
 				BED1622CE60145756B96E6E5 /* GeofenceMonitorTests.swift */,
 				6D1AE4EFE28E36351E7E0828 /* DTNBundleTests.swift */,
+				37B6B7DB5C56D875C9149869 /* ScanStorageCapTests.swift */,
 			);
 			name = MLXEdgeLLMTests;
 			sourceTree = "<group>";
@@ -3154,6 +3157,7 @@
 				27437A4009AE392CC8A845E8 /* LiDARExportWritersTests.swift in Sources */,
 				FAAA611C597277621D958299 /* GeofenceMonitorTests.swift in Sources */,
 				AEAC367086857065103BA61B /* DTNBundleTests.swift in Sources */,
+				EB8C4BA029F3B6FB431E3F5E /* ScanStorageCapTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
