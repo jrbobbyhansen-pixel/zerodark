@@ -239,12 +239,79 @@ final class OpOrderBuilder: ObservableObject {
     }
 }
 
+// MARK: - Field length limits
+// Aligned with the 5-paragraph OPORD norm: situation/mission/execution
+// fields are expected to be a page or two in the field, hard-capped here
+// to prevent PDF pagination issues + keep mesh-JSON payload bounded.
+private enum OPORDLimits {
+    static let shortField = 500
+    static let paragraphField = 2_000
+    static let objectiveLine = 140
+}
+
+/// A labeled TextEditor with a live character counter + hard cap.
+/// Used for the 5 OPORD paragraph fields.
+private struct CountedTextEditor: View {
+    let title: String
+    let help: String
+    let limit: Int
+    @Binding var text: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            TextEditor(text: $text)
+                .frame(minHeight: 60)
+                .font(.body)
+                .onChange(of: text) { _, new in
+                    if new.count > limit {
+                        text = String(new.prefix(limit))
+                    }
+                }
+            HStack(spacing: 6) {
+                Text(help)
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                Spacer()
+                Text("\(text.count)/\(limit)")
+                    .font(.caption2.monospacedDigit())
+                    .foregroundColor(text.count >= limit ? ZDDesign.signalRed :
+                                     text.count >= limit * 9 / 10 ? .orange : .secondary)
+                    .accessibilityLabel("\(title): \(text.count) of \(limit) characters used")
+            }
+        }
+    }
+}
+
 // MARK: - OpOrderBuilderView
 
 struct OpOrderBuilderView: View {
     @ObservedObject private var vm = OpOrderBuilder.shared
     @State private var newObjective = ""
     @State private var objectiveType: Objective.ObjectiveType = .primary
+    @State private var showValidation = false
+    @State private var validationIssues: [String] = []
+
+    private func validate() -> [String] {
+        var issues: [String] = []
+        if vm.order.mission.trimmingCharacters(in: .whitespaces).isEmpty {
+            issues.append("Mission paragraph (Para 2) is empty.")
+        }
+        if vm.order.objectives.isEmpty {
+            issues.append("No objectives defined.")
+        }
+        if vm.order.situation.trimmingCharacters(in: .whitespaces).isEmpty {
+            issues.append("Situation paragraph (Para 1) is empty.")
+        }
+        return issues
+    }
+
+    private func moveObjective(from source: Int, to destination: Int) {
+        guard source != destination,
+              vm.order.objectives.indices.contains(source),
+              vm.order.objectives.indices.contains(destination) else { return }
+        let item = vm.order.objectives.remove(at: source)
+        vm.order.objectives.insert(item, at: destination)
+    }
 
     var body: some View {
         List {
@@ -257,55 +324,118 @@ struct OpOrderBuilderView: View {
             }
 
             Section("Situation (Para 1)") {
-                TextEditor(text: $vm.order.situation)
-                    .frame(minHeight: 80)
-                    .font(.body)
+                CountedTextEditor(
+                    title: "Situation",
+                    help: "Enemy/friendly forces, terrain, weather",
+                    limit: OPORDLimits.paragraphField,
+                    text: $vm.order.situation
+                )
             }
 
             Section("Mission (Para 2)") {
-                TextEditor(text: $vm.order.mission)
-                    .frame(minHeight: 80)
+                CountedTextEditor(
+                    title: "Mission",
+                    help: "Who, what, where, when, why (5 Ws)",
+                    limit: OPORDLimits.paragraphField,
+                    text: $vm.order.mission
+                )
             }
 
             Section("Objectives") {
-                ForEach(vm.order.objectives) { obj in
+                ForEach(Array(vm.order.objectives.enumerated()), id: \.element.id) { idx, obj in
                     HStack {
                         Text("[\(obj.type.rawValue)]").font(.caption).foregroundColor(.secondary)
-                        Text(obj.description)
+                        Text(obj.description).lineLimit(2)
+                        Spacer()
+                        // Accessible reorder controls (alternative to drag)
+                        if idx > 0 {
+                            Button {
+                                moveObjective(from: idx, to: idx - 1)
+                            } label: {
+                                Image(systemName: "arrow.up")
+                            }
+                            .buttonStyle(.borderless)
+                            .a11yIcon("Move \(obj.description) up")
+                        }
+                        if idx < vm.order.objectives.count - 1 {
+                            Button {
+                                moveObjective(from: idx, to: idx + 1)
+                            } label: {
+                                Image(systemName: "arrow.down")
+                            }
+                            .buttonStyle(.borderless)
+                            .a11yIcon("Move \(obj.description) down")
+                        }
                     }
                 }
                 .onDelete { vm.removeObjective(at: $0) }
 
-                HStack {
-                    TextField("New objective", text: $newObjective)
-                    Picker("", selection: $objectiveType) {
-                        ForEach(Objective.ObjectiveType.allCases, id: \.self) { t in Text(t.rawValue.prefix(3)) }
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        TextField("New objective", text: $newObjective)
+                            .onChange(of: newObjective) { _, new in
+                                if new.count > OPORDLimits.objectiveLine {
+                                    newObjective = String(new.prefix(OPORDLimits.objectiveLine))
+                                }
+                            }
+                        Picker("", selection: $objectiveType) {
+                            ForEach(Objective.ObjectiveType.allCases, id: \.self) { t in Text(t.rawValue.prefix(3)) }
+                        }
+                        .pickerStyle(.segmented)
+                        .frame(width: 100)
+                        Button {
+                            vm.addObjective(Objective(description: newObjective, type: objectiveType))
+                            newObjective = ""
+                        } label: {
+                            Image(systemName: "plus.circle.fill").foregroundColor(ZDDesign.cyanAccent)
+                        }
+                        .disabled(newObjective.trimmingCharacters(in: .whitespaces).isEmpty)
+                        .a11yIcon("Add objective")
                     }
-                    .pickerStyle(.segmented)
-                    .frame(width: 100)
-                    Button {
-                        vm.addObjective(Objective(description: newObjective, type: objectiveType))
-                        newObjective = ""
-                    } label: {
-                        Image(systemName: "plus.circle.fill").foregroundColor(ZDDesign.cyanAccent)
-                    }
-                    .disabled(newObjective.isEmpty)
+                    Text("Example: \"Secure MSR ALPHA from 0600–1400Z\"")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
                 }
             }
 
             Section("Execution (Para 3)") {
-                TextEditor(text: $vm.order.execution).frame(minHeight: 60)
+                CountedTextEditor(
+                    title: "Execution",
+                    help: "Concept of ops, tasks, coordinating instructions",
+                    limit: OPORDLimits.paragraphField,
+                    text: $vm.order.execution
+                )
             }
 
             Section("Service & Support (Para 4)") {
-                TextEditor(text: $vm.order.serviceSupport).frame(minHeight: 60)
+                CountedTextEditor(
+                    title: "Service & Support",
+                    help: "Logistics, medical, class I–V supply",
+                    limit: OPORDLimits.shortField,
+                    text: $vm.order.serviceSupport
+                )
             }
 
             Section("Command & Signal (Para 5)") {
-                TextEditor(text: $vm.order.commandSignal).frame(minHeight: 60)
+                CountedTextEditor(
+                    title: "Command & Signal",
+                    help: "Command relationships, signals, comms plan",
+                    limit: OPORDLimits.shortField,
+                    text: $vm.order.commandSignal
+                )
             }
 
             Section {
+                Button {
+                    let issues = validate()
+                    validationIssues = issues
+                    showValidation = true
+                } label: {
+                    Label("Validate OPORD", systemImage: "checkmark.shield")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+
                 Button {
                     vm.prepareExport()
                 } label: {
@@ -321,6 +451,15 @@ struct OpOrderBuilderView: View {
         .navigationBarTitleDisplayMode(.large)
         .sheet(item: $vm.exportURL) { url in
             ShareSheet(items: [url])
+        }
+        .alert("Validation", isPresented: $showValidation) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            if validationIssues.isEmpty {
+                Text("All required paragraphs are populated. OPORD is ready to export.")
+            } else {
+                Text(validationIssues.map { "• \($0)" }.joined(separator: "\n"))
+            }
         }
     }
 }
