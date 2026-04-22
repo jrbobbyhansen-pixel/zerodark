@@ -1,0 +1,76 @@
+# SwiftLint configuration for ZeroDark.
+# Balances strict defaults with pragmatic allowances for SwiftUI / domain math.
+
+included:
+  - Sources/MLXEdgeLLM
+  - Tests/MLXEdgeLLMTests
+
+excluded:
+  - .build
+  - DerivedData
+  - Sources/MLXEdgeLLM/Vendored
+  - Tests/MLXEdgeLLMTests/Fixtures
+
+disabled_rules:
+  - trailing_whitespace      # handled by editor
+  - nesting                  # SwiftUI ViewBuilder idiomatic nesting
+
+opt_in_rules:
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+  - unused_import
+  - private_outlet
+  - toggle_bool
+  - first_where
+  - last_where
+  - sorted_first_last
+
+line_length:
+  warning: 140
+  error: 220
+  ignores_urls: true
+  ignores_comments: true
+  ignores_function_declarations: true
+  ignores_interpolated_strings: true
+
+file_length:
+  warning: 600
+  error: 1500
+
+function_body_length:
+  warning: 80
+  error: 200
+
+type_body_length:
+  warning: 400
+  error: 800
+
+cyclomatic_complexity:
+  warning: 12
+  error: 20
+
+identifier_name:
+  min_length:
+    warning: 2
+  excluded:
+    - id
+    - x
+    - y
+    - z
+    - i
+    - j
+    - k
+    - n
+    - m
+    - dx
+    - dy
+    - dz
+    - r
+    - g
+    - b
+    - a
+    - us
+    - ms
+
+force_unwrapping:
+  severity: warning
