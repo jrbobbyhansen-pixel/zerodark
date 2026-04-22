@@ -92,6 +92,7 @@
 		29FE1FBE5EA59566CEB4C376 /* ModelPerformanceMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4084AFF59F767C576B1D774C /* ModelPerformanceMonitor.swift */; };
 		2A0D956BE8D08CAF1DB8FDFC /* VoiceMemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C6B137F0FBEEB028777676 /* VoiceMemo.swift */; };
 		2ABE45A6BB8B5206E021C7FB /* AppNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A8FC4924F81BC9825ACB7B /* AppNavigation.swift */; };
+		2B1A8018490D1A1D86B18F9E /* MGRSGridLines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68D6A8E5021293D2877DAE2C /* MGRSGridLines.swift */; };
 		2BCB2C58D50680F0CE531D62 /* 87-building-assessment.md in Resources */ = {isa = PBXBuildFile; fileRef = A9A2CB5F036875FCDA768BB7 /* 87-building-assessment.md */; };
 		2C02EC9FE4156DA818DD7C1E /* VolumeMeasure.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDECDA06F8FB7D9B9BBC7CB9 /* VolumeMeasure.swift */; };
 		2C48707DD7E3B2F5D5DAE208 /* GeoPackageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 649752049A5F7FCB36BA7889 /* GeoPackageService.swift */; };
@@ -390,6 +391,7 @@
 		D450D96538633995BCC12E87 /* LLMAssistant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90563F0C745F3D76C52F4371 /* LLMAssistant.swift */; };
 		D48172CC5078F519CC14ECC3 /* 54-breaching.md in Resources */ = {isa = PBXBuildFile; fileRef = 8CC73F383F9A82D2967CB010 /* 54-breaching.md */; };
 		D4C22897992827B7165BF08C /* IntelStubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 338C5483C713E723096E8283 /* IntelStubs.swift */; };
+		D4CAF7D09C6488A1E132CF6F /* MGRSGridLinesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A91EE7AE887E6BE3765B9E0 /* MGRSGridLinesTests.swift */; };
 		D56A604A950C9D9D70365984 /* PatientHandoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2060861DE474DFF0D4E329BF /* PatientHandoff.swift */; };
 		D5CAE6FFD4C46F4F3D293099 /* PeerDetailsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEE656232B1326AD85C62CB /* PeerDetailsSheet.swift */; };
 		D6B4C86117843EDED012D87C /* 07-foraging-plants.md in Resources */ = {isa = PBXBuildFile; fileRef = F1ACFCE8478F5F4DA80C619A /* 07-foraging-plants.md */; };
@@ -743,6 +745,7 @@
 		49FA038B2C91BBF69E870476 /* BeaconMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BeaconMode.swift; path = Sources/MLXEdgeLLM/CommunicationCore/BeaconMode.swift; sourceTree = "<group>"; };
 		4A50CEFA04EB2914EFFA9A1B /* 91-desert-operations.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "91-desert-operations.md"; sourceTree = "<group>"; };
 		4A883C63820FAD5E975FF249 /* AppLockTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppLockTests.swift; path = Tests/MLXEdgeLLMTests/AppLockTests.swift; sourceTree = "<group>"; };
+		4A91EE7AE887E6BE3765B9E0 /* MGRSGridLinesTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MGRSGridLinesTests.swift; path = Tests/MLXEdgeLLMTests/MGRSGridLinesTests.swift; sourceTree = "<group>"; };
 		4AAF85C043CBCA311E09D25F /* StrandedTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StrandedTracker.swift; path = Sources/MLXEdgeLLM/Scenarios/Flood/StrandedTracker.swift; sourceTree = "<group>"; };
 		4AC80874E94444C5F9672378 /* SecureFileTransfer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SecureFileTransfer.swift; path = Sources/MLXEdgeLLM/Security/Comms/SecureFileTransfer.swift; sourceTree = "<group>"; };
 		4C03E21247B7E4A16CEF55A0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -834,6 +837,7 @@
 		67CC58CD7CA55A0453E38241 /* 100-counter-surveillance-vehicle.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "100-counter-surveillance-vehicle.md"; sourceTree = "<group>"; };
 		67D48B61C07222909CAB2F40 /* FuelCalculator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FuelCalculator.swift; path = Sources/MLXEdgeLLM/Hardware/Vehicle/FuelCalculator.swift; sourceTree = "<group>"; };
 		68454E5CAF9ECF9B45126706 /* SceneTagStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SceneTagStore.swift; path = Sources/MLXEdgeLLM/SpatialIntelligence/LiDAR/SceneTagStore.swift; sourceTree = "<group>"; };
+		68D6A8E5021293D2877DAE2C /* MGRSGridLines.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MGRSGridLines.swift; path = Sources/MLXEdgeLLM/Navigation/MGRSGridLines.swift; sourceTree = "<group>"; };
 		692A14D16E601C8DEADC36AB /* ArmDeviceView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ArmDeviceView.swift; sourceTree = "<group>"; };
 		694B8A0A3FB6A9148FFDEB23 /* CurrentEstimator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CurrentEstimator.swift; path = Sources/MLXEdgeLLM/Navigation/CurrentEstimator.swift; sourceTree = "<group>"; };
 		69C91095C85D5BB2AA48CB4E /* LandingZoneMarker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LandingZoneMarker.swift; path = Sources/MLXEdgeLLM/Navigation/LandingZoneMarker.swift; sourceTree = "<group>"; };
@@ -1545,6 +1549,7 @@
 				714B6F48FB56CDADA7421E5B /* MARCHTests.swift */,
 				4A883C63820FAD5E975FF249 /* AppLockTests.swift */,
 				C87D265C8B72A108F5C33919 /* IntegrationHealthMonitorTests.swift */,
+				4A91EE7AE887E6BE3765B9E0 /* MGRSGridLinesTests.swift */,
 			);
 			name = MLXEdgeLLMTests;
 			sourceTree = "<group>";
@@ -1622,8 +1627,17 @@
 				210B51EA24FAF43C9EEE3F70 /* AI */,
 				6E51C7B1F5B94C1E33C16ED7 /* AarBuilder.swift */,
 				65DC1D338888B222FC3E437B /* Services */,
+				5659CFEE6ED740B9C9D9543C /* Navigation */,
 			);
 			name = MLXEdgeLLM;
+			sourceTree = "<group>";
+		};
+		5659CFEE6ED740B9C9D9543C /* Navigation */ = {
+			isa = PBXGroup;
+			children = (
+				68D6A8E5021293D2877DAE2C /* MGRSGridLines.swift */,
+			);
+			name = Navigation;
 			sourceTree = "<group>";
 		};
 		574D7485FE0D394A8D536867 /* vehicles */ = {
@@ -3108,6 +3122,7 @@
 				016DAA40124B50F76FBA8158 /* MARCHTests.swift in Sources */,
 				17DEFB38AA33233C797A518F /* AppLockTests.swift in Sources */,
 				B7D248A00107BA30C394C06D /* IntegrationHealthMonitorTests.swift in Sources */,
+				D4CAF7D09C6488A1E132CF6F /* MGRSGridLinesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3389,6 +3404,7 @@
 				225F3F00B45D61CA587816F1 /* RetryPolicy.swift in Sources */,
 				1134D7155B4F55FA12F5B98A /* LoggerConvenience.swift in Sources */,
 				F25B7F68C83A26922AE33EEE /* IntegrationHealthMonitor.swift in Sources */,
+				2B1A8018490D1A1D86B18F9E /* MGRSGridLines.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
