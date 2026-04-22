@@ -15,6 +15,14 @@ public struct DTNBundle: Codable, Identifiable {
     public var deliveryAttempts: Int
     public var lastAttemptAt: Date?
     public var deliveredAt: Date?
+    /// Set when delivery is given up on — either the retry ladder
+    /// exhausted or the TTL expired before success. Once stamped, the
+    /// bundle is in the dead-letter state and excluded from pending
+    /// delivery queries. Added PR-C11.
+    public var deadLetteredAt: Date?
+    /// Operator-facing reason for dead-lettering. Kept short so it can
+    /// render in UI lists without truncation.
+    public var deadLetterReason: String?
 
     public enum BundlePriority: Int, Codable, Comparable {
         case bulk = 0
@@ -35,6 +43,12 @@ public struct DTNBundle: Codable, Identifiable {
         deliveredAt != nil
     }
 
+    /// True when the bundle has been retired to the dead-letter queue
+    /// (retry exhausted or TTL expired without delivery).
+    public var isDeadLettered: Bool {
+        deadLetteredAt != nil
+    }
+
     public init(
         destination: String,
         payload: Data,
@@ -51,6 +65,8 @@ public struct DTNBundle: Codable, Identifiable {
         self.deliveryAttempts = 0
         self.lastAttemptAt = nil
         self.deliveredAt = nil
+        self.deadLetteredAt = nil
+        self.deadLetterReason = nil
     }
 }
 
