@@ -3,7 +3,7 @@
 import Foundation
 
 /// A threat report with AI classification
-public struct ThreatReport: Identifiable, Codable {
+public struct ThreatReport: Identifiable, Codable, Sendable {
     public let id: UUID
     public let timestamp: Date
     public let source: String            // Reporter ID

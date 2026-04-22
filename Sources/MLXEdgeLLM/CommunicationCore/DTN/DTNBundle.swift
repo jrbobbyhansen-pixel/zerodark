@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 /// A delay-tolerant network bundle (NASA HDTN pattern)
-public struct DTNBundle: Codable, Identifiable {
+public struct DTNBundle: Codable, Identifiable, Sendable {
     public let id: UUID
     public let createdAt: Date
     public let expiresAt: Date
@@ -24,7 +24,7 @@ public struct DTNBundle: Codable, Identifiable {
     /// render in UI lists without truncation.
     public var deadLetterReason: String?
 
-    public enum BundlePriority: Int, Codable, Comparable {
+    public enum BundlePriority: Int, Codable, Comparable, Sendable {
         case bulk = 0
         case normal = 1
         case expedited = 2

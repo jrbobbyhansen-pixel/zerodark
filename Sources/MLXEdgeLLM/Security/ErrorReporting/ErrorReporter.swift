@@ -17,7 +17,7 @@ import OSLog
 
 // MARK: - Categories
 
-public enum ErrorCategory: String, Codable {
+public enum ErrorCategory: String, Codable, Sendable {
     case navigation
     case mesh
     case crypto
@@ -33,7 +33,7 @@ public enum ErrorCategory: String, Codable {
 
 // MARK: - Report
 
-public struct ErrorReport: Identifiable, Hashable {
+public struct ErrorReport: Identifiable, Hashable, Sendable {
     public let id: UUID
     public let timestamp: Date
     public let category: ErrorCategory
