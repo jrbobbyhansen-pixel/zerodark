@@ -16,7 +16,10 @@ public class DTNDeliveryManager: ObservableObject {
     // Exponential backoff settings (HDTN pattern)
     private let baseRetryInterval: TimeInterval = 5
     private let maxRetryInterval: TimeInterval = 300  // 5 minutes max
-    private let maxAttempts = 10
+    /// Retry cap. Bumped from 10 → 25 in PR-C11 to match the audit's
+    /// guidance — 25 attempts across the backoff ladder covers ~4 hours
+    /// of brief mesh outages before we give up and dead-letter.
+    private let maxAttempts = 25
 
     private init() {}
 
@@ -57,8 +60,12 @@ public class DTNDeliveryManager: ObservableObject {
         }
 
         for bundle in bundles {
-            // Skip if too many attempts
+            // Retire bundles that have exhausted the retry ladder into the
+            // dead-letter queue. They remain on disk until an operator
+            // discards them from Settings.
             guard bundle.deliveryAttempts < maxAttempts else {
+                try? await buffer.markDeadLettered(bundle.id,
+                                                   reason: "retry_exhausted")
                 continue
             }
 
