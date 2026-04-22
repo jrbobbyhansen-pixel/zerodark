@@ -483,44 +483,10 @@ struct MapTabView: View {
 
     // MARK: - MGRS Grid Lines
 
+    /// Wrapper over Navigation/MGRSGridLines (PR-B6). Kept on MapTabView
+    /// so the call sites below don't need to thread appState.mapRegion.
     private func mgrsGridLines() -> [[CLLocationCoordinate2D]] {
-        let region = appState.mapRegion
-        let span = max(region.span.latitudeDelta, region.span.longitudeDelta)
-
-        let spacing: Double
-        if span > 10 { spacing = 6.0 }
-        else if span > 1 { spacing = 1.0 }
-        else if span > 0.1 { spacing = 0.1 }
-        else { spacing = 0.01 }
-
-        let minLat = region.center.latitude - region.span.latitudeDelta / 2
-        let maxLat = region.center.latitude + region.span.latitudeDelta / 2
-        let minLon = region.center.longitude - region.span.longitudeDelta / 2
-        let maxLon = region.center.longitude + region.span.longitudeDelta / 2
-
-        var lines: [[CLLocationCoordinate2D]] = []
-
-        // Vertical lines
-        var lon = (minLon / spacing).rounded(.down) * spacing
-        while lon <= maxLon {
-            lines.append([
-                CLLocationCoordinate2D(latitude: minLat, longitude: lon),
-                CLLocationCoordinate2D(latitude: maxLat, longitude: lon)
-            ])
-            lon += spacing
-        }
-
-        // Horizontal lines
-        var lat = (minLat / spacing).rounded(.down) * spacing
-        while lat <= maxLat {
-            lines.append([
-                CLLocationCoordinate2D(latitude: lat, longitude: minLon),
-                CLLocationCoordinate2D(latitude: lat, longitude: maxLon)
-            ])
-            lat += spacing
-        }
-
-        return lines
+        MGRSGridLines.gridLines(for: appState.mapRegion)
     }
 
     // MARK: - Event Handling
