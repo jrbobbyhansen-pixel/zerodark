@@ -459,6 +459,7 @@
 		F8D3E8B79C9C4A62C30A2A1F /* SitrepGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E97FD841E49082CBCE4879 /* SitrepGenerator.swift */; };
 		F8DE2235277E64DE3CB6BF69 /* ResourceTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FF028F11809EAA9B83B58A /* ResourceTracker.swift */; };
 		F997A265345451FBF1636A53 /* WaypointOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3926D03700876E844860380 /* WaypointOverlay.swift */; };
+		FAAA611C597277621D958299 /* GeofenceMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED1622CE60145756B96E6E5 /* GeofenceMonitorTests.swift */; };
 		FBB312D42BA2928D8ADEAB4E /* 72-react-indirect-fire.md in Resources */ = {isa = PBXBuildFile; fileRef = E05AA16FEBB045D2CC3E6E30 /* 72-react-indirect-fire.md */; };
 		FDAC1D26A526D50F420FEC12 /* 115-zerodark-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = CC04AB64E17287DD1413B0FC /* 115-zerodark-operations.md */; };
 		FE8D904004B0B3DF972268CF /* TeamPackPaywall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BDDB765CD8F042A8D85DC83 /* TeamPackPaywall.swift */; };
@@ -1122,6 +1123,7 @@
 		BE20514C3F686800A100E36D /* TelemetryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryStore.swift; sourceTree = "<group>"; };
 		BE51EF5DA4224F5291F2F4A1 /* 22-terrain-association.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "22-terrain-association.md"; sourceTree = "<group>"; };
 		BE98D062B47B357543395455 /* 27-cold-weather.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "27-cold-weather.md"; sourceTree = "<group>"; };
+		BED1622CE60145756B96E6E5 /* GeofenceMonitorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GeofenceMonitorTests.swift; path = Tests/MLXEdgeLLMTests/GeofenceMonitorTests.swift; sourceTree = "<group>"; };
 		BED65806E8B74F2C9C73F4D7 /* DemGenerator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DemGenerator.swift; path = Sources/MLXEdgeLLM/LiDAR/Terrain/DemGenerator.swift; sourceTree = "<group>"; };
 		BEDBC1696977BCAF08EA0B6E /* QuizBuilder.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QuizBuilder.swift; path = Sources/MLXEdgeLLM/Training/Knowledge/QuizBuilder.swift; sourceTree = "<group>"; };
 		BF4771C437719D869EA5D500 /* YOLOService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = YOLOService.swift; path = Sources/MLXEdgeLLM/LiDAR/Detection/YOLOService.swift; sourceTree = "<group>"; };
@@ -1563,6 +1565,7 @@
 				C87D265C8B72A108F5C33919 /* IntegrationHealthMonitorTests.swift */,
 				4A91EE7AE887E6BE3765B9E0 /* MGRSGridLinesTests.swift */,
 				6E12D4B3FD6B968ECE391F4B /* LiDARExportWritersTests.swift */,
+				BED1622CE60145756B96E6E5 /* GeofenceMonitorTests.swift */,
 			);
 			name = MLXEdgeLLMTests;
 			sourceTree = "<group>";
@@ -3146,6 +3149,7 @@
 				B7D248A00107BA30C394C06D /* IntegrationHealthMonitorTests.swift in Sources */,
 				D4CAF7D09C6488A1E132CF6F /* MGRSGridLinesTests.swift in Sources */,
 				27437A4009AE392CC8A845E8 /* LiDARExportWritersTests.swift in Sources */,
+				FAAA611C597277621D958299 /* GeofenceMonitorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

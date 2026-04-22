@@ -12,15 +12,58 @@ public class GeofenceMonitor: NSObject, ObservableObject, CLLocationManagerDeleg
     @Published public var isMonitoring: Bool = false
     @Published public var lastViolations: [GeofenceViolation] = []
 
+    /// Dead-band distance (meters). A violation for a given fence/type
+    /// combination is suppressed until the device moves farther than
+    /// this from the point at which it last fired. Prevents a boundary
+    /// flap from spamming the operator when the GPS is noisy right on
+    /// the edge of a fence.
+    public var hysteresisMeters: Double = 10.0
+
     private let locationManager = CLLocationManager()
     private let geofenceManager = GeofenceManager.shared
     private var isRunning = false
+
+    /// Keyed by "\(fenceID):\(violationType)". Value is the coordinate at
+    /// which that key last fired. Cleared when monitoring stops.
+    private var lastViolationAt: [String: CLLocationCoordinate2D] = [:]
 
     private override init() {
         super.init()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.distanceFilter = 10.0
+    }
+
+    private func hysteresisKey(for v: GeofenceViolation) -> String {
+        "\(v.geofenceID.uuidString):\(v.violationType)"
+    }
+
+    /// Decide which of the raw violations actually warrant surfacing to
+    /// the operator. Public + nonisolated so it can be unit-tested
+    /// without spinning up a real CLLocationManager.
+    public func filterWithHysteresis(
+        _ raw: [GeofenceViolation],
+        here: CLLocationCoordinate2D
+    ) -> [GeofenceViolation] {
+        var surfaced: [GeofenceViolation] = []
+        for v in raw {
+            let key = hysteresisKey(for: v)
+            if let last = lastViolationAt[key] {
+                let d = CLLocation(latitude: last.latitude, longitude: last.longitude)
+                    .distance(from: CLLocation(latitude: here.latitude, longitude: here.longitude))
+                if d < hysteresisMeters { continue }
+            }
+            lastViolationAt[key] = here
+            surfaced.append(v)
+        }
+        return surfaced
+    }
+
+    /// Clear the hysteresis memory. Call when the set of active
+    /// geofences changes or when the operator explicitly wants a fresh
+    /// round of alerts.
+    public func resetHysteresis() {
+        lastViolationAt.removeAll()
     }
 
     /// Start geofence monitoring
@@ -38,6 +81,7 @@ public class GeofenceMonitor: NSObject, ObservableObject, CLLocationManagerDeleg
         isRunning = false
         isMonitoring = false
         locationManager.stopUpdatingLocation()
+        resetHysteresis()
     }
 
     // MARK: - CLLocationManagerDelegate
@@ -47,8 +91,10 @@ public class GeofenceMonitor: NSObject, ObservableObject, CLLocationManagerDeleg
 
         let coordinate = CodableCoordinate(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
 
-        // Check position
-        let violations = geofenceManager.checkPosition(coordinate)
+        // Check position, then filter through the hysteresis dead-band so
+        // a GPS flap on the edge of a fence doesn't repeatedly fire.
+        let raw = geofenceManager.checkPosition(coordinate)
+        let violations = filterWithHysteresis(raw, here: location.coordinate)
 
         if !violations.isEmpty {
             lastViolations = violations
@@ -59,7 +105,7 @@ public class GeofenceMonitor: NSObject, ObservableObject, CLLocationManagerDeleg
 
             // Log violations and post to event bus
             for violation in violations {
-                print("[GeofenceMonitor] VIOLATION: \(violation.violationType) on '\(violation.geofenceName)' at (\(violation.coordinate.latitude), \(violation.coordinate.longitude))")
+                ZDLog.safety.notice("geofence_violation type:\(violation.violationType, privacy: .public) name:\(violation.geofenceName, privacy: .public)")
                 AppState.shared.navEventBus.send(.geofenceKeyRotated(fenceId: violation.geofenceID))
             }
         }
