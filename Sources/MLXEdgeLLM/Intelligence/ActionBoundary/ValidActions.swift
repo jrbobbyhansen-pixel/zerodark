@@ -62,7 +62,7 @@ public struct ActionCall: Codable {
     }
 }
 
-public struct CodableCoordinate: Codable {
+public struct CodableCoordinate: Codable, Sendable, Hashable {
     let latitude: Double
     let longitude: Double
 

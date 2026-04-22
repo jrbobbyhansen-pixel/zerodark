@@ -4,7 +4,7 @@ import Foundation
 import CoreLocation
 
 /// Geofence geometry type
-public enum GeofenceGeometry: Codable {
+public enum GeofenceGeometry: Codable, Sendable {
     case circle(center: CodableCoordinate, radiusMeters: Double)
     case polygon(coordinates: [CodableCoordinate])
     case corridor(centerline: [CodableCoordinate], widthMeters: Double)
@@ -53,7 +53,7 @@ public enum GeofenceGeometry: Codable {
 }
 
 /// A geofence with type (keep-in, keep-out, alert)
-public struct Geofence: Identifiable, Codable {
+public struct Geofence: Identifiable, Codable, Sendable {
     public let id: UUID
     public let name: String
     public let type: String  // "keep-in", "keep-out", "alert"
