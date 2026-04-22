@@ -14,6 +14,11 @@ final class BurnCalculator: ObservableObject {
     @Published var fluidRateNext16: Double = 0.0   // mL/hr for next 16 hours
     @Published var patientWeight: Double = 70.0
     @Published var errorMessage: String?
+    /// Whether inhalation-injury adjustment is being applied (PR-C12).
+    /// An inhalation injury (closed-space burn, singed facial hair,
+    /// soot in airway, or documented CO exposure) increases fluid
+    /// resuscitation needs by roughly 40–50%. We apply a 1.4× factor.
+    @Published var inhalationInjury: Bool = false
 
     // MARK: - Rule of Nines (Adult)
 
@@ -65,10 +70,15 @@ final class BurnCalculator: ObservableObject {
 
     // MARK: - Parkland Formula
 
-    /// Parkland: 4 mL × kg × %TBSA = total 24hr crystalloid
-    /// Half in first 8 hours from time of burn, half in next 16 hours
+    /// Parkland: 4 mL × kg × %TBSA = total 24hr crystalloid.
+    /// Half in first 8 hours from time of burn, half in next 16 hours.
+    /// With inhalation injury (PR-C12), total is multiplied by 1.4 —
+    /// reference: American Burn Association ABLS guidance on airway
+    /// burns + CO exposure.
     private func calculateParkland(tbsa: Double, weight: Double) {
-        fluidTotal = 4.0 * weight * tbsa
+        let base = 4.0 * weight * tbsa
+        let inhalationFactor = inhalationInjury ? 1.4 : 1.0
+        fluidTotal = base * inhalationFactor
         fluidRateFirst8 = (fluidTotal / 2.0) / 8.0    // mL/hr first 8 hours
         fluidRateNext16 = (fluidTotal / 2.0) / 16.0   // mL/hr next 16 hours
     }
@@ -126,6 +136,14 @@ struct BurnCalculatorView: View {
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.trailing)
                             .frame(width: 80)
+                    }
+                }
+                Toggle(isOn: $calc.inhalationInjury) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Inhalation injury")
+                        Text("Closed-space burn, soot in airway, CO exposure — Parkland ×1.4")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
                     }
                 }
             }
