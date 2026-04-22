@@ -1,10 +1,31 @@
 // PeerDetailsSheet.swift — TAK peer detail view (extracted from TeamMapView)
 
 import SwiftUI
+import UIKit
 
 struct PeerDetailsSheet: View {
     @Environment(\.dismiss) var dismiss: DismissAction
     let event: CoTEvent
+
+    @State private var copyToast: String?
+
+    /// Render a lat/lon pair in the common MGRS-sibling format used elsewhere
+    /// in the app. Keeps the raw decimal form visible so the operator can
+    /// paste into Google Maps / ATAK / whatever.
+    private var coordinateString: String {
+        String(format: "%.6f, %.6f", event.lat, event.lon)
+    }
+
+    /// Copy `value` to the clipboard and show a short confirmation toast.
+    /// PR-C7 added this to replace "read the number off the screen and type
+    /// it into another app" with a one-tap copy.
+    private func copy(_ value: String, label: String) {
+        UIPasteboard.general.string = value
+        copyToast = "\(label) copied"
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            copyToast = nil
+        }
+    }
 
     var body: some View {
         NavigationStack {
@@ -15,6 +36,26 @@ struct PeerDetailsSheet: View {
                 }
 
                 Section("Position") {
+                    // Tap anywhere on the coordinate row to copy it — the
+                    // most-requested action on a peer detail in ops.
+                    Button {
+                        copy(coordinateString, label: "Coordinates")
+                    } label: {
+                        HStack {
+                            Text("Coordinates")
+                                .foregroundColor(.primary)
+                            Spacer()
+                            Text(coordinateString)
+                                .font(.body.monospacedDigit())
+                                .foregroundColor(.secondary)
+                            Image(systemName: "doc.on.doc")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .accessibilityHidden(true)
+                        }
+                    }
+                    .accessibilityLabel("Coordinates \(coordinateString). Tap to copy.")
+
                     LabeledContent("Latitude", value: String(format: "%.6f", event.lat))
                     LabeledContent("Longitude", value: String(format: "%.6f", event.lon))
 
@@ -76,7 +117,43 @@ struct PeerDetailsSheet: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") { dismiss() }
                 }
+                ToolbarItem(placement: .primaryAction) {
+                    Menu {
+                        Button {
+                            copy(event.detail?.contact?.callsign ?? "Unknown", label: "Callsign")
+                        } label: {
+                            Label("Copy callsign", systemImage: "person.text.rectangle")
+                        }
+                        Button {
+                            copy(event.uid, label: "UID")
+                        } label: {
+                            Label("Copy UID", systemImage: "number")
+                        }
+                        Button {
+                            copy(coordinateString, label: "Coordinates")
+                        } label: {
+                            Label("Copy coordinates", systemImage: "location")
+                        }
+                    } label: {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                    .a11yIcon("Share peer details")
+                }
             }
+            .overlay(alignment: .bottom) {
+                if let msg = copyToast {
+                    Text(msg)
+                        .font(.caption.bold())
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(.ultraThinMaterial, in: Capsule())
+                        .foregroundStyle(.primary)
+                        .padding(.bottom, 24)
+                        .transition(.opacity.combined(with: .move(edge: .bottom)))
+                        .accessibilityAddTraits(.isStaticText)
+                }
+            }
+            .animation(.spring(response: 0.3), value: copyToast)
         }
     }
 
