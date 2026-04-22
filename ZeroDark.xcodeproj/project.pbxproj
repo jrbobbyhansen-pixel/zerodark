@@ -26,6 +26,7 @@
 		0F93543927968F66D62308D5 /* 74-counter-drone.md in Resources */ = {isa = PBXBuildFile; fileRef = FE6748FDE4E63095BE652A0B /* 74-counter-drone.md */; };
 		0FA097B29AEE18A434A6B6C3 /* 31-shock-treatment.md in Resources */ = {isa = PBXBuildFile; fileRef = 9396EB8BE3E0C59D957F63D9 /* 31-shock-treatment.md */; };
 		101155C8161E7867AFD18449 /* FreeTAKConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1236A84CA53FB933D59B17D7 /* FreeTAKConnector.swift */; };
+		1134D7155B4F55FA12F5B98A /* LoggerConvenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43C4573C22E3C031A7238AB /* LoggerConvenience.swift */; };
 		1180649CB9081E301C133C3D /* 106-stress-leadership.md in Resources */ = {isa = PBXBuildFile; fileRef = 4885B2171261ADAA73226B07 /* 106-stress-leadership.md */; };
 		12DF4D8B43A1840E35E7240F /* 64-salute-reporting.md in Resources */ = {isa = PBXBuildFile; fileRef = 03074ABD965482838F946A7A /* 64-salute-reporting.md */; };
 		139F7A7B165F7B1E602D3B50 /* ProtobufHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B91E7889F25A1B0A83A9D6B9 /* ProtobufHelpers.swift */; };
@@ -1064,6 +1065,7 @@
 		B3531C0695D949C8AC3F8EED /* 25-weather.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "25-weather.md"; sourceTree = "<group>"; };
 		B3B9D3B68E0C7D6D6C1DC0FC /* TeamPositionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamPositionOverlay.swift; sourceTree = "<group>"; };
 		B3C30E1D9284457D6BE8ECC5 /* TAKBLEBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TAKBLEBridge.swift; sourceTree = "<group>"; };
+		B43C4573C22E3C031A7238AB /* LoggerConvenience.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LoggerConvenience.swift; path = Sources/MLXEdgeLLM/Diagnostics/LoggerConvenience.swift; sourceTree = "<group>"; };
 		B475BE61386B7168CC375A96 /* WaypointManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WaypointManager.swift; path = Sources/MLXEdgeLLM/Navigation/WaypointManager.swift; sourceTree = "<group>"; };
 		B4E10C4D0633F94B1E72E086 /* 14-fracture-management.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "14-fracture-management.md"; sourceTree = "<group>"; };
 		B4F50B873F0BAD1AF8CAAC6E /* TrafficCamService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrafficCamService.swift; sourceTree = "<group>"; };
@@ -2442,6 +2444,7 @@
 				47BEDA9148707BF91C52F78A /* IOTimeout.swift */,
 				267CB7BAE19A337B3E7FFC58 /* ErrorReporter.swift */,
 				8011D5C7A61A49E039EC265D /* RetryPolicy.swift */,
+				B43C4573C22E3C031A7238AB /* LoggerConvenience.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3325,6 +3328,7 @@
 				4CF91094B8BA6E49B4EFF325 /* IOTimeout.swift in Sources */,
 				24CB125052745F95CB5D3800 /* ErrorReporter.swift in Sources */,
 				225F3F00B45D61CA587816F1 /* RetryPolicy.swift in Sources */,
+				1134D7155B4F55FA12F5B98A /* LoggerConvenience.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
