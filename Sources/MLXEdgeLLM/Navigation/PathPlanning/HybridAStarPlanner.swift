@@ -18,6 +18,13 @@ private struct AStarNode {
 public class HybridAStarPlanner: PathPlannerProtocol {
     private let turningRadius: Double = 5.0  // meters (tight tactical turning)
 
+    /// Hard iteration cap. On a 10 000-cell map with 6 neighbor branches
+    /// per expansion, the frontier can grow to tens of thousands before
+    /// finding an unreachable goal. We abort with `nil` rather than
+    /// letting the planner run away. 50 000 expansions is ~50 MB of peak
+    /// frontier memory in the worst case.
+    public var maxIterations: Int = 50_000
+
     public init() {}
 
     /// Plan path using Hybrid A*
@@ -47,7 +54,14 @@ public class HybridAStarPlanner: PathPlannerProtocol {
         // Store start node
         cameFrom[startKey] = openSet[0]
 
+        var iterations = 0
         while !openSet.isEmpty {
+            iterations += 1
+            if iterations > maxIterations {
+                ZDLog.navigation.error("HybridAStar aborted at iteration cap \(self.maxIterations, privacy: .public); goal may be unreachable")
+                return nil
+            }
+
             // Pop lowest fCost node
             let current = openSet.removeFirst()
             let key = "\(current.cell.x),\(current.cell.y),\(Int(current.heading))"
