@@ -53,22 +53,26 @@ struct LiDARTabView: View {
                             } label: {
                                 Image(systemName: "mountain.2")
                             }
+                            .a11yIcon("Terrain slope analysis")
                             Button {
                                 showContourGenerator = true
                             } label: {
                                 Image(systemName: "lines.measurement.horizontal")
                             }
+                            .a11yIcon("Contour generator")
                         }
                         Button {
                             showAnnotations = true
                         } label: {
                             Image(systemName: "mappin.and.ellipse")
                         }
+                        .a11yIcon("Scan annotations")
                         Button {
                             showingResults = true
                         } label: {
                             Image(systemName: "list.bullet.below.rectangle")
                         }
+                        .a11yIcon("Scan gallery")
                     }
                 }
             }
@@ -379,6 +383,7 @@ struct LiDARTabView: View {
                     HStack {
                         Image(systemName: engine.isScanning ? "stop.circle.fill" : "viewfinder.circle.fill")
                             .font(.title2)
+                            .accessibilityHidden(true)
                         Text(engine.isScanning ? "STOP" : "\(scanSpeedMode.rawValue.uppercased()) SCAN")
                             .font(.headline.bold())
                     }
@@ -388,6 +393,7 @@ struct LiDARTabView: View {
                     .background(engine.isScanning ? ZDDesign.signalRed : ZDDesign.forestGreen)
                     .cornerRadius(12)
                 }
+                .accessibilityLabel(engine.isScanning ? "Stop scan" : "Start \(scanSpeedMode.rawValue) scan")
 
                 // Recon Walk
                 Button {
@@ -400,6 +406,7 @@ struct LiDARTabView: View {
                     HStack {
                         Image(systemName: reconEngine.isRecording ? "stop.circle.fill" : "figure.walk")
                             .font(.title2)
+                            .accessibilityHidden(true)
                         Text(reconEngine.isRecording ? "STOP" : "RECON WALK")
                             .font(.headline.bold())
                     }
@@ -409,6 +416,7 @@ struct LiDARTabView: View {
                     .background(reconEngine.isRecording ? ZDDesign.signalRed : ZDDesign.cyanAccent)
                     .cornerRadius(12)
                 }
+                .accessibilityLabel(reconEngine.isRecording ? "Stop recon walk" : "Start recon walk")
             }
             .padding(.horizontal)
             .padding(.bottom, 8)

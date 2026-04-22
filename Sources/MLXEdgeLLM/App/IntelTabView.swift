@@ -41,6 +41,7 @@ struct IntelTabView: View {
                                 Image(systemName: mode.icon)
                                     .font(.system(size: 18, weight: intelMode == mode ? .semibold : .regular))
                                     .foregroundColor(intelMode == mode ? ZDDesign.cyanAccent : ZDDesign.mediumGray)
+                                    .accessibilityHidden(true)
                                 Text(mode.rawValue)
                                     .font(.system(size: 10, weight: intelMode == mode ? .semibold : .regular))
                                     .foregroundColor(intelMode == mode ? ZDDesign.cyanAccent : ZDDesign.mediumGray)
@@ -54,6 +55,8 @@ struct IntelTabView: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("\(mode.rawValue) tab")
+                        .accessibilityAddTraits(intelMode == mode ? [.isButton, .isSelected] : [.isButton])
                     }
                 }
                 .background(ZDDesign.darkBackground)
@@ -716,9 +719,11 @@ struct KnowledgeContentView: View {
                     Button(action: { fontSize = max(10, fontSize - 2) }) {
                         Image(systemName: "minus.circle.fill").foregroundColor(ZDDesign.skyBlue)
                     }
+                    .a11yIcon("Decrease font size")
                     Button(action: { fontSize = min(20, fontSize + 2) }) {
                         Image(systemName: "plus.circle.fill").foregroundColor(ZDDesign.skyBlue)
                     }
+                    .a11yIcon("Increase font size")
                 }
             }
         }
@@ -1090,6 +1095,7 @@ struct VisionContentView: View {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundColor(ZDDesign.signalRed)
                     }
+                    .a11yIcon("Clear selected image")
                 }
             }
         }

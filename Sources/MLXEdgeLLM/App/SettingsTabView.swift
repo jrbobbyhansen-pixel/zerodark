@@ -329,6 +329,7 @@ private struct ValidatedTextField: View {
                 Image(systemName: "exclamationmark.circle.fill")
                     .foregroundColor(ZDDesign.signalRed)
                     .font(.caption)
+                    .accessibilityLabel("Invalid value for \(placeholder)")
             }
         }
     }

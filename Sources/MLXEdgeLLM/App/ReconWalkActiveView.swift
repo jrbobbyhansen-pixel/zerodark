@@ -52,6 +52,7 @@ struct ReconWalkActiveView: View {
                             .background(Color.black.opacity(0.5))
                             .cornerRadius(8)
                     }
+                    .a11yIcon("Covert mode: \(covertMode.label)")
                 }
                 .padding()
 
@@ -76,6 +77,7 @@ struct ReconWalkActiveView: View {
                     } label: {
                         HStack {
                             Image(systemName: "stop.fill")
+                                .accessibilityHidden(true)
                             Text("STOP & SAVE").fontWeight(.bold)
                         }
                         .foregroundColor(ZDDesign.pureWhite)
@@ -84,6 +86,7 @@ struct ReconWalkActiveView: View {
                         .background(ZDDesign.signalRed)
                         .cornerRadius(12)
                     }
+                    .accessibilityLabel("Stop recon walk and save")
                     .padding(.horizontal)
                 }
                 .padding(.bottom, 40)
@@ -109,11 +112,13 @@ struct ReconStatBadge: View {
         VStack(spacing: 3) {
             HStack(spacing: 3) {
                 Image(systemName: icon).font(.caption2)
+                    .accessibilityHidden(true)
                 Text(value).font(.caption.monospacedDigit()).fontWeight(.bold)
             }
             .foregroundColor(ZDDesign.cyanAccent)
             Text(label).font(.caption2).foregroundColor(.gray)
         }
+        .a11yStatus(label: label, value: value)
     }
 }
 
