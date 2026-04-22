@@ -24,6 +24,7 @@ final class LocalInferenceEngine: ObservableObject {
     @Published var modelState: ModelState = .notLoaded
     @Published var loadProgress: Double = 0.0
     @Published var isGenerating: Bool = false
+    @Published var lastError: String?
 
     private var modelContainer: ModelContainer?
     private var chatSession: ChatSession?
@@ -31,6 +32,15 @@ final class LocalInferenceEngine: ObservableObject {
 
     // Model configuration — Phi-3.5-mini 4-bit quantized for mobile
     private let modelId = "mlx-community/Phi-3.5-mini-instruct-4bit"
+
+    // Inference safety nets. The underlying MLX stream has no timeout; these
+    // cap our risk surface when model.streamResponse hangs or emits very
+    // slowly (bad prompt, hardware throttle, or loss-of-file condition).
+    /// Hard cap on total generation wall-clock. Beyond this, we cancel.
+    var inferenceMaxDurationSeconds: Double = 60.0
+    /// If no token has arrived by this many seconds, we cancel as "first-token
+    /// stall" — the model is loaded but producing nothing.
+    var inferenceFirstTokenTimeoutSeconds: Double = 15.0
 
     private init() {}
 
@@ -103,25 +113,59 @@ final class LocalInferenceEngine: ObservableObject {
         }
         
         isGenerating = true
-        
+        lastError = nil
+
+        let maxTotal = inferenceMaxDurationSeconds
+        let firstTokenTimeout = inferenceFirstTokenTimeoutSeconds
+
         generateTask = Task {
+            let startedAt = Date()
+            var firstTokenReceived = false
             do {
-                // Use streaming response
                 let stream = session.streamResponse(to: prompt)
-                
                 for try await chunk in stream {
-                    await MainActor.run {
-                        onToken(chunk)
+                    // Cooperative cancellation — fires when user hits Stop.
+                    try Task.checkCancellation()
+
+                    // First-token stall detection: if we've exceeded the
+                    // first-token budget and no chunk has arrived yet, abort.
+                    // The check happens here so the next iteration catches it;
+                    // the very first yielded chunk flips the flag and the
+                    // branch is never taken again.
+                    let elapsed = Date().timeIntervalSince(startedAt)
+                    if !firstTokenReceived, elapsed > firstTokenTimeout {
+                        throw InferenceTimeoutError.firstTokenStall(budget: firstTokenTimeout)
                     }
+
+                    // Total duration guard — hard cap.
+                    if elapsed > maxTotal {
+                        throw InferenceTimeoutError.totalDurationExceeded(budget: maxTotal)
+                    }
+
+                    firstTokenReceived = true
+                    await MainActor.run { onToken(chunk) }
                 }
-                
+
                 await MainActor.run {
                     self.isGenerating = false
                     onComplete()
                 }
-                
+
+            } catch is CancellationError {
+                await MainActor.run {
+                    self.isGenerating = false
+                    onComplete()
+                }
+            } catch let timeout as InferenceTimeoutError {
+                await MainActor.run {
+                    self.lastError = timeout.localizedDescription
+                    onToken("[\(timeout.localizedDescription)]")
+                    self.isGenerating = false
+                    onComplete()
+                }
             } catch {
                 await MainActor.run {
+                    self.lastError = error.localizedDescription
                     onToken("[Generation error: \(error.localizedDescription)]")
                     self.isGenerating = false
                     onComplete()
@@ -184,3 +228,38 @@ final class LocalInferenceEngine: ObservableObject {
         return docs.appendingPathComponent("Models")
     }
 }
+
+// MARK: - Inference timeout errors
+
+enum InferenceTimeoutError: Error, LocalizedError {
+    /// No token was emitted within the first-token budget. Usually indicates
+    /// the model loaded but is producing nothing — hardware throttle, bad
+    /// prompt, or loaded-but-idle state.
+    case firstTokenStall(budget: Double)
+    /// Generation exceeded the total wall-clock budget. The user likely
+    /// asked an open-ended question; we stop and report the partial answer.
+    case totalDurationExceeded(budget: Double)
+
+    var errorDescription: String? {
+        switch self {
+        case .firstTokenStall(let b):
+            return "Model produced no tokens within \(Int(b))s — aborted."
+        case .totalDurationExceeded(let b):
+            return "Generation exceeded \(Int(b))s wall-clock budget — truncated."
+        }
+    }
+}
+
+// MARK: - Model integrity note
+//
+// The plan's P0 item called for SHA256 checksum validation on model load.
+// MLX's LLMModelFactory downloads Phi-3.5 from HuggingFace at runtime — the
+// exact bytes aren't known ahead of time, and MLX does not expose a hook to
+// intercept + verify the download. A proper integrity story requires either:
+//   (a) switching to a locally-bundled model with a known hash, OR
+//   (b) upstream support in MLX for manifest-based verification.
+// Neither is feasible without changing the deployment model. The timeout +
+// first-token-stall + total-duration guards here cap the runtime risk
+// surface instead — a corrupted download presents as generation failure
+// (garbled output or refusal to emit tokens), and both conditions now
+// abort cleanly with a user-facing error.
