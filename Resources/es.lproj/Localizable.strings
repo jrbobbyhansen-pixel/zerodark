@@ -1,0 +1,49 @@
+/* ZeroDark — Spanish (es) string catalog.
+   Partial translation. Keys missing from this file fall back to en.lproj.
+   Translations below are initial drafts; a native speaker should review
+   before shipping to Spanish locales.
+*/
+
+/* MARK: - Tabs */
+"tab.map.title"        = "Mapa";
+"tab.intel.title"      = "Inteligencia";
+"tab.nav.title"        = "Navegación";
+"tab.ops.title"        = "Operaciones";
+"tab.lidar.title"      = "LiDAR";
+"tab.settings.title"   = "Ajustes";
+
+/* MARK: - Common actions */
+"action.done"          = "Listo";
+"action.cancel"        = "Cancelar";
+"action.save"          = "Guardar";
+"action.delete"        = "Eliminar";
+"action.retry"         = "Reintentar";
+"action.export"        = "Exportar";
+"action.share"         = "Compartir";
+"action.close"         = "Cerrar";
+
+/* MARK: - AppLock */
+"applock.title"                  = "Bloqueado";
+"applock.enter_pin"              = "Introduce el PIN";
+"applock.pin_hint"               = "Introduce tu PIN de %1$d–%2$d dígitos para desbloquear";
+"applock.use_biometrics"         = "Usar Face ID / Touch ID";
+"applock.no_pin"                 = "Sin PIN configurado";
+"applock.continue_no_pin"        = "Continuar sin PIN";
+"applock.lockout_title"          = "Demasiados intentos fallidos";
+"applock.lockout_retry_in"       = "Reintenta en %@";
+"applock.lockout_biometrics_off" = "El desbloqueo biométrico también está deshabilitado durante el bloqueo.";
+"applock.wiping"                 = "Borrando…";
+"applock.failed_attempts"        = "Intentos fallidos: %d";
+
+/* MARK: - Comms */
+"comms.mesh.connected"     = "Malla conectada, %d pares. Toca para expandir.";
+"comms.mesh.disconnected"  = "Malla desconectada. Toca para unirte.";
+"comms.ptt.hold"           = "Pulsa para hablar. Mantén pulsado.";
+"comms.ptt.transmitting"   = "Transmitiendo. Suelta para parar.";
+"comms.sos"                = "SOS";
+"comms.sos.hint"           = "Envía una señal de emergencia a todos los pares de la malla";
+
+/* MARK: - Errors */
+"error.inference.timeout"  = "La inferencia agotó el tiempo.";
+"error.location.unavailable" = "Ubicación no disponible.";
+"error.generic" = "Algo salió mal.";

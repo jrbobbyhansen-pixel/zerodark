@@ -334,6 +334,7 @@
 		B11AC9883425FF87D7C2C28E /* 26-desert.md in Resources */ = {isa = PBXBuildFile; fileRef = 26F4FEDBAF246D21895A4C0E /* 26-desert.md */; };
 		B1A5509311192A284636BB6B /* 27-bleeding-control.md in Resources */ = {isa = PBXBuildFile; fileRef = E5FAC8789061A23F48390BBA /* 27-bleeding-control.md */; };
 		B22EE044C71405DA7133C0B8 /* TelemetryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE20514C3F686800A100E36D /* TelemetryStore.swift */; };
+		B2D3BD26E8BF7970D3B66913 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = C8D6B0F5A42A94249053E670 /* Localizable.strings */; };
 		B3796959C30F6EEAE997C905 /* ZeroDarkBootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0AC67654F00085BFB65697C /* ZeroDarkBootView.swift */; };
 		B383680C53CA1456ACDD40AE /* DriftCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1ACCC66EA474185CDEC8CF7 /* DriftCalculator.swift */; };
 		B47EB1726BE6C2E81122B2BD /* OpsSharedViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8FB16B72BD3903CACDAF08 /* OpsSharedViews.swift */; };
@@ -632,8 +633,10 @@
 		21FE7E45738A8AE9435A8E8D /* VoxelFusion.metal */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.metal; name = VoxelFusion.metal; path = Sources/MLXEdgeLLM/LiDAR/NeRF/VoxelFusion.metal; sourceTree = "<group>"; };
 		223CE07C09EE5398F19BCB77 /* MeshRouting.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MeshRouting.swift; path = Sources/MLXEdgeLLM/Interop/Mesh/MeshRouting.swift; sourceTree = "<group>"; };
 		22D5CB44A60D445EA3F3ADCA /* FrequencyScanner.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FrequencyScanner.swift; path = Sources/MLXEdgeLLM/CommunicationCore/FrequencyScanner.swift; sourceTree = "<group>"; };
+		22E2F2EDFBFA1494AAB2CF81 /* es */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = es; path = Resources/es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		22F1B9554587F6CFD34EB6D8 /* 114-electronic-warfare-basics.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "114-electronic-warfare-basics.md"; sourceTree = "<group>"; };
 		237790D976F7DBEF06F68965 /* FieldReport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FieldReport.swift; path = Sources/MLXEdgeLLM/FieldOps/Reports/FieldReport.swift; sourceTree = "<group>"; };
+		23E0A321E006E17E156E4E5B /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = Resources/en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		23EA7AB2382774790AE56FDC /* StressInoculation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StressInoculation.swift; path = Sources/MLXEdgeLLM/Training/Team/StressInoculation.swift; sourceTree = "<group>"; };
 		23ECD93496738827D5E6C8C6 /* HAMMERAcousticModem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HAMMERAcousticModem.swift; sourceTree = "<group>"; };
 		23FF028F11809EAA9B83B58A /* ResourceTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ResourceTracker.swift; path = Sources/MLXEdgeLLM/Coordination/ResourceTracker.swift; sourceTree = "<group>"; };
@@ -2561,6 +2564,7 @@
 				B43C4573C22E3C031A7238AB /* LoggerConvenience.swift */,
 				A598B10A45BAC9BC33431115 /* PrivacyInfo.xcprivacy */,
 				90412EB8021D2CE1C913E52D /* Tests */,
+				CD3F455CD03DB4B4E6F27C04 /* Resources */,
 			);
 			sourceTree = "<group>";
 		};
@@ -2712,6 +2716,14 @@
 			);
 			name = MLXEdgeLLM;
 			path = Sources/MLXEdgeLLM;
+			sourceTree = "<group>";
+		};
+		CD3F455CD03DB4B4E6F27C04 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				C8D6B0F5A42A94249053E670 /* Localizable.strings */,
+			);
+			name = Resources;
 			sourceTree = "<group>";
 		};
 		CD874708A479A2B6955E4525 /* logistics */ = {
@@ -3162,6 +3174,7 @@
 				B7F0039A465C16705CB3A4A7 /* Assets.xcassets in Resources */,
 				35963624669DD0463FA1C53F /* phi-3.5-mini.gguf in Resources */,
 				EE584C300AB90601DAE7918E /* PrivacyInfo.xcprivacy in Resources */,
+				B2D3BD26E8BF7970D3B66913 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3486,6 +3499,18 @@
 			targetProxy = D38433C3F0E23EF8191CE0D5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		C8D6B0F5A42A94249053E670 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				23E0A321E006E17E156E4E5B /* en */,
+				22E2F2EDFBFA1494AAB2CF81 /* es */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		25015E5B09734DF392EB1EF8 /* Release */ = {

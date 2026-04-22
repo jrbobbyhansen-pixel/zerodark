@@ -1,0 +1,97 @@
+/* ZeroDark — English (en) string catalog.
+   See docs/modules/Localization.md for the migration pattern.
+   Keys follow dot.namespaced.format: tab.map.title, applock.enter_pin, etc.
+*/
+
+/* MARK: - Tabs */
+"tab.map.title"        = "Map";
+"tab.intel.title"      = "Intel";
+"tab.nav.title"        = "Navigation";
+"tab.ops.title"        = "Operations";
+"tab.lidar.title"      = "LiDAR";
+"tab.settings.title"   = "Settings";
+
+/* MARK: - Common actions */
+"action.done"          = "Done";
+"action.cancel"        = "Cancel";
+"action.save"          = "Save";
+"action.delete"        = "Delete";
+"action.retry"         = "Retry";
+"action.export"        = "Export";
+"action.share"         = "Share";
+"action.close"         = "Close";
+
+/* MARK: - AppLock */
+"applock.title"                  = "Locked";
+"applock.enter_pin"              = "Enter PIN";
+"applock.pin_hint"               = "Enter your %1$d–%2$d-digit PIN to unlock";
+"applock.use_biometrics"         = "Use Face ID / Touch ID";
+"applock.no_pin"                 = "No PIN enrolled";
+"applock.continue_no_pin"        = "Continue without PIN";
+"applock.lockout_title"          = "Too many failed attempts";
+"applock.lockout_retry_in"       = "Try again in %@";
+"applock.lockout_biometrics_off" = "Biometric unlock is also disabled during lockout.";
+"applock.wiping"                 = "Wiping…";
+"applock.failed_attempts"        = "Failed attempts: %d";
+
+/* MARK: - Comms */
+"comms.mesh.connected"     = "Mesh connected, %d peers. Tap to expand.";
+"comms.mesh.disconnected"  = "Mesh disconnected. Tap to join.";
+"comms.ptt.hold"           = "Push to talk. Press and hold.";
+"comms.ptt.transmitting"   = "Transmitting. Release to stop.";
+"comms.sos"                = "SOS";
+"comms.sos.hint"           = "Sends emergency signal to all mesh peers";
+
+/* MARK: - Integration health */
+"integration.unreachable" = "%@ is unreachable. Falling back to cached data.";
+"integration.health.healthy"     = "Healthy";
+"integration.health.degraded"    = "Degraded";
+"integration.health.unreachable" = "Unreachable";
+"integration.health.unknown"     = "Unknown";
+
+/* MARK: - Map tab toolbar */
+"map.open_ops"           = "Open Ops Panel";
+"map.show_cameras"       = "Show Cameras";
+"map.hide_cameras"       = "Hide Cameras";
+"map.options"            = "Map Options";
+"map.import_geopackage"  = "Import GeoPackage";
+
+/* MARK: - Nav tab toolbar */
+"nav.line_of_sight"     = "Line of sight analyzer";
+"nav.celestial_ar"      = "Celestial AR overlay";
+"nav.viewshed.compute"  = "Compute viewshed";
+"nav.viewshed.computing" = "Computing viewshed";
+"nav.hlz"               = "Helicopter landing zone finder";
+"nav.water_crossing"    = "Water crossing analyzer";
+
+/* MARK: - LiDAR tab */
+"lidar.scan_gallery"    = "Scan gallery";
+"lidar.annotations"     = "Scan annotations";
+"lidar.terrain_slope"   = "Terrain slope analysis";
+"lidar.contour_generator" = "Contour generator";
+"lidar.scan.start"      = "Start %@ scan";
+"lidar.scan.stop"       = "Stop scan";
+"lidar.recon.start"     = "Start recon walk";
+"lidar.recon.stop"      = "Stop recon walk";
+"lidar.recon.stop_save" = "Stop recon walk and save";
+
+/* MARK: - Intel tab */
+"intel.font.increase" = "Increase font size";
+"intel.font.decrease" = "Decrease font size";
+"intel.image.clear"   = "Clear selected image";
+"intel.tab_label"     = "%@ tab";
+
+/* MARK: - Planning tools */
+"opord.validate.title"         = "Validate OPORD";
+"opord.validate.ready"         = "All required paragraphs are populated. OPORD is ready to export.";
+"opord.validate.missing_prefix" = "• %@";
+"opord.para.situation.help"    = "Enemy/friendly forces, terrain, weather";
+"opord.para.mission.help"      = "Who, what, where, when, why (5 Ws)";
+"opord.para.execution.help"    = "Concept of ops, tasks, coordinating instructions";
+"opord.para.support.help"      = "Logistics, medical, class I–V supply";
+"opord.para.command.help"      = "Command relationships, signals, comms plan";
+
+/* MARK: - Errors */
+"error.inference.timeout"  = "Inference timed out.";
+"error.location.unavailable" = "Location unavailable.";
+"error.generic" = "Something went wrong.";
