@@ -40,8 +40,10 @@ struct AppLockGate<Content: View>: View {
                 Image(systemName: "lock.shield.fill")
                     .font(.system(size: 56))
                     .foregroundColor(ZDDesign.cyanAccent)
+                    .accessibilityHidden(true)
                 Text("ZeroDark").font(.largeTitle.bold()).foregroundColor(.white)
                 Text("Locked").font(.headline).foregroundColor(.secondary)
+                    .accessibilityAddTraits(.isHeader)
 
                 if lock.canUseBiometrics {
                     Button {

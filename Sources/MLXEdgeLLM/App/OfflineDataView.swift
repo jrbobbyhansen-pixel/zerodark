@@ -282,21 +282,25 @@ struct StateDownloadRow: View {
             if state.tiles.isEmpty {
                 Image(systemName: "exclamationmark.circle")
                     .foregroundColor(.orange)
+                    .accessibilityLabel("Not available")
             } else if isFullyDownloaded {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundColor(ZDDesign.successGreen)
+                    .accessibilityLabel("Fully downloaded")
             } else if downloadManager.isDownloading && downloadManager.currentDownloadState == state {
                 VStack {
                     ProgressView()
                     Text("\(Int(downloadManager.downloadProgress * 100))%")
                         .font(.caption2)
                 }
+                .accessibilityLabel("Downloading \(Int(downloadManager.downloadProgress * 100)) percent")
             } else {
                 Button {
                     Task { await downloadManager.downloadState(state) }
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "arrow.down.circle.fill")
+                            .accessibilityHidden(true)
                         if isPartiallyDownloaded {
                             Text("Resume")
                                 .font(.caption)
@@ -305,6 +309,7 @@ struct StateDownloadRow: View {
                     .foregroundColor(ZDDesign.cyanAccent)
                 }
                 .disabled(downloadManager.isDownloading)
+                .accessibilityLabel(isPartiallyDownloaded ? "Resume download of \(state.name)" : "Download \(state.name)")
             }
         }
         .padding(.vertical, 4)
@@ -335,9 +340,10 @@ struct TerrainTileRow: View {
                 Image(systemName: "trash")
                     .foregroundColor(.red)
             }
+            .a11yIcon("Delete terrain tile")
         }
     }
-    
+
     private var fileSize: String {
         guard let attrs = try? FileManager.default.attributesOfItem(atPath: url.path),
               let size = attrs[.size] as? Int64 else { return "Unknown" }

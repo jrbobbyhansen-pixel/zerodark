@@ -49,6 +49,7 @@ struct NavTabView: View {
                                 Image(systemName: "location.north.fill")
                                     .foregroundColor(.cyan)
                                     .rotationEffect(.degrees(appState.navState.heading))
+                                    .accessibilityLabel(String(format: "Heading %.0f degrees", appState.navState.heading))
                             }
                         }
                     }
@@ -75,6 +76,7 @@ struct NavTabView: View {
                         Image(systemName: "rays")
                             .foregroundColor(ZDDesign.cyanAccent)
                     }
+                    .a11yIcon("Line of sight analyzer")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -83,6 +85,7 @@ struct NavTabView: View {
                         Image(systemName: "camera.viewfinder")
                             .foregroundColor(ZDDesign.cyanAccent)
                     }
+                    .a11yIcon("Celestial AR overlay")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -96,6 +99,7 @@ struct NavTabView: View {
                         }
                     }
                     .disabled(isComputingViewshed)
+                    .a11yIcon(isComputingViewshed ? "Computing viewshed" : "Compute viewshed")
                 }
             }
             .navigationTitle("Navigation")
@@ -184,28 +188,34 @@ struct NavTabView: View {
             HStack(spacing: 4) {
                 Image(systemName: appState.navState.canopyDetected ? "leaf.fill" : "leaf")
                     .foregroundColor(appState.navState.canopyDetected ? .orange : .green)
+                    .accessibilityHidden(true)
                 Text(appState.navState.canopyDetected ? "CANOPY" : "OPEN")
                     .font(.caption)
                     .foregroundColor(ZDDesign.pureWhite)
             }
+            .a11yStatus(label: "Canopy", value: appState.navState.canopyDetected ? "Under canopy" : "Open sky")
 
             // ZUPT count
             HStack(spacing: 4) {
                 Image(systemName: "shoeprints.fill")
                     .foregroundColor(ZDDesign.cyanAccent)
+                    .accessibilityHidden(true)
                 Text("ZUPT: \(appState.navState.zuptCount)")
                     .font(.caption)
                     .foregroundColor(ZDDesign.pureWhite)
             }
+            .a11yStatus(label: "Zero-velocity updates", value: "\(appState.navState.zuptCount) recorded")
 
             // Celestial status
             HStack(spacing: 4) {
                 Image(systemName: "star.fill")
                     .foregroundColor(celestial.detectedStarCount >= 2 ? .yellow : ZDDesign.mediumGray)
+                    .accessibilityHidden(true)
                 Text("\(celestial.detectedStarCount)")
                     .font(.caption)
                     .foregroundColor(ZDDesign.pureWhite)
             }
+            .a11yStatus(label: "Stars detected", value: "\(celestial.detectedStarCount)")
 
             // HLZ finder
             Button {
@@ -219,6 +229,7 @@ struct NavTabView: View {
                         .foregroundColor(ZDDesign.pureWhite)
                 }
             }
+            .accessibilityLabel("Helicopter landing zone finder")
 
             // Water crossing
             Button {
@@ -232,25 +243,31 @@ struct NavTabView: View {
                         .foregroundColor(ZDDesign.pureWhite)
                 }
             }
+            .accessibilityLabel("Water crossing analyzer")
 
             // Battery trend
             HStack(spacing: 4) {
                 Image(systemName: batteryIcon)
                     .foregroundColor(batteryColor)
+                    .accessibilityHidden(true)
                 Text(String(format: "%.0fmin", appState.navState.batteryMinutesRemaining))
                     .font(.caption)
                     .foregroundColor(ZDDesign.pureWhite)
             }
+            .a11yStatus(label: "Battery", value: String(format: "%.0f minutes remaining", appState.navState.batteryMinutesRemaining))
 
             // Baro trend
             HStack(spacing: 4) {
                 Image(systemName: baroIcon)
                     .foregroundColor(ZDDesign.cyanAccent)
+                    .accessibilityHidden(true)
                 Text(weather.barometricPressureTrend == .stable ? "STABLE" :
                      weather.barometricPressureTrend == .rapidDrop ? "DROP" : "RISE")
                     .font(.caption)
                     .foregroundColor(ZDDesign.pureWhite)
             }
+            .a11yStatus(label: "Barometric pressure", value: weather.barometricPressureTrend == .stable ? "Stable" :
+                         weather.barometricPressureTrend == .rapidDrop ? "Dropping" : "Rising")
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)

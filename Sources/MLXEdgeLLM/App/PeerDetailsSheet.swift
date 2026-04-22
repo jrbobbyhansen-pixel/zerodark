@@ -38,9 +38,11 @@ struct PeerDetailsSheet: View {
                             HStack(spacing: 4) {
                                 Image(systemName: batteryIcon(battery))
                                     .foregroundColor(batteryColor(battery))
+                                    .accessibilityHidden(true)
                                 Text("\(battery)%")
                             }
                         }
+                        .a11yStatus(label: "Battery", value: "\(battery) percent")
                     }
 
                     let formatter = ISO8601DateFormatter()

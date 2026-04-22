@@ -221,6 +221,7 @@ struct ChannelManagerView: View {
                     } label: {
                         Image(systemName: "plus").foregroundColor(ZDDesign.cyanAccent)
                     }
+                    .a11yIcon("Add channel")
                 }
             }
             .sheet(isPresented: $showAddSheet) {
@@ -322,6 +323,7 @@ struct QuickChannelSwitcher: View {
                     } label: {
                         HStack(spacing: 4) {
                             Image(systemName: channel.purpose.icon).font(.system(size: 10))
+                                .accessibilityHidden(true)
                             Text(channel.name).lineLimit(1)
                         }
                         .font(.caption.bold())
@@ -332,6 +334,8 @@ struct QuickChannelSwitcher: View {
                         .foregroundColor(manager.selectedChannel?.id == channel.id ? .black : ZDDesign.pureWhite)
                         .cornerRadius(8)
                     }
+                    .accessibilityLabel("\(channel.name) channel")
+                    .accessibilityAddTraits(manager.selectedChannel?.id == channel.id ? [.isButton, .isSelected] : [.isButton])
                 }
             }
             .padding(.horizontal)

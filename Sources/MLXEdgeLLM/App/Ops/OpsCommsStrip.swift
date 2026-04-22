@@ -71,6 +71,7 @@ struct OpsCommsStrip: View {
                     Circle()
                         .fill(mesh.isActive ? ZDDesign.successGreen : ZDDesign.signalRed)
                         .frame(width: 10, height: 10)
+                        .accessibilityHidden(true)
 
                     if mesh.isActive {
                         Text("\(mesh.peers.count)")
@@ -80,6 +81,7 @@ struct OpsCommsStrip: View {
                         Image(systemName: "person.2.fill")
                             .font(.caption2)
                             .foregroundColor(ZDDesign.mediumGray)
+                            .accessibilityHidden(true)
                     } else {
                         Text("Join")
                             .font(.caption)
@@ -88,6 +90,7 @@ struct OpsCommsStrip: View {
                     }
                 }
             }
+            .accessibilityLabel(mesh.isActive ? "Mesh connected, \(mesh.peers.count) peers. Tap to expand." : "Mesh disconnected. Tap to join.")
 
             Spacer()
 
@@ -103,6 +106,7 @@ struct OpsCommsStrip: View {
                         .background(ZDDesign.darkBackground)
                         .cornerRadius(8)
                 }
+                .a11yIcon("Share my location to mesh")
 
                 // Comms mode toggle (PTT/Haptic/Silent)
                 Button {
@@ -119,6 +123,7 @@ struct OpsCommsStrip: View {
                                 .stroke(commsModeTint.opacity(0.5), lineWidth: 1)
                         )
                 }
+                .accessibilityLabel("Comms mode: \(hapticPTT.mode.rawValue). Tap to cycle.")
 
                 // Context-aware comms button
                 if hapticPTT.mode == .ptt {
@@ -142,6 +147,7 @@ struct OpsCommsStrip: View {
                             }
                             .onEnded { _ in hapticPTT.stopTransmit() }
                     )
+                    .accessibilityLabel(ptt.isTransmitting ? "Transmitting. Release to stop." : "Push to talk. Press and hold.")
                 } else if hapticPTT.mode == .haptic {
                     // Haptic picker
                     Button {
@@ -154,6 +160,7 @@ struct OpsCommsStrip: View {
                             .background(ZDDesign.darkBackground)
                             .cornerRadius(8)
                     }
+                    .a11yIcon("Send haptic signal")
                 }
 
                 // SOS
@@ -168,6 +175,8 @@ struct OpsCommsStrip: View {
                         .background(ZDDesign.signalRed)
                         .cornerRadius(8)
                 }
+                .accessibilityLabel("Broadcast SOS")
+                .accessibilityHint("Sends emergency signal to all mesh peers")
             }
 
             // Alert badge
@@ -195,6 +204,7 @@ struct OpsCommsStrip: View {
                         .font(.caption2)
                         .foregroundColor(ZDDesign.mediumGray)
                 }
+                .a11yIcon(isExpanded ? "Collapse comms detail" : "Expand comms detail")
             }
         }
         .padding(.horizontal, 12)
@@ -247,12 +257,14 @@ struct OpsCommsStrip: View {
                     Image(systemName: "point.3.connected.trianglepath.dotted")
                         .font(.caption2).foregroundColor(ZDDesign.cyanAccent)
                 }
+                .a11yIcon("Mesh topology visualizer")
                 Button {
                     showChannelManager = true
                 } label: {
                     Image(systemName: "slider.horizontal.3")
                         .font(.caption2).foregroundColor(ZDDesign.cyanAccent)
                 }
+                .a11yIcon("Channel manager")
             }
             QuickChannelSwitcher()
 
@@ -337,6 +349,7 @@ struct OpsCommsStrip: View {
                         Image(systemName: "list.bullet.rectangle")
                             .foregroundColor(ZDDesign.cyanAccent)
                     }
+                    .a11yIcon("Quick messages")
                     Button {
                         if !messageText.isEmpty {
                             mesh.sendText(messageText)
@@ -347,6 +360,7 @@ struct OpsCommsStrip: View {
                             .foregroundColor(messageText.isEmpty ? ZDDesign.mediumGray : ZDDesign.cyanAccent)
                     }
                     .disabled(messageText.isEmpty)
+                    .a11yIcon("Send message")
                 }
             }
         }

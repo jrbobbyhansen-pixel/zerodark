@@ -64,6 +64,7 @@ struct OpsTabView: View {
                                     HStack(spacing: 4) {
                                         Image(systemName: mode.icon)
                                             .font(.system(size: 10))
+                                            .accessibilityHidden(true)
                                         Text(mode.rawValue)
                                             .font(.caption)
                                             .fontWeight(.semibold)
@@ -74,6 +75,8 @@ struct OpsTabView: View {
                                     .foregroundColor(opsMode == mode ? .black : ZDDesign.pureWhite)
                                     .cornerRadius(ZDDesign.radiusSmall)
                                 }
+                                .accessibilityLabel("\(mode.rawValue) mode")
+                                .accessibilityAddTraits(opsMode == mode ? [.isButton, .isSelected] : [.isButton])
                             }
                         }
                         .padding(.horizontal)
@@ -126,6 +129,7 @@ struct OpsTabView: View {
                         Image(systemName: "ellipsis.circle")
                             .foregroundColor(ZDDesign.cyanAccent)
                     }
+                    .a11yIcon("Operations menu")
                 }
             }
             .sheet(item: $exportURL) { url in
