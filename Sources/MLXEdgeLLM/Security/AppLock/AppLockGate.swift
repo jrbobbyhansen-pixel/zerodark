@@ -7,11 +7,14 @@ struct AppLockGate<Content: View>: View {
     @ObservedObject private var lock = AppLockManager.shared
     @State private var pinDigits: String = ""
     @State private var errorFlash: Bool = false
+    @State private var lockoutTick: Int = 0   // forces view re-render every second during lockout
     let content: () -> Content
 
     init(@ViewBuilder content: @escaping () -> Content) {
         self.content = content
     }
+
+    private var isLockedOut: Bool { lock.lockoutSecondsRemaining > 0 }
 
     var body: some View {
         ZStack {
@@ -27,6 +30,12 @@ struct AppLockGate<Content: View>: View {
             if lock.canUseBiometrics {
                 await lock.attemptBiometricUnlock()
             }
+        }
+        .task(id: lockoutTick) {
+            // While locked out, tick once per second so the countdown updates.
+            guard isLockedOut else { return }
+            try? await Task.sleep(nanoseconds: 1_000_000_000)
+            lockoutTick &+= 1
         }
     }
 
@@ -45,7 +54,7 @@ struct AppLockGate<Content: View>: View {
                 Text("Locked").font(.headline).foregroundColor(.secondary)
                     .accessibilityAddTraits(.isHeader)
 
-                if lock.canUseBiometrics {
+                if lock.canUseBiometrics && !isLockedOut {
                     Button {
                         Task { await lock.attemptBiometricUnlock() }
                     } label: {
@@ -59,10 +68,18 @@ struct AppLockGate<Content: View>: View {
                     }
                 }
 
-                if lock.hasPin || lock.hasDuressPin {
+                if isLockedOut {
+                    lockoutBanner
+                } else if lock.hasPin || lock.hasDuressPin {
                     pinEntry
                 } else {
                     noPinFallback
+                }
+
+                if lock.consecutiveFailures > 0 && !isLockedOut {
+                    Text("Failed attempts: \(lock.consecutiveFailures)")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
                 }
 
                 if let err = lock.lastError {
@@ -92,12 +109,47 @@ struct AppLockGate<Content: View>: View {
                 .background(errorFlash ? ZDDesign.signalRed.opacity(0.2) : Color.white.opacity(0.08))
                 .cornerRadius(12)
                 .onChange(of: pinDigits) { _, new in
-                    if new.count >= 4 && new.count <= 8 {
+                    // Auto-submit once the operator enters a valid-length PIN.
+                    // Minimum bumped to 6 digits in PR-B4.
+                    if new.count >= AppLockManager.minPinLength && new.count <= AppLockManager.maxPinLength {
                         Task { await submit() }
                     }
                 }
-            Text("Enter your PIN to unlock").font(.caption2).foregroundColor(.secondary)
+                .accessibilityLabel("PIN entry")
+                .accessibilityHint("Minimum \(AppLockManager.minPinLength) digits")
+            Text("Enter your \(AppLockManager.minPinLength)–\(AppLockManager.maxPinLength)-digit PIN to unlock")
+                .font(.caption2).foregroundColor(.secondary)
         }
+    }
+
+    private var lockoutBanner: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "lock.trianglebadge.exclamationmark.fill")
+                .font(.system(size: 40))
+                .foregroundColor(ZDDesign.signalRed)
+                .accessibilityHidden(true)
+            Text("Too many failed attempts")
+                .font(.headline)
+                .foregroundColor(.white)
+            Text("Try again in \(formatLockout(lock.lockoutSecondsRemaining))")
+                .font(.subheadline.monospacedDigit())
+                .foregroundColor(ZDDesign.signalRed)
+                .accessibilityLabel("Try again in \(formatLockout(lock.lockoutSecondsRemaining))")
+            Text("Biometric unlock is also disabled during lockout.")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+        }
+    }
+
+    private func formatLockout(_ seconds: Int) -> String {
+        if seconds >= 60 {
+            let m = seconds / 60
+            let s = seconds % 60
+            return String(format: "%d:%02d", m, s)
+        }
+        return "\(seconds)s"
     }
 
     private var noPinFallback: some View {
