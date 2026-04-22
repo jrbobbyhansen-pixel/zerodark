@@ -59,6 +59,7 @@
 		21778BD6C389C950790377DA /* 98-vehicle-recovery.md in Resources */ = {isa = PBXBuildFile; fileRef = CFE9734B320EB33B158C4DC6 /* 98-vehicle-recovery.md */; };
 		21ECBAA1A6508466E9A7AD46 /* 37-medevac-9line.md in Resources */ = {isa = PBXBuildFile; fileRef = 2FA4D5224172FF3A14A3293F /* 37-medevac-9line.md */; };
 		21FE4E858B8A8D93A194517A /* 55-radio-procedures.md in Resources */ = {isa = PBXBuildFile; fileRef = 863151A64A3628AB38F2D873 /* 55-radio-procedures.md */; };
+		225F3F00B45D61CA587816F1 /* RetryPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8011D5C7A61A49E039EC265D /* RetryPolicy.swift */; };
 		2270D50BAE30CC11200AC27D /* ClimbRouteFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2330231710D85A21869E586 /* ClimbRouteFinder.swift */; };
 		235414608782BB2FB3AB27CA /* AltitudeTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D25653A5E5F89A505186DADC /* AltitudeTracker.swift */; };
 		2380EF92D4C23FE690DB1AB8 /* MedicationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099124A40789475E376A6AE9 /* MedicationTracker.swift */; };
@@ -67,6 +68,7 @@
 		242E8E5169D9BD6E504727C1 /* ThreatReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBA39794A0C757A71306F7B3 /* ThreatReport.swift */; };
 		24360EAEA291400B20C90874 /* GPUViewshed.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7003865C938679215A5D7E1 /* GPUViewshed.swift */; };
 		24AFDE63C8BDA9F2235F1FDD /* 11-bleeding-control.md in Resources */ = {isa = PBXBuildFile; fileRef = 6322701F2CDE6ED0883BC374 /* 11-bleeding-control.md */; };
+		24CB125052745F95CB5D3800 /* ErrorReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 267CB7BAE19A337B3E7FFC58 /* ErrorReporter.swift */; };
 		24CBD6D3ED24C9A73FBACB17 /* 26-urban-navigation.md in Resources */ = {isa = PBXBuildFile; fileRef = C25FD27D86B616E5DA084208 /* 26-urban-navigation.md */; };
 		25700C4996B3B8A6A91CEDFD /* 93-arctic-operations.md in Resources */ = {isa = PBXBuildFile; fileRef = A5F38ACDDF55B14E967AB8D0 /* 93-arctic-operations.md */; };
 		25AEE2D3A7DCEE17EB325F73 /* 28-tourniquet-application.md in Resources */ = {isa = PBXBuildFile; fileRef = 8233890AD17DEFD859F02D91 /* 28-tourniquet-application.md */; };
@@ -620,6 +622,7 @@
 		26284380CDDC15F9EC2FA360 /* DarkModeSystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DarkModeSystem.swift; path = Sources/MLXEdgeLLM/UI/Theme/DarkModeSystem.swift; sourceTree = "<group>"; };
 		2670B8DA4638DE1351B7DD80 /* SatelliteMessageQueue.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SatelliteMessageQueue.swift; path = Sources/MLXEdgeLLM/Hardware/Satellite/SatelliteMessageQueue.swift; sourceTree = "<group>"; };
 		2671E183046EBE56374972AB /* AedTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AedTracker.swift; path = Sources/MLXEdgeLLM/Hardware/Medical/AedTracker.swift; sourceTree = "<group>"; };
+		267CB7BAE19A337B3E7FFC58 /* ErrorReporter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ErrorReporter.swift; path = Sources/MLXEdgeLLM/Security/ErrorReporting/ErrorReporter.swift; sourceTree = "<group>"; };
 		26F4FEDBAF246D21895A4C0E /* 26-desert.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "26-desert.md"; sourceTree = "<group>"; };
 		2743EB55030FFE8684DEFD75 /* 17-insects-grubs.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "17-insects-grubs.md"; sourceTree = "<group>"; };
 		27BBEABE32CB1CBB7AF5C79B /* TerrainComparison.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TerrainComparison.swift; path = Sources/MLXEdgeLLM/SpatialIntelligence/TerrainComparison.swift; sourceTree = "<group>"; };
@@ -899,6 +902,7 @@
 		7FF75B35B033EA5C86828680 /* ObservationLog.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ObservationLog.swift; path = Sources/MLXEdgeLLM/FieldOps/Reports/ObservationLog.swift; sourceTree = "<group>"; };
 		80078D4C2D966C969BA473AE /* TacticalMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TacticalMapView.swift; sourceTree = "<group>"; };
 		80107CDDDFB56C37B087CE41 /* TeamAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamAdapter.swift; sourceTree = "<group>"; };
+		8011D5C7A61A49E039EC265D /* RetryPolicy.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RetryPolicy.swift; path = Sources/MLXEdgeLLM/Security/ErrorReporting/RetryPolicy.swift; sourceTree = "<group>"; };
 		804565B5CD136BEE7CD67D42 /* AltitudeTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AltitudeTracker.swift; path = Sources/MLXEdgeLLM/Services/AltitudeTracker.swift; sourceTree = "<group>"; };
 		8086FDF41817A64352CB47F9 /* MessageQueue.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MessageQueue.swift; path = Sources/MLXEdgeLLM/CommunicationCore/MessageQueue.swift; sourceTree = "<group>"; };
 		808EAFCE3083312D83A68271 /* QuickActions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QuickActions.swift; path = Sources/MLXEdgeLLM/UI/Navigation/QuickActions.swift; sourceTree = "<group>"; };
@@ -2436,6 +2440,8 @@
 				D4196DFBBC092015E79E6750 /* PureLogicTests.swift */,
 				B891D80DC423B96A0C134315 /* Info.plist */,
 				47BEDA9148707BF91C52F78A /* IOTimeout.swift */,
+				267CB7BAE19A337B3E7FFC58 /* ErrorReporter.swift */,
+				8011D5C7A61A49E039EC265D /* RetryPolicy.swift */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3317,6 +3323,8 @@
 				F249AEAF91DBF1F575D89C98 /* FieldReport.swift in Sources */,
 				AC1B664E170AB853567DF87E /* PinnedURLSession.swift in Sources */,
 				4CF91094B8BA6E49B4EFF325 /* IOTimeout.swift in Sources */,
+				24CB125052745F95CB5D3800 /* ErrorReporter.swift in Sources */,
+				225F3F00B45D61CA587816F1 /* RetryPolicy.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
