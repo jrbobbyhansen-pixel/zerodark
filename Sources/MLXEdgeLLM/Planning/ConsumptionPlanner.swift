@@ -81,19 +81,53 @@ class ConsumableTracker: ObservableObject {
 struct ConsumptionPlannerView: View {
     @StateObject private var planner = ConsumptionPlanner()
     @StateObject private var tracker = ConsumableTracker()
+    @State private var exportURL: URL?
+
+    private func exportPlanCSV() -> URL? {
+        var csv = "resource,daily_consumption,unit,resupply_needed\n"
+        let needs = planner.calculateResupplyRequirements()
+        for key in needs.keys.sorted() {
+            let unit = planner.unitFor(key: key)
+            let daily: Double = {
+                switch key {
+                case "Water":     return planner.water.dailyConsumption
+                case "Food":      return planner.food.dailyConsumption
+                case "Batteries": return planner.batteries.dailyConsumption
+                case "Fuel":      return planner.fuel.dailyConsumption
+                case "Ammo":      return planner.ammo.dailyConsumption
+                default:          return 0
+                }
+            }()
+            csv += "\(key),\(daily),\(unit),\(needs[key] ?? 0)\n"
+        }
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("consumption-plan-\(Int(Date().timeIntervalSince1970)).csv")
+        try? csv.write(to: url, atomically: true, encoding: .utf8)
+        return url
+    }
 
     var body: some View {
         Form {
+            Section {
+                Text("All values in metric: liters for water/fuel, kilograms for food, units for batteries, rounds for ammo.")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+
             Section("Mission Parameters") {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Duration: \(Int(planner.missionDuration / 3600))h \(Int(planner.missionDuration.truncatingRemainder(dividingBy: 3600) / 60))m")
                         .font(.caption).foregroundColor(.secondary)
                     Slider(value: $planner.missionDuration, in: 0...86400 * 7)
+                        .accessibilityLabel("Mission duration")
+                        .accessibilityValue("\(Int(planner.missionDuration / 3600)) hours")
                 }
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Resupply every: \(Int(planner.resupplyInterval / 3600))h")
                         .font(.caption).foregroundColor(.secondary)
                     Slider(value: $planner.resupplyInterval, in: 0...86400)
+                        .accessibilityLabel("Resupply interval")
+                        .accessibilityValue("\(Int(planner.resupplyInterval / 3600)) hours")
                 }
             }
 
@@ -105,15 +139,16 @@ struct ConsumptionPlannerView: View {
                         Text(String(format: "%.2f %@", value, planner.unitFor(key: key)))
                             .foregroundColor(.secondary)
                     }
+                    .a11yStatus(label: key, value: String(format: "%.2f %@", value, planner.unitFor(key: key)))
                 }
             }
 
             Section("Track Actual Usage") {
-                HStack { Text("Water"); Spacer(); TextField("0.0", value: $tracker.water, formatter: NumberFormatter()).keyboardType(.decimalPad).multilineTextAlignment(.trailing) }
-                HStack { Text("Food"); Spacer(); TextField("0.0", value: $tracker.food, formatter: NumberFormatter()).keyboardType(.decimalPad).multilineTextAlignment(.trailing) }
-                HStack { Text("Batteries"); Spacer(); TextField("0.0", value: $tracker.batteries, formatter: NumberFormatter()).keyboardType(.decimalPad).multilineTextAlignment(.trailing) }
-                HStack { Text("Fuel"); Spacer(); TextField("0.0", value: $tracker.fuel, formatter: NumberFormatter()).keyboardType(.decimalPad).multilineTextAlignment(.trailing) }
-                HStack { Text("Ammo"); Spacer(); TextField("0.0", value: $tracker.ammo, formatter: NumberFormatter()).keyboardType(.decimalPad).multilineTextAlignment(.trailing) }
+                HStack { Text("Water (L)"); Spacer(); TextField("0.0", value: $tracker.water, formatter: NumberFormatter()).keyboardType(.decimalPad).multilineTextAlignment(.trailing) }
+                HStack { Text("Food (kg)"); Spacer(); TextField("0.0", value: $tracker.food, formatter: NumberFormatter()).keyboardType(.decimalPad).multilineTextAlignment(.trailing) }
+                HStack { Text("Batteries (units)"); Spacer(); TextField("0.0", value: $tracker.batteries, formatter: NumberFormatter()).keyboardType(.decimalPad).multilineTextAlignment(.trailing) }
+                HStack { Text("Fuel (L)"); Spacer(); TextField("0.0", value: $tracker.fuel, formatter: NumberFormatter()).keyboardType(.decimalPad).multilineTextAlignment(.trailing) }
+                HStack { Text("Ammo (rounds)"); Spacer(); TextField("0.0", value: $tracker.ammo, formatter: NumberFormatter()).keyboardType(.decimalPad).multilineTextAlignment(.trailing) }
 
                 Button("Log Consumption") {
                     planner.actualWaterConsumption = tracker.water
@@ -123,8 +158,21 @@ struct ConsumptionPlannerView: View {
                     planner.actualAmmoConsumption = tracker.ammo
                 }
             }
+
+            Section {
+                Button {
+                    exportURL = exportPlanCSV()
+                } label: {
+                    Label("Export Plan (CSV)", systemImage: "square.and.arrow.up")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+            }
         }
         .navigationTitle("Consumption Planner")
+        .sheet(item: $exportURL) { url in
+            ShareSheet(items: [url])
+        }
     }
 }
 
