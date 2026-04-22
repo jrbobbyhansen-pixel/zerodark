@@ -334,6 +334,7 @@
 		B62D00FF671FF53F743C1CE3 /* MultipeerKit in Frameworks */ = {isa = PBXBuildFile; productRef = 497D006DA5BE41749E4D5FA0 /* MultipeerKit */; };
 		B63705E94F3372C6858809D8 /* 41-psychological-first-aid.md in Resources */ = {isa = PBXBuildFile; fileRef = E4708B2949C84FCA70608700 /* 41-psychological-first-aid.md */; };
 		B6909C83A10C24868B131EE4 /* CelestialNavSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE42225A60B91D38EB330A9 /* CelestialNavSheet.swift */; };
+		B7D248A00107BA30C394C06D /* IntegrationHealthMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C87D265C8B72A108F5C33919 /* IntegrationHealthMonitorTests.swift */; };
 		B7F0039A465C16705CB3A4A7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4C0269B5C906DC54521BCFB /* Assets.xcassets */; };
 		B85805A587AFB06FF83BB57C /* 69-target-package.md in Resources */ = {isa = PBXBuildFile; fileRef = 5CBA104D345C196B865EA4F3 /* 69-target-package.md */; };
 		BA11D674BD8D6B83CC98A24D /* OpSecSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E853E3763BE4FEC91D78748F /* OpSecSection.swift */; };
@@ -440,6 +441,7 @@
 		F1BF5A232D3D42B4BFF9CDC3 /* 12-shock.md in Resources */ = {isa = PBXBuildFile; fileRef = A12C823CAE3165D6CA8F1640 /* 12-shock.md */; };
 		F1CD0CB6D9F6F32B804C20B2 /* ScanOverlayToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA80C8ABCA9DBEFAC7B01953 /* ScanOverlayToolbar.swift */; };
 		F249AEAF91DBF1F575D89C98 /* FieldReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32E2A6020316F9A32478312 /* FieldReport.swift */; };
+		F25B7F68C83A26922AE33EEE /* IntegrationHealthMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FF85F40334C0562A3701DC /* IntegrationHealthMonitor.swift */; };
 		F2BA891B986A834CC2C96CC5 /* RoadTrailDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4ED8F1EBC46FCED0AA05FB3 /* RoadTrailDetector.swift */; };
 		F358A2E7E16BE68134643ABB /* KnowledgeRAG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D573F511F6EDC04B1A28F71 /* KnowledgeRAG.swift */; };
 		F3A8B2ACA843653799463B86 /* 97-natural-disaster-response.md in Resources */ = {isa = PBXBuildFile; fileRef = 41A3D5A770640648FE953426 /* 97-natural-disaster-response.md */; };
@@ -1036,6 +1038,7 @@
 		A6B0D9E4AB9B5D99A1522F28 /* ActionValidator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ActionValidator.swift; path = Sources/MLXEdgeLLM/AI/Tools/ActionValidator.swift; sourceTree = "<group>"; };
 		A74667128C1B2A170D5B00FA /* ThreatIntel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ThreatIntel.swift; path = Sources/MLXEdgeLLM/Security/Incident/ThreatIntel.swift; sourceTree = "<group>"; };
 		A8938BB7A5AE69F39B7F11B5 /* 03-starting.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "03-starting.md"; sourceTree = "<group>"; };
+		A8FF85F40334C0562A3701DC /* IntegrationHealthMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IntegrationHealthMonitor.swift; path = Sources/MLXEdgeLLM/Services/IntegrationHealthMonitor.swift; sourceTree = "<group>"; };
 		A93EFAEE128A289A78684FF6 /* DstarData.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DstarData.swift; path = Sources/MLXEdgeLLM/Interop/Radio/DstarData.swift; sourceTree = "<group>"; };
 		A9A2CB5F036875FCDA768BB7 /* 87-building-assessment.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "87-building-assessment.md"; sourceTree = "<group>"; };
 		AA2DEA82F9B704E13001BD97 /* AccessLog.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AccessLog.swift; path = Sources/MLXEdgeLLM/Security/Access/AccessLog.swift; sourceTree = "<group>"; };
@@ -1151,6 +1154,7 @@
 		C7F280F9435894F2A1C5DB49 /* 45-react-to-contact.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "45-react-to-contact.md"; sourceTree = "<group>"; };
 		C8018E4F61A87475228651BF /* PropsManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PropsManager.swift; path = Sources/MLXEdgeLLM/Training/Field/PropsManager.swift; sourceTree = "<group>"; };
 		C80F379265B732D0E8C785FB /* 99-vehicle-security.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "99-vehicle-security.md"; sourceTree = "<group>"; };
+		C87D265C8B72A108F5C33919 /* IntegrationHealthMonitorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IntegrationHealthMonitorTests.swift; path = Tests/MLXEdgeLLMTests/IntegrationHealthMonitorTests.swift; sourceTree = "<group>"; };
 		C91175DC8B38832CB869E1EE /* MeshtasticProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MeshtasticProtocol.swift; path = Sources/MLXEdgeLLM/Interop/Mesh/MeshtasticProtocol.swift; sourceTree = "<group>"; };
 		C9A8F2C3E7338EFF0AF7239B /* 38-mass-casualty-triage.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "38-mass-casualty-triage.md"; sourceTree = "<group>"; };
 		C9D1191C0E8055158AE1AA57 /* TeamSkills.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TeamSkills.swift; path = Sources/MLXEdgeLLM/Training/Skills/TeamSkills.swift; sourceTree = "<group>"; };
@@ -1540,6 +1544,7 @@
 				F0F1D385223149A46DAC7EA6 /* GeofenceTests.swift */,
 				714B6F48FB56CDADA7421E5B /* MARCHTests.swift */,
 				4A883C63820FAD5E975FF249 /* AppLockTests.swift */,
+				C87D265C8B72A108F5C33919 /* IntegrationHealthMonitorTests.swift */,
 			);
 			name = MLXEdgeLLMTests;
 			sourceTree = "<group>";
@@ -1616,6 +1621,7 @@
 			children = (
 				210B51EA24FAF43C9EEE3F70 /* AI */,
 				6E51C7B1F5B94C1E33C16ED7 /* AarBuilder.swift */,
+				65DC1D338888B222FC3E437B /* Services */,
 			);
 			name = MLXEdgeLLM;
 			sourceTree = "<group>";
@@ -1656,6 +1662,14 @@
 				23ECD93496738827D5E6C8C6 /* HAMMERAcousticModem.swift */,
 			);
 			path = HAMMER;
+			sourceTree = "<group>";
+		};
+		65DC1D338888B222FC3E437B /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A8FF85F40334C0562A3701DC /* IntegrationHealthMonitor.swift */,
+			);
+			name = Services;
 			sourceTree = "<group>";
 		};
 		67F1C71C53192820078E8A7F /* Core */ = {
@@ -3093,6 +3107,7 @@
 				0F1CC0428268A89D12EEAD5D /* GeofenceTests.swift in Sources */,
 				016DAA40124B50F76FBA8158 /* MARCHTests.swift in Sources */,
 				17DEFB38AA33233C797A518F /* AppLockTests.swift in Sources */,
+				B7D248A00107BA30C394C06D /* IntegrationHealthMonitorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3373,6 +3388,7 @@
 				24CB125052745F95CB5D3800 /* ErrorReporter.swift in Sources */,
 				225F3F00B45D61CA587816F1 /* RetryPolicy.swift in Sources */,
 				1134D7155B4F55FA12F5B98A /* LoggerConvenience.swift in Sources */,
+				F25B7F68C83A26922AE33EEE /* IntegrationHealthMonitor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
