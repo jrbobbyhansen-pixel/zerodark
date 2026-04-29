@@ -115,7 +115,6 @@
 		3479EB82283B493AEA3ADD2B /* MissionClock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32BCE4E96379317ED6809CEB /* MissionClock.swift */; };
 		34A3B7BC672F17CCF12BA8CC /* MeasurementOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF811EF989D9D3BB05CB59ED /* MeasurementOverlayView.swift */; };
 		34C52125C71545526CA5430B /* 09-site-selection.md in Resources */ = {isa = PBXBuildFile; fileRef = 30F503DD4609E1E45331712D /* 09-site-selection.md */; };
-		35963624669DD0463FA1C53F /* phi-3.5-mini.gguf in Resources */ = {isa = PBXBuildFile; fileRef = CA013B26E79517D6B5774A23 /* phi-3.5-mini.gguf */; };
 		364D05E829165C3C3485BC9C /* 15-hunting-trapping.md in Resources */ = {isa = PBXBuildFile; fileRef = 93313E241868535829F051E7 /* 15-hunting-trapping.md */; };
 		3681352145784C1AA14EBBED /* MeshAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69D8F07ADF3FEC5906E95EE9 /* MeshAdapter.swift */; };
 		37BE4BC4DAB79FDA2D834C04 /* MeshVisualizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04DD4801FE3530A7AEA705DE /* MeshVisualizer.swift */; };
@@ -1151,7 +1150,6 @@
 		C91175DC8B38832CB869E1EE /* MeshtasticProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MeshtasticProtocol.swift; path = Sources/MLXEdgeLLM/Interop/Mesh/MeshtasticProtocol.swift; sourceTree = "<group>"; };
 		C9A8F2C3E7338EFF0AF7239B /* 38-mass-casualty-triage.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "38-mass-casualty-triage.md"; sourceTree = "<group>"; };
 		C9D1191C0E8055158AE1AA57 /* TeamSkills.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TeamSkills.swift; path = Sources/MLXEdgeLLM/Training/Skills/TeamSkills.swift; sourceTree = "<group>"; };
-		CA013B26E79517D6B5774A23 /* phi-3.5-mini.gguf */ = {isa = PBXFileReference; path = "phi-3.5-mini.gguf"; sourceTree = "<group>"; };
 		CA7D0CAA187C00D36AF55796 /* InferenceClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InferenceClient.swift; sourceTree = "<group>"; };
 		CA80941525121DDF52D29DEA /* IncidentDetector.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IncidentDetector.swift; path = Sources/MLXEdgeLLM/Security/Incident/IncidentDetector.swift; sourceTree = "<group>"; };
 		CAC15BCF9FDA795D842234FD /* ProjectionHandler.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ProjectionHandler.swift; path = Sources/MLXEdgeLLM/Interop/GIS/ProjectionHandler.swift; sourceTree = "<group>"; };
@@ -2713,7 +2711,6 @@
 		CFF20A4D95303E125BD4300B /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				CA013B26E79517D6B5774A23 /* phi-3.5-mini.gguf */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -3113,7 +3110,6 @@
 				21778BD6C389C950790377DA /* 98-vehicle-recovery.md in Resources */,
 				4956FB1CE145E6D6D2F06A36 /* 99-vehicle-security.md in Resources */,
 				B7F0039A465C16705CB3A4A7 /* Assets.xcassets in Resources */,
-				35963624669DD0463FA1C53F /* phi-3.5-mini.gguf in Resources */,
 				EE584C300AB90601DAE7918E /* PrivacyInfo.xcprivacy in Resources */,
 				B2D3BD26E8BF7970D3B66913 /* Localizable.strings in Resources */,
 			);
