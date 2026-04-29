@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 // MARK: - Design System
 
@@ -75,5 +76,6 @@ struct ZeroDarkApp: App {
                     }
             }
         }
+        .modelContainer(ZeroDarkModelContainer.shared)
     }
 }

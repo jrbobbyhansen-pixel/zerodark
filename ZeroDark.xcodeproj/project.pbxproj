@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8AFE1CD264BBDCA40AAA7ED7 /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3FE4FEB2D06C0C6169F8226 /* SwiftDataModels.swift */; };
 		009F1B2E9357A4601A4701C3 /* 35-heat-injuries.md in Resources */ = {isa = PBXBuildFile; fileRef = 428A93DEE055293DB509BBC0 /* 35-heat-injuries.md */; };
 		016DAA40124B50F76FBA8158 /* MARCHTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 714B6F48FB56CDADA7421E5B /* MARCHTests.swift */; };
 		01CD9BC0A9C34877E82138F7 /* 40-infections-sepsis.md in Resources */ = {isa = PBXBuildFile; fileRef = 5D63E6E785FB6E0400A3087E /* 40-infections-sepsis.md */; };
@@ -468,6 +469,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D3FE4FEB2D06C0C6169F8226 /* SwiftDataModels.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SwiftDataModels.swift; path = Sources/MLXEdgeLLM/Coordination/Persistence/SwiftDataModels.swift; sourceTree = "<group>"; };
 		001A0DB317464528450B12F6 /* DiscussionTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DiscussionTracker.swift; path = Sources/MLXEdgeLLM/Training/Tabletop/DiscussionTracker.swift; sourceTree = "<group>"; };
 		007B0CE6CBE12CB052F751AE /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		0138523D8EF14370F9CDC24C /* ThreatClassifierTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ThreatClassifierTests.swift; path = Tests/MLXEdgeLLMTests/ThreatClassifierTests.swift; sourceTree = "<group>"; };
@@ -3149,6 +3151,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8AFE1CD264BBDCA40AAA7ED7 /* SwiftDataModels.swift in Sources */,
 				CD3AE23A2C08880D464F694C /* ActionBoundary.swift in Sources */,
 				3F01C6E866DC2706103C53B4 /* ActivityFeed.swift in Sources */,
 				F0B96B7BFBE269AB4B057A47 /* AppConfig.swift in Sources */,
