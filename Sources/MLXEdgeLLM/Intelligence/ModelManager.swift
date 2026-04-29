@@ -1,5 +1,14 @@
 import Foundation
 
+/// Reports model install state to the Settings UI.
+///
+/// Architecture note: ZeroDark migrated from llama.cpp+GGUF to MLX-Swift.
+/// The MLX engine downloads weights from HuggingFace at runtime
+/// (`mlx-community/Phi-3.5-mini-instruct-4bit`) and caches them in
+/// `~/Library/Caches/huggingface/hub/...`. There is no app-bundle GGUF in
+/// the live inference path. This manager surfaces the MLX cache size +
+/// load state so users know whether the model is ready or still
+/// downloading.
 @MainActor
 final class ModelManager: ObservableObject {
     static let shared = ModelManager()
@@ -10,36 +19,43 @@ final class ModelManager: ObservableObject {
 
     private init() {}
 
+    /// True when the MLX engine reports a loaded model.
     var modelInstalled: Bool {
-        FileManager.default.fileExists(atPath: LocalInferenceEngine.modelPath.path)
+        LocalInferenceEngine.shared.modelState == .ready
     }
 
+    /// Best-effort estimate of installed model size on disk. Walks the
+    /// HuggingFace Hub cache directory under Caches/huggingface and sums
+    /// the size of any `mlx-community/Phi-3.5-mini-instruct-4bit` snapshot.
+    /// Returns a human-readable string for UI display ("Unknown" if not
+    /// found yet — typical state before first model load completes).
     var installedModelSize: String {
-        guard let attrs = try? FileManager.default.attributesOfItem(atPath: LocalInferenceEngine.modelPath.path),
-              let size = attrs[.size] as? Int64 else { return "Unknown" }
-        return ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
+        let bytes = Self.computeMLXCacheBytes()
+        guard bytes > 0 else { return "Unknown" }
+        return ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
     }
 
-    func installFromBundle() async {
-        // INTENTIONAL_STUB: Bundle resource copy for 2.2GB model — Phase 8c
-        // Only works if model is added as a resource in project.yml.
-        // For development, copy manually:
-        // cp ~/Desktop/bitnet-test/models/Phi-3.5-mini-instruct-Q4_K_M.gguf
-        //    ~/Library/Developer/CoreSimulator/.../ZeroDark/Documents/Models/phi-3.5-mini.gguf
-        guard let bundleURL = Bundle.main.url(forResource: "phi-3.5-mini", withExtension: "gguf") else {
-            copyError = "Model not found in app bundle. Copy manually via Files app."
-            return
+    private static func computeMLXCacheBytes() -> Int64 {
+        let fm = FileManager.default
+        guard let cachesURL = fm.urls(for: .cachesDirectory, in: .userDomainMask).first else { return 0 }
+        let modelDir = cachesURL
+            .appendingPathComponent("huggingface", isDirectory: true)
+            .appendingPathComponent("hub", isDirectory: true)
+        guard let enumerator = fm.enumerator(
+            at: modelDir,
+            includingPropertiesForKeys: [.isRegularFileKey, .fileSizeKey],
+            options: [.skipsHiddenFiles]
+        ) else { return 0 }
+
+        var total: Int64 = 0
+        for case let url as URL in enumerator {
+            // Only count files within an mlx-community Phi-3.5 snapshot.
+            guard url.path.contains("Phi-3.5-mini") else { continue }
+            let values = try? url.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey])
+            guard values?.isRegularFile == true,
+                  let sz = values?.fileSize else { continue }
+            total += Int64(sz)
         }
-        let destDir = LocalInferenceEngine.modelPath.deletingLastPathComponent()
-        try? FileManager.default.createDirectory(at: destDir, withIntermediateDirectories: true)
-        isCopying = true
-        copyProgress = 0.0
-        do {
-            try FileManager.default.copyItem(at: bundleURL, to: LocalInferenceEngine.modelPath)
-            copyProgress = 1.0
-        } catch {
-            copyError = error.localizedDescription
-        }
-        isCopying = false
+        return total
     }
 }
