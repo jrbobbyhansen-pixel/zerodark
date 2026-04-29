@@ -2,7 +2,7 @@
 
 An open-source iOS tactical operations platform built on SwiftUI and on-device AI. Designed for field teams who need mapping, navigation, communications, and intelligence tools that work without cell service.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Swift](https://img.shields.io/badge/Swift-5.9+-orange.svg)](https://swift.org)
 [![Platform](https://img.shields.io/badge/Platform-iOS%2017%2B-blue.svg)](https://apple.com)
 
@@ -16,7 +16,7 @@ ZeroDark puts a full tactical toolkit on your iPhone or iPad — mapping, mesh c
 
 - **Map** — SwiftUI Map with TAK peer tracking, MGRS grid overlay, range rings, breadcrumb trails, terrain contours, waypoint management, offline tile support, and line-of-sight raycast
 - **LiDAR** — 3D point cloud capture and mesh export using ARKit
-- **Intel** — Hybrid RAG search over a tactical knowledge base (115+ field manuals), threat scoring, and AI-generated situation reports
+- **Intel** — Hybrid RAG search over a tactical knowledge base (157 field manuals), threat scoring, and AI-generated situation reports
 - **Ops** — Mission planning, team dashboard, comms strip, after-action reports, and OPSEC checklists
 
 ---
@@ -45,10 +45,10 @@ ZeroDark puts a full tactical toolkit on your iPhone or iPad — mapping, mesh c
 - **PTT Voice** — Push-to-talk voice relay over mesh
 
 ### Intelligence
-- **Tactical Knowledge Base** — 115+ field manuals covering medical, navigation, comms, SERE, urban ops, and more
+- **Tactical Knowledge Base** — 157 field manuals covering medical, navigation, comms, SERE, urban ops, and more
 - **Hybrid RAG Search** — Full-text + vector search with Reciprocal Rank Fusion for relevant results
 - **Threat Scoring** — Cross-tab threat analysis that syncs between Intel and Map tabs
-- **On-Device LLM** — MLX-powered inference (Llama, Qwen, DeepSeek) for situation analysis and field queries
+- **On-Device LLM** — Local inference (GGUF format, e.g. Phi-3.5-mini) for situation analysis and field queries when bundled. Optional — app works fully without it.
 
 ### Field Operations
 - **Mission Planning** — Briefings, phase tracking, contingency planning, objective management
@@ -67,7 +67,7 @@ Sources/MLXEdgeLLM/
 ├── CommunicationCore/  # TAK, Meshtastic, DTN, haptic, voice
 ├── Coordination/    # Team management, task assignment, incident logging
 ├── FieldOps/        # Mission planning, reports, team ops
-├── Hardware/        # Drone integration, sensor bridges
+├── Hardware/        # External hardware bridges (GPS, Medical, Power, Radio, Satellite, Sensors, Thermal, Vehicle)
 ├── Intelligence/    # Threat tracking, pattern analysis, SITREP generation
 ├── Interop/         # GIS handlers (KML, Shapefile, GeoPackage, GPX)
 ├── LiDAR/           # Point cloud capture and processing
@@ -76,7 +76,7 @@ Sources/MLXEdgeLLM/
 ├── Medical/         # TCCC, triage, pharmacy reference
 ├── Navigation/      # EKF engine, LOS raycast, dead reckoning, terrain analysis
 ├── Planning/        # Route planning, contingency, resource allocation
-├── Resources/       # Knowledge base (115+ field manuals), model configs
+├── Resources/       # Knowledge base (157 field manuals), model configs
 ├── Scenarios/       # HazMat, SAR, wildfire, active shooter response
 ├── Security/        # Encryption, session keys, geofencing, runtime safety
 ├── Services/        # Weather, hydration calc, sun/moon, altitude tracking
@@ -132,7 +132,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. The codebase is organized
 
 ## License
 
-MIT License. See [LICENSE](LICENSE).
+GNU General Public License v3.0. See [LICENSE](LICENSE).
+
+Forks must remain open-source under the same license. This is intentional — ZeroDark is built for civilian preparedness, and tools meant to keep people safe should not be locked behind closed-source forks.
 
 ---
 
