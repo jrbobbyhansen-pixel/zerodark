@@ -108,9 +108,7 @@ struct ReportsSection: View {
             NavigationStack { SitrepView() }
         }
         .sheet(isPresented: $showAARSheet) {
-            NavigationStack {
-                ComingSoonView(title: "AAR Report", icon: "doc.badge.clock.fill", description: "After Action Report with structured observations and mesh relay")
-            }
+            AARBuilderView()
         }
     }
 }

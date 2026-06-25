@@ -47,6 +47,7 @@ public class TelemetryStore: NSObject, ObservableObject {
         registerAdapter(LocationTelemetryAdapter(objectType: .position))
         registerAdapter(TeamTelemetryAdapter(objectType: .team))
         registerAdapter(ThreatTelemetryAdapter(objectType: .threat))
+        registerAdapter(WeatherTelemetryAdapter(objectType: .weather))
 
         // Create objects for all types
         for type in TelemetryObjectType.allCases {
