@@ -210,9 +210,12 @@ private enum Terrain3DSceneBuilder {
                                           primitiveType: .point,
                                           primitiveCount: n,
                                           bytesPerIndex: MemoryLayout<Int32>.size)
-        element.pointSize            = 2.0
-        element.minimumPointScreenSpaceRadius = 1.0
-        element.maximumPointScreenSpaceRadius = 4.0
+        // Render points large enough to read as structure rather than 1–4px
+        // specks. Lit/height-colored shading is a follow-up gated on the
+        // normals/color sidecar (LiDAR fix step 4).
+        element.pointSize            = 7.0
+        element.minimumPointScreenSpaceRadius = 2.0
+        element.maximumPointScreenSpaceRadius = 14.0
 
         let geo = SCNGeometry(sources: [vSource], elements: [element])
         let mat = SCNMaterial()
