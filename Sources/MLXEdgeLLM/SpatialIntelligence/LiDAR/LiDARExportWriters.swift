@@ -115,7 +115,37 @@ public enum LiDARExportWriters {
             }
         }
 
-        // Assemble SCNGeometry with a flat gray material.
+        // Extract per-vertex normals and rotate them into world space using
+        // the anchor's rotation (upper-left 3×3 of the transform). Without
+        // normals SceneKit cannot shade the mesh — it renders as a flat,
+        // unlit silhouette, which is the root cause of the "gray blob" scan
+        // renderings. ARMeshGeometry always supplies one normal per vertex.
+        var normalSource: SCNGeometrySource?
+        if anchor.geometry.normals.count == vertexCount {
+            var worldNormals: [SCNVector3] = []
+            worldNormals.reserveCapacity(vertexCount)
+            let normals = anchor.geometry.normals
+            let normalBuffer = normals.buffer.contents()
+            let normalStride = normals.stride
+            let normalOffset = normals.offset
+            let t = anchor.transform
+            let rotation = simd_float3x3(
+                SIMD3<Float>(t.columns.0.x, t.columns.0.y, t.columns.0.z),
+                SIMD3<Float>(t.columns.1.x, t.columns.1.y, t.columns.1.z),
+                SIMD3<Float>(t.columns.2.x, t.columns.2.y, t.columns.2.z)
+            )
+            for i in 0..<vertexCount {
+                let ptr = normalBuffer.advanced(by: normalOffset + i * normalStride)
+                    .bindMemory(to: SIMD3<Float>.self, capacity: 1)
+                let world = simd_normalize(rotation * ptr.pointee)
+                worldNormals.append(SCNVector3(world.x, world.y, world.z))
+            }
+            normalSource = SCNGeometrySource(normals: worldNormals)
+        }
+
+        // Assemble SCNGeometry with a lit, physically-based material so the
+        // model reads as a real surface in the in-app gallery (whose 3-point
+        // lighting now has normals to work with) and in external USDZ viewers.
         let positionSource = SCNGeometrySource(vertices: positions)
         let indexData = Data(bytes: indices, count: indices.count * MemoryLayout<UInt32>.size)
         let element = SCNGeometryElement(
@@ -124,10 +154,15 @@ public enum LiDARExportWriters {
             primitiveCount: faceCount,
             bytesPerIndex: MemoryLayout<UInt32>.size
         )
-        let scnGeometry = SCNGeometry(sources: [positionSource], elements: [element])
+        var sources = [positionSource]
+        if let normalSource { sources.append(normalSource) }
+        let scnGeometry = SCNGeometry(sources: sources, elements: [element])
 
         let material = SCNMaterial()
-        material.diffuse.contents = UIColor.gray.withAlphaComponent(0.8)
+        material.lightingModel = .physicallyBased
+        material.diffuse.contents = UIColor(white: 0.80, alpha: 1.0)
+        material.metalness.contents = 0.0
+        material.roughness.contents = 0.85
         material.isDoubleSided = true
         scnGeometry.materials = [material]
 
