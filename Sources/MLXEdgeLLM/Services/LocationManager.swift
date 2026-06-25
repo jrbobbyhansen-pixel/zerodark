@@ -83,6 +83,14 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         Task { @MainActor in
             LocationManager.shared.currentLocation = loc.coordinate
             LocationManager.shared.lastKnownLocation = loc.coordinate
+            // Feed altitude/location-dependent services (AltitudeTracker, HydrationCalc,
+            // SunCalculator, MoonPhase). Posted AFTER currentLocation is set so the
+            // Sun/Moon observers' refresh() reads the updated coordinate.
+            NotificationCenter.default.post(
+                name: Notification.Name("ZD.locationUpdate"),
+                object: nil,
+                userInfo: ["altitude": loc.altitude]
+            )
         }
     }
 }

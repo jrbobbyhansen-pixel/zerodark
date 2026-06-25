@@ -24,6 +24,7 @@ struct TacticalScannerView: View {
     @StateObject private var scanner = TacticalScanner()
     @State private var selectedMode: ScanMode = .qr
     @State private var showResult = false
+    @State private var morseText = ""
     @Environment(\.dismiss) var dismiss: DismissAction
 
     var body: some View {
@@ -97,6 +98,14 @@ struct TacticalScannerView: View {
                     // Mode-specific controls
                     if selectedMode == .torch {
                         VStack(spacing: 8) {
+                            TextField("Message to send", text: $morseText)
+                                .textInputAutocapitalization(.characters)
+                                .autocorrectionDisabled(true)
+                                .padding(12)
+                                .background(ZDDesign.darkCard.opacity(0.5))
+                                .cornerRadius(6)
+                                .foregroundColor(ZDDesign.pureWhite)
+
                             Button(action: { Task { scanner.sendSOS() } }) {
                                 HStack {
                                     Image(systemName: "flashlight.on.fill")
@@ -109,7 +118,11 @@ struct TacticalScannerView: View {
                                 .foregroundColor(.red)
                             }
 
-                            Button(action: {}) {
+                            Button(action: {
+                                let message = morseText.trimmingCharacters(in: .whitespacesAndNewlines)
+                                guard !message.isEmpty else { return }
+                                Task { await scanner.sendMorse(text: message) }
+                            }) {
                                 HStack {
                                     Image(systemName: "ellipsis")
                                     Text("Send Morse")

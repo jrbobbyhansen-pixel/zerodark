@@ -168,6 +168,41 @@ struct PlanningToolsSection: View {
                     destination: ElevationProfileView()
                 )
 
+                OpsSectionHeader(icon: "location.north.line.fill", title: "NAVIGATION", color: ZDDesign.cyanAccent)
+                    .padding(.top, 4)
+
+                PlanningCard(
+                    title: "HLZ Finder",
+                    subtitle: "Scan terrain for helicopter landing zones — slope, obstacles, approach assessment",
+                    icon: "helicopter",
+                    color: ZDDesign.cyanAccent,
+                    destination: HLZFinderView()
+                )
+
+                PlanningCard(
+                    title: "Water Crossing Analyzer",
+                    subtitle: "Find fordable stream crossings from LiDAR — depth, current, bank approach",
+                    icon: "water.waves",
+                    color: .blue,
+                    destination: WaterCrossingAnalyzerView()
+                )
+
+                PlanningCard(
+                    title: "Evacuation Route Planner",
+                    subtitle: "Terrain-aware routes to a destination — fastest, safest, lowest-exposure",
+                    icon: "arrow.triangle.turn.up.right.diamond.fill",
+                    color: ZDDesign.signalRed,
+                    destination: EvacuationRoutePlannerView()
+                )
+
+                PlanningCard(
+                    title: "Line of Sight Analyzer",
+                    subtitle: "Terrain profile, Fresnel zones, and radio-link planning between two points",
+                    icon: "eye.trianglebadge.exclamationmark.fill",
+                    color: ZDDesign.forestGreen,
+                    destination: LineOfSightAnalyzerView()
+                )
+
                 OpsSectionHeader(icon: "cloud.sun.fill", title: "ENVIRONMENT", color: ZDDesign.safetyYellow)
                     .padding(.top, 4)
 
